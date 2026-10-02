@@ -179,3 +179,40 @@ describe('naming a region for a file', () => {
     expect(regionFileStem({ name: '' })).toEqual('region');
   });
 });
+
+describe('stored regional facts on the illustrative map', () => {
+  it('shares fact IDs and saved names with the gazetteer, including edited names', () => {
+    const edited = {
+      ...snapshot,
+      facts: {
+        ...snapshot.facts,
+        habitats: snapshot.facts.habitats.map((fact, index) => ({
+          ...fact,
+          name: `Habitat ${index}`,
+        })),
+        notables: snapshot.facts.notables.map((fact, index) => ({
+          ...fact,
+          name: `Notable ${index}`,
+        })),
+      },
+    };
+    const svg = regionToMapSvg(edited);
+    const prose = regionToMarkdown(edited);
+    const facts = [...edited.facts.habitats, ...edited.facts.notables];
+    const shown = facts.filter((fact) => svg.includes(`data-feature-id="${fact.id}"`));
+    expect(shown.length).toBeGreaterThan(0);
+    for (const fact of shown) {
+      expect(svg).toContain(fact.name);
+      expect(prose).toContain(fact.name);
+    }
+    expect(svg).toEqual(regionToMapSvg(edited));
+  });
+  it('keeps old maps usable without regional facts', () => {
+    const legacy = { ...snapshot, facts: { ...snapshot.facts, habitats: [], notables: [] } };
+    const svg = regionToMapSvg(legacy);
+    expect(svg).toContain('<svg');
+    expect(svg).not.toContain('data-feature-marker');
+    expect(svg).not.toContain('data-feature-kind="habitat"');
+    expect(svg).toContain(`data-feature-id="${snapshot.settlements[0].id}"`);
+  });
+});

@@ -23,24 +23,22 @@ import {
   sampleRiverCurve,
 } from './river_paths';
 
-export type RegionMapSvgSettlement = {
-  mapNodeId?: number;
-  isCapital?: boolean;
-  name?: string;
-  /** Drives label size, so a city reads larger than a hamlet. */
-  population?: number;
-};
+import type {
+  RegionMapSvgSettlement,
+  RegionMapSvgOptions,
+  RegionMapSvgFeature,
+} from './region_map_svg_types';
+export type {
+  RegionMapSvgSettlement,
+  RegionMapSvgOptions,
+  RegionMapSvgFeature,
+} from './region_map_svg_types';
 
 /** Default max pixel size; aspect ratio of map.width:map.height is preserved (fits inside this box). */
 const DEFAULT_SVG_MAX_WIDTH = 900;
 const DEFAULT_SVG_MAX_HEIGHT = 600;
 
 const PARCHMENT_FILL = CARTOGRAPHY.ground.fill;
-
-export type RegionMapSvgOptions = {
-  title?: string;
-  settlements?: RegionMapSvgSettlement[];
-};
 
 /**
  * Coordinates are emitted at three decimals. The viewBox is in map units scaled by ~15 to reach pixel
@@ -966,7 +964,7 @@ function appendSettlements(
   const stars: string[] = [];
   for (const s of settlements) {
     if (s.mapNodeId === undefined) continue;
-    const node = map.nodes[s.mapNodeId];
+    const node = map.nodes.find((node) => node.id === s.mapNodeId);
     if (!node) continue;
     const x = node.center.x;
     const y = node.center.y;
@@ -977,11 +975,11 @@ function appendSettlements(
       // less work.
       stars.push(
         `<text x="${n(x + 0.05)}" y="${n(y + 0.07)}" font-size="${n(r * 3)}" fill="${SYMBOL_SHADOW_INK}" fill-opacity="${SYMBOL_SHADOW_OPACITY}">${escapeXml('★')}</text>`,
-        `<text x="${n(x)}" y="${n(y)}" font-size="${n(r * 3)}" fill="${CARTOGRAPHY.palette.text.color}">${escapeXml('★')}</text>`,
+        `<text x="${n(x)}" y="${n(y)}" font-size="${n(r * 3)}" ${featureIdentity(s.id, 'settlement')} fill="${CARTOGRAPHY.palette.text.color}">${escapeXml('★')}</text>`,
       );
     } else {
       rings.push(
-        `<circle cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}"/>`,
+        `<circle ${featureIdentity(s.id, 'settlement')} cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}"/>`,
       );
     }
   }
@@ -1315,6 +1313,7 @@ function labelCandidates(
 }
 
 type PlaceableLabel = {
+  id?: string;
   name: string;
   point: Vertex;
   markerExtent: number;
@@ -1331,9 +1330,10 @@ function listPlaceableLabels(
   const out: PlaceableLabel[] = [];
   for (const s of settlements) {
     if (s.mapNodeId === undefined || s.name === undefined || s.name.length === 0) continue;
-    const node = map.nodes[s.mapNodeId];
+    const node = map.nodes.find((node) => node.id === s.mapNodeId);
     if (!node) continue;
     out.push({
+      id: s.id,
       name: s.name,
       point: node.center,
       markerExtent: settlementMarkerExtent(s, node, map),
@@ -1419,13 +1419,17 @@ function layoutSettlementLabels(
 
     taken.push(placement.box);
     parts.push(
-      textElement(
-        label.name,
-        placement.candidate.x,
-        placement.candidate.baselineY,
-        label.fontSize,
-        placement.candidate.anchor,
-        LABEL_HALO_EMS,
+      identifyText(
+        textElement(
+          label.name,
+          placement.candidate.x,
+          placement.candidate.baselineY,
+          label.fontSize,
+          placement.candidate.anchor,
+          LABEL_HALO_EMS,
+        ),
+        label.id,
+        'settlement',
       ),
     );
   }
@@ -1433,12 +1437,121 @@ function layoutSettlementLabels(
   return parts;
 }
 
+function featureIdentity(id: string | undefined, kind: string): string {
+  return id === undefined ? '' : `data-feature-id="${escapeXml(id)}" data-feature-kind="${kind}"`;
+}
+
+function identifyText(parts: TextParts, id: string | undefined, kind: string): TextParts {
+  if (id === undefined) return parts;
+  const identity = featureIdentity(id, kind);
+  return {
+    ...parts,
+    halo: `<g ${identity}>${parts.halo}</g>`,
+    ink: `<g ${identity}>${parts.ink}</g>`,
+  };
+}
+
+/** Use an actual member cell nearest the footprint centre; never label a gap between patches. */
+function featurePoint(feature: RegionMapSvgFeature, map: RegionMap): Vertex | undefined {
+  const ids = new Set(feature.nodeIds);
+  for (const edge of map.edges) {
+    if (!feature.edgeIds.includes(edge.id)) continue;
+    ids.add(edge.d0);
+    if (edge.d1 !== undefined) ids.add(edge.d1);
+  }
+  const nodes = map.nodes.filter((node) => ids.has(node.id) && !isWaterNode(node));
+  if (nodes.length === 0) return undefined;
+  const x = nodes.reduce((sum, node) => sum + node.center.x, 0) / nodes.length;
+  const y = nodes.reduce((sum, node) => sum + node.center.y, 0) / nodes.length;
+  nodes.sort(
+    (a, b) =>
+      Math.hypot(a.center.x - x, a.center.y - y) - Math.hypot(b.center.x - x, b.center.y - y) ||
+      a.id - b.id,
+  );
+  return nodes[0].center;
+}
+
+/** Optional facts yield to settlements and furniture. A symbol is emitted only with a clear label. */
+function appendRegionalFeatures(
+  map: RegionMap,
+  features: RegionMapSvgFeature[],
+  occupied: TextBox[],
+  texts: TextParts[],
+  body: string[],
+): void {
+  const scale = Math.min(map.width, map.height) / 35;
+  const ranked = [...features].sort(
+    (a, b) =>
+      Number(a.kind === 'habitat') - Number(b.kind === 'habitat') ||
+      b.nodeIds.length - a.nodeIds.length ||
+      a.id.localeCompare(b.id),
+  );
+  let habitats = 0,
+    notables = 0;
+  for (const feature of ranked) {
+    if (!feature.name.trim()) continue;
+    if (feature.kind === 'habitat' ? habitats >= 3 : notables >= 4) continue;
+    const point = featurePoint(feature, map);
+    if (!point) continue;
+    const radius = feature.kind === 'habitat' ? 0 : 0.3 * scale;
+    const markerBox = {
+      minX: point.x - radius - 0.08 * scale,
+      maxX: point.x + radius + 0.08 * scale,
+      minY: point.y - radius - 0.08 * scale,
+      maxY: point.y + radius + 0.08 * scale,
+    };
+    const obstacles = [...occupied, ...texts.map((text) => text.box)];
+    if (
+      radius > 0 &&
+      (!boxIsInsideMap(markerBox, map) || obstacles.some((box) => overlapArea(box, markerBox) > 0))
+    )
+      continue;
+    const label = {
+      name: feature.name,
+      point,
+      markerExtent: radius + 0.08 * scale,
+      fontSize: mapTitleFontSize(map) * (feature.kind === 'habitat' ? 0.26 : 0.22),
+      priority: 0,
+    };
+    const placement = bestLabelPlacement(
+      label,
+      map,
+      [],
+      radius > 0 ? [...obstacles, markerBox] : obstacles,
+    );
+    if (!placement) continue;
+    const text = textElement(
+      feature.name,
+      placement.candidate.x,
+      placement.candidate.baselineY,
+      label.fontSize,
+      placement.candidate.anchor,
+      LABEL_HALO_EMS,
+    );
+    texts.push(identifyText(text, feature.id, feature.kind));
+    if (feature.kind === 'habitat') {
+      habitats++;
+      continue;
+    }
+    notables++;
+    occupied.push(markerBox);
+    const { x, y } = point;
+    const d =
+      feature.kind === 'hazard'
+        ? `M ${n(x)} ${n(y - radius)} L ${n(x + radius)} ${n(y + radius)} L ${n(x - radius)} ${n(y + radius)} Z`
+        : `M ${n(x)} ${n(y - radius)} L ${n(x + radius)} ${n(y)} L ${n(x)} ${n(y + radius)} L ${n(x - radius)} ${n(y)} Z`;
+    body.push(
+      `<path ${featureIdentity(feature.id, feature.kind)} data-feature-marker="true" d="${d}" fill="${PARCHMENT_FILL}" stroke="${MAP_TEXT_INK}" stroke-width="${n(STROKE_WIDTHS.hairline * scale)}"><title>${escapeXml(feature.name)}</title></path>`,
+    );
+  }
+}
+
 /** Marker footprints, so a label never lands on another settlement's star or ring. */
 function settlementMarkerBoxes(map: RegionMap, settlements: RegionMapSvgSettlement[]): TextBox[] {
   const out: TextBox[] = [];
   for (const s of settlements) {
     if (s.mapNodeId === undefined) continue;
-    const node = map.nodes[s.mapNodeId];
+    const node = map.nodes.find((node) => node.id === s.mapNodeId);
     if (!node) continue;
     const r = settlementMarkerExtent(s, node, map);
     out.push({
@@ -1524,7 +1637,7 @@ function svgDefs(map: RegionMap): string {
 
 /**
  * Builds a region map on parchment: coast-following water hatching, rivers and roads, terrain
- * glyphs, and optional named settlements. Forests and ranges are represented only by their glyphs.
+ * glyphs, named settlements, and selected saved habitat/landmark/hazard facts.
  */
 export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOptions): string {
   const w = map.width;
@@ -1559,6 +1672,9 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
       : Math.min(mapTitleFontSize(map), (titleLayout.fontSize * 0.9) / MAX_LABEL_FRACTION_OF_TITLE),
     reserved,
   );
+  const featureBoxStart = reserved.length;
+  appendRegionalFeatures(map, options?.features ?? [], reserved, textParts, body);
+  const featureBoxes = reserved.slice(featureBoxStart);
   if (titleLayout !== null) {
     textParts.push(titleLayout.parts);
   }
@@ -1570,7 +1686,11 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   // Furniture reserves space in the illustration: do not hide terrain glyphs beneath its paper.
   const scatterLayer: string[] = [];
   appendScatterSymbolsBackToFront(
-    compass === null ? symbols : symbols.filter((symbol) => overlapArea(symbol.box, compass) === 0),
+    symbols.filter(
+      (symbol) =>
+        !featureBoxes.some((box) => overlapArea(symbol.box, box) > 0) &&
+        (compass === null || overlapArea(symbol.box, compass) === 0),
+    ),
     scatterLayer,
   );
   body.splice(scatterLayerIndex, 0, ...scatterLayer);

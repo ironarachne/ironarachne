@@ -122,6 +122,11 @@ any zero as disqualifying rather than merely bad. `findBestLocations` keeps its 
 `pointSpacing` is the minimum distance between cell centers — smaller means more, finer cells and a
 noticeably slower build. Terrain shape comes from [`$lib/noise`](../noise/README.md).
 
+Optional saved region facts can be supplied through `RegionMapSvgOptions.features`: major habitat
+names, landmark diamonds and hazard triangles share stored IDs and names with regional prose.
+Optional labels yield to settlements and furniture and are omitted when crowded or unanchored.
+See [regional map facts](../../../docs/region-map-facts.md).
+
 ## The regional semantic boundary
 
 Regions stores this graph in its payload and builds meaning in `$lib/regions`. Regional areas and
@@ -136,7 +141,8 @@ a habitat, crossing, navigable river, resource source or livelihood. Roads are g
 habitation after settlement placement; a saved settlement removal keeps existing road geometry.
 
 `regionToMapSvg` supplies the current embedded settlement labels and stable capital role to this
-renderer. Semantic notables retain graph anchors without automatically acquiring map symbols.
+renderer, along with selected saved habitat and notable facts. Optional landmark and hazard symbols
+yield to settlement labels; anchors remain valid even when a symbol cannot fit.
 SVG remains derived output; no semantic rule should parse it or copy its placement logic.
 See the [accepted Regions contract](../../../docs/regions-release-contract.md) and
 [regional authoring guide](../../../docs/region-authoring.md) for storage, reference semantics and
