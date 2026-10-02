@@ -6,49 +6,9 @@ import { INK_WASH } from '$lib/cartography';
 import type { Vertex } from '$lib/geometry';
 import { buildRegionMapSvgString } from './region_map_svg';
 import { makeWaterClearanceTest } from './water_clearance';
+import { TERRAIN_GLYPH_VARIANTS } from './terrain_glyph_catalog';
 
-const silhouettes: Record<string, Vertex[]> = {
-  'tree-oak': [
-    { x: 0, y: 0 },
-    { x: -0.8, y: -0.5 },
-    { x: -1.2, y: -1.1 },
-    { x: -0.7, y: -1.8 },
-    { x: 0, y: -2.2 },
-    { x: 0.7, y: -1.8 },
-    { x: 1.2, y: -1.1 },
-    { x: 0.8, y: -0.5 },
-  ],
-  'tree-pine': [
-    { x: 0, y: 0 },
-    { x: -0.8, y: -0.4 },
-    { x: -0.6, y: -1.1 },
-    { x: 0, y: -2 },
-    { x: 0.6, y: -1.1 },
-    { x: 0.8, y: -0.4 },
-  ],
-  'tree-palm': [
-    { x: 0, y: 0 },
-    { x: -0.8, y: -1.3 },
-    { x: -0.55, y: -1.75 },
-    { x: 0, y: -1.85 },
-    { x: 0.55, y: -1.75 },
-    { x: 0.8, y: -1.3 },
-  ],
-  'mountain-high': [
-    { x: -1.4, y: 0 },
-    { x: -0.4, y: -1.8 },
-    { x: 0.1, y: -1.1 },
-    { x: 0.6, y: -1.5 },
-    { x: 1.4, y: 0 },
-  ],
-  'mountain-low': [
-    { x: -1, y: 0 },
-    { x: -0.3, y: -1 },
-    { x: 0.1, y: -0.6 },
-    { x: 0.5, y: -0.8 },
-    { x: 1, y: 0 },
-  ],
-};
+const silhouettes = Object.fromEntries(TERRAIN_GLYPH_VARIANTS.map((v) => [v.id, v.footprint]));
 
 function parseLoop(d: string): Vertex[] {
   const numbers = [...d.matchAll(/-?\d+(?:\.\d+)?/g)].map((match) => Number(match[0]));

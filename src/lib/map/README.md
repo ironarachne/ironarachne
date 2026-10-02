@@ -55,13 +55,20 @@ positions so their geometry agrees with the graph.
 - **Rendering** — `buildRegionMapSvgString(map, options)`. Water outlines use the shared
   cartography Chaikin strategy, with bounded noise at a scale set by map dimensions. Coast ink, water hatching,
   clips, and river cutouts reuse the same outline, defined once in SVG. Water is bare parchment
-  with coast-following hatch bands. Forests and ranges are drawn only through their glyphs, with no
-  region washes or outlines. Glyph scale fitting checks full
+  with coast-following hatch bands. Eight terrain families (high/ordinary mountains, hills, deciduous/conifer/palm trees, marsh,
+  and prairie) each have four authored ink drawings, with no region washes or outlines.
+  `terrain_glyph_catalog` owns their cubic pen curves, parchment bodies, and conservative
+  control-hull footprints; `terrain_glyph_ink` expands tapered strokes into filled ribbons once
+  per definition. Small intersecting hatch marks shade the appropriate drawings. Glyph scale fitting checks full
   silhouettes against that drawn water (with stroke/filter clearance), using row bins to avoid
   scanning every coast segment for every candidate. Terrain membership still uses the raw cells. A shared Poisson candidate set and variable glyph
-  spacing keep trees and peaks from stacking, with partial overlap drawn in base-y order. Forested
-  mountain cells use peaks; open biomes remain bare. The local RNG is derived from map dimensions
-  and node count, so saved graphs render without an extra seed. Text uses conservative serif bounds
+  spacing keep trees and peaks from stacking, with partial overlap drawn in base-y order. Shared relative landform classification chooses high peaks, ordinary mountains, and hills.
+  Peaks take precedence over wetland, wetland over hills, and hills over forest. Temperate
+  grassland and prairie get sparse grass tufts; flooded grassland, freshwater wetland, and
+  explicit marsh/bog/fen/swamp aliases get reeds. Other open plains remain bare. The local RNG is derived from map dimensions
+  and node count, so saved graphs render without an extra seed. Candidate placement, density,
+  variant choice, and styling use separate deterministic streams; changing the catalog does not
+  consume candidate-placement draws. No terrain glyph record is persisted. Text uses conservative serif bounds
   including halo and rounding clearance. Labels stay within the sheet and outside marker footprints
   and the title cartouche; only other-label overlap is best-effort. Names that cannot fit are omitted.
   Rivers use fine banks around a flow-scaled parchment channel. Their stored corner paths must
@@ -147,3 +154,8 @@ SVG remains derived output; no semantic rule should parse it or copy its placeme
 See the [accepted Regions contract](../../../docs/regions-release-contract.md) and
 [regional authoring guide](../../../docs/region-authoring.md) for storage, reference semantics and
 concrete rule extensions.
+
+Inspect the implemented glyph vocabulary with
+`npx vite-node scripts/render_terrain_glyphs.ts --out /tmp/terrain-glyphs.svg`.
+See [the approved design](../../../docs/region-terrain-glyphs.md) and
+[rendered comparisons](../../../docs/region-terrain-glyphs-373/README.md).
