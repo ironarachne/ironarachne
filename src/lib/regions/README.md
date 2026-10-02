@@ -72,14 +72,14 @@ The modules the readiness pass gives every Release-ready tool
   charge art. Writing, listing and validating reach none of it. Almost no conversion work is here:
   every part of a region already had a stored form by the time this tool reached the front of the
   pass, which is the whole point of the ordering.
-- **`region_artifact_kind.ts`** — kind `region`, payload version 7. Its validator composes the
+- **`region_artifact_kind.ts`** — kind `region`, payload version 8. Its validator composes the
   culture, settlement, organization and character validators rather than reimplementing them.
 - **`region_fact_types.ts`** / **`region_facts.ts`** — the versioned semantic fact vocabulary and
   graph validation. Embedded settlements have region-local IDs; areas, habitats, settlement roles,
   notable places, resources, routes and causal claims cite those IDs or IDs in the saved map.
   Versions 1 and 2 migrate to an empty `legacy` facts container. Version 3 preserves all existing
   facts and adds empty ecology lists. Versions 3 and 4 add empty geology/deposit lists and
-  unknown availability for old resources; version 5 adds an empty product list; version 6 adds an empty daily-life list; facts are now version 5. Migration preserves the map,
+  unknown availability for old resources; version 5 adds an empty product list; version 6 adds an empty daily-life list; version 7 adds an empty supply list; facts are now version 6. Migration preserves the map,
   environment and composed snapshots without inferring missing causes.
 - **`region_editing.ts`** — pure snapshot-to-snapshot edits over the region's words, its seat, its
   realms, its settlements and its organizations.
@@ -319,3 +319,20 @@ settlement and gazetteer consumers; dedicated UI/assembly remains #344. Text edi
 and settlement removal preserve authored dependencies and stale downstream explanations. Old saves
 gain an empty daily-life list without rerolling. See the
 [approved livelihood model](../../../docs/region-livelihoods.md).
+
+## Scarcity and possible imports (#341)
+
+`generateSupplyFacts` runs after livelihoods on the isolated `supply` stream. `facts.supply`
+stores at most three settlement needs, each qualified as limited local supply or local provision
+not supported by the saved inventory and craft policy. The assessment uses all accessible raw
+sources and complete possible recipe chains, including products omitted by representative
+selection. Limited goods remain explicitly locally producible; imports are conditional
+supplementation or necessities if the goods are used, with no invented suppliers or routes.
+
+`settlementSupplyContext(facts, target)` returns saved evidence and authored descriptions.
+`describeSettlementSupply({ facts, map }, target)` rechecks support without regenerating saved
+facts and replaces stale claims with review notices. Source edits stale supply assessments;
+additions change their inventory membership and require stale reasons before persistence.
+Existing dependency removal protects authored work. Payload version 8 / facts version 6 adds
+`supply: []` to older payloads without inventing scarcity or imports. Gazetteer assembly remains
+separate from these library APIs. See [the approved design](../../../docs/region-scarcity.md).

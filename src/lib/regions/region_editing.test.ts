@@ -276,6 +276,7 @@ describe('settlement removal with ecological uses', () => {
     const saved = structuredClone(snapshot);
     saved.facts.products = [];
     saved.facts.dailyLife = [];
+    saved.facts.supply = [];
     saved.facts.resources = [];
     saved.facts.notables = [];
     saved.facts.claims = [];
