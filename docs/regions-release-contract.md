@@ -6,6 +6,12 @@ of the [Regions release](https://github.com/ironarachne/ironarachne/issues/322).
 **Status:** accepted. The human reviewer approved the release boundary and domain model on
 2026-09-28. Implementation remains tracked by #328–#349.
 
+The remaining optional integrations have separate model proposals:
+[creature context #337](region-creature-context.md) and
+[settlement material context #342](region-material-context.md). Those proposals await human
+approval before implementation. The [second-genre assessment #351](region-second-genre.md)
+records an explicit deferral, using the alternative permitted by that issue's acceptance criteria.
+
 ## User flow and release boundary
 
 A referee enters a seed and generates a fantasy region. The result reads like a short sourcebook
