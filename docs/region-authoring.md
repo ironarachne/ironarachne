@@ -128,13 +128,23 @@ need manual review; changing a name does not automatically rewrite copied words 
 saved facts, then saves the selected wording as `description`. It is distinct from
 `regionToDocument`, which arranges stored content each time a snapshot is exported.
 
-Currently `regionToDocument` includes the overview, optional embedded culture, ruler, review
-warnings, realms, settlements, organizations, landmarks and hazards. Empty list sections disappear.
-`regionToMarkdown` and `regionToText` share that document; PDF export uses the latter.
-The generator has its own realm/heraldry presentation and shares `RegionNotables` with the saved
-editor. It is not yet a complete rendering of all the semantic lists. Ecology, processing,
-daily-life and supply APIs are available to consumers, but their complete gazetteer assembly is
-pending #344. Adding a fact does not automatically add a document section.
+`regionToDocument` includes the overview, optional embedded culture, ruler, review warnings,
+landscape, flora/fauna, inhabitants, livelihoods, notable places, travel, hazards, realms,
+settlements and organizations. Empty list sections disappear. `regionToMarkdown` and
+`regionToText` share that document; PDF export uses the latter. `RegionGazetteer` renders the
+same paragraphs and section lines on the generator and in the saved editor.
+
+Presentation does not replay generation or rewrite saved descriptions. Settlement targets and
+route endpoints are resolved by identity to current names. Generated daily-life entries are
+represented once per settlement/category and supply once per settlement; all authored entries
+survive this selection. Explanation links open the complete saved facts and their recorded
+support, including entries omitted from the short gazetteer. Stale facts retain their text with
+an explicit review notice instead of presenting their evidence as current.
+
+The generator's presentation and exports include currently resolved culture/settlement inputs;
+its persistence snapshot still stores references rather than copying those artifacts. A saved
+snapshot with empty legacy facts keeps its overview and existing places without fabricating
+new sections. Heraldry and detailed ruler presentation remain expandable on the generator.
 
 `regionToMapSvg` passes the saved graph, current embedded settlement names and capital role to
 `buildRegionMapSvgString`; the capital role retains identity across settlement reorderings, with

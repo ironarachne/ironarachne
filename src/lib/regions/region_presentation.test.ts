@@ -10,7 +10,10 @@ import {
   regionToMapSvg,
   regionToMarkdown,
   regionToText,
+  regionSupportingFacts,
+  regionFactExplanation,
 } from './region_presentation';
+import { emptyRegionFacts } from './region_facts';
 import { rollRegionSnapshot } from './region_roll';
 import { toRegionSnapshot } from './region_snapshot';
 import { rollRegion } from './region_roll';
@@ -214,5 +217,191 @@ describe('stored regional facts on the illustrative map', () => {
     expect(svg).not.toContain('data-feature-marker');
     expect(svg).not.toContain('data-feature-kind="habitat"');
     expect(svg).toContain(`data-feature-id="${snapshot.settlements[0].id}"`);
+  });
+});
+
+describe('sourcebook gazetteer', () => {
+  it('uses one document for every exported paragraph and section, without mutating the snapshot', () => {
+    const before = structuredClone(snapshot);
+    const document = regionToDocument(snapshot);
+    const markdown = regionToMarkdown(snapshot);
+    const text = regionToText(snapshot);
+    for (const line of [
+      ...document.paragraphs,
+      ...document.sections.flatMap((section) => section.lines),
+    ]) {
+      expect(markdown).toContain(line);
+      expect(text).toContain(line);
+    }
+    expect(document.sections.map((section) => section.heading)).toEqual(
+      expect.arrayContaining([
+        'Landscape',
+        'Flora and fauna',
+        'Inhabitants',
+        'Livelihoods',
+        'Notable places',
+        'Travel',
+        'Hazards',
+      ]),
+    );
+    expect(snapshot).toEqual(before);
+    expect(regionToDocument(snapshot)).toEqual(document);
+  });
+
+  it('preserves authored prose and warns beside stale assertions in every format', () => {
+    const edited = {
+      ...snapshot,
+      description: 'A referee wrote this overview.',
+      facts: {
+        ...snapshot.facts,
+        habitats: [
+          {
+            ...snapshot.facts.habitats[0],
+            name: 'The copper woods',
+            description: 'Leave these words alone.',
+            origin: 'authored' as const,
+            reason: { ruleId: 'saved-rule', status: 'stale' as const, sources: [] },
+          },
+        ],
+      },
+    };
+    for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
+      expect(prose).toContain('A referee wrote this overview.');
+      expect(prose).toContain(
+        'The copper woods: Leave these words alone. [Supporting explanation needs review.]',
+      );
+      expect(prose).toContain(edited.realms[0].description);
+    }
+  });
+
+  it('keeps concise generated livelihoods while retaining every authored entry', () => {
+    const fact = snapshot.facts.dailyLife[0];
+    expect(fact).toBeDefined();
+    const edited = {
+      ...snapshot,
+      facts: {
+        ...snapshot.facts,
+        dailyLife: [
+          { ...fact, id: 'life:first', description: 'Representative work.' },
+          { ...fact, id: 'life:second', description: 'More generated work.' },
+          {
+            ...fact,
+            id: 'life:authored',
+            origin: 'authored' as const,
+            description: 'My special trade.',
+          },
+        ],
+      },
+    };
+    const prose = regionToMarkdown(edited);
+    expect(prose).toContain('Representative work.');
+    expect(prose).not.toContain('More generated work.');
+    expect(prose).toContain('My special trade.');
+    expect(
+      regionSupportingFacts(edited).find((entry) => entry.id === 'life:second')?.description,
+    ).toBe('More generated work.');
+  });
+
+  it('resolves settlement and route names by identity after renaming and reordering', () => {
+    const renamed = {
+      ...snapshot,
+      settlements: snapshot.settlements
+        .map((entry, index) => ({
+          ...entry,
+          snapshot: { ...entry.snapshot, name: `Saved town ${index}` },
+        }))
+        .reverse(),
+    };
+    const travel = regionToDocument(renamed).sections.find(
+      (section) => section.heading === 'Travel',
+    );
+    for (const route of renamed.facts.routes) {
+      for (const endpoint of route.endpoints) {
+        if (endpoint.kind !== 'settlement' || endpoint.settlement.kind !== 'embedded') continue;
+        const id = endpoint.settlement.settlementId;
+        const name = renamed.settlements.find((entry) => entry.id === id)!.snapshot.name;
+        expect(travel?.lines.some((line) => line.includes(name))).toBe(true);
+      }
+    }
+  });
+
+  it('omits every new section for sparse migrated content instead of inventing facts', () => {
+    const legacy = { ...snapshot, facts: emptyRegionFacts('legacy') };
+    expect(regionToDocument(legacy).sections.map((section) => section.heading)).toEqual(
+      ['Realms', 'Settlements', 'Organizations'].filter(
+        (heading) => heading !== 'Organizations' || snapshot.organizations.length > 0,
+      ),
+    );
+    expect(regionSupportingFacts(legacy)).toEqual([]);
+  });
+
+  it('does not turn whitespace-only facts into sections or explanations', () => {
+    const blank = {
+      ...snapshot,
+      facts: {
+        ...emptyRegionFacts('legacy'),
+        habitats: [{ ...snapshot.facts.habitats[0], name: ' ', description: '\n ' }],
+      },
+    };
+    expect(
+      regionToDocument(blank).sections.some((section) => section.heading === 'Landscape'),
+    ).toBe(false);
+  });
+
+  it('does not manufacture a section from blank site or route prose', () => {
+    const blank = {
+      ...snapshot,
+      facts: {
+        ...emptyRegionFacts('legacy'),
+        settlementRoles: [{ ...snapshot.facts.settlementRoles[0], name: ' ', description: '' }],
+        routes: [{ ...snapshot.facts.routes[0], name: '', description: ' ' }],
+      },
+    };
+    expect(
+      regionToDocument(blank).sections.some((section) =>
+        ['Inhabitants', 'Travel'].includes(section.heading),
+      ),
+    ).toBe(false);
+  });
+
+  it('offers saved sources by name, flags unavailable support and suppresses stale evidence', () => {
+    const source = snapshot.facts.habitats[0];
+    const fact = {
+      ...source,
+      reason: {
+        ruleId: 'saved-rule',
+        status: 'current' as const,
+        sources: [
+          { kind: 'fact' as const, factId: source.id },
+          { kind: 'fact' as const, factId: 'missing' },
+          { kind: 'environment' as const, field: 'climate' as const, observedValue: 'warm' },
+          {
+            kind: 'map-node' as const,
+            nodeId: 1,
+            property: 'moisture' as const,
+            observedValue: '0.5',
+          },
+          {
+            kind: 'map-edge' as const,
+            edgeId: 2,
+            property: 'road' as const,
+            observedValue: 'true',
+          },
+        ],
+      },
+    };
+    expect(regionFactExplanation(snapshot, fact)).toEqual([
+      `${source.name}: ${source.description}`,
+      'Supporting fact is unavailable.',
+      'Recorded climate: warm.',
+      'Recorded map site 1: moisture = 0.5.',
+      'Recorded map connection 2: road = true.',
+    ]);
+    expect(
+      regionFactExplanation(snapshot, { ...fact, reason: { ...fact.reason, status: 'stale' } }),
+    ).toEqual(['Supporting information changed; this explanation needs review.']);
+    expect(regionFactExplanation(snapshot, { ...source, reason: undefined })).toEqual([
+      'No generated explanation is recorded.',
+    ]);
   });
 });

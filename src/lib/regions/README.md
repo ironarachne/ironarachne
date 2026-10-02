@@ -93,11 +93,13 @@ The modules the readiness pass gives every Release-ready tool
   supported version. Existing map, environment, identities and authored text are preserved.
 - **`region_editing.ts`** — pure snapshot-to-snapshot edits over the region's words, its seat, its
   realms, its settlements and its organizations.
-- **`region_presentation.ts`** — the gazetteer, as Markdown and as text, plus `regionToMapSvg` for
-  the file and `regionMapDataUrl` for the page's image. `regionToDocument` is shared by Markdown
-  and PDF text; its current sections are realms, settlements, organizations, landmarks, hazards
-  and facts needing review. Full ecology/material-culture gazetteer assembly remains
-  [#344](https://github.com/ironarachne/ironarachne/issues/344); those facts are already stored.
+- **`region_presentation.ts`** — one gazetteer document shared by the page, saved editor,
+  Markdown and PDF text, plus `regionToMapSvg` and `regionMapDataUrl`. Landscape, flora/fauna,
+  inhabitants, livelihoods, notable places, travel and hazards reuse saved descriptions; empty
+  sections disappear. Generated livelihoods use one representative per settlement/topic and
+  supply one per settlement; all authored entries remain. Every saved supporting fact is available
+  through the page's expandable explanation links. Stale assertions are marked in all formats.
+  Realms (including saved descriptions), settlements and organizations remain in the entry.
 
 ### What is stored, and what is not
 
@@ -302,7 +304,7 @@ Authored inputs can record imports with an explicit resource and explanation.
 imports and diagnostic issues without choosing recipes again. Unknown saved recipe/output keys
 remain readable. Source/product text edits stale dependent explanations; removals preserve authored
 dependencies. Payload v6 adds `products: []` to older saves, preserving their map, facts and edits.
-Daily-life rules use these saved facts; dedicated gazetteer sections remain #344. Supply rules
+Daily-life rules use these saved facts; the gazetteer links their supporting explanations. Supply rules
 record conditional import suggestions without simulating trade. See the
 [approved processing model](../../../docs/region-processing.md), and fantasy catalog follow-ups
 [#364](https://github.com/ironarachne/ironarachne/issues/364) and
@@ -331,7 +333,7 @@ production data. There is no numerical economy or established commercial industr
 `settlementDailyLifeContext(facts, target)` groups saved facts by category with their inputs and
 reasons intact. `describeSettlementDailyLife(facts, target)` composes their stored descriptions,
 marking stale support as needing review and leaving empty categories empty. These APIs supply
-settlement and gazetteer consumers; dedicated UI/assembly remains #344. Text edits, source removals
+settlement consumers; the gazetteer selects concise examples and preserves authored text. Text edits, source removals
 and settlement removal preserve authored dependencies and stale downstream explanations. Old saves
 gain an empty daily-life list without rerolling. See the
 [approved livelihood model](../../../docs/region-livelihoods.md).

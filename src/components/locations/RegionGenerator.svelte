@@ -21,7 +21,7 @@
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
   import HeraldryEmblemButton from '$components/heraldry/HeraldryEmblemButton.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
-  import RegionNotables from '$components/locations/RegionNotables.svelte';
+  import RegionGazetteer from '$components/locations/RegionGazetteer.svelte';
 
   const TOOL_PATH = '/region';
 
@@ -89,7 +89,11 @@
         }),
   );
 
-  const mapSrc = $derived(snapshot === null ? '' : Regions.regionMapDataUrl(snapshot));
+  // Presentation includes the currently resolved references; persistence still stores links.
+  const presentationSnapshot = $derived(region === null ? null : Regions.toRegionSnapshot(region));
+  const mapSrc = $derived(
+    presentationSnapshot === null ? '' : Regions.regionMapDataUrl(presentationSnapshot),
+  );
 
   const defaultArtifactName = $derived(region === null ? '' : Regions.regionDisplayName(region));
 
@@ -141,29 +145,29 @@
   }
 
   function exportMarkdown() {
-    if (snapshot === null) return;
+    if (presentationSnapshot === null) return;
     downloadTextFile(
-      Regions.regionToMarkdown(snapshot),
-      `${Regions.regionFileStem(snapshot)}.md`,
+      Regions.regionToMarkdown(presentationSnapshot),
+      `${Regions.regionFileStem(presentationSnapshot)}.md`,
       'text/markdown',
     );
   }
 
   async function exportPdf() {
-    if (snapshot === null) return;
+    if (presentationSnapshot === null) return;
     await downloadTextPdf(
-      Regions.regionDisplayName(snapshot),
-      Regions.regionToText(snapshot),
-      `${Regions.regionFileStem(snapshot)}.pdf`,
+      Regions.regionDisplayName(presentationSnapshot),
+      Regions.regionToText(presentationSnapshot),
+      `${Regions.regionFileStem(presentationSnapshot)}.pdf`,
     );
   }
 
   /** The map, which is what a region is (6.3). It had neither an export nor a picture until now. */
   function exportMapSvg() {
-    if (snapshot === null) return;
+    if (presentationSnapshot === null) return;
     downloadTextFile(
-      Regions.regionToMapSvg(snapshot),
-      `${Regions.regionFileStem(snapshot)}.svg`,
+      Regions.regionToMapSvg(presentationSnapshot),
+      `${Regions.regionFileStem(presentationSnapshot)}.svg`,
       'image/svg+xml',
     );
   }
@@ -256,9 +260,9 @@
   />
 
   {#if region}
-    <h2>{Words.capitalize(region.name)}</h2>
-
-    <p>{region.description}</p>
+    {#if presentationSnapshot}
+      <RegionGazetteer snapshot={presentationSnapshot} />
+    {/if}
 
     {#if mapSrc}
       <!-- The map, which is the tool's actual output and was never shown. `region_map_svg.ts` had
@@ -269,187 +273,172 @@
       <img class="region-map" src={mapSrc} alt="Map of {region.name}" />
     {/if}
 
-    {#if region.dominantCulture !== null}
-      <p>The dominant culture here is the {region.dominantCulture.name}.</p>
-    {/if}
+    <details>
+      <summary>Rulers and heraldry</summary>
 
-    {#if region.realms[region.mainRealm].parent != -1}
-      <div class="parent-realm">
-        <p>
-          {Words.title(region.name)} is part of {region.realms[
-            region.realms[region.mainRealm].parent
-          ].name}
-          <button
-            type="button"
-            class="heraldry-inline-target"
-            aria-label="View heraldry for {region.realms[region.realms[region.mainRealm].parent]
-              .name}"
-            onclick={() =>
-              openHeraldryModal(
-                region!.realms[region!.realms[region!.mainRealm].parent].heraldry,
-                region!.realms[region!.realms[region!.mainRealm].parent].name,
-                (arms) => replaceRealmHeraldry(region!.realms[region!.mainRealm].parent, arms),
-              )}
-          >
-            <!-- Renders app-generated markup (no external or user-supplied input). -->
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html renderHeraldryDeviceSvg(
-              region.realms[region.realms[region.mainRealm].parent].heraldry.device,
-              20,
-              22,
-              rng,
-            )}
-          </button>.
-        </p>
-      </div>
-    {/if}
-
-    {#if ruler}
-      <h3>
-        Ruler: {Characters.getHonorific(
-          ruler.gender.name,
-          ruler.titles?.[0] ?? null,
-          ruler.gender.pronouns,
-        )}
-        {ruler.firstName}
-        {ruler.lastName}
-      </h3>
-
-      <div class="ruler">
-        <HeraldryEmblemButton
-          arms={ruler.heraldry}
-          title="{ruler.firstName} {ruler.lastName}"
-          width={200}
-          height={220}
-          {rng}
-          onclick={() =>
-            openHeraldryModal(
-              ruler!.heraldry!,
-              `${ruler!.firstName} ${ruler!.lastName}`,
-              replaceRulerHeraldry,
-            )}
-        />
-        <div>
+      {#if region.realms[region.mainRealm].parent != -1}
+        <div class="parent-realm">
           <p>
-            {Words.capitalize(region.name)} is ruled by {Characters.getHonorific(
-              ruler.gender.name,
-              ruler.titles?.[0] ?? null,
-              ruler.gender.pronouns,
-            )}
-            {ruler.firstName}
-            {ruler.lastName}. {ruler.description}
+            {Words.title(region.name)} is part of {region.realms[
+              region.realms[region.mainRealm].parent
+            ].name}
+            <button
+              type="button"
+              class="heraldry-inline-target"
+              aria-label="View heraldry for {region.realms[region.realms[region.mainRealm].parent]
+                .name}"
+              onclick={() =>
+                openHeraldryModal(
+                  region!.realms[region!.realms[region!.mainRealm].parent].heraldry,
+                  region!.realms[region!.realms[region!.mainRealm].parent].name,
+                  (arms) => replaceRealmHeraldry(region!.realms[region!.mainRealm].parent, arms),
+                )}
+            >
+              <!-- Renders app-generated markup (no external or user-supplied input). -->
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+              {@html renderHeraldryDeviceSvg(
+                region.realms[region.realms[region.mainRealm].parent].heraldry.device,
+                20,
+                22,
+                rng,
+              )}
+            </button>.
           </p>
         </div>
-      </div>
-    {/if}
+      {/if}
 
-    <h3>Nearby Sovereignties</h3>
+      {#if ruler}
+        <h3>
+          Ruler: {Characters.getHonorific(
+            ruler.gender.name,
+            ruler.titles?.[0] ?? null,
+            ruler.gender.pronouns,
+          )}
+          {ruler.firstName}
+          {ruler.lastName}
+        </h3>
 
-    {#each region.realms as neighbor, index}
-      {#if index != region.mainRealm && neighbor.parent == -1}
-        <div class="neighbor">
+        <div class="ruler">
           <HeraldryEmblemButton
-            arms={neighbor.heraldry}
-            title={neighbor.name}
-            width={80}
-            height={88}
+            arms={ruler.heraldry}
+            title="{ruler.firstName} {ruler.lastName}"
+            width={200}
+            height={220}
             {rng}
             onclick={() =>
-              openHeraldryModal(neighbor.heraldry, neighbor.name, (arms) =>
-                replaceRealmHeraldry(index, arms),
+              openHeraldryModal(
+                ruler!.heraldry!,
+                `${ruler!.firstName} ${ruler!.lastName}`,
+                replaceRulerHeraldry,
               )}
           />
           <div>
-            <p><strong>{Words.title(neighbor.name)}</strong></p>
             <p>
-              Ruled by {Characters.getHonorific(
-                neighbor.authority.gender.name,
-                neighbor.authority.titles?.[0] ?? null,
-                neighbor.authority.gender.pronouns,
+              {Words.capitalize(region.name)} is ruled by {Characters.getHonorific(
+                ruler.gender.name,
+                ruler.titles?.[0] ?? null,
+                ruler.gender.pronouns,
               )}
-              {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)}
-              {neighbor.authority.species.adjective}
-              {neighbor.authority.ageCategory.noun}.
+              {ruler.firstName}
+              {ruler.lastName}. {ruler.description}
             </p>
-            {#if region.realms[region.mainRealm].parent == index}
-              <p>{Words.title(region.realms[region.mainRealm].name)} is part of this.</p>
-            {/if}
           </div>
         </div>
       {/if}
-    {/each}
 
-    <h3>Nearby Realms</h3>
+      <h3>Nearby Sovereignties</h3>
 
-    {#each region.realms as neighbor, index}
-      {#if index != region.mainRealm && index != region.realms[region.mainRealm].parent && neighbor.parent != -1}
-        <div class="neighbor">
-          <HeraldryEmblemButton
-            arms={neighbor.heraldry}
-            title={neighbor.name}
-            width={80}
-            height={88}
-            {rng}
-            onclick={() =>
-              openHeraldryModal(neighbor.heraldry, neighbor.name, (arms) =>
-                replaceRealmHeraldry(index, arms),
-              )}
-          />
-          <div>
-            <p>
-              <strong>{Words.title(neighbor.name)}</strong>, part of {region.realms[neighbor.parent]
-                .name}
-              <button
-                type="button"
-                class="heraldry-inline-target"
-                aria-label="View heraldry for {region.realms[neighbor.parent].name}"
-                onclick={() =>
-                  openHeraldryModal(
-                    region!.realms[neighbor.parent].heraldry,
-                    region!.realms[neighbor.parent].name,
-                    (arms) => replaceRealmHeraldry(neighbor.parent, arms),
-                  )}
-              >
-                <!-- Renders app-generated markup (no external or user-supplied input). -->
-                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                {@html renderHeraldryDeviceSvg(
-                  region.realms[neighbor.parent].heraldry.device,
-                  20,
-                  22,
-                  rng,
+      {#each region.realms as neighbor, index}
+        {#if index != region.mainRealm && neighbor.parent == -1}
+          <div class="neighbor">
+            <HeraldryEmblemButton
+              arms={neighbor.heraldry}
+              title={neighbor.name}
+              width={80}
+              height={88}
+              {rng}
+              onclick={() =>
+                openHeraldryModal(neighbor.heraldry, neighbor.name, (arms) =>
+                  replaceRealmHeraldry(index, arms),
                 )}
-              </button>.
-            </p>
-            <p>
-              Ruled by {Characters.getHonorific(
-                neighbor.authority.gender.name,
-                neighbor.authority.titles?.[0] ?? null,
-                neighbor.authority.gender.pronouns,
-              )}
-              {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)}
-              {neighbor.authority.species.adjective}
-              {neighbor.authority.ageCategory.noun}.
-            </p>
+            />
+            <div>
+              <p><strong>{Words.title(neighbor.name)}</strong></p>
+              <p>
+                Ruled by {Characters.getHonorific(
+                  neighbor.authority.gender.name,
+                  neighbor.authority.titles?.[0] ?? null,
+                  neighbor.authority.gender.pronouns,
+                )}
+                {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)}
+                {neighbor.authority.species.adjective}
+                {neighbor.authority.ageCategory.noun}.
+              </p>
+              {#if region.realms[region.mainRealm].parent == index}
+                <p>{Words.title(region.realms[region.mainRealm].name)} is part of this.</p>
+              {/if}
+            </div>
           </div>
-        </div>
-      {/if}
-    {/each}
+        {/if}
+      {/each}
 
-    <h3>Notable Settlements in {region.name}</h3>
-    {#each region.settlements as settlement}
-      <article>
-        <h5>{settlement.name}</h5>
-        <p>{settlement.description}</p>
-      </article>
-    {/each}
-    <RegionNotables places={region.facts?.notables ?? []} />
-    <h3>Notable Organizations</h3>
-    {#each region.organizations as organization}
-      <article>
-        <h5>{organization.name}</h5>
-        <p>{organization.description}</p>
-      </article>
-    {/each}
+      <h3>Nearby Realms</h3>
+
+      {#each region.realms as neighbor, index}
+        {#if index != region.mainRealm && index != region.realms[region.mainRealm].parent && neighbor.parent != -1}
+          <div class="neighbor">
+            <HeraldryEmblemButton
+              arms={neighbor.heraldry}
+              title={neighbor.name}
+              width={80}
+              height={88}
+              {rng}
+              onclick={() =>
+                openHeraldryModal(neighbor.heraldry, neighbor.name, (arms) =>
+                  replaceRealmHeraldry(index, arms),
+                )}
+            />
+            <div>
+              <p>
+                <strong>{Words.title(neighbor.name)}</strong>, part of {region.realms[
+                  neighbor.parent
+                ].name}
+                <button
+                  type="button"
+                  class="heraldry-inline-target"
+                  aria-label="View heraldry for {region.realms[neighbor.parent].name}"
+                  onclick={() =>
+                    openHeraldryModal(
+                      region!.realms[neighbor.parent].heraldry,
+                      region!.realms[neighbor.parent].name,
+                      (arms) => replaceRealmHeraldry(neighbor.parent, arms),
+                    )}
+                >
+                  <!-- Renders app-generated markup (no external or user-supplied input). -->
+                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                  {@html renderHeraldryDeviceSvg(
+                    region.realms[neighbor.parent].heraldry.device,
+                    20,
+                    22,
+                    rng,
+                  )}
+                </button>.
+              </p>
+              <p>
+                Ruled by {Characters.getHonorific(
+                  neighbor.authority.gender.name,
+                  neighbor.authority.titles?.[0] ?? null,
+                  neighbor.authority.gender.pronouns,
+                )}
+                {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)}
+                {neighbor.authority.species.adjective}
+                {neighbor.authority.ageCategory.noun}.
+              </p>
+            </div>
+          </div>
+        {/if}
+      {/each}
+    </details>
   {/if}
 </GeneratorPage>
 
