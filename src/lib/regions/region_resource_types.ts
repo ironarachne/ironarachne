@@ -32,6 +32,7 @@ export type RegionResourceFactList =
   | 'resourceDeposits'
   | 'resources'
   | 'products'
+  | 'supply'
   | 'dailyLife'
   | 'settlementRoles';
 export type RegionSemanticFact = RegionFacts[Exclude<

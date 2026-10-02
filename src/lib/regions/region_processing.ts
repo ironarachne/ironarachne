@@ -1,9 +1,5 @@
 import type { RNG } from '@ironarachne/rng';
-import {
-  getProcessingRecipes,
-  matchesProcessingInput,
-  type ProcessingRecipe,
-} from '$lib/resources';
+import { getProcessingRecipes, type ProcessingRecipe } from '$lib/resources';
 import type Region from './region';
 import type { FactSource } from './region_fact_types';
 import type {
@@ -17,6 +13,8 @@ import {
   processingEvidenceCurrent,
 } from './region_processing_resources';
 
+import { processingRecipes, matchingProcessingResources } from './region_processing_capability';
+
 const lexical = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 /** Save complete possible chains, never instantiate a workshop or rescue a missing input with imports. */
 export function generateProcessingFacts(
@@ -26,21 +24,7 @@ export function generateProcessingFacts(
 ): void {
   const facts = region.facts;
   if (!facts) return;
-  const techniques = new Set([
-    'woodworking',
-    'weaving',
-    'fiber preparation',
-    'spinning',
-    'charcoal making',
-    'bloomery smelting',
-    'forging',
-    'smoking',
-    'drying',
-    'stone dressing',
-  ]);
-  const recipes = [...catalog.recipes]
-    .filter((recipe) => techniques.has(recipe.technique))
-    .sort((a, b) => lexical(a.id, b.id));
+  const recipes = processingRecipes(catalog.recipes);
   const byOutput = new Map(recipes.map((recipe) => [recipe.outputKey, recipe]));
   const consumed = new Set(
     recipes.flatMap((recipe) =>
@@ -93,9 +77,7 @@ export function generateProcessingFacts(
       ];
       for (const requirement of recipe.inputs) {
         if (requirement.selector.kind === 'raw') {
-          const eligible = resources.filter((entry) =>
-            matchesProcessingInput(requirement.selector, entry.resource),
-          );
+          const eligible = matchingProcessingResources(resources, requirement.selector);
           if (!eligible.length) {
             cache.set(recipe.outputKey, null);
             return null;

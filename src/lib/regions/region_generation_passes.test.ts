@@ -40,6 +40,7 @@ describe('dependent generation passes', () => {
   });
 
   it.each([
+    'generateSupplyFacts',
     'generateLivelihoodFacts',
     'generateProcessingFacts',
     'generateGeologyFacts',
@@ -84,6 +85,7 @@ describe('dependent generation passes', () => {
     }
     if (
       [
+        'generateSupplyFacts',
         'generateLivelihoodFacts',
         'generateEcologyRelationships',
         'generateNotableFacts',
@@ -91,8 +93,10 @@ describe('dependent generation passes', () => {
       ].includes(name)
     )
       expect(after.facts.products).toEqual(before.facts.products);
-    if (['generateNotableFacts', 'presentRegion'].includes(name))
+    if (['generateSupplyFacts', 'generateNotableFacts', 'presentRegion'].includes(name))
       expect(after.facts.dailyLife).toEqual(before.facts.dailyLife);
+    if (['generateNotableFacts', 'presentRegion'].includes(name))
+      expect(after.facts.supply).toEqual(before.facts.supply);
     expect(after.settlements).toEqual(before.settlements);
     expect(after.realms).toEqual(before.realms);
     expect(after.name).toEqual(before.name);

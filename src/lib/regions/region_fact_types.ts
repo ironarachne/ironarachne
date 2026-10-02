@@ -1,3 +1,4 @@
+import type { SettlementSupplyFact } from './region_supply_types';
 import type { RegionalProductFact } from './region_processing_types';
 import type { SettlementDailyLifeFact } from './region_livelihood_types';
 import type {
@@ -99,7 +100,8 @@ export type RouteFact = FactBase & {
 export type CausalFact = FactBase & { subjectId: string; relatedIds: string[] };
 
 export type RegionFacts = {
-  version: 5;
+  version: 6;
+  supply: SettlementSupplyFact[];
   dailyLife: SettlementDailyLifeFact[];
   products: RegionalProductFact[];
   geology: GeologyFact[];

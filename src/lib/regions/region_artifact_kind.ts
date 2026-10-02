@@ -33,8 +33,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 7 adds saved settlement daily-life facts. */
-export const REGION_PAYLOAD_VERSION = 7 as const;
+/** Version 8 adds saved settlement supply and import explanations. */
+export const REGION_PAYLOAD_VERSION = 8 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -183,7 +183,15 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (from !== 1 && from !== 2 && from !== 3 && from !== 4 && from !== 5 && from !== 6) {
+  if (
+    from !== 1 &&
+    from !== 2 &&
+    from !== 3 &&
+    from !== 4 &&
+    from !== 5 &&
+    from !== 6 &&
+    from !== 7
+  ) {
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,
@@ -194,11 +202,21 @@ export function migrateRegionSnapshot(
     return rejectedPayload('invalid-payload', 'region payload is not an object');
   }
 
+  if (from === 7) {
+    const facts = asRecord(record.facts);
+    if (facts === null || facts.version !== 5)
+      return rejectedPayload('unsupported-version', 'Version 7 requires region facts version 5');
+    return validateRegionSnapshot({ ...record, facts: { ...facts, version: 6, supply: [] } });
+  }
+
   if (from === 6) {
     const facts = asRecord(record.facts);
     if (facts === null || facts.version !== 4)
       return rejectedPayload('unsupported-version', 'Version 6 requires region facts version 4');
-    return validateRegionSnapshot({ ...record, facts: { ...facts, version: 5, dailyLife: [] } });
+    return validateRegionSnapshot({
+      ...record,
+      facts: { ...facts, version: 6, supply: [], dailyLife: [] },
+    });
   }
 
   if (from === 5) {
@@ -207,7 +225,7 @@ export function migrateRegionSnapshot(
       return rejectedPayload('unsupported-version', 'Version 5 requires region facts version 3');
     return validateRegionSnapshot({
       ...record,
-      facts: { ...facts, version: 5, products: [], dailyLife: [] },
+      facts: { ...facts, version: 6, supply: [], products: [], dailyLife: [] },
     });
   }
 
@@ -239,7 +257,8 @@ export function migrateRegionSnapshot(
       ...record,
       facts: {
         ...facts,
-        version: 5,
+        version: 6,
+        supply: [],
         dailyLife: [],
         products: [],
         resources,

@@ -572,7 +572,8 @@ describe('ecology save compatibility', () => {
       ...legacy,
       facts: {
         ...legacy.facts,
-        version: 5,
+        version: 6,
+        supply: [],
         dailyLife: [],
         products: [],
         geology: [],
@@ -703,7 +704,7 @@ describe('processing save migration', () => {
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...input,
-      facts: { ...input.facts, version: 5, products: [], dailyLife: [] },
+      facts: { ...input.facts, version: 6, supply: [], products: [], dailyLife: [] },
     });
     expect(input).toEqual(original);
     expect(validateRegionSnapshot(result.value).ok).toBe(true);
@@ -728,7 +729,7 @@ describe('daily-life save migration', () => {
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...input,
-      facts: { ...input.facts, version: 5, dailyLife: [] },
+      facts: { ...input.facts, version: 6, supply: [], dailyLife: [] },
     });
     expect(input).toEqual(original);
     expect(validateRegionSnapshot(result.value).ok).toBe(true);
@@ -788,9 +789,48 @@ it('preserves authored product chains through JSON and the saved codec without r
     anchor: { nodeIds: [saved.settlements[0].snapshot.mapNodeId!], edgeIds: [] },
   };
   saved.facts.products.push(product);
+  // Adding inventory evidence invalidates old negative assessments, without replacing their words.
+  saved.facts.supply.forEach((fact) => {
+    if (fact.reason) fact.reason.status = 'stale';
+  });
   const json = JSON.parse(JSON.stringify(saved));
   expect(validateRegionSnapshot(json).ok).toBe(true);
   const codec = await regionArtifactKind.loadCodec();
   const back = codec.toSnapshot(codec.fromSnapshot(json, undefined as never));
   expect(back.facts.products).toEqual(saved.facts.products);
+});
+
+describe('supply save migration', () => {
+  it('upgrades v7 without creating scarcity or changing saved local production', () => {
+    const { supply: _supply, ...facts } = structuredClone(snapshot.facts);
+    const input = {
+      ...structuredClone(snapshot),
+      description: 'My overview',
+      facts: { ...facts, version: 5 },
+    };
+    const before = structuredClone(input);
+    const result = migrateRegionSnapshot(input, 7);
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.message);
+    expect(result.value).toEqual({ ...input, facts: { ...input.facts, version: 6, supply: [] } });
+    expect(input).toEqual(before);
+    expect(validateRegionSnapshot(result.value).ok).toBe(true);
+  });
+  it('rejects missing or incompatible v7 facts', () => {
+    expect(migrateRegionSnapshot({ ...snapshot, facts: undefined }, 7).ok).toBe(false);
+    expect(migrateRegionSnapshot(snapshot, 7).ok).toBe(false);
+  });
+  it('round-trips authored supply through the saved codec and JSON without regenerating it', async () => {
+    const saved = structuredClone(snapshot);
+    expect(saved.facts.supply.length).toBeGreaterThan(0);
+    saved.facts.supply[0].description = 'My supplied materials';
+    saved.facts.supply[0].origin = 'authored';
+    saved.facts.supply[0].needKey = 'future:need';
+    const codec = await regionArtifactKind.loadCodec();
+    const json = JSON.parse(JSON.stringify(saved));
+    expect(validateRegionSnapshot(json).ok).toBe(true);
+    const back = codec.toSnapshot(codec.fromSnapshot(json, undefined as never));
+    expect(back.facts.supply).toEqual(saved.facts.supply);
+    expect(back.facts.products).toEqual(saved.facts.products);
+  });
 });

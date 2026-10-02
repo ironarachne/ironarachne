@@ -36,3 +36,7 @@ export {
   settlementDailyLifeContext,
   describeSettlementDailyLife,
 } from './region_livelihood_presentation';
+
+export type * from './region_supply_types';
+export { generateSupplyFacts } from './region_supply';
+export { settlementSupplyContext, describeSettlementSupply } from './region_supply_presentation';

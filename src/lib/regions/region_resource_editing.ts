@@ -2,6 +2,7 @@ import type { FactBase, RegionFacts } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
 import type { RegionResourceFactList, RegionSemanticFact } from './region_resource_types';
 export const regionSemanticFactLists = [
+  'supply',
   'dailyLife',
   'products',
   'areas',
@@ -26,6 +27,7 @@ export function regionFactTargets(fact: RegionSemanticFact): string[] {
       if (input.kind === 'resource') direct.push(input.resourceId, ...input.depositIds);
       if (input.kind === 'product') direct.push(input.productId);
     }
+  if ('resourceIds' in fact) direct.push(...fact.resourceIds, ...fact.productIds);
   if ('geologyId' in fact) direct.push(fact.geologyId);
   if ('depositIds' in fact) direct.push(...fact.depositIds);
   if ('subjectId' in fact) direct.push(fact.subjectId);
@@ -33,6 +35,9 @@ export function regionFactTargets(fact: RegionSemanticFact): string[] {
   return direct;
 }
 function staleDependents(facts: RegionFacts, changed: Set<string>): RegionFacts {
+  // Negative assessments depend on inventory membership, including newly added sources.
+  const inventoryChanged = [...changed].some((id) => !id.startsWith('supply:'));
+  if (inventoryChanged) for (const fact of facts.supply) changed.add(fact.id);
   const all = lists.flatMap<RegionSemanticFact>((list) => facts[list]);
   let grew = true;
   while (grew) {

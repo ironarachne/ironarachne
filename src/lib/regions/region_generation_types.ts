@@ -9,6 +9,7 @@ export type RegionGenerationStage =
   | 'ecology-relationships'
   | 'processing'
   | 'livelihoods'
+  | 'supply'
   | 'resources'
   | 'habitation'
   | 'notable-places'
