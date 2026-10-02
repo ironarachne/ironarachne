@@ -1,0 +1,1072 @@
+{
+  "cpu": "Apple M4",
+  "node": "v22.20.0",
+  "browser": "148.0.7778.96",
+  "url": "http://127.0.0.1:5173",
+  "uiUrl": "http://127.0.0.1:4173",
+  "samples": 5,
+  "measurements": [
+    {
+      "seed": "alpha",
+      "bytes": {
+        "payload": 1069164,
+        "map": 427089,
+        "facts": 554945,
+        "svg": 125252,
+        "markdown": 347048,
+        "exportFile": 1069755
+      },
+      "counts": {
+        "nodes": 203,
+        "edges": 601,
+        "corners": 399,
+        "settlements": 5,
+        "svgElements": 1038,
+        "facts": {
+          "supply": 15,
+          "dailyLife": 40,
+          "products": 2,
+          "geology": 4,
+          "resourceDeposits": 5,
+          "areas": 5,
+          "habitats": 4,
+          "settlementRoles": 6,
+          "notables": 3,
+          "resources": 19,
+          "routes": 4,
+          "claims": 4,
+          "ecologyInhabitants": 18,
+          "ecologyRelationships": 2
+        }
+      },
+      "ms": {
+        "generateSnapshot": {
+          "median": 70.6000000089407,
+          "max": 78.90000000596046,
+          "samples": [71.90000000596046, 78.90000000596046, 70.6000000089407, 68.5, 66]
+        },
+        "stringify": {
+          "median": 2.7999999970197678,
+          "max": 3.4000000059604645,
+          "samples": [
+            3.4000000059604645, 3.0999999940395355, 2.699999988079071, 2.7999999970197678,
+            2.5999999940395355
+          ]
+        },
+        "svg": {
+          "median": 42.400000005960464,
+          "max": 58,
+          "samples": [58, 46.1000000089407, 42.400000005960464, 41.6000000089407, 39.70000000298023]
+        },
+        "markdown": {
+          "median": 1,
+          "max": 1.699999988079071,
+          "samples": [
+            1.699999988079071, 1.199999988079071, 1, 0.8999999910593033, 0.9000000059604645
+          ]
+        },
+        "parseValidate": {
+          "median": 52.29999999701977,
+          "max": 60.5,
+          "samples": [
+            60.5, 57.29999999701977, 52.29999999701977, 51.6000000089407, 51.70000000298023
+          ]
+        },
+        "save": {
+          "median": 59.3999999910593,
+          "max": 61.6000000089407,
+          "samples": [61.6000000089407, 59, 58.599999994039536, 59.70000000298023, 59.3999999910593]
+        },
+        "export": {
+          "median": 22.399999991059303,
+          "max": 28.599999994039536,
+          "samples": [
+            28.599999994039536, 22.399999991059303, 22.299999997019768, 22.599999994039536,
+            22.399999991059303
+          ]
+        },
+        "import": {
+          "median": 60,
+          "max": 74.79999999701977,
+          "samples": [74.79999999701977, 59.6000000089407, 59, 60, 61.29999999701977]
+        },
+        "read": {
+          "median": 46,
+          "max": 56.6000000089407,
+          "samples": [56.6000000089407, 46.3999999910593, 45, 45.29999999701977, 46]
+        }
+      }
+    },
+    {
+      "seed": "bravo",
+      "bytes": {
+        "payload": 1253654,
+        "map": 436176,
+        "facts": 704970,
+        "svg": 149631,
+        "markdown": 431231,
+        "exportFile": 1254248
+      },
+      "counts": {
+        "nodes": 207,
+        "edges": 615,
+        "corners": 409,
+        "settlements": 8,
+        "svgElements": 1247,
+        "facts": {
+          "supply": 24,
+          "dailyLife": 83,
+          "products": 4,
+          "geology": 4,
+          "resourceDeposits": 10,
+          "areas": 5,
+          "habitats": 3,
+          "settlementRoles": 9,
+          "notables": 4,
+          "resources": 21,
+          "routes": 7,
+          "claims": 7,
+          "ecologyInhabitants": 13,
+          "ecologyRelationships": 2
+        }
+      },
+      "ms": {
+        "generateSnapshot": {
+          "median": 94.5,
+          "max": 95.29999999701977,
+          "samples": [
+            94.5, 93.80000001192093, 94.6000000089407, 94.3999999910593, 95.29999999701977
+          ]
+        },
+        "stringify": {
+          "median": 3,
+          "max": 3.2000000029802322,
+          "samples": [3.2000000029802322, 3, 3.0999999940395355, 3, 2.7000000029802322]
+        },
+        "svg": {
+          "median": 35.80000001192093,
+          "max": 43.400000005960464,
+          "samples": [
+            35.599999994039536, 35.3999999910593, 36, 35.80000001192093, 43.400000005960464
+          ]
+        },
+        "markdown": {
+          "median": 1.3999999910593033,
+          "max": 1.6000000089406967,
+          "samples": [
+            1.6000000089406967, 1.4000000059604645, 1.2999999970197678, 1.3999999910593033,
+            1.3999999910593033
+          ]
+        },
+        "parseValidate": {
+          "median": 123.19999998807907,
+          "max": 124.20000000298023,
+          "samples": [
+            123.19999998807907, 124.20000000298023, 124.20000000298023, 122.5, 122.90000000596046
+          ]
+        },
+        "save": {
+          "median": 131.3999999910593,
+          "max": 132,
+          "samples": [
+            131.80000001192093, 132, 130.29999999701977, 131.3999999910593, 130.20000000298023
+          ]
+        },
+        "export": {
+          "median": 25.899999991059303,
+          "max": 26.200000002980232,
+          "samples": [
+            26.19999998807907, 25.299999997019768, 25.80000001192093, 26.200000002980232,
+            25.899999991059303
+          ]
+        },
+        "import": {
+          "median": 120.40000000596046,
+          "max": 146.5,
+          "samples": [
+            121.80000001192093, 120.40000000596046, 119.29999999701977, 146.5, 120.40000000596046
+          ]
+        },
+        "read": {
+          "median": 104.09999999403954,
+          "max": 104.5,
+          "samples": [
+            102.19999998807907, 104.5, 104.09999999403954, 104.29999999701977, 102.59999999403954
+          ]
+        }
+      }
+    },
+    {
+      "seed": "foxtrot",
+      "bytes": {
+        "payload": 1145760,
+        "map": 437435,
+        "facts": 621610,
+        "svg": 146865,
+        "markdown": 389119,
+        "exportFile": 1146353
+      },
+      "counts": {
+        "nodes": 209,
+        "edges": 622,
+        "corners": 414,
+        "settlements": 8,
+        "svgElements": 1242,
+        "facts": {
+          "supply": 24,
+          "dailyLife": 84,
+          "products": 6,
+          "geology": 4,
+          "resourceDeposits": 9,
+          "areas": 5,
+          "habitats": 3,
+          "settlementRoles": 9,
+          "notables": 3,
+          "resources": 20,
+          "routes": 7,
+          "claims": 7,
+          "ecologyInhabitants": 15,
+          "ecologyRelationships": 1
+        }
+      },
+      "ms": {
+        "generateSnapshot": {
+          "median": 82,
+          "max": 85.09999999403954,
+          "samples": [85.09999999403954, 84.30000001192093, 82, 81.3999999910593, 81.3999999910593]
+        },
+        "stringify": {
+          "median": 2.8999999910593033,
+          "max": 2.9000000059604645,
+          "samples": [
+            2.7999999970197678, 2.8999999910593033, 2.9000000059604645, 2.9000000059604645,
+            2.7999999970197678
+          ]
+        },
+        "svg": {
+          "median": 38.20000000298023,
+          "max": 42.29999999701977,
+          "samples": [
+            42.20000000298023, 42.29999999701977, 38.099999994039536, 38.20000000298023,
+            37.6000000089407
+          ]
+        },
+        "markdown": {
+          "median": 1.2000000029802322,
+          "max": 1.4000000059604645,
+          "samples": [
+            1.2000000029802322, 1.1000000089406967, 1.4000000059604645, 1.0999999940395355,
+            1.2000000029802322
+          ]
+        },
+        "parseValidate": {
+          "median": 106.90000000596046,
+          "max": 108.09999999403954,
+          "samples": [
+            107.40000000596046, 106.90000000596046, 106, 105.79999999701977, 108.09999999403954
+          ]
+        },
+        "save": {
+          "median": 113.6000000089407,
+          "max": 115.29999999701977,
+          "samples": [
+            112.8999999910593, 115.29999999701977, 113.6000000089407, 113.3999999910593, 115
+          ]
+        },
+        "export": {
+          "median": 23.299999997019768,
+          "max": 24,
+          "samples": [
+            22.900000005960464, 23.299999997019768, 23.399999991059303, 24, 23.100000008940697
+          ]
+        },
+        "import": {
+          "median": 109.1000000089407,
+          "max": 130.69999998807907,
+          "samples": [
+            105.79999999701977, 109.5, 109.1000000089407, 107.30000001192093, 130.69999998807907
+          ]
+        },
+        "read": {
+          "median": 91.70000000298023,
+          "max": 93.90000000596046,
+          "samples": [
+            91.70000000298023, 93.90000000596046, 91.29999999701977, 91.5, 93.20000000298023
+          ]
+        }
+      }
+    },
+    {
+      "seed": "charlie",
+      "bytes": {
+        "payload": 931430,
+        "map": 425228,
+        "facts": 430044,
+        "svg": 112421,
+        "markdown": 275308,
+        "exportFile": 932023
+      },
+      "counts": {
+        "nodes": 203,
+        "edges": 602,
+        "corners": 400,
+        "settlements": 7,
+        "svgElements": 747,
+        "facts": {
+          "supply": 21,
+          "dailyLife": 41,
+          "products": 2,
+          "geology": 4,
+          "resourceDeposits": 9,
+          "areas": 2,
+          "habitats": 1,
+          "settlementRoles": 8,
+          "notables": 4,
+          "resources": 17,
+          "routes": 6,
+          "claims": 6,
+          "ecologyInhabitants": 4,
+          "ecologyRelationships": 0
+        }
+      },
+      "ms": {
+        "generateSnapshot": {
+          "median": 51,
+          "max": 53.19999998807907,
+          "samples": [53.19999998807907, 51, 51.70000000298023, 50.6000000089407, 50.1000000089407]
+        },
+        "stringify": {
+          "median": 2.199999988079071,
+          "max": 2.2000000029802322,
+          "samples": [
+            2.2000000029802322, 2.2000000029802322, 2.1000000089406967, 2.199999988079071,
+            2.0999999940395355
+          ]
+        },
+        "svg": {
+          "median": 44.69999998807907,
+          "max": 50.20000000298023,
+          "samples": [
+            50.20000000298023, 45, 44.69999998807907, 42.80000001192093, 43.20000000298023
+          ]
+        },
+        "markdown": {
+          "median": 1,
+          "max": 1.0999999940395355,
+          "samples": [1.0999999940395355, 1, 1, 1, 0.8999999910593033]
+        },
+        "parseValidate": {
+          "median": 36.900000005960464,
+          "max": 37.400000005960464,
+          "samples": [
+            37.400000005960464, 36.900000005960464, 36.900000005960464, 36.8999999910593,
+            37.099999994039536
+          ]
+        },
+        "save": {
+          "median": 43.79999999701977,
+          "max": 44.599999994039536,
+          "samples": [
+            44.599999994039536, 43.79999999701977, 43.29999999701977, 44.20000000298023,
+            43.099999994039536
+          ]
+        },
+        "export": {
+          "median": 19.900000005960464,
+          "max": 20,
+          "samples": [
+            19.900000005960464, 20, 19.599999994039536, 19.900000005960464, 19.700000002980232
+          ]
+        },
+        "import": {
+          "median": 46.79999999701977,
+          "max": 47.20000000298023,
+          "samples": [
+            46.79999999701977, 47.20000000298023, 45.900000005960464, 47.099999994039536, 46
+          ]
+        },
+        "read": {
+          "median": 34,
+          "max": 34.20000000298023,
+          "samples": [34.20000000298023, 34.20000000298023, 33.5, 34, 33.1000000089407]
+        }
+      }
+    },
+    {
+      "seed": "5pkjdquccl04i",
+      "bytes": {
+        "payload": 1207580,
+        "map": 448388,
+        "facts": 678051,
+        "svg": 130420,
+        "markdown": 405681,
+        "exportFile": 1208179
+      },
+      "counts": {
+        "nodes": 214,
+        "edges": 630,
+        "corners": 417,
+        "settlements": 7,
+        "svgElements": 1028,
+        "facts": {
+          "supply": 21,
+          "dailyLife": 80,
+          "products": 4,
+          "geology": 4,
+          "resourceDeposits": 4,
+          "areas": 5,
+          "habitats": 4,
+          "settlementRoles": 8,
+          "notables": 4,
+          "resources": 20,
+          "routes": 6,
+          "claims": 6,
+          "ecologyInhabitants": 14,
+          "ecologyRelationships": 2
+        }
+      },
+      "ms": {
+        "generateSnapshot": {
+          "median": 82.5,
+          "max": 83.20000000298023,
+          "samples": [
+            83.20000000298023, 80.6000000089407, 82.5, 81.20000000298023, 82.59999999403954
+          ]
+        },
+        "stringify": {
+          "median": 2.8999999910593033,
+          "max": 3,
+          "samples": [
+            3, 2.7999999970197678, 2.9000000059604645, 2.8999999910593033, 2.7999999970197678
+          ]
+        },
+        "svg": {
+          "median": 40.5,
+          "max": 43.3999999910593,
+          "samples": [
+            40.5, 38.599999994039536, 43.3999999910593, 40.79999999701977, 40.29999999701977
+          ]
+        },
+        "markdown": {
+          "median": 1.5,
+          "max": 1.9000000059604645,
+          "samples": [1.5, 1.300000011920929, 1.9000000059604645, 1.6000000089406967, 1.5]
+        },
+        "parseValidate": {
+          "median": 121.40000000596046,
+          "max": 123,
+          "samples": [121.40000000596046, 119.79999999701977, 121.90000000596046, 123, 121]
+        },
+        "save": {
+          "median": 128.6000000089407,
+          "max": 131.20000000298023,
+          "samples": [128.5, 128.6000000089407, 131.20000000298023, 129.5, 127.09999999403954]
+        },
+        "export": {
+          "median": 25,
+          "max": 27.599999994039536,
+          "samples": [
+            25.099999994039536, 27.599999994039536, 24.69999998807907, 25, 24.700000002980232
+          ]
+        },
+        "import": {
+          "median": 122.80000001192093,
+          "max": 123.59999999403954,
+          "samples": [
+            122.70000000298023, 123, 122.80000001192093, 122.79999999701977, 123.59999999403954
+          ]
+        },
+        "read": {
+          "median": 106.6000000089407,
+          "max": 107.40000000596046,
+          "samples": [
+            107.29999999701977, 105.90000000596046, 105.5, 107.40000000596046, 106.6000000089407
+          ]
+        }
+      }
+    },
+    {
+      "seed": "audit-0",
+      "bytes": {
+        "payload": 1222539,
+        "map": 430454,
+        "facts": 697895,
+        "svg": 146916,
+        "markdown": 425395,
+        "exportFile": 1223131
+      },
+      "counts": {
+        "nodes": 207,
+        "edges": 608,
+        "corners": 402,
+        "settlements": 7,
+        "svgElements": 1253,
+        "facts": {
+          "supply": 21,
+          "dailyLife": 80,
+          "products": 4,
+          "geology": 4,
+          "resourceDeposits": 6,
+          "areas": 5,
+          "habitats": 5,
+          "settlementRoles": 8,
+          "notables": 4,
+          "resources": 22,
+          "routes": 6,
+          "claims": 6,
+          "ecologyInhabitants": 12,
+          "ecologyRelationships": 2
+        }
+      },
+      "ms": {
+        "generateSnapshot": {
+          "median": 76.8999999910593,
+          "max": 79.3999999910593,
+          "samples": [
+            76.8999999910593, 79.3999999910593, 77.5, 76.79999999701977, 75.80000001192093
+          ]
+        },
+        "stringify": {
+          "median": 2.9000000059604645,
+          "max": 3,
+          "samples": [3, 3, 2.7999999970197678, 2.9000000059604645, 2.8999999910593033]
+        },
+        "svg": {
+          "median": 34.70000000298023,
+          "max": 37.400000005960464,
+          "samples": [
+            33, 37.400000005960464, 35.30000001192093, 34.70000000298023, 34.20000000298023
+          ]
+        },
+        "markdown": {
+          "median": 1.5,
+          "max": 1.7999999970197678,
+          "samples": [1.5, 1.7999999970197678, 1.5, 1.3999999910593033, 1.4000000059604645]
+        },
+        "parseValidate": {
+          "median": 77.79999999701977,
+          "max": 78.59999999403954,
+          "samples": [
+            75.6000000089407, 77.79999999701977, 78.1000000089407, 78.59999999403954,
+            77.3999999910593
+          ]
+        },
+        "save": {
+          "median": 86.5,
+          "max": 90.09999999403954,
+          "samples": [
+            90.09999999403954, 86.29999999701977, 85.70000000298023, 86.5, 88.70000000298023
+          ]
+        },
+        "export": {
+          "median": 26,
+          "max": 27.099999994039536,
+          "samples": [26, 26, 25.899999991059303, 25.5, 27.099999994039536]
+        },
+        "import": {
+          "median": 84.6000000089407,
+          "max": 84.79999999701977,
+          "samples": [
+            84.79999999701977, 84.40000000596046, 84.6000000089407, 84.6000000089407,
+            84.70000000298023
+          ]
+        },
+        "read": {
+          "median": 67.5,
+          "max": 68.19999998807907,
+          "samples": [67, 67.5, 67.8999999910593, 68.19999998807907, 67]
+        }
+      }
+    },
+    {
+      "seed": "audit-4",
+      "bytes": {
+        "payload": 1120575,
+        "map": 433907,
+        "facts": 593233,
+        "svg": 125544,
+        "markdown": 364434,
+        "exportFile": 1121169
+      },
+      "counts": {
+        "nodes": 207,
+        "edges": 611,
+        "corners": 405,
+        "settlements": 6,
+        "svgElements": 1057,
+        "facts": {
+          "supply": 18,
+          "dailyLife": 69,
+          "products": 4,
+          "geology": 4,
+          "resourceDeposits": 6,
+          "areas": 5,
+          "habitats": 6,
+          "settlementRoles": 7,
+          "notables": 4,
+          "resources": 21,
+          "routes": 5,
+          "claims": 5,
+          "ecologyInhabitants": 10,
+          "ecologyRelationships": 4
+        }
+      },
+      "ms": {
+        "generateSnapshot": {
+          "median": 78,
+          "max": 78.09999999403954,
+          "samples": [78, 78.09999999403954, 78, 75.1000000089407, 77.70000000298023]
+        },
+        "stringify": {
+          "median": 2.7999999970197678,
+          "max": 2.9000000059604645,
+          "samples": [
+            2.9000000059604645, 2.7000000029802322, 2.7000000029802322, 2.7999999970197678,
+            2.9000000059604645
+          ]
+        },
+        "svg": {
+          "median": 39.5,
+          "max": 42.29999999701977,
+          "samples": [42.29999999701977, 39.5, 39, 39, 40.599999994039536]
+        },
+        "markdown": {
+          "median": 1.3999999910593033,
+          "max": 1.5,
+          "samples": [
+            1.4000000059604645, 1.2999999970197678, 1.2999999970197678, 1.3999999910593033, 1.5
+          ]
+        },
+        "parseValidate": {
+          "median": 62,
+          "max": 62.6000000089407,
+          "samples": [61.69999998807907, 62, 61.8999999910593, 62.19999998807907, 62.6000000089407]
+        },
+        "save": {
+          "median": 70,
+          "max": 74.20000000298023,
+          "samples": [69.20000000298023, 69.5, 70, 74.20000000298023, 71.09999999403954]
+        },
+        "export": {
+          "median": 23.299999997019768,
+          "max": 24.900000005960464,
+          "samples": [
+            23.100000008940697, 23.099999994039536, 23.799999997019768, 24.900000005960464,
+            23.299999997019768
+          ]
+        },
+        "import": {
+          "median": 68.80000001192093,
+          "max": 73.20000000298023,
+          "samples": [
+            68.19999998807907, 68.59999999403954, 68.80000001192093, 73.20000000298023,
+            70.30000001192093
+          ]
+        },
+        "read": {
+          "median": 54.6000000089407,
+          "max": 55.29999999701977,
+          "samples": [
+            55.20000000298023, 54.6000000089407, 53.599999994039536, 55.29999999701977,
+            53.3999999910593
+          ]
+        }
+      }
+    },
+    {
+      "seed": "audit-6",
+      "bytes": {
+        "payload": 1154937,
+        "map": 440927,
+        "facts": 616019,
+        "svg": 139559,
+        "markdown": 368953,
+        "exportFile": 1155528
+      },
+      "counts": {
+        "nodes": 210,
+        "edges": 622,
+        "corners": 413,
+        "settlements": 8,
+        "svgElements": 1128,
+        "facts": {
+          "supply": 16,
+          "dailyLife": 91,
+          "products": 4,
+          "geology": 4,
+          "resourceDeposits": 7,
+          "areas": 5,
+          "habitats": 4,
+          "settlementRoles": 9,
+          "notables": 4,
+          "resources": 21,
+          "routes": 7,
+          "claims": 7,
+          "ecologyInhabitants": 15,
+          "ecologyRelationships": 0
+        }
+      },
+      "ms": {
+        "generateSnapshot": {
+          "median": 81.79999999701977,
+          "max": 85.09999999403954,
+          "samples": [
+            81.3999999910593, 81.79999999701977, 81.79999999701977, 83.5, 85.09999999403954
+          ]
+        },
+        "stringify": {
+          "median": 2.7999999970197678,
+          "max": 2.9000000059604645,
+          "samples": [
+            2.9000000059604645, 2.7999999970197678, 2.7999999970197678, 2.7999999970197678,
+            2.9000000059604645
+          ]
+        },
+        "svg": {
+          "median": 35.70000000298023,
+          "max": 38.79999999701977,
+          "samples": [
+            35.70000000298023, 35.400000005960464, 34.79999999701977, 37.5, 38.79999999701977
+          ]
+        },
+        "markdown": {
+          "median": 1.5999999940395355,
+          "max": 1.7000000029802322,
+          "samples": [1.5999999940395355, 1.5999999940395355, 1.5, 1.7000000029802322, 1.5]
+        },
+        "parseValidate": {
+          "median": 74.20000000298023,
+          "max": 79.59999999403954,
+          "samples": [
+            73.90000000596046, 74.40000000596046, 73.79999999701977, 74.20000000298023,
+            79.59999999403954
+          ]
+        },
+        "save": {
+          "median": 82.8999999910593,
+          "max": 90.40000000596046,
+          "samples": [
+            82.8999999910593, 83.29999999701977, 82.6000000089407, 82.79999999701977,
+            90.40000000596046
+          ]
+        },
+        "export": {
+          "median": 24.30000001192093,
+          "max": 26.5,
+          "samples": [
+            24.30000001192093, 23.899999991059303, 23.899999991059303, 24.900000005960464, 26.5
+          ]
+        },
+        "import": {
+          "median": 82.70000000298023,
+          "max": 105.70000000298023,
+          "samples": [
+            80.29999999701977, 80.80000001192093, 105.70000000298023, 82.70000000298023,
+            88.20000000298023
+          ]
+        },
+        "read": {
+          "median": 65.79999999701977,
+          "max": 67.69999998807907,
+          "samples": [
+            65.20000000298023, 64.69999998807907, 65.79999999701977, 66.8999999910593,
+            67.69999998807907
+          ]
+        }
+      }
+    }
+  ],
+  "ui": [
+    {
+      "width": 1280,
+      "cpuThrottle": 1,
+      "seed": "alpha",
+      "generatePaintMs": 186.5,
+      "zoomPaintMs": 15.5,
+      "saveMs": 136,
+      "viewport": 1280,
+      "document": 1280,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "cpuThrottle": 1,
+      "seed": "bravo",
+      "generatePaintMs": 196.5,
+      "zoomPaintMs": 17.700000002980232,
+      "saveMs": 184.29999999701977,
+      "viewport": 1280,
+      "document": 1280,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "cpuThrottle": 1,
+      "seed": "foxtrot",
+      "generatePaintMs": 174.40000000596046,
+      "zoomPaintMs": 12.700000002980232,
+      "saveMs": 167.20000000298023,
+      "viewport": 1280,
+      "document": 1280,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "cpuThrottle": 1,
+      "seed": "charlie",
+      "generatePaintMs": 130.40000000596046,
+      "zoomPaintMs": 27.30000001192093,
+      "saveMs": 102.70000000298023,
+      "viewport": 1280,
+      "document": 1280,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "cpuThrottle": 1,
+      "seed": "5pkjdquccl04i",
+      "generatePaintMs": 163.1000000089407,
+      "zoomPaintMs": 19.5,
+      "saveMs": 184.20000000298023,
+      "viewport": 1280,
+      "document": 1280,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "cpuThrottle": 4,
+      "seed": "alpha",
+      "generatePaintMs": 685.7999999970198,
+      "zoomPaintMs": 25.30000001192093,
+      "saveMs": 498.90000000596046,
+      "viewport": 390,
+      "document": 390,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "cpuThrottle": 4,
+      "seed": "bravo",
+      "generatePaintMs": 738.8999999910593,
+      "zoomPaintMs": 19.5,
+      "saveMs": 716,
+      "viewport": 390,
+      "document": 390,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "cpuThrottle": 4,
+      "seed": "foxtrot",
+      "generatePaintMs": 667.5999999940395,
+      "zoomPaintMs": 16.799999997019768,
+      "saveMs": 666.2999999970198,
+      "viewport": 390,
+      "document": 390,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "cpuThrottle": 4,
+      "seed": "charlie",
+      "generatePaintMs": 520.7000000029802,
+      "zoomPaintMs": 19.600000008940697,
+      "saveMs": 394.90000000596046,
+      "viewport": 390,
+      "document": 390,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "cpuThrottle": 4,
+      "seed": "5pkjdquccl04i",
+      "generatePaintMs": 640.5,
+      "zoomPaintMs": 14.900000005960464,
+      "saveMs": 703.2999999970198,
+      "viewport": 390,
+      "document": 390,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "cpuThrottle": 4,
+      "seed": "alpha",
+      "generatePaintMs": 692.7000000029802,
+      "zoomPaintMs": 33.20000000298023,
+      "saveMs": 502.90000000596046,
+      "viewport": 320,
+      "document": 320,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "cpuThrottle": 4,
+      "seed": "bravo",
+      "generatePaintMs": 739.7999999970198,
+      "zoomPaintMs": 15.799999997019768,
+      "saveMs": 713.5999999940395,
+      "viewport": 320,
+      "document": 320,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "cpuThrottle": 4,
+      "seed": "foxtrot",
+      "generatePaintMs": 670.0999999940395,
+      "zoomPaintMs": 28.400000005960464,
+      "saveMs": 659.6999999880791,
+      "viewport": 320,
+      "document": 320,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "cpuThrottle": 4,
+      "seed": "charlie",
+      "generatePaintMs": 513.3999999910593,
+      "zoomPaintMs": 11.199999988079071,
+      "saveMs": 390.5,
+      "viewport": 320,
+      "document": 320,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "cpuThrottle": 4,
+      "seed": "5pkjdquccl04i",
+      "generatePaintMs": 612.7999999970198,
+      "zoomPaintMs": 21.599999994039536,
+      "saveMs": 710.7000000029802,
+      "viewport": 320,
+      "document": 320,
+      "localStorage": [
+        {
+          "key": "ironarachne.save.v1.workshop.active_project",
+          "characters": 77
+        }
+      ]
+    }
+  ],
+  "storage": {
+    "stores": {
+      "artifact_asset_blobs": {
+        "records": 15,
+        "jsonBytes": 916,
+        "blobBytes": 1993767
+      },
+      "artifact_assets": {
+        "records": 15,
+        "jsonBytes": 4951,
+        "blobBytes": 0
+      },
+      "artifact_payloads": {
+        "records": 15,
+        "jsonBytes": 16823740,
+        "blobBytes": 0
+      },
+      "artifacts": {
+        "records": 15,
+        "jsonBytes": 5148,
+        "blobBytes": 0
+      },
+      "meta": {
+        "records": 2,
+        "jsonBytes": 89,
+        "blobBytes": 0
+      },
+      "projects": {
+        "records": 1,
+        "jsonBytes": 185,
+        "blobBytes": 0
+      },
+      "quarantine": {
+        "records": 0,
+        "jsonBytes": 2,
+        "blobBytes": 0
+      },
+      "workspaces": {
+        "records": 0,
+        "jsonBytes": 2,
+        "blobBytes": 0
+      }
+    },
+    "estimate": {
+      "quota": 4300359201,
+      "usage": 5391905,
+      "usageDetails": {
+        "indexedDB": 5391905
+      }
+    }
+  }
+}
