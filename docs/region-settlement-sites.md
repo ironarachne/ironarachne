@@ -16,13 +16,18 @@ in this order:
   and moisture 0.3–0.8. This is a coarse fantasy suitability rule, not a soil survey.
 - River settlement: an incident river edge provides freshwater access; navigability is not claimed.
 - Forest settlement: forest or woodland biome supports access to woodland resources.
-- Land settlement: retain the ordinary placement explanation, including the negative-elevation
-  dry-land fallback. Specific geography is never invented to fill a role slot.
+- Land settlement: describe a settled foothold, or difficult ground for the placement fallback. Specific geography is never invented to fill a role slot.
 
 Mines and mountain passes are deferred: the graph has no mineral deposits or verified pass data.
 All rule IDs are versioned. Evidence uses graph IDs rather than array offsets; incident river
-edges are recognized on either side. Classification draws no random values and preserves the
-existing named habitation RNG boundary.
+edges are recognized on either side. Classification draws no random values. Narrative variants use the existing named habitation RNG
+stream after roles are sorted by stable identity, preserving same-seed output and independence from
+settlement-list order. The shared narrative composer carries bounded batch context and prefers unused template/fragment
+combinations before repeating the same description.
+Prose describes geography and political importance without generation diagnostics or unsupported
+claims about docks, navigable rivers, crops or specific institutions. The capital is described as
+a center of authority. The page and narrative exports put settlement roles under **Settlement
+character**; **Inhabitants** contains living fantastical inhabitants rather than settlement roles.
 
 Road facts trace actual saved road edges through intermediate nodes. A deterministic root in each
 connected settlement component links to the other reachable towns. Disconnected settlements gain

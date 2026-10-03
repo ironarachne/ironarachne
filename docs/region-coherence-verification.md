@@ -72,8 +72,8 @@ introduced.
 The terrain-profile defect identified in [the workflow audit](regions-workflow-audit.md) remains a
 physical-generation limitation, not an evidence or persistence failure. `charlie` has mountainous
 measured relief, but only 11.49% mountain/high-mountain cells, below #249's accepted 15% minimum.
-Other fixtures also miss requested profiles. `recordPhysicalFacts` explicitly records these
-mismatches, and overview tests assert the realized terrain. This verification does **not** declare
+Other fixtures also miss requested profiles. `recordPhysicalFacts` and the overview
+describe the realized terrain rather than the requested profile; tests assert that distinction. This verification does **not** declare
 all nine requested terrain profiles compliant or weaken their thresholds.
 
 The arid fixture establishes cross-system coherence for cold-desert pockets. It does not demonstrate

@@ -61,8 +61,15 @@ describe('dependent generation passes', () => {
     const after = snapshot('isolated');
     expect(after.map).toEqual(before.map);
     expect(after.environment).toEqual(before.environment);
-    expect(after.facts.areas).toEqual(before.facts.areas);
-    expect(after.facts.habitats).toEqual(before.facts.habitats);
+    if (name === 'generateHabitatFacts') {
+      const withoutProse = <T extends { description: string }>(facts: T[]) =>
+        facts.map(({ description: _description, ...fact }) => fact);
+      expect(withoutProse(after.facts.areas)).toEqual(withoutProse(before.facts.areas));
+      expect(withoutProse(after.facts.habitats)).toEqual(withoutProse(before.facts.habitats));
+    } else {
+      expect(after.facts.areas).toEqual(before.facts.areas);
+      expect(after.facts.habitats).toEqual(before.facts.habitats);
+    }
     if (name !== 'generateGeologyFacts') expect(after.facts.geology).toEqual(before.facts.geology);
     if (name !== 'generateEcologyInhabitants')
       expect(after.facts.ecologyInhabitants).toEqual(before.facts.ecologyInhabitants);
@@ -80,8 +87,14 @@ describe('dependent generation passes', () => {
           'generateEcologyInhabitants',
           'generateEcologyRelationships',
         ].includes(name)
-      )
-        expect(after.facts.notables).toEqual(before.facts.notables);
+      ) {
+        if (name === 'generateHabitationFacts') {
+          // Settlement approaches reuse role prose; only that prose follows the changed draws.
+          const withoutProse = (value: typeof before) =>
+            value.facts.notables.map(({ description: _description, ...fact }) => fact);
+          expect(withoutProse(after)).toEqual(withoutProse(before));
+        } else expect(after.facts.notables).toEqual(before.facts.notables);
+      }
     }
     if (
       [
@@ -200,7 +213,7 @@ describe('dependent generation passes', () => {
     ).toBe(false);
   });
 
-  it('explains a profile mismatch using the realized graph without rewriting it', () => {
+  it('describes the realized terrain without exposing requested-profile diagnostics', () => {
     const region = generate({
       rng: new RNG('mismatch'),
       nameGeneratorSet: getFantasyNameGeneratorSet('human', new RNG('names')),
@@ -216,9 +229,14 @@ describe('dependent generation passes', () => {
     });
     const realized = structuredClone(region.map);
     region.facts!.areas = [];
-    Passes.recordPhysicalFacts(region, { altitude: 'low', relief: 'mountainous' });
-    expect(region.facts!.areas[0].description).toContain('was not achieved');
-    expect(region.facts!.areas[0].description).toContain('flat and high-altitude');
+    Passes.recordPhysicalFacts(
+      region,
+      { altitude: 'low', relief: 'mountainous' },
+      new RNG('physical'),
+    );
+    expect(region.facts!.areas[0].description).not.toMatch(/requested|achieved|downstream|map/);
+    expect(region.facts!.areas[0].description).toMatch(/flat|level/);
+    expect(region.facts!.areas[0].description).toMatch(/high country|high-lying ground/);
     expect(
       region.facts!.areas[0].reason!.sources.every(
         (source) => source.kind === 'map-node' && source.observedValue === '0.9',
@@ -241,9 +259,9 @@ describe('dependent generation passes', () => {
     region.map.nodes.forEach((node) => {
       node.isOcean = true;
     });
-    expect(() => Passes.recordPhysicalFacts(region, { altitude: 'low', relief: 'flat' })).toThrow(
-      'no land',
-    );
+    expect(() =>
+      Passes.recordPhysicalFacts(region, { altitude: 'low', relief: 'flat' }, new RNG('physical')),
+    ).toThrow('no land');
     expect(() => Passes.generateHabitationFacts(region, new RNG('bad'))).toThrow('land placement');
   });
 });

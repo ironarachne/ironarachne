@@ -257,6 +257,18 @@ test.describe('a region', () => {
     const heading = await page.locator('section.main h2').first().innerText();
     const gazetteerText = await page.locator('.gazetteer').textContent();
     expect(gazetteerText).not.toMatch(/Recorded map|Recorded climate|isWater =|moisture =|road =/);
+    const settlementCharacter = page.getByRole('region', {
+      name: 'Settlement character',
+      exact: true,
+    });
+    await expect(settlementCharacter).toContainText('Regional capital');
+    await expect(settlementCharacter).not.toContainText(
+      /generated|mapped|cells|edges|fallback|selected|implied/,
+    );
+    const landscape = page.getByRole('region', { name: 'Landscape', exact: true });
+    await expect(landscape).not.toContainText(
+      /cells|edges|median|°C|0–1|temperatures of|moisture of|not achieved/,
+    );
 
     const markdown = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download Markdown' }).click();

@@ -256,7 +256,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   region.environment = Environments.generate(environmentConfig);
   region.map = buildRegionTerrain(physicalConfig, region.environment, profile, latitude);
   region.facts = emptyRegionFacts('current');
-  recordPhysicalFacts(region, profile);
+  recordPhysicalFacts(region, profile, physicalConfig.rng);
 
   generateGeologyFacts(region, createRegionStageRng(seed, 'geology'));
   generateHabitatFacts(region, createRegionStageRng(seed, 'habitats'));

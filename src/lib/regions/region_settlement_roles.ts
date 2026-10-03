@@ -1,4 +1,6 @@
 import { isUsableRegionResource } from './region_resources';
+import type { NarrativeContext } from '$lib/narrative';
+import { settlementRoleNarrative } from './region_narrative';
 import type { RNG } from '@ironarachne/rng';
 import { Suitability, type MapNode, type MapEdge, type RegionMap } from '$lib/map';
 import type Region from './region.js';
@@ -32,6 +34,50 @@ const edgeObservation = (edge: MapEdge, property: 'river' | 'road'): FactSource 
   observedValue: String(edge[property]),
 });
 
+/** Narrative variants describe only the role established by the site's saved evidence. */
+const roleNarratives: Record<string, string[]> = {
+  'river-crossing': [
+    'The road meets the river here, making this settlement a natural stopping place for those crossing between its banks.',
+    'Travel through the surrounding country converges here, where a road carries the journey across the river.',
+    'This settlement stands where road and river meet, tying the country on either bank together.',
+  ],
+  'coastal-port-site': [
+    'The sea opens the settlement toward a wider world, offering opportunities for trade along the coast.',
+    'Open water lies beside this settlement, putting the coastal routes within reach of its inhabitants.',
+    'Life here has an outward-looking prospect: the neighboring sea offers a way along the coast and beyond.',
+  ],
+  'agricultural-site': [
+    'Gentle grasslands surround the settlement, offering room for fields and the promise of a farming livelihood.',
+    'Farming is a natural prospect here, where low grassland and a temperate climate offer welcoming ground for cultivation.',
+    'The country around this settlement lends itself to fields, with warmth and water to support cultivation.',
+  ],
+  'river-settlement': [
+    'The river is a close neighbor, bringing freshwater within reach of the settlement and shaping its place in the landscape.',
+    'This settlement keeps to the river, with freshwater nearby and the banks forming a familiar edge to its surroundings.',
+    'Freshwater lies close at hand here, where the settlement sits beside the river.',
+  ],
+  'forest-settlement': [
+    'Woodland frames the settlement, putting the resources of the forest close at hand.',
+    'The forest is part of this settlement’s everyday surroundings, offering woodland resources within easy reach.',
+    'This is a settlement with the woods on its doorstep, closely tied to the surrounding forest.',
+  ],
+  'land-placement-fallback': [
+    'The settlement holds an unlikely foothold on difficult ground, away from the region’s gentler country.',
+    'Life has taken root here despite the difficult terrain that surrounds the settlement.',
+    'This settlement occupies demanding ground, a home beyond the region’s easier places to settle.',
+  ],
+  'land-placement': [
+    'This settlement is a foothold in the surrounding country, a home from which its inhabitants look outward across the region.',
+    'Here the wider landscape gives way to a settled place, grounding local life in the surrounding country.',
+    'The settlement forms a small center of life amid the surrounding land.',
+  ],
+  'regional-capital': [
+    'Power in the region has a home here, and decisions made in this settlement reach far beyond its own streets.',
+    'This settlement is the region’s political heart, where local concerns become matters of wider rule.',
+    'The surrounding country looks to this settlement as its seat of authority, giving its affairs weight beyond its borders.',
+  ],
+};
+
 /** Roles describe existing sites; they never relocate settlements or alter their snapshots. */
 function siteRole(node: MapNode, map: RegionMap) {
   const edges = map.edges
@@ -49,7 +95,7 @@ function siteRole(node: MapNode, map: RegionMap) {
     return {
       rule: 'river-crossing',
       name: 'River crossing',
-      description: 'A saved road crosses a river edge here between two dry-land cells.',
+      description: roleNarratives['river-crossing'][0],
       nodes: [node],
       edges: [crossing],
       sources: [
@@ -68,8 +114,7 @@ function siteRole(node: MapNode, map: RegionMap) {
     return {
       rule: 'coastal-port-site',
       name: 'Coastal port site',
-      description:
-        'This dry coastal site adjoins ocean water and offers access for coastal trade; no sheltered harbor is implied.',
+      description: roleNarratives['coastal-port-site'][0],
       nodes: [node],
       edges: [],
       sources: [observation(node, 'isCoast'), observation(ocean, 'isOcean')],
@@ -87,8 +132,7 @@ function siteRole(node: MapNode, map: RegionMap) {
     return {
       rule: 'agricultural-site',
       name: 'Agricultural center',
-      description:
-        'Low-lying grassland with moderate warmth and moisture supports farming around this settlement.',
+      description: roleNarratives['agricultural-site'][0],
       nodes: [node],
       edges: [],
       sources: [
@@ -103,8 +147,7 @@ function siteRole(node: MapNode, map: RegionMap) {
     return {
       rule: 'river-settlement',
       name: 'River settlement',
-      description:
-        'A river borders this settlement and provides local freshwater access; no crossing or navigability is implied.',
+      description: roleNarratives['river-settlement'][0],
       nodes: [node],
       edges: [river],
       sources: [edgeObservation(river, 'river')],
@@ -113,8 +156,7 @@ function siteRole(node: MapNode, map: RegionMap) {
     return {
       rule: 'forest-settlement',
       name: 'Forest settlement',
-      description:
-        'The mapped forest habitat supports access to woodland resources around this settlement.',
+      description: roleNarratives['forest-settlement'][0],
       nodes: [node],
       edges: [],
       sources: [observation(node, 'biomeId')],
@@ -124,8 +166,8 @@ function siteRole(node: MapNode, map: RegionMap) {
     rule: fallback ? 'land-placement-fallback' : 'land-placement',
     name: 'Land settlement',
     description: fallback
-      ? 'No preferred site remained; the placement fallback selected dry land despite its unsuitable elevation.'
-      : 'Selected from dry-land sites ranked by freshwater access, elevation and temperature; no more specific site role is supported.',
+      ? roleNarratives['land-placement-fallback'][0]
+      : roleNarratives['land-placement'][0],
     nodes: [node],
     edges: [],
     sources: [observation(node, 'elevation'), observation(node, 'temperature')],
@@ -183,7 +225,8 @@ function addRoadRelationships(region: Region, roles: SettlementRoleFact[]): void
         name: 'Settlement road',
         kind: 'road',
         origin: 'generated',
-        description: 'The saved road network connects these settlements.',
+        description:
+          'A road runs between these settlements, binding their places in the surrounding country together.',
         areaIds: areas.map((area) => area.id),
         anchor: { nodeIds, edgeIds: edges.map((edge) => edge.id) },
         endpoints: [
@@ -199,7 +242,7 @@ function addRoadRelationships(region: Region, roles: SettlementRoleFact[]): void
         id: `claim:${id}`,
         name: 'Road connection',
         origin: 'generated',
-        description: 'These settlement sites are linked by the recorded road route.',
+        description: 'A road ties these settlements together across the surrounding country.',
         subjectId: root.id,
         relatedIds: [target.id, id],
         reason: reason(
@@ -211,8 +254,9 @@ function addRoadRelationships(region: Region, roles: SettlementRoleFact[]): void
   }
 }
 
-export function generateHabitationFacts(region: Region, _rng: RNG): void {
+export function generateHabitationFacts(region: Region, rng: RNG): void {
   const roles: SettlementRoleFact[] = [];
+  const narratives = new Map<string, string[]>();
   for (const [index, settlement] of region.settlements.entries()) {
     const node = region.map.nodes.find((node) => node.id === settlement.mapNodeId);
     if (!node || node.isOcean || node.isWater)
@@ -249,21 +293,37 @@ export function generateHabitationFacts(region: Region, _rng: RNG): void {
         ...[...habitats, ...resources].map((fact) => ({ kind: 'fact' as const, factId: fact.id })),
       ]),
     };
+    narratives.set(role.id, roleNarratives[site.rule]);
     roles.push(role);
   }
   roles.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  // Select prose after sorting so reordering saved settlements does not change their words.
+  let context: NarrativeContext = { recentSelections: [] };
+  for (const role of roles) {
+    const result = settlementRoleNarrative(role, narratives.get(role.id)!, context, rng);
+    role.description = result.text;
+    context = result.nextContext;
+  }
   region.facts!.settlementRoles.push(...roles);
   addRoadRelationships(region, roles);
   const capitalId = region.settlementIds?.[0];
   const capital = roles.find(
     (role) => role.settlement.kind === 'embedded' && role.settlement.settlementId === capitalId,
   );
-  if (capital)
-    region.facts!.settlementRoles.push({
+  if (capital) {
+    const capitalRole: SettlementRoleFact = {
       ...structuredClone(capital),
       id: 'role:capital',
       name: 'Regional capital',
-      description: 'The regional seat of authority, designated when this region was generated.',
+      description: '',
       reason: reason('regional-capital', [{ kind: 'fact', factId: capital.id }]),
-    });
+    };
+    capitalRole.description = settlementRoleNarrative(
+      capitalRole,
+      roleNarratives['regional-capital'],
+      context,
+      rng,
+    ).text;
+    region.facts!.settlementRoles.push(capitalRole);
+  }
 }

@@ -1,5 +1,7 @@
 import type { RNG } from '@ironarachne/rng';
-import { classifyAltitude, type MapNode, type RegionMap } from '$lib/map';
+import type { MapNode, RegionMap } from '$lib/map';
+import { composeNarrative, type NarrativeContext } from '$lib/narrative';
+import { landscapeNarrativeSubject } from './region_narrative';
 import type Region from './region.js';
 import type { FactReason, FactSource, MapNodeFactProperty } from './region_fact_types.js';
 
@@ -58,22 +60,6 @@ function location(nodes: MapNode[], map: RegionMap): string {
   return [vertical, horizontal].filter(Boolean).join(' ') || 'central';
 }
 
-function range(nodes: MapNode[], property: 'temperature' | 'moisture'): string {
-  const values = nodes.map((node) => node[property]);
-  return `${Math.min(...values).toFixed(1)} to ${Math.max(...values).toFixed(1)}`;
-}
-
-function physicalDescription(nodes: MapNode[], map: RegionMap): string {
-  const elevations = nodes.map((node) => node.elevation).sort((a, b) => a - b);
-  const altitude = classifyAltitude(elevations[Math.max(0, Math.ceil(elevations.length / 2) - 1)]);
-  const rivers = riverEdges(nodes, map);
-  const water = [
-    nodes.some((node) => node.isCoast) ? 'coastal cells' : '',
-    rivers.length > 0 ? 'river edges' : '',
-  ].filter(Boolean);
-  return `The mapped cells have ${altitude} median altitude, temperatures of ${range(nodes, 'temperature')} °C and moisture of ${range(nodes, 'moisture')} on the map's 0–1 scale.${water.length > 0 ? ` They include ${water.join(' and ')}.` : ''}`;
-}
-
 function riverEdges(nodes: MapNode[], map: RegionMap) {
   const ids = new Set(nodes.map((node) => node.id));
   return map.edges
@@ -83,8 +69,8 @@ function riverEdges(nodes: MapNode[], map: RegionMap) {
     .sort((a, b) => a.id - b.id);
 }
 
-/** Semantic groupings of the saved graph; no terrain changes or additional random draws. */
-export function generateHabitatFacts(region: Pick<Region, 'map' | 'facts'>, _rng: RNG): void {
+/** Semantic groupings of the saved graph; no terrain changes; prose uses the existing stage RNG. */
+export function generateHabitatFacts(region: Pick<Region, 'map' | 'facts'>, rng: RNG): void {
   const facts = region.facts!;
   const land = facts.areas.find((area) => area.id === 'area:land');
   if (land === undefined) throw new Error('Habitat generation requires the regional land fact.');
@@ -104,17 +90,37 @@ export function generateHabitatFacts(region: Pick<Region, 'map' | 'facts'>, _rng
     .flatMap((group) => group.slice(1))
     .sort((a, b) => b.length - a.length || a[0].id - b[0].id);
   zones.push(...extra.slice(0, 4 - zones.length));
+  let context: NarrativeContext = { recentSelections: [] };
+  const describe = (id: string, biome: string, footprint: MapNode[], dominant?: boolean) => {
+    const subject = landscapeNarrativeSubject(
+      id,
+      biome,
+      location(footprint, region.map),
+      footprint,
+      region.map,
+      nodes,
+      dominant,
+    );
+    const result = composeNarrative(
+      subject,
+      { maxSentences: 3, maxPerTopic: 1, repetitionWindow: 8 },
+      context,
+      rng,
+    );
+    context = result.nextContext;
+    return result.text;
+  };
   for (const patch of zones) {
     const rivers = riverEdges(patch, region.map);
     facts.areas.push({
       id: `area:habitat-zone:${patch[0].id}`,
       name: `${location(patch, region.map)} ${patch[0].biomeId} zone`,
-      description: `A connected ${patch[0].biomeId} zone in the ${location(patch, region.map)} part of the map. ${physicalDescription(patch, region.map)}`,
+      description: describe(`area:habitat-zone:${patch[0].id}`, patch[0].biomeId!, patch),
       origin: 'generated',
       mapNodeIds: patch.map((node) => node.id),
       reason: reason('habitat-zone', [
         { kind: 'fact', factId: land.id },
-        ...observations(patch),
+        ...observations(nodes),
         ...rivers.map(
           (edge): FactSource => ({
             kind: 'map-edge',
@@ -129,11 +135,15 @@ export function generateHabitatFacts(region: Pick<Region, 'map' | 'facts'>, _rng
   for (const [index, group] of groups.entries()) {
     const ids = new Set(group.nodes.map((node) => node.id));
     const areas = facts.areas.filter((area) => area.mapNodeIds.some((id) => ids.has(id)));
-    const namedZones = areas.filter((area) => area.id !== land.id);
     facts.habitats.push({
       id: `habitat:biome:${encodeURIComponent(group.biome)}`,
       name: group.biome,
-      description: `${index === 0 ? 'Dominant' : 'Secondary'} mapped habitat: ${group.biome}, covering ${group.nodes.length} of ${nodes.length} dry-land cells.${namedZones.length > 0 ? ` Major areas: ${namedZones.map((area) => area.name).join('; ')}.` : ` Its cells lie around the ${location(group.nodes, region.map)} part of the map; no major zone is selected for it.`} ${physicalDescription(group.nodes, region.map)}`,
+      description: describe(
+        `habitat:biome:${encodeURIComponent(group.biome)}`,
+        group.biome,
+        group.nodes,
+        index === 0,
+      ),
       origin: 'generated',
       areaIds: areas.map((area) => area.id),
       anchor: {
@@ -142,7 +152,7 @@ export function generateHabitatFacts(region: Pick<Region, 'map' | 'facts'>, _rng
       },
       reason: reason('spatial-biome-habitat', [
         ...areas.map((area): FactSource => ({ kind: 'fact', factId: area.id })),
-        ...observations(group.nodes),
+        ...observations(nodes),
         ...riverEdges(group.nodes, region.map).map(
           (edge): FactSource => ({
             kind: 'map-edge',
