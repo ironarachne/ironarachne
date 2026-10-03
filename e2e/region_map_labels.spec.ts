@@ -30,6 +30,23 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
         ].map((marker) => marker.getBBox());
         const labels = [...root.querySelectorAll<SVGTextElement>('text[data-text-box]')];
         const errors: string[] = [];
+        const areaLabels = [
+          ...document.querySelectorAll('.gazetteer [data-fact-id^="area:habitat-zone:"]'),
+        ].map((entry) => ({
+          id: entry.getAttribute('data-fact-id')!,
+          name: entry.querySelector('h4')!.textContent!.trim(),
+        }));
+        if (!areaLabels.length) errors.push('Expected named landscape areas');
+        for (const area of areaLabels) {
+          const label = labels.find(
+            (text) =>
+              text.closest('[data-feature-id]')?.getAttribute('data-feature-id') === area.id,
+          );
+          if (!label || label.textContent?.trim() !== area.name)
+            errors.push(`Missing saved landscape label: ${area.name}`);
+        }
+        if (root.querySelector('[data-feature-id^="habitat:biome:"]'))
+          errors.push('Map labels biome summaries instead of named landscape areas');
         for (const text of labels) {
           const feature = text.closest('[data-feature-id]');
           if (!feature || feature.getAttribute('data-feature-kind') === 'settlement') continue;

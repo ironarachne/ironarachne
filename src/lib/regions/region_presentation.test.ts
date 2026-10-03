@@ -52,6 +52,25 @@ describe('arranging a region for reading', () => {
     expect(document.paragraphs.at(-1)).toContain(snapshot.authority.firstName);
   });
 
+  it.each(REGION_SEED_BANK)(
+    'labels every named landscape area on the $contrast map',
+    ({ seed }) => {
+      const saved = rollRegionSnapshot(seed);
+      const before = structuredClone(saved);
+      const areas = saved.facts.areas.filter((area) => area.id.startsWith('area:habitat-zone:'));
+      const svg = regionToMapSvg(saved);
+      expect(areas.length).toBeGreaterThan(0);
+      expect(areas.length).toBeLessThanOrEqual(4);
+      for (const area of areas) {
+        expect(svg).toContain(`data-feature-id="${area.id}"`);
+        expect(svg).toContain(area.name);
+      }
+      expect(svg).not.toContain('data-feature-id="habitat:biome:');
+      expect(svg).not.toContain('data-feature-id="area:land"');
+      expect(saved).toEqual(before);
+    },
+  );
+
   it('lists the realms with who holds each', () => {
     const realms = document.sections.find((section) => section.heading === 'Realms');
     expect(realms?.lines).toHaveLength(snapshot.realms.length);
@@ -214,9 +233,9 @@ describe('stored regional facts on the illustrative map', () => {
       ...snapshot,
       facts: {
         ...snapshot.facts,
-        habitats: snapshot.facts.habitats.map((fact, index) => ({
+        areas: snapshot.facts.areas.map((fact, index) => ({
           ...fact,
-          name: `Habitat ${index}`,
+          name: fact.id === 'area:land' ? fact.name : `Saved Landscape ${index}`,
         })),
         notables: snapshot.facts.notables.map((fact, index) => ({
           ...fact,
@@ -226,7 +245,10 @@ describe('stored regional facts on the illustrative map', () => {
     };
     const svg = regionToMapSvg(edited);
     const prose = regionToMarkdown(edited);
-    const facts = [...edited.facts.habitats, ...edited.facts.notables];
+    const facts = [
+      ...edited.facts.areas.filter((fact) => fact.id !== 'area:land'),
+      ...edited.facts.notables,
+    ];
     const shown = facts.filter((fact) => svg.includes(`data-feature-id="${fact.id}"`));
     expect(shown.length).toBeGreaterThan(0);
     for (const fact of shown) {
@@ -236,7 +258,7 @@ describe('stored regional facts on the illustrative map', () => {
     expect(svg).toEqual(regionToMapSvg(edited));
   });
   it('keeps old maps usable without regional facts', () => {
-    const legacy = { ...snapshot, facts: { ...snapshot.facts, habitats: [], notables: [] } };
+    const legacy = { ...snapshot, facts: emptyRegionFacts('legacy') };
     const svg = regionToMapSvg(legacy);
     expect(svg).toContain('<svg');
     expect(svg).not.toContain('data-feature-marker');
