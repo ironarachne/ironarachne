@@ -14,6 +14,20 @@ narrative facts and stale-explanation review notices
 remain present; stale evidence is not presented as current. No persisted types, payload versions
 or generation rules change.
 
+## UI entry headings
+
+`regionToUiDocument` adds a UI-only projection from the same saved fields. Each gazetteer section
+uses an h3 and its named entries use h4 headings followed by descriptive paragraphs. Stored
+notable adventure hooks use qualified h5 subheadings. Names and prose are read separately from
+the snapshot, so colons inside either are preserved rather than treated as parsing delimiters.
+
+Qualifiers reflect the entry's kind and context: a saved capital city reads “The Capital City of
+Shadowreach,” while a town retains its town category. Capital identity follows the saved role,
+with the same legacy fallback as the map. Settlement roles, livelihoods, realms, populations,
+landmarks, routes, hazards and organizations receive their own qualifiers. Route headings retain
+endpoint names. Repeated heading text is disambiguated with a visible entry ordinal, without
+exposing fact IDs. The snapshot and existing Markdown/PDF document remain unchanged.
+
 ## Printing and maps
 
 A fixed one- or two-page layout is not feasible for the narrative document. The entry

@@ -255,13 +255,29 @@ test.describe('a region', () => {
   test('downloads a gazetteer a referee can take to the table', async ({ page }) => {
     await openGenerator(page);
     const heading = await page.locator('section.main h2').first().innerText();
+    const gazetteer = page.locator('.gazetteer');
+    const entryHeadings = gazetteer.locator('article > h4');
+    expect(await entryHeadings.count()).toBeGreaterThan(0);
+    const headingTexts = await gazetteer.locator('h2, h3, h4, h5').allTextContents();
+    const normalizedHeadings = headingTexts.map((text) =>
+      text.trim().replace(/\s+/g, ' ').toLowerCase(),
+    );
+    expect(new Set(normalizedHeadings).size).toBe(normalizedHeadings.length);
+    for (const section of await gazetteer.locator('section').all()) {
+      await expect(section.locator(':scope > h3')).toHaveCount(1);
+      for (const article of await section.locator('article').all()) {
+        await expect(article.locator(':scope > h4')).toHaveCount(1);
+      }
+    }
     const gazetteerText = await page.locator('.gazetteer').textContent();
     expect(gazetteerText).not.toMatch(/Recorded map|Recorded climate|isWater =|moisture =|road =/);
     const settlementCharacter = page.getByRole('region', {
       name: 'Settlement character',
       exact: true,
     });
-    await expect(settlementCharacter).toContainText('Regional capital');
+    await expect(
+      settlementCharacter.getByRole('heading', { level: 4, name: /^The Regional Capital at / }),
+    ).toBeVisible();
     await expect(settlementCharacter).not.toContainText(
       /generated|mapped|cells|edges|fallback|selected|implied/,
     );
@@ -280,7 +296,9 @@ test.describe('a region', () => {
     const places = page.locator('[data-notable-id]');
     expect(await places.count()).toBeGreaterThan(0);
     for (const place of await places.all()) {
-      expect(contents).toContain(await place.locator('[data-gazetteer-text]').innerText());
+      for (const text of await place.locator('[data-gazetteer-text]').allTextContents()) {
+        expect(contents).toContain(text);
+      }
     }
     for (const paragraph of await page.locator('[data-gazetteer-text]').all()) {
       expect(contents).toContain(await paragraph.innerText());

@@ -12,7 +12,7 @@ import { regionSemanticFactLists } from './region_resource_editing';
 export type RegionSection = {
   heading: string;
   lines: string[];
-  /** Optional semantic identities for links to supporting explanations on screen. */
+  /** Optional semantic identities for entries and map features on screen. */
   factIds?: string[];
 };
 

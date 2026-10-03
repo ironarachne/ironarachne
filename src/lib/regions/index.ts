@@ -45,3 +45,6 @@ export {
 export type * from './region_supply_types';
 export { generateSupplyFacts } from './region_supply';
 export { settlementSupplyContext, describeSettlementSupply } from './region_supply_presentation';
+
+export { regionToUiDocument } from './region_ui_presentation';
+export type * from './region_ui_presentation_types';

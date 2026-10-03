@@ -103,6 +103,10 @@ The modules the readiness pass gives every Release-ready tool
   appendices; supporting facts remain stored for editing and validation.
   `regionToExportDocument` shares the concise reading entry for Markdown, standalone PDF text
   and project PDF publication.
+  `regionToUiDocument` projects qualified entry headings and descriptive paragraphs for the page:
+  h3 sections, h4 entries and h5 adventure hooks. Duplicate headings receive readable qualifiers;
+  saved names containing colons and capital identity are preserved. This UI projection does not
+  change the Markdown/PDF text document or saved payloads.
   PDF pagination has no fixed page cap. The illustrative map remains a separate SVG rendered
   from the same snapshot; no new map or facts are generated on export. See
   [region export decisions](../../../docs/region-exports.md).
