@@ -144,3 +144,44 @@ test('saved regional materials survive editing and use current source evidence',
   panel = await openInWorkshop(page, 'Material consumer');
   await expect(panel.getByRole('region', { name: 'Regional material details' })).toHaveCount(0);
 });
+
+test('a settlement tool clears regional composition when its project changes', async ({ page }) => {
+  test.slow();
+  await openEmpty(page);
+  await createProject(page, 'Source campaign');
+  await openGenerator(page);
+  await page.getByLabel('Seed', { exact: true }).fill('alpha');
+  await page.getByLabel('Lock Seed').check();
+  await page.getByRole('button', { name: 'Generate', exact: true }).click();
+  await saveAs(page, 'Source region');
+  await createProject(page, 'Empty campaign');
+  await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+  const switcher = page.locator('section.project-context').getByLabel('Open project');
+  await switcher.selectOption({ label: 'Source campaign' });
+  await page
+    .locator('section.tool-browser')
+    .getByRole('button', { name: /^Settlement$/ })
+    .click();
+  const tool = page.getByRole('region', { name: 'Settlement panel', exact: true });
+  await tool.getByLabel('Choose materials from a saved region?').check();
+  await tool.getByLabel('Material source region').selectOption({ label: 'Source region' });
+  const sources = tool.getByLabel('Source settlement', { exact: true });
+  await sources.selectOption(JSON.stringify({ kind: 'embedded', settlementId: 'settlement:1' }));
+  await expect(
+    tool.getByRole('region', { name: 'Regional material details' }).locator('li'),
+  ).not.toHaveCount(0);
+  const options = await sources.locator('option').all();
+  const lastName = await options.at(-1)!.innerText();
+  await sources.selectOption({ index: 1 });
+  await sources.selectOption({ index: options.length - 1 });
+  await expect(
+    tool.getByRole('region', { name: 'Regional material details' }).getByRole('heading'),
+  ).toContainText(lastName);
+  await switcher.selectOption({ label: 'Empty campaign' });
+  await expect(tool.getByRole('region', { name: 'Regional material details' })).toHaveCount(0);
+  await expect(tool.getByRole('button', { name: 'Clear material context' })).toHaveCount(0);
+  await expect(tool.getByLabel('Choose materials from a saved region?')).toHaveCount(0);
+  await switcher.selectOption({ label: 'Source campaign' });
+  await expect(tool.getByLabel('Choose materials from a saved region?')).not.toBeChecked();
+  await expect(tool.getByRole('region', { name: 'Regional material details' })).toHaveCount(0);
+});
