@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { regionToDocument, type RegionSnapshot } from '$lib/regions';
+  import { regionToUiDocument, type RegionSnapshot } from '$lib/regions';
 
   const { snapshot }: { snapshot: RegionSnapshot } = $props();
-  const document = $derived(regionToDocument(snapshot));
+  const document = $derived(regionToUiDocument(snapshot));
   const notableIds = $derived(new Set(snapshot.facts.notables.map((fact) => fact.id)));
 </script>
 
@@ -14,10 +14,16 @@
   {#each document.sections as section}
     <section aria-label={section.heading}>
       <h3>{section.heading}</h3>
-      {#each section.lines as line, index}
-        {@const factId = section.factIds?.[index]}
+      {#each section.entries as entry}
+        {@const factId = entry.factId}
         <article data-notable-id={factId && notableIds.has(factId) ? factId : undefined}>
-          <p data-gazetteer-text>{line}</p>
+          <h4>{entry.heading}</h4>
+          {#if entry.body}<p data-gazetteer-text>{entry.body}</p>{/if}
+          {#if entry.hook}
+            <h5>{entry.hookHeading}</h5>
+            <p data-gazetteer-text>{entry.hook}</p>
+          {/if}
+          {#if entry.warning}<p data-gazetteer-text>{entry.warning}</p>{/if}
         </article>
       {/each}
     </section>
