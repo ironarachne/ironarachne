@@ -4,6 +4,9 @@ import type { RegionDocument } from './region_presentation';
 export type RegionUiEntry = {
   heading: string;
   body: string;
+  paragraphs?: string[];
+  character?: string[];
+  characterHeading?: string;
   factId?: string;
   hook?: string;
   hookHeading?: string;

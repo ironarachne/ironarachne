@@ -26,8 +26,9 @@ describe('region entry headings', () => {
         ...document.sections.map((section) => section.heading),
         ...document.sections.flatMap((section) =>
           section.entries.flatMap((entry) => [
-            entry.heading,
+            ...(entry.heading ? [entry.heading] : []),
             ...(entry.hookHeading ? [entry.hookHeading] : []),
+            ...(entry.characterHeading ? [entry.characterHeading] : []),
           ]),
         ),
       ];
@@ -35,14 +36,48 @@ describe('region entry headings', () => {
       for (const section of document.sections) {
         expect(section.entries.length).toBeGreaterThan(0);
         for (const entry of section.entries) {
-          expect(entry.heading).toMatch(/^(The |A Review |An Adventure )/);
+          if (entry.factId === 'area:land') expect(entry.heading).toBe('');
+          else if (section.heading !== 'Landscape')
+            expect(entry.heading).toMatch(/^(The |A Review |An Adventure )/);
+          else expect(entry.heading).not.toContain('The Landscape of');
           if (entry.body) expect(regionToMarkdown(saved)).toContain(entry.body);
+          for (const paragraph of [...(entry.paragraphs ?? []), ...(entry.character ?? [])])
+            expect(regionToMarkdown(saved)).toContain(paragraph);
           if (entry.hook) expect(regionToMarkdown(saved)).toContain(entry.hook);
         }
       }
       expect(saved).toEqual(before);
     },
   );
+
+  it('keeps the regional land description as unheaded landscape prose after editing its name', () => {
+    const edited = structuredClone(snapshot);
+    const land = edited.facts.areas.find((fact) => fact.id === 'area:land')!;
+    land.name = 'Renamed regional land';
+    land.description = 'The region stretches across open uplands.';
+    land.reason = { ruleId: 'saved', status: 'stale', sources: [] };
+    const landscape = regionToUiDocument(edited).sections.find(
+      (section) => section.heading === 'Landscape',
+    )!;
+    const entry = landscape.entries.find((entry) => entry.factId === land.id)!;
+    expect(entry.heading).toBe('');
+    expect(entry.body).toBe(land.description);
+    expect(entry.warning).toBe('[Supporting explanation needs review.]');
+    expect(
+      landscape.entries.filter((entry) => entry.factId !== land.id).every((entry) => entry.heading),
+    ).toBe(true);
+    const markdown = regionToMarkdown(edited);
+    expect(markdown).toContain(
+      `## Landscape\n\n${land.description} [Supporting explanation needs review.]`,
+    );
+    expect(markdown).not.toContain(`Renamed regional land: ${land.description}`);
+    land.description = ' ';
+    expect(
+      regionToUiDocument(edited)
+        .sections.find((section) => section.heading === 'Landscape')!
+        .entries.some((entry) => entry.factId === land.id),
+    ).toBe(false);
+  });
 
   it('uses the actual category and saved capital identity, including reordered settlements', () => {
     const edited = structuredClone(snapshot);
@@ -66,6 +101,81 @@ describe('region entry headings', () => {
       regionToUiDocument(edited)
         .sections.find((section) => section.heading === 'Settlements')!
         .entries.some((entry) => entry.heading === 'The Capital Town of Shadowreach'),
+    ).toBe(true);
+  });
+
+  it('places work, needs and character under their settlement identities after renaming and reordering', () => {
+    const edited = structuredClone(snapshot);
+    edited.settlements.reverse();
+    edited.settlements.forEach((settlement) => {
+      settlement.snapshot.name = 'Same town';
+    });
+    const life = edited.facts.dailyLife[0];
+    const supply = edited.facts.supply[0];
+    life.description = 'Saved local work.';
+    life.origin = 'authored';
+    life.reason = { ruleId: 'saved', status: 'stale', sources: [] };
+    supply.description = 'Saved supply need.';
+    supply.origin = 'authored';
+    const before = structuredClone(edited);
+    const document = regionToUiDocument(edited);
+    expect(document.sections.map((section) => section.heading)).not.toContain('Livelihoods');
+    expect(document.sections.map((section) => section.heading)).not.toContain(
+      'Settlement character',
+    );
+    const entries = document.sections.find((section) => section.heading === 'Settlements')!.entries;
+    edited.settlements.forEach((settlement, index) => {
+      const entry = entries[index];
+      expect(entry.body).toBe(settlement.snapshot.description.trim());
+      const roles = edited.facts.settlementRoles.filter(
+        (role) =>
+          role.settlement.kind === 'embedded' && role.settlement.settlementId === settlement.id,
+      );
+      expect(entry.character).toHaveLength(roles.length);
+      for (const role of roles) expect(entry.character?.join(' ')).toContain(role.description);
+      if (life.settlement.kind === 'embedded' && life.settlement.settlementId === settlement.id) {
+        expect(entry.paragraphs?.join(' ')).toContain(
+          'Saved local work. [Supporting explanation needs review.]',
+        );
+      } else expect(entry.paragraphs?.join(' ')).not.toContain('Saved local work.');
+      if (supply.settlement.kind === 'embedded' && supply.settlement.settlementId === settlement.id)
+        expect(entry.paragraphs?.join(' ')).toContain(
+          `Supply needs — ${supply.name}: Saved supply need.`,
+        );
+      else expect(entry.paragraphs?.join(' ')).not.toContain('Saved supply need.');
+    });
+    expect(edited).toEqual(before);
+  });
+
+  it('retains facts for blank, missing and referenced settlements', () => {
+    const edited = structuredClone(snapshot);
+    const first = edited.settlements[0];
+    first.snapshot.name = ' ';
+    first.snapshot.description = '';
+    const role = edited.facts.settlementRoles[0];
+    edited.facts.settlementRoles.push(
+      {
+        ...role,
+        id: 'missing-role',
+        settlement: { kind: 'embedded', settlementId: 'missing' },
+        description: 'Missing town character.',
+      },
+      {
+        ...role,
+        id: 'referenced-role',
+        settlement: { kind: 'artifact', targetId: 'reference' },
+        description: 'Referenced town character.',
+      },
+    );
+    const entries = regionToUiDocument(edited).sections.find(
+      (section) => section.heading === 'Settlements',
+    )!.entries;
+    expect(entries[0].character?.length).toBeGreaterThan(0);
+    expect(
+      entries.some((entry) => entry.character?.join(' ').includes('Missing town character.')),
+    ).toBe(true);
+    expect(
+      entries.some((entry) => entry.character?.join(' ').includes('Referenced town character.')),
     ).toBe(true);
   });
 
@@ -98,7 +208,7 @@ describe('region entry headings', () => {
     const entry = document.sections
       .find((section) => section.heading === 'Landscape')!
       .entries.find((entry) => entry.factId === habitat.id)!;
-    expect(entry.heading).toBe('The Landscape of an Unnamed Feature');
+    expect(entry.heading).toBe('Habitats across the region');
     expect(entry.body).toBe(habitat.description);
     expect(entry.warning).toBe('[Supporting explanation needs review.]');
     expect(

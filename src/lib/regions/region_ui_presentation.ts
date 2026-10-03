@@ -1,5 +1,11 @@
 import { title, getOrdinal } from '@ironarachne/words';
-import { describeRuler, regionSupportingFacts, regionToDocument } from './region_presentation';
+import {
+  describeRuler,
+  regionSupportingFacts,
+  regionToDocument,
+  regionSettlementEntries,
+} from './region_presentation';
+import { landscapeSummaryHeading } from './region_landscape_names';
 import { regionFactsNeedingReview } from './region_editing';
 import type { RegionSnapshot, StoredRealm } from './region_snapshot';
 import type { FactBase, SettlementTarget, RouteEndpoint } from './region_fact_types';
@@ -73,17 +79,13 @@ function realmHeading(realm: StoredRealm, index: number, mainRealm: number): str
 }
 
 function factHeading(snapshot: RegionSnapshot, section: string, fact: FactBase): string {
+  if (section === 'Landscape' && fact.id === 'area:land') return '';
   const name = displayName(fact.name, 'an Unnamed Feature');
-  if (section === 'Settlement character') {
-    const role = snapshot.facts.settlementRoles.find((entry) => entry.id === fact.id)!;
-    return `The ${title(name)} at ${settlementName(snapshot, role.settlement)}`;
-  }
-  if (section === 'Livelihoods') {
-    const livelihood = [...snapshot.facts.dailyLife, ...snapshot.facts.supply].find(
-      (entry) => entry.id === fact.id,
-    )!;
-    return `The ${title(name)} in ${settlementName(snapshot, livelihood.settlement)}`;
-  }
+  if (section === 'Landscape')
+    return fact.origin !== 'authored' &&
+      snapshot.facts.habitats.some((habitat) => habitat.id === fact.id)
+      ? landscapeSummaryHeading(fact.name)
+      : name;
   if (section === 'Travel') {
     const route = snapshot.facts.routes.find((entry) => entry.id === fact.id)!;
     return `The ${title(name)} from ${endpointName(snapshot, route.endpoints[0])} to ${endpointName(snapshot, route.endpoints[1])}`;
@@ -121,9 +123,7 @@ export function regionToUiDocument(snapshot: RegionSnapshot): RegionUiDocument {
   const document = regionToDocument(snapshot);
   const facts = new Map(regionSupportingFacts(snapshot).map((fact) => [fact.id, fact]));
   const review = regionFactsNeedingReview(snapshot);
-  const settlements = snapshot.settlements
-    .map((entry, index) => ({ entry, index }))
-    .filter(({ entry }) => printable(entry.snapshot));
+  const settlements = regionSettlementEntries(snapshot);
   const organizations = snapshot.organizations.filter(printable);
   const used = new Set(
     [
@@ -158,10 +158,20 @@ export function regionToUiDocument(snapshot: RegionSnapshot): RegionUiDocument {
           body: `${describeRuler(realm.authority)}${index === snapshot.mainRealm ? ' — the seat of this region' : ''}${realm.description.trim() ? `. ${realm.description}` : ''}`,
         };
       } else if (section.heading === 'Settlements') {
-        const { entry: settlement, index: originalIndex } = settlements[index];
+        const settlement = settlements[index];
+        const target = settlement.target;
+        const originalIndex =
+          target.kind === 'embedded'
+            ? snapshot.settlements.findIndex((entry) => entry.id === target.settlementId)
+            : -1;
         entry = {
-          heading: settlementHeading(snapshot, settlement.id, originalIndex),
-          body: settlement.snapshot.description.trim(),
+          heading:
+            originalIndex >= 0
+              ? settlementHeading(snapshot, snapshot.settlements[originalIndex].id, originalIndex)
+              : `The Settlement of ${settlement.name}`,
+          body: settlement.description,
+          paragraphs: settlement.paragraphs,
+          character: settlement.character,
         };
       } else {
         const organization = organizations[index];
@@ -170,7 +180,12 @@ export function regionToUiDocument(snapshot: RegionSnapshot): RegionUiDocument {
           body: organization.description.trim(),
         };
       }
-      entry.heading = uniqueHeading(entry.heading, used);
+      if (entry.heading) entry.heading = uniqueHeading(entry.heading, used);
+      if (entry.character?.length)
+        entry.characterHeading = uniqueHeading(
+          `Settlement character of ${settlements[index].name}`,
+          used,
+        );
       if (entry.hook)
         entry.hookHeading = uniqueHeading(`An Adventure Hook for ${entry.heading}`, used);
       return entry;

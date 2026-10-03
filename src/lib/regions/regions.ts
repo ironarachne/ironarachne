@@ -15,6 +15,7 @@ import type Region from './region.js';
 import {
   createRegionStageRng,
   generateHabitatFacts,
+  generateLandscapeNames,
   generateEcologyInhabitants,
   generateEcologyRelationships,
   generateResourceFacts,
@@ -260,6 +261,7 @@ export function generate(config: RegionGeneratorConfig): Region {
 
   generateGeologyFacts(region, createRegionStageRng(seed, 'geology'));
   generateHabitatFacts(region, createRegionStageRng(seed, 'habitats'));
+  generateLandscapeNames(region, createRegionStageRng(seed, 'landscape-names'));
   generateEcologyInhabitants(region, createRegionStageRng(seed, 'ecology-inhabitants'));
   generateResourceFacts(region, createRegionStageRng(seed, 'resources'));
 

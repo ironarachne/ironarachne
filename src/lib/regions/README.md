@@ -93,10 +93,17 @@ The modules the readiness pass gives every Release-ready tool
   supported version. Existing map, environment, identities and authored text are preserved.
 - **`region_editing.ts`** — pure snapshot-to-snapshot edits over the region's words, its seat, its
   realms, its settlements and its organizations.
+- **`region_landscape_names.ts`** — names connected generated habitat zones with descriptive,
+  geographic and occasional cultural forms on the isolated `landscape-names` stream. Biome and
+  observed map landforms constrain the nouns; two-thirds of the footprint must support a direction.
+  Existing saved names, authored zones and region-wide habitat category names remain intact.
+  Landscape headings display zone names directly and format habitat summaries as categories
+  across the region. See [landscape names](../../../docs/region-landscape-names.md).
 - **`region_presentation.ts`** — one gazetteer document shared by the page, saved editor,
   Markdown and PDF text, plus `regionToMapSvg` and `regionMapDataUrl`. Landscape, flora/fauna,
-  settlement character, inhabitants, livelihoods, notable places, travel and hazards reuse saved descriptions; empty
-  sections disappear. Generated livelihoods use one representative per settlement/topic and
+  inhabitants, notable places, travel and hazards reuse saved descriptions; empty
+  sections disappear. Each settlement includes daily-life and supply-needs paragraphs and a
+  settlement-character subsection. Generated livelihoods use one representative per settlement/topic and
   supply one per settlement; all authored narrative entries remain. Stale assertions are marked
   in all formats. Realms (including saved descriptions), settlements and organizations remain
   in the entry. The page and exports omit supporting-explanation links, disclosures and evidence
@@ -154,7 +161,7 @@ and related causal claims without changing saved placements or names. A separate
 preserves the seat's identity when settlements are reordered. Rules use observed river/road edges,
 coastal ocean access, and suitable grassland or forest cells; unsupported sites retain a land-role
 description. Seeded narrative variants describe geography and political importance without
-generation diagnostics; settlement roles appear under Settlement character, while Inhabitants
+generation diagnostics; settlement roles appear in each settlement’s character subsection, while Inhabitants
 contains living fantastical creatures. Loading preserves authored snapshots and facts. See
 [geographic settlement sites](../../../docs/region-settlement-sites.md).
 

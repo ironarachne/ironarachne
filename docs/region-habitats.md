@@ -21,8 +21,10 @@ and habitats still retain their complete footprints in habitat anchors; zones ne
 land. `area:land` remains first for existing resource consumers. Settlement roles can reference
 both the regional land and the new zones.
 
-Zone names and descriptions locate their centroid within thirds of the saved map's width and
+Zone descriptions locate their centroid within thirds of the saved map's width and
 height; these are coarse drawing directions, not geographic coordinates or surveyed boundaries.
+The separate [landscape naming stage](region-landscape-names.md) replaces technical zone names
+with saved place names without changing their identities, footprints or descriptions.
 Descriptions use narrative prose for terrain, location, coasts and rivers, without cell counts,
 edge terminology, numerical ranges or zone-selection diagnostics. Climate comparisons are omitted
 unless the local and other same-biome dry-land ranges do not overlap and their median values differ by at

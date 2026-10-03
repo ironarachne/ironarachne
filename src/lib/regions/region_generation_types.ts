@@ -5,6 +5,7 @@ export type RegionGenerationStage =
   | 'physical-geography'
   | 'geology'
   | 'habitats'
+  | 'landscape-names'
   | 'ecology-inhabitants'
   | 'ecology-relationships'
   | 'processing'
