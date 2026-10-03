@@ -80,9 +80,9 @@ extension. #329 added no fields to that model; #335 extends it with the approved
 
 The map generation algorithms and #249 thresholds are retained. As recorded in the workflow audit,
 finished maps do not always achieve the requested altitude/relief profile. The physical pass checks
-actual median elevation, relief spread, and mountain fractions using the existing map classifiers.
-A mismatch is explicitly explained in the regional land fact rather than silently remapping the
-saved graph. Downstream facts use actual map observations. Enforcing all nine profile combinations
+actual median elevation and relief spread using the existing map classifiers.
+The regional land fact describes the realized landscape in prose, without requested-profile
+diagnostics or remapping the saved graph. Downstream facts use actual map observations. Enforcing all nine profile combinations
 remains a terrain-generation defect to resolve in the release acceptance work. The environment
 record retains its original profile-based description; the regional overview instead uses the
 realized map classifications, so it does not repeat that mismatch.

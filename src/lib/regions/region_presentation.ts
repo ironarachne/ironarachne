@@ -177,10 +177,14 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
         'Flora and fauna',
         snapshot.facts.ecologyInhabitants.filter((fact) => fact.category !== 'fantastical'),
       ),
-      ...factSections('Inhabitants', [
-        ...atSettlement(snapshot, snapshot.facts.settlementRoles),
-        ...snapshot.facts.ecologyInhabitants.filter((fact) => fact.category === 'fantastical'),
-      ]),
+      ...factSections(
+        'Settlement character',
+        atSettlement(snapshot, snapshot.facts.settlementRoles),
+      ),
+      ...factSections(
+        'Inhabitants',
+        snapshot.facts.ecologyInhabitants.filter((fact) => fact.category === 'fantastical'),
+      ),
       ...factSections(
         'Livelihoods',
         atSettlement(snapshot, [

@@ -52,10 +52,8 @@ describe('spatial regional habitats', () => {
     const original = structuredClone(region.map);
     const facts = derive(region);
     expect(facts.habitats.map((habitat) => habitat.name)).toEqual(['forest', 'desert']);
-    expect(facts.habitats[0].description).toContain(
-      'Dominant mapped habitat: forest, covering 3 of 4',
-    );
-    expect(facts.habitats[1].description).toContain('Secondary mapped habitat');
+    expect(facts.habitats[0].description).toMatch(/prevailing|most widespread|much of the region/);
+    expect(facts.habitats[1].description).toMatch(/Pockets|broken by|different character/);
     expect(facts.habitats[0].anchor!.nodeIds).toEqual([1, 2, 3]);
     expect(facts.areas.slice(1).map((area) => area.mapNodeIds)).toEqual([[1, 2], [20], [3]]);
     expect(facts.habitats[0].areaIds).toEqual([
@@ -68,7 +66,7 @@ describe('spatial regional habitats', () => {
     expect(region.map).toEqual(original);
   });
 
-  it('keeps identities and prose stable across node and neighbor array order and RNG draws', () => {
+  it('keeps same-seed prose stable across graph order and leaves geography independent of prose draws', () => {
     const nodes = [
       node(10, 'forest', [30, 20]),
       node(20, 'forest', [10]),
@@ -78,10 +76,18 @@ describe('spatial regional habitats', () => {
     const before = derive(fixture(nodes));
     const region = fixture(structuredClone(nodes).reverse());
     region.map.nodes.forEach((node) => node.neighbors.reverse());
+    generateHabitatFacts(region, new RNG('habitats'));
+    expect(region.facts).toEqual(before);
+    const variant = fixture(nodes);
     const rng = new RNG('different');
     rng.randomString(100);
-    generateHabitatFacts(region, rng);
-    expect(region.facts).toEqual(before);
+    generateHabitatFacts(variant, rng);
+    const withoutProse = (facts: typeof before) => ({
+      ...facts,
+      areas: facts.areas.map(({ description: _description, ...fact }) => fact),
+      habitats: facts.habitats.map(({ description: _description, ...fact }) => fact),
+    });
+    expect(withoutProse(variant.facts)).toEqual(withoutProse(before));
   });
 
   it('limits major zones while retaining all minor habitats and deterministic ties', () => {
@@ -94,7 +100,7 @@ describe('spatial regional habitats', () => {
     expect(facts.habitats).toHaveLength(5);
     expect(facts.habitats[0].name).toBe('desert');
     expect(facts.habitats[4].areaIds).toEqual(['area:land']);
-    expect(facts.habitats[4].description).toContain('no major zone is selected');
+    expect(facts.habitats[4].description).toContain('zebra');
   });
 
   it('records physical evidence including a river on the second side of an edge', () => {
@@ -116,10 +122,9 @@ describe('spatial regional habitats', () => {
     const facts = derive(region);
     const zone = facts.areas[1];
     expect(zone.name).toBe('southern eastern forest zone');
-    expect(zone.description).toContain('high median altitude');
-    expect(zone.description).toContain('-5.0 to -5.0 °C');
-    expect(zone.description).toContain('0.8 to 0.8');
-    expect(zone.description).toContain('coastal cells and river edges');
+    expect(zone.description).toMatch(/coast|sea/i);
+    expect(zone.description).toMatch(/river/i);
+    expect(zone.description).not.toMatch(/cells|edges|median|°C|moisture|temperature|\d/);
     expect(facts.habitats[0].anchor!.edgeIds).toEqual([70]);
     expect(zone.reason!.sources).toContainEqual({
       kind: 'map-edge',
@@ -151,10 +156,58 @@ describe('spatial regional habitats', () => {
     expect(facts.habitats).toHaveLength(1);
     expect(facts.habitats[0].anchor!.nodeIds).toEqual([1, 3]);
     expect(facts.areas.slice(1).map((area) => area.mapNodeIds)).toEqual([[1], [3]]);
-    expect(facts.habitats[0].description).toContain('2 of 3 dry-land cells');
-    expect(facts.habitats[0].description).not.toContain('river edges');
+    expect(facts.habitats[0].description).toMatch(/prevailing|most widespread|much of the region/);
+    expect(facts.habitats[0].description).not.toContain('Rivers run');
     expect(derive(fixture([node(1, undefined)])).habitats).toEqual([]);
     expect(derive(fixture([])).areas).toHaveLength(1);
+  });
+
+  it('omits climate comparisons for small differences and overlapping ranges', () => {
+    const ordinary = [node(1, 'forest'), node(2, 'grassland')];
+    ordinary[1].temperature = 16;
+    ordinary[1].moisture = 0.7;
+    const overlapping = [node(1, 'forest', [2]), node(2, 'forest', [1]), node(3, 'grassland')];
+    overlapping[0].temperature = 0;
+    overlapping[0].moisture = 0;
+    overlapping[1].temperature = 25;
+    overlapping[1].moisture = 1;
+    for (const nodes of [ordinary, overlapping]) {
+      const facts = derive(fixture(nodes));
+      for (const fact of [...facts.areas.slice(1), ...facts.habitats]) {
+        expect(fact.description).not.toMatch(
+          /warmer|cooler|wetter|drier|temperature|moisture|cells|edges|\d/,
+        );
+      }
+    }
+  });
+
+  it('describes significant same-biome contrasts, selecting one climate focus and retaining evidence', () => {
+    const nodes = [node(1, 'forest'), node(2, 'forest')];
+    nodes[0].temperature = 10;
+    nodes[0].moisture = 0.8;
+    nodes[1].temperature = 20;
+    nodes[1].moisture = 0.2;
+    const facts = derive(fixture(nodes));
+    for (const fact of facts.areas.slice(1)) {
+      const first = fact.mapNodeIds.includes(1);
+      expect(fact.description).toMatch(first ? /cooler|wetter/ : /warmer|drier/);
+      expect((fact.description.match(/cooler|wetter|warmer|drier/g) ?? []).length).toBe(1);
+      expect(fact.description).not.toMatch(/cells|edges|°C|moisture|temperature|\d/);
+      expect(fact.reason!.sources).toContainEqual({
+        kind: 'map-node',
+        nodeId: first ? 2 : 1,
+        property: 'temperature',
+        observedValue: first ? '20' : '10',
+      });
+    }
+    expect(facts.habitats[0].description).not.toMatch(/cooler|wetter|warmer|drier/);
+    nodes[1].biomeId = 'desert';
+    for (const fact of [
+      ...derive(fixture(nodes)).areas.slice(1),
+      ...derive(fixture(nodes)).habitats,
+    ]) {
+      expect(fact.description).not.toMatch(/cooler|wetter|warmer|drier/);
+    }
   });
 
   it('requires physical geography first', () => {

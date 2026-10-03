@@ -70,6 +70,31 @@ function derive(region: Region) {
 }
 
 describe('geographic settlement roles', () => {
+  it('varies repeated roles with reproducible prose while preserving their geography', () => {
+    const sites = [1, 2, 3];
+    const build = (seed: string) => {
+      const region = fixture(
+        sites.map((id) => node(id, { biomeId: 'forest' })),
+        [],
+        sites,
+      );
+      generateHabitationFacts(region, new RNG(seed));
+      return region.facts!;
+    };
+    const first = build('narrative');
+    expect(build('narrative')).toEqual(first);
+    const roles = first.settlementRoles.filter((role) => role.id !== 'role:capital');
+    expect(new Set(roles.map((role) => role.description)).size).toBeGreaterThan(1);
+    expect(roles.every((role) => /woodland|forest|woods/.test(role.description))).toBe(true);
+    expect(first.settlementRoles.map((role) => role.description).join(' ')).not.toMatch(
+      /generated|mapped|cells|edges|fallback|selected|implied|supported|recorded/,
+    );
+    const variants = new Set(
+      ['a', 'b', 'c', 'd', 'e'].map((seed) => build(seed).settlementRoles[0].description),
+    );
+    expect(variants.size).toBeGreaterThan(1);
+  });
+
   it.each([
     ['Agricultural center', { biomeId: 'temperate grassland' }],
     ['Forest settlement', { biomeId: 'temperate forest' }],

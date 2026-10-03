@@ -12,7 +12,7 @@ water, climate or biome assignment, and requires the physical pass's `area:land`
 Habitats are ordered by dry-land cell count, with lexical biome-name ties. The first is described
 as dominant; all others are secondary. This is mapped prevalence, independent of the environment's
 requested dominant biome. Unclassified cells count toward total dry land but produce no invented
-habitat. Ocean and lake cells are excluded. Counts refer to cells, not physical acreage.
+habitat. Ocean and lake cells are excluded. Counts are internal inputs, not narrative statistics.
 
 Within each biome, neighbor links identify connected patches. Up to four major zones are selected:
 first the largest patch of each of the four most prevalent habitats, then additional disconnected
@@ -23,16 +23,24 @@ both the regional land and the new zones.
 
 Zone names and descriptions locate their centroid within thirds of the saved map's width and
 height; these are coarse drawing directions, not geographic coordinates or surveyed boundaries.
-Descriptions report the existing altitude classifier applied to median elevation, observed
-temperature and moisture ranges, coast flags and river edges touching either side of a cell.
-Reasons store the observations and dependencies supporting those claims. A biome label is an
+Descriptions use narrative prose for terrain, location, coasts and rivers, without cell counts,
+edge terminology, numerical ranges or zone-selection diagnostics. Climate comparisons are omitted
+unless the local and other same-biome dry-land ranges do not overlap and their median values differ by at
+least 5 °C or 0.25 moisture units. Only relative phrases (warmer, cooler, wetter or drier than comparable
+areas) appear in the narrative; a landscape with no comparison area has no climate
+sentence. This conservative rule intentionally omits climate details for most landscapes.
+The shared narrative engine selects defining and distinctive candidates before wording, with a
+three-sentence budget and one sentence per topic. Climate sentences compete for one topic slot;
+ordinary altitude is omitted from habitat descriptions, while the regional-land entry retains the
+overall terrain context. Sentence pools belong to the regional adapter. Reasons store dry-land
+observations, including comparison areas, so edits invalidate comparisons and local descriptions. A biome label is an
 observation, not a new assertion of climate compatibility: existing biome assignment limitations
 remain part of #348 and the workflow audit.
 
 Habitat IDs encode the biome name; zone IDs use the smallest member node ID. All traversal,
-footprints and ties are sorted explicitly. The pass uses no randomness, while retaining its stage
-RNG parameter. Fixed seeds repeat the full payload, and adding unrelated draws or reordering graph
-arrays cannot change derived facts. IDs belong to the saved map; a fresh map rebuilds the fact set.
+footprints and ties are sorted explicitly. Geographic classification uses no randomness. Prose uses the existing stage
+RNG. Fixed seeds repeat the full payload; changing prose draws affects wording and focus while
+leaving footprints, identities and evidence intact. Reordering graph arrays leaves both stable. IDs belong to the saved map; a fresh map rebuilds the fact set.
 Existing saved facts load as written, with no migration or regeneration.
 
 ## Domain model

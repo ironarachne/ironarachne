@@ -95,7 +95,7 @@ The modules the readiness pass gives every Release-ready tool
   realms, its settlements and its organizations.
 - **`region_presentation.ts`** — one gazetteer document shared by the page, saved editor,
   Markdown and PDF text, plus `regionToMapSvg` and `regionMapDataUrl`. Landscape, flora/fauna,
-  inhabitants, livelihoods, notable places, travel and hazards reuse saved descriptions; empty
+  settlement character, inhabitants, livelihoods, notable places, travel and hazards reuse saved descriptions; empty
   sections disappear. Generated livelihoods use one representative per settlement/topic and
   supply one per settlement; all authored narrative entries remain. Stale assertions are marked
   in all formats. Realms (including saved descriptions), settlements and organizations remain
@@ -136,8 +136,10 @@ are loaded as written.
 
 The habitat pass derives dominant and secondary habitats from saved dry-land biome cells. Each
 habitat retains its complete node footprint, including disconnected patches. Up to four named
-connected zones become `RegionArea` facts linked from their habitats. Descriptions report measured
-climate and altitude plus observed coasts and rivers; they never alter or regenerate the map.
+connected zones become `RegionArea` facts linked from their habitats. The shared narrative engine selects focused meanings and seeded wording from regional pools.
+Descriptions use terrain, location, coasts and rivers; climate appears only as a substantial relative
+contrast with other dry land of the same biome. They contain no graph statistics or raw ranges
+and never alter or regenerate the map.
 Zone IDs use the smallest member node ID, and habitat IDs use the biome name; ties and graph
 traversal are deterministic. See [spatial habitats](../../../docs/region-habitats.md).
 
@@ -147,7 +149,9 @@ The habitation pass records geographic site roles, road routes between stable se
 and related causal claims without changing saved placements or names. A separate capital role
 preserves the seat's identity when settlements are reordered. Rules use observed river/road edges,
 coastal ocean access, and suitable grassland or forest cells; unsupported sites retain a land-role
-explanation. Loading preserves authored snapshots and facts. See
+description. Seeded narrative variants describe geography and political importance without
+generation diagnostics; settlement roles appear under Settlement character, while Inhabitants
+contains living fantastical creatures. Loading preserves authored snapshots and facts. See
 [geographic settlement sites](../../../docs/region-settlement-sites.md).
 
 ## Notable places

@@ -19,11 +19,33 @@ import { emptyRegionFacts } from './region_facts';
 import { rollRegionSnapshot } from './region_roll';
 import { toRegionSnapshot } from './region_snapshot';
 import { rollRegion } from './region_roll';
+import { REGION_SEED_BANK } from '../../../test_fixtures/region_seeds';
 
 const snapshot = rollRegionSnapshot('presentation-seed');
 
 describe('arranging a region for reading', () => {
   const document = regionToDocument(snapshot);
+
+  it.each(REGION_SEED_BANK)(
+    'keeps $contrast landscapes narrative with rare climate comparisons',
+    ({ seed }) => {
+      const saved = rollRegionSnapshot(seed);
+      const landscape = regionToDocument(saved).sections.find(
+        (section) => section.heading === 'Landscape',
+      )!;
+      expect(landscape.lines.length).toBeGreaterThan(0);
+      expect(landscape.lines.join(' ')).not.toMatch(
+        /cells|edges|median|°C|0–1|temperatures of|moisture of|not achieved|\d/,
+      );
+      const comparisons = landscape.lines.filter((line) =>
+        /noticeably (warmer|cooler|wetter|drier)/.test(line),
+      );
+      expect(comparisons.length).toBeLessThan(landscape.lines.length / 2);
+      for (const prose of [regionToMarkdown(saved), regionToText(saved)]) {
+        for (const line of landscape.lines) expect(prose).toContain(line);
+      }
+    },
+  );
 
   it('is headed by the region and says who rules it', () => {
     expect(document.title).toEqual(snapshot.name);
@@ -303,6 +325,35 @@ describe('complete gazetteer exports', () => {
 });
 
 describe('sourcebook gazetteer', () => {
+  it('separates settlement character from living inhabitants in the page and exports', () => {
+    const edited = {
+      ...snapshot,
+      facts: {
+        ...snapshot.facts,
+        ecologyInhabitants: [
+          {
+            ...snapshot.facts.ecologyInhabitants[0],
+            category: 'fantastical' as const,
+            name: 'Woodland guardians',
+            description: 'Guardians dwell among the trees.',
+          },
+        ],
+      },
+    };
+    const document = regionToDocument(edited);
+    const settlements = document.sections.find(
+      (section) => section.heading === 'Settlement character',
+    )!;
+    const inhabitants = document.sections.find((section) => section.heading === 'Inhabitants')!;
+    expect(settlements.lines.join(' ')).toContain('Regional capital');
+    expect(settlements.lines.join(' ')).not.toContain('Woodland guardians');
+    expect(inhabitants.lines).toEqual(['Woodland guardians: Guardians dwell among the trees.']);
+    for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
+      for (const line of [...settlements.lines, ...inhabitants.lines])
+        expect(prose).toContain(line);
+    }
+  });
+
   it('uses one document for every exported paragraph and section, without mutating the snapshot', () => {
     const before = structuredClone(snapshot);
     const document = regionToDocument(snapshot);
@@ -319,7 +370,7 @@ describe('sourcebook gazetteer', () => {
       expect.arrayContaining([
         'Landscape',
         'Flora and fauna',
-        'Inhabitants',
+        'Settlement character',
         'Livelihoods',
         'Notable places',
         'Travel',
@@ -443,7 +494,7 @@ describe('sourcebook gazetteer', () => {
     };
     expect(
       regionToDocument(blank).sections.some((section) =>
-        ['Inhabitants', 'Travel'].includes(section.heading),
+        ['Settlement character', 'Inhabitants', 'Travel'].includes(section.heading),
       ),
     ).toBe(false);
   });

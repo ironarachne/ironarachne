@@ -120,3 +120,13 @@ Regarding file names and directory names, use snake_case always, except for comp
 Avoid introducing new dependencies unless absolutely necessary. Prefer existing dependencies over new ones.
 
 For random number generation, always use [`@ironarachne/rng`](https://www.npmjs.com/package/@ironarachne/rng).
+
+## Generated narrative prose
+
+Follow the accepted [prose contract](docs/narrative-prose.md). Subjects supply eligible meanings
+and compatible wording pools; select defining or distinctive facts before choosing their words.
+Use the shared `$lib/narrative` composer for new or revised prose generators. Ordinary properties
+are usually omitted, comparisons use meaningful same-type baselines, and wording choices must not
+invent facts. Keep canonical rules/reference text and authored prose outside random composition.
+Use the caller-owned RNG and explicit batch context, then store the final prose once for display
+and export. Track existing-generator adoption in [the inventory](docs/narrative-prose-adoption.md).
