@@ -27,7 +27,7 @@ export function buildSettlementWithFacets(base: BaseForFacets): Settlement {
     prosperity: base.prosperity,
     environment: base.environment,
   });
-  return { ...base, ...f };
+  return { ...base, ...f, regionalMaterialContext: base.regionalMaterialContext ?? null };
 }
 
 function countInRange(

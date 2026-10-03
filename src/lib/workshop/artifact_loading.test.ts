@@ -373,6 +373,7 @@ describe('a settlement in a cycle of references', () => {
     return {
       name,
       description: 'A city on a ridge above the salt road.',
+      regionalMaterialContext: null,
       category: { name: 'city', sizeClass: 'large', minSize: 8000, maxSize: 20000 },
       population: 12000,
       prosperity: 8,

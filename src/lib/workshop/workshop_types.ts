@@ -141,6 +141,7 @@ export type ArtifactValueResult<TValue = unknown> =
  * the slot: a second kind supplying an editor gets those for free rather than inventing them.
  */
 export type ArtifactEditorProps = {
+  projectId?: string;
   /** The stored snapshot, as the kind's `validate` accepted it. */
   snapshot: unknown;
   /**

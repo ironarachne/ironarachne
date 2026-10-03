@@ -1,6 +1,16 @@
 <script lang="ts">
   import Notice from '$components/common/Notice.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
+  import SettlementMaterialContext from '$components/locations/SettlementMaterialContext.svelte';
+  import { downloadTextFile } from '$lib/download';
+  import { downloadTextPdf } from '$lib/pdf';
+  import {
+    settlementFromSnapshot,
+    settlementToMarkdown,
+    settlementToPlainText,
+    settlementFileStem,
+    type RegionalMaterialPresentation,
+  } from '$lib/settlements';
   import {
     addSettlementProblem,
     removeSettlementNotable,
@@ -41,13 +51,36 @@
    * problem is prose and an empty one is a field waiting to be filled.
    */
   type Props = {
+    projectId?: string;
     snapshot: unknown;
     onChange: (snapshot: unknown) => void;
   };
 
-  const { snapshot, onChange }: Props = $props();
+  const { snapshot, onChange, projectId }: Props = $props();
 
   const uid = $props.id();
+  let regionalMaterials = $state.raw<RegionalMaterialPresentation | null>(null);
+  let downloading = $state(false);
+  function exportMarkdown() {
+    if (!settlement) return;
+    const live = settlementFromSnapshot(settlement);
+    downloadTextFile(
+      settlementToMarkdown(live, { regionalMaterials }),
+      `${settlementFileStem(live)}.md`,
+      'text/markdown',
+    );
+  }
+  async function exportPdf() {
+    if (!settlement || downloading) return;
+    const live = settlementFromSnapshot(settlement);
+    const text = settlementToPlainText(live, { regionalMaterials });
+    downloading = true;
+    try {
+      await downloadTextPdf(live.name, text, `${settlementFileStem(live)}.pdf`);
+    } finally {
+      downloading = false;
+    }
+  }
 
   /**
    * The snapshot as this kind's own validator accepts it, or nothing.
@@ -104,6 +137,16 @@
   </Notice>
 {:else}
   <div class="settlement-editor">
+    <SettlementMaterialContext
+      {projectId}
+      link={settlement.regionalMaterialContext}
+      onChange={(link) => edit((current) => ({ ...current, regionalMaterialContext: link }))}
+      bind:presentation={regionalMaterials}
+    />
+    <div>
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf} disabled={downloading}>Download PDF</BaseButton>
+    </div>
     <div class="input-group input-group--inline">
       <label for="{uid}-settlement-name">Settlement name</label>
       <input

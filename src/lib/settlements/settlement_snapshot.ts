@@ -31,6 +31,7 @@ import { toStoredOrganization, type StoredOrganization } from '$lib/organization
 import { stripFunctionValuesDeep } from '$lib/persistent_save';
 
 import type { Settlement, SettlementImportantPerson } from './settlement_types.js';
+import type { RegionalMaterialLink } from './settlement_material_types';
 
 /**
  * The two shapes a stored character is made of now live in `$lib/characters`, which is the library
@@ -59,7 +60,11 @@ export type { StoredVisualEmblem, StoredVisualIdentity } from '$lib/visual_ident
  * only what it borrows from `$lib/characters`, `$lib/organizations`, and `$lib/heraldry` is
  * rewritten, and only where those carry something JSON does not have.
  */
-export type SettlementSnapshot = Omit<Settlement, 'importantPeople' | 'organizations'> & {
+export type SettlementSnapshot = Omit<
+  Settlement,
+  'importantPeople' | 'organizations' | 'regionalMaterialContext'
+> & {
+  regionalMaterialContext: RegionalMaterialLink | null;
   importantPeople?: StoredSettlementNotable[];
   organizations?: StoredOrganization[];
 };
@@ -81,6 +86,7 @@ export function toSettlementSnapshot(settlement: Settlement): SettlementSnapshot
   const { importantPeople, organizations, ...rest } = settlement;
   const converted: SettlementSnapshot = {
     ...rest,
+    regionalMaterialContext: rest.regionalMaterialContext ?? null,
     ...(importantPeople === undefined
       ? {}
       : { importantPeople: importantPeople.map(toStoredNotable) }),

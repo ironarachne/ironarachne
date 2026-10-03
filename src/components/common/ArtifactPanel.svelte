@@ -400,7 +400,7 @@
           <p class="artifact-panel__status">Loading the editor…</p>
         {:then editor}
           {@const ArtifactEditor = editor.default}
-          <ArtifactEditor snapshot={editorSnapshot} onChange={editorChanged} />
+          <ArtifactEditor {projectId} snapshot={editorSnapshot} onChange={editorChanged} />
         {:catch}
           <p class="artifact-panel__problem" role="alert">
             The editor for this kind could not be loaded. The contents are unchanged.

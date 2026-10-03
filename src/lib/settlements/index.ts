@@ -1,4 +1,6 @@
 export type * from './settlement_types';
+export type * from './settlement_material_types';
+export * from './settlement_material_link';
 export * from './settlement_categories';
 export * from './settlements';
 export * from './derive_settlement_facets';

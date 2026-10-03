@@ -151,3 +151,20 @@ conversions above.
 1. Add `categories/<name>.ts` exporting a const `SettlementCategory` object.
 2. Register it in `settlement_categories.ts` `all()`.
 3. Prefer one test covering population bounds for the new name if non-obvious.
+
+## Saved regional material reference
+
+Settlement payload version 4 requires `regionalMaterialContext`, either `null` or an identity-only
+`RegionalMaterialLink`: the saved region ID and an embedded settlement ID or referenced settlement
+artifact ID. Versions 1–3 migrate to `null`; standalone rolls consume no additional randomness.
+The save/edit boundaries keep the matching region reference (`role: 'material-context'`) with the
+payload in one transaction. Re-rolling preserves this independent composition choice.
+
+The generator and saved editor let a referee select or clear a saved regional source. Current
+building materials, fuel and crafts are read from that source and attributed to it, with no claim
+that they are available at the new settlement. Missing sources preserve the settlement and show
+an unresolved state; stale evidence shows a review notice without repeating a recommendation.
+The shared `settlementMaterialSection` serves the page, Markdown, plain text and PDF output.
+`settlementToDocument` accepts a resolved `regionalMaterials` presentation; when a saved link has
+not been resolved, it emits an unresolved notice. Project PDF export resolves the link in its own
+project before rendering. See the [approved model](../../../docs/region-material-context.md).

@@ -27,7 +27,7 @@ export type ProjectPublication = {
   entries: PublicationEntry[];
 };
 
-type MarkdownPresenter = (value: never) => string;
+type MarkdownPresenter = (value: never, options?: never) => string;
 type PresenterLoader = () => Promise<MarkdownPresenter>;
 
 /** Kept as explicit imports so Vite can split each tool's generator and presentation code. */
@@ -221,6 +221,7 @@ export async function presentArtifact(
   assets: ArtifactAssetRead[],
   kindLabel: string,
   value: unknown,
+  presentationOptions?: unknown,
 ): Promise<PublicationEntry> {
   const loader = PRESENTERS[artifact.kind];
   if (loader === undefined) {
@@ -233,7 +234,10 @@ export async function presentArtifact(
   try {
     const presenter = await loader();
     const blocks = presentationMarkdownToBlocks(
-      presenter((publicationNeedsLiveValue(artifact.kind) ? value : artifact.payload) as never),
+      presenter(
+        (publicationNeedsLiveValue(artifact.kind) ? value : artifact.payload) as never,
+        presentationOptions as never,
+      ),
     );
     const warnings: string[] = [];
     const primaryImages: PublicationBlock[] = [];

@@ -53,3 +53,31 @@ reads one back, resolving the name across every species this build has and falli
 with #54, since a placeholder species is a creature-level concept; `$lib/characters` re-exports it.
 
 The encounter payload (`$lib/encounters`) composes `StoredCreature`; the dungeon (#59) will.
+
+## Optional regional habitat context
+
+The standalone generator keeps its existing seed and settings contract. A caller can opt into
+saved habitat support through the regions adapter without creatures importing regions or storage:
+
+```typescript
+import { generateWithHabitatContext, getDefaultCreatureGenerationConfig } from '$lib/creatures';
+import { buildRegionCreatureContext, describeRegionCreatureContext } from '$lib/regions';
+import { nonSentient } from '$lib/species';
+
+const config = { ...getDefaultCreatureGenerationConfig(), speciesOptions: nonSentient() };
+const projected = buildRegionCreatureContext(snapshot, habitatId, config.speciesOptions, regionId);
+if (projected.ok) {
+  const result = generateWithHabitatContext(seed, config, projected.context);
+  if (result.ok) {
+    const individual = result.creature;
+    const context = describeRegionCreatureContext(snapshot, result.assignment);
+    // result.reference links the saved region by ID; unsaved regions return no reference.
+  }
+}
+```
+
+Candidates are intersected with configured canonical species, deduplicated and sorted before
+weighted selection. Age/gender incompatibility and missing support return explicit failures.
+Assignments and presentation are transient; a future saving consumer needs its own approved
+codec. This integration adds no standalone creature artifact kind. The broader creatures-library
+refactor is separate work. See the [approved design](../../../docs/region-creature-context.md).
