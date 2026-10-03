@@ -52,7 +52,8 @@ both as separate places would suggest geographic divisions that the map does not
    internally because ecology and other consumers use it. Their Landscape headings use readable
    category wording such as “Woodlands across the region” or “Montane grasslands across the region”,
    without “The Landscape of”. They are summaries, not additional named places. Zone headings
-   display their saved names directly. A named zone and a summary remain separate descriptions;
+   display their saved names directly. The map labels those same connected zones at their saved
+   footprints, using the existing habitat-label style rather than naming biome summaries on the map. A named zone and a summary remain separate descriptions;
    this change does not remove facts or merge footprints.
 8. **Isolate naming randomness.** Add a `landscape-names` region stage after habitats and before
    ecology/resource consumers. Capture the dominant culture's pattern sources without drawing

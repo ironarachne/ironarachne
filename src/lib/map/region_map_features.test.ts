@@ -86,7 +86,7 @@ describe('regional map features', () => {
     const before = JSON.stringify({ map, features });
     const svg = buildRegionMapSvgString(map, { features });
     expect(svg).toEqual(buildRegionMapSvgString(map, { features: [...features].reverse() }));
-    expect([...svg.matchAll(/data-feature-kind="habitat"/g)].length).toBeLessThanOrEqual(6);
+    expect([...svg.matchAll(/data-feature-kind="habitat"/g)].length).toBeLessThanOrEqual(8);
     expect(svg).toContain('Habitat 0');
     expect(JSON.stringify({ map, features })).toEqual(before);
   });

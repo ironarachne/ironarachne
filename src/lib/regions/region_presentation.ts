@@ -367,7 +367,13 @@ export function regionToMapSvg(snapshot: RegionSnapshot): string {
     title: regionDisplayName(snapshot),
     settlements,
     features: [
-      ...snapshot.facts.habitats.map((fact) => ({ ...fact, kind: 'habitat' as const })),
+      ...snapshot.facts.areas
+        .filter((fact) => fact.id.startsWith('area:habitat-zone:'))
+        .map((fact) => ({
+          ...fact,
+          kind: 'habitat' as const,
+          anchor: { nodeIds: fact.mapNodeIds, edgeIds: [] },
+        })),
       ...snapshot.facts.notables,
     ].map((fact) => ({
       id: fact.id,

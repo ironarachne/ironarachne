@@ -130,7 +130,10 @@ any zero as disqualifying rather than merely bad. `findBestLocations` keeps its 
 noticeably slower build. Terrain shape comes from [`$lib/noise`](../noise/README.md).
 
 Optional saved region facts can be supplied through `RegionMapSvgOptions.features`: major habitat
-names, landmark diamonds and hazard triangles share stored IDs and names with regional prose.
+area names, landmark diamonds and hazard triangles share stored IDs and names with regional prose.
+The region adapter supplies named connected landscape areas through the habitat-label style,
+rather than region-wide biome summaries. Up to four area labels are placed before optional
+notables; settlement labels and map furniture retain priority.
 Optional labels yield to settlements and furniture and are omitted when crowded or unanchored.
 See [regional map facts](../../../docs/region-map-facts.md).
 

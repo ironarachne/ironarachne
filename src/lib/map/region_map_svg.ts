@@ -1395,7 +1395,7 @@ function appendRegionalFeatures(
   const scale = Math.min(map.width, map.height) / 35;
   const ranked = [...features].sort(
     (a, b) =>
-      Number(a.kind === 'habitat') - Number(b.kind === 'habitat') ||
+      Number(b.kind === 'habitat') - Number(a.kind === 'habitat') ||
       b.nodeIds.length - a.nodeIds.length ||
       a.id.localeCompare(b.id),
   );
@@ -1403,7 +1403,7 @@ function appendRegionalFeatures(
     notables = 0;
   for (const feature of ranked) {
     if (!feature.name.trim()) continue;
-    if (feature.kind === 'habitat' ? habitats >= 3 : notables >= 4) continue;
+    if (feature.kind === 'habitat' ? habitats >= 4 : notables >= 4) continue;
     const point = featurePoint(feature, map);
     if (!point) continue;
     const radius = feature.kind === 'habitat' ? 0 : 0.3 * scale;
