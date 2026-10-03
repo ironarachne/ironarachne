@@ -30,6 +30,7 @@ import type {
   ArtifactDeletion,
   ArtifactDraft,
   ArtifactMutationOptions,
+  ArtifactPayloadMutationOptions,
   ArtifactProvenance,
   ArtifactReadResult,
   ArtifactReference,
@@ -333,7 +334,7 @@ export async function updateArtifactPayload(
   projectId: string,
   id: string,
   payload: unknown,
-  options: ArtifactMutationOptions = {},
+  options: ArtifactPayloadMutationOptions = {},
 ): Promise<ArtifactWriteResult<Artifact> | undefined> {
   const ready = await hydrateArtifacts();
   if (!ready.ok) {
@@ -355,6 +356,10 @@ export async function updateArtifactPayload(
 
   const next: ArtifactSummary = {
     ...summary,
+    references:
+      options.references === undefined
+        ? summary.references
+        : normalizeReferences(options.references),
     payloadVersion: entry.payloadVersion,
     byteSize: payloadByteSize(validated.value),
     updatedAt: options.now ?? Date.now(),

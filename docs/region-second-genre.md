@@ -2,6 +2,7 @@
 
 **Status:** explicit deferral for
 [#351](https://github.com/ironarachne/ironarachne/issues/351), as permitted by its acceptance criteria.
+The human reviewer approved the deferral on 2026-10-03.
 No second-genre prototype or change to fantasy generation is included.
 
 ## Decision and reason

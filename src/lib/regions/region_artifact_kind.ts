@@ -33,8 +33,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 8 adds saved settlement supply and import explanations. */
-export const REGION_PAYLOAD_VERSION = 8 as const;
+/** Version 9 adds nullable material links to embedded settlement snapshots. */
+export const REGION_PAYLOAD_VERSION = 9 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -190,17 +190,32 @@ export function migrateRegionSnapshot(
     from !== 4 &&
     from !== 5 &&
     from !== 6 &&
-    from !== 7
+    from !== 7 &&
+    from !== 8
   ) {
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,
     );
   }
-  const record = asRecord(payload);
+  let record = asRecord(payload);
   if (record === null) {
     return rejectedPayload('invalid-payload', 'region payload is not an object');
   }
+
+  if (from >= 3 && Array.isArray(record.settlements)) {
+    record = {
+      ...record,
+      settlements: record.settlements.map((value) => {
+        const entry = asRecord(value);
+        const stored = asRecord(entry?.snapshot);
+        return entry && stored
+          ? { ...entry, snapshot: { ...stored, regionalMaterialContext: null } }
+          : value;
+      }),
+    };
+  }
+  if (from === 8) return validateRegionSnapshot(record);
 
   if (from === 7) {
     const facts = asRecord(record.facts);
@@ -278,7 +293,11 @@ export function migrateRegionSnapshot(
         const migrated = from === 1 ? migrateSettlementSnapshot(settlement, 2) : null;
         return {
           id: `settlement:${index + 1}`,
-          snapshot: migrated?.ok ? migrated.value : settlement,
+          snapshot: migrated?.ok
+            ? migrated.value
+            : asRecord(settlement)
+              ? { ...asRecord(settlement), regionalMaterialContext: null }
+              : settlement,
         };
       })
     : record.settlements;

@@ -1,7 +1,8 @@
 import Download from '$lib/download';
 import { hydrateProjects, getProject } from '$lib/projects';
 import { hydrateArtifacts, listArtifacts, readArtifact, readArtifactAssets } from '$lib/artifacts';
-import { ARTIFACT_KINDS, loadArtifactValue } from '$lib/workshop';
+import { ARTIFACT_KINDS, loadArtifactValue, resolveRegionalMaterials } from '$lib/workshop';
+import type { SettlementSnapshot } from '$lib/settlements';
 import { readArtifactAssetRecords } from '$lib/vault_db';
 
 import { renderProjectBook } from './project_book_layout';
@@ -68,6 +69,16 @@ export async function collectProjectPdfArtifacts(projectId: string): Promise<Pub
       assets.ok ? assets.value : [],
       kindLabel,
       value,
+      summary.kind === 'settlement' &&
+        (read.artifact.payload as SettlementSnapshot).regionalMaterialContext
+        ? {
+            regionalMaterials: await resolveRegionalMaterials(
+              projectId,
+              (read.artifact.payload as SettlementSnapshot).regionalMaterialContext!,
+              read.artifact.references,
+            ),
+          }
+        : undefined,
     );
     if (!assets.ok || !assetRecords.ok || assetRecords.value.length !== assets.value.length) {
       const message = `Saved images for “${summary.name}” could not be read.`;

@@ -142,6 +142,11 @@ export type ArtifactMutationOptions = {
   createdAt?: number;
 };
 
+/** Payload and relationship changes committed in the same vault transaction. */
+export type ArtifactPayloadMutationOptions = ArtifactMutationOptions & {
+  references?: ArtifactReference[];
+};
+
 /**
  * Why an artifact operation did not do what was asked: the payload was not something this build
  * understands, or the database refused.

@@ -1,4 +1,5 @@
 export * from './artifact_editing';
+export { resolveRegionalMaterials } from './regional_materials';
 export * from './artifact_editors';
 export * from './artifact_kind_catalog';
 export * from './artifact_loading';

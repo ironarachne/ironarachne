@@ -82,12 +82,12 @@ The modules the readiness pass gives every Release-ready tool
   charge art. Writing, listing and validating reach none of it. Almost no conversion work is here:
   every part of a region already had a stored form by the time this tool reached the front of the
   pass, which is the whole point of the ordering.
-- **`region_artifact_kind.ts`** — kind `region`, payload version 8. Its validator composes the
+- **`region_artifact_kind.ts`** — kind `region`, payload version 9. Its validator composes the
   culture, settlement, organization and character validators rather than reimplementing them.
 - **`region_fact_types.ts`** / **`region_facts.ts`** — the versioned semantic fact vocabulary and
   graph validation. Embedded settlements have region-local IDs; areas, habitats, settlement roles,
   notable places, resources, routes and causal claims cite those IDs or IDs in the saved map.
-  Current facts are version 6, independently of payload version 8. Migration initializes missing
+  Current facts are version 6, independently of payload version 9. Migration initializes missing
   lists without generating causes; payloads 1–2 receive empty `legacy` facts. See the
   [migration table](../../../docs/region-authoring.md#migrations-and-authored-content) for each
   supported version. Existing map, environment, identities and authored text are preserved.
@@ -380,3 +380,23 @@ snapshot, including unsaved field edits in the editor. Map inspection never edit
 The gazetteer offers up to three expandable examples drawn from stored settlement roles,
 habitats and resources; all supporting facts remain available below the sourcebook text.
 Saved region fields remain editable, with existing stale-evidence notices and reroll confirmation.
+
+## Optional context consumers
+
+`buildRegionCreatureContext(snapshot, habitatId, catalog, regionTargetId?)` projects supported
+species and saved ecological roles for `$lib/creatures.generateWithHabitatContext`. It checks
+current upstream observations, omits unsupported/flora/described sources and returns an explicit
+unavailable result rather than selecting an unrelated creature. `describeRegionCreatureContext`
+resolves assignment identities to current, stale or unresolved presentation. See the
+[creature-context model](../../../docs/region-creature-context.md) and creatures README example.
+
+`regionMaterialSources` lists saved settlement identities. `describeRegionMaterials(snapshot,
+source)` projects current building materials, fuel and crafts through their saved evidence chains,
+with source attribution and supply qualifications. It is read-only and claims no geographic
+access for a consuming settlement. The workshop resolver checks saved references and loads the
+region once; it never follows the source settlement's own material context. See the
+[material-context model](../../../docs/region-material-context.md).
+
+Payload version 9 adds a nullable material link to each embedded settlement snapshot. Migration
+from versions 1–8 initializes it to `null`; regional facts remain version 6. The second-genre
+pilot is [explicitly deferred](../../../docs/region-second-genre.md).

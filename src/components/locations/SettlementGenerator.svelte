@@ -31,6 +31,12 @@
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
   import type { ToolCue } from '$lib/workshop';
+  import SettlementMaterialContext from '$components/locations/SettlementMaterialContext.svelte';
+  import {
+    regionalMaterialReference,
+    type RegionalMaterialLink,
+    type RegionalMaterialPresentation,
+  } from '$lib/settlements';
 
   const TOOL_PATH = '/fantasy/settlement';
 
@@ -71,6 +77,11 @@
   let religionProblem: string | null = $state(null);
 
   let settlement = $state<Settlement | null>(null);
+  let materialLink = $state.raw<RegionalMaterialLink | null>(null);
+  let regionalMaterials = $state.raw<RegionalMaterialPresentation | null>(null);
+  const displayedSettlement = $derived(
+    settlement ? { ...settlement, regionalMaterialContext: materialLink } : null,
+  );
   /**
    * What the settlement on screen was actually rolled with, as opposed to what the next roll would
    * use. The two differ the moment a control is changed and nothing has been rolled since, and
@@ -128,13 +139,15 @@
   const shownReligion = $derived(useSavedReligion ? (referencedReligion?.religion ?? null) : null);
 
   const references = $derived(
-    [rolledCultureReference, useSavedReligion ? religionReference : undefined].filter(
-      (reference): reference is ArtifactReference => reference !== undefined,
-    ),
+    [
+      rolledCultureReference,
+      useSavedReligion ? religionReference : undefined,
+      materialLink ? regionalMaterialReference(materialLink) : undefined,
+    ].filter((reference): reference is ArtifactReference => reference !== undefined),
   );
 
   const settlementSnapshot = $derived(
-    settlement === null ? null : toSettlementSnapshot(settlement),
+    displayedSettlement === null ? null : toSettlementSnapshot(displayedSettlement),
   );
 
   /**
@@ -239,7 +252,10 @@
     if (settlement === null) {
       return;
     }
-    const markdown = settlementToMarkdown(settlement, { religion: shownReligion });
+    const markdown = settlementToMarkdown(displayedSettlement!, {
+      religion: shownReligion,
+      regionalMaterials,
+    });
     const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }));
     Download(url, `${settlementFileStem(settlement)}.md`);
     URL.revokeObjectURL(url);
@@ -253,7 +269,7 @@
     try {
       await downloadTextPdf(
         settlement.name,
-        settlementToPlainText(settlement, { religion: shownReligion }),
+        settlementToPlainText(displayedSettlement!, { religion: shownReligion, regionalMaterials }),
         `${settlementFileStem(settlement)}.pdf`,
       );
     } finally {
@@ -322,6 +338,12 @@
 
   <h2>Optional enrichment</h2>
   <p>These layers add more details, depending on what you want to see. They are off by default.</p>
+
+  <SettlementMaterialContext
+    link={materialLink}
+    onChange={(link) => (materialLink = link)}
+    bind:presentation={regionalMaterials}
+  />
 
   <CheckboxField id="trade" label="Trade (imports / exports / blurb)" bind:checked={includeTrade} />
   <CheckboxField id="problems" label="Acute and creeping problems" bind:checked={includeProblems} />

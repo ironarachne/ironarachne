@@ -2,6 +2,9 @@ import { createArtifact, type Artifact, type ArtifactWriteResult } from '$lib/ar
 
 import { ARTIFACT_KINDS } from './artifact_kind_catalog';
 import type { ToolArtifactDraft } from './workshop_types';
+// Metadata-only: saving must not load settlement generators or their composed catalogs.
+import { validateSettlementSnapshot } from '$lib/settlements/settlement_artifact_kind';
+import { regionalMaterialReferenceError } from '$lib/settlements/settlement_artifact_kind';
 
 /**
  * Save what a tool made into a project.
@@ -24,6 +27,15 @@ export function saveToolArtifact(
   projectId: string,
   draft: ToolArtifactDraft,
 ): Promise<ArtifactWriteResult<Artifact>> {
+  if (draft.kind === 'settlement') {
+    const accepted = validateSettlementSnapshot(draft.payload);
+    if (!accepted.ok) return Promise.resolve(accepted);
+    const error = regionalMaterialReferenceError(
+      accepted.value.regionalMaterialContext,
+      draft.references ?? [],
+    );
+    if (error) return Promise.resolve({ ok: false, reason: 'invalid-payload', message: error });
+  }
   return createArtifact(ARTIFACT_KINDS, {
     projectId,
     kind: draft.kind,

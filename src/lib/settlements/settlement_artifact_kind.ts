@@ -12,6 +12,7 @@ import { withLegacyActorMechanics } from '$lib/rulesets';
 
 import type { SettlementSnapshot } from './settlement_snapshot';
 import type { Settlement } from './settlement_types';
+import { isRegionalMaterialLink } from './settlement_material_link';
 
 /**
  * Stable artifact kind id. A settlement is system-neutral — the same populated place serves any
@@ -20,7 +21,7 @@ import type { Settlement } from './settlement_types';
 export const SETTLEMENT_ARTIFACT_KIND = 'settlement' as const;
 
 /**
- * Version 3 qualifies every embedded actor's compatibility mechanics. Version 2 changed a
+ * Version 4 adds nullable regional material context. Version 3 qualifies every embedded actor's compatibility mechanics. Version 2 changed a
  * notable's character to store `speciesName` where version 1 embedded a whole `Species`.
  *
  * The site's first real payload step, and it exists because `StoredCharacter` moved to
@@ -32,7 +33,7 @@ export const SETTLEMENT_ARTIFACT_KIND = 'settlement' as const;
  * It also drops a whole `Species` record per notable, which was the bulk of what a stored notable
  * was.
  */
-export const SETTLEMENT_PAYLOAD_VERSION = 3 as const;
+export const SETTLEMENT_PAYLOAD_VERSION = 4 as const;
 
 const SETTLEMENT_STRING_FIELDS = ['name', 'description', 'economicRole'];
 
@@ -185,6 +186,15 @@ export function validateSettlementSnapshot(payload: unknown): PayloadResult<Sett
   if (record === null) {
     return rejectedPayload('invalid-payload', 'settlement payload is not an object');
   }
+  if (
+    record.regionalMaterialContext !== null &&
+    !isRegionalMaterialLink(record.regionalMaterialContext)
+  ) {
+    return rejectedPayload(
+      'invalid-payload',
+      'settlement regional material context needs a valid link or null',
+    );
+  }
   if (!hasStringFields(record, SETTLEMENT_STRING_FIELDS)) {
     return rejectedPayload(
       'invalid-payload',
@@ -294,10 +304,10 @@ export function migrateSettlementSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<SettlementSnapshot> {
-  if (from !== 1 && from !== 2) {
+  if (from !== 1 && from !== 2 && from !== 3) {
     return rejectedPayload(
       'unsupported-version',
-      `settlement has no migration from payload version ${from}; versions 1 and 2 are the older shapes`,
+      `settlement has no migration from payload version ${from}; versions 1–3 are the older shapes`,
     );
   }
   const convertSpecies = from === 1;
@@ -305,9 +315,11 @@ export function migrateSettlementSnapshot(
   if (record === null) {
     return rejectedPayload('invalid-payload', 'settlement payload is not an object');
   }
+  if (from === 3) return validateSettlementSnapshot({ ...record, regionalMaterialContext: null });
 
   return validateSettlementSnapshot({
     ...record,
+    regionalMaterialContext: null,
     ...(Array.isArray(record.importantPeople)
       ? {
           importantPeople: record.importantPeople.map((notable) =>
@@ -354,3 +366,10 @@ export const settlementArtifactKind = defineArtifactKind<Settlement, SettlementS
   validate: validateSettlementSnapshot,
   migrate: migrateSettlementSnapshot,
 });
+
+// The workshop save boundary uses these metadata-only helpers without loading generators.
+export {
+  regionalMaterialReference,
+  regionalMaterialReferenceError,
+  unavailableRegionalMaterials,
+} from './settlement_material_link';

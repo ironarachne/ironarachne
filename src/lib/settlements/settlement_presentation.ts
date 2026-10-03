@@ -1,8 +1,11 @@
 import type { Religion } from '$lib/religion';
 
 import type { Settlement, SettlementImportantPerson, SettlementProblem } from './settlement_types';
+import { unavailableRegionalMaterials } from './settlement_material_link';
+import type { RegionalMaterialPresentation } from './settlement_material_types';
 
 export type SettlementPresentationOptions = {
+  regionalMaterials?: RegionalMaterialPresentation | null;
   /**
    * The faith practised here, when the user built the settlement around a saved religion.
    *
@@ -93,6 +96,23 @@ function faithSection(religion: Religion | null | undefined): SettlementSection[
   return [section('Faith', [religion.name, religion.description])];
 }
 
+export function settlementMaterialSection(
+  materials: RegionalMaterialPresentation,
+): SettlementSection {
+  return section(
+    `Regional material reference — ${materials.sourceName}`,
+    [
+      'These are materials recorded at the selected regional source; they do not establish supply at this settlement.',
+      ...materials.notices,
+    ],
+    [
+      ...materials.buildingMaterials.map((line) => `Building material: ${line}`),
+      ...materials.fuel.map((line) => `Fuel: ${line}`),
+      ...materials.crafts.map((line) => `Craft: ${line}`),
+    ],
+  );
+}
+
 /**
  * One section per notable, and no heading grouping them.
  *
@@ -144,6 +164,11 @@ export function settlementToDocument(
     ),
     section('Environment', [settlement.environment.description], settlement.settlementTags),
     ...faithSection(options.religion),
+    ...(options.regionalMaterials
+      ? [settlementMaterialSection(options.regionalMaterials)]
+      : settlement.regionalMaterialContext
+        ? [settlementMaterialSection(unavailableRegionalMaterials())]
+        : []),
     tradeSection(settlement),
     section('Acute Problems', [], (settlement.acuteProblems ?? []).map(problemLine)),
     section('Creeping Problems', [], (settlement.creepingProblems ?? []).map(problemLine)),

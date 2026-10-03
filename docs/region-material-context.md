@@ -1,7 +1,7 @@
 # Regional materials in the settlement tool
 
-**Status:** proposal for [#342](https://github.com/ironarachne/ironarachne/issues/342).
-Implementation awaits human approval of this document and domain model.
+**Status:** implemented for [#342](https://github.com/ironarachne/ironarachne/issues/342).
+The human reviewer approved this document and domain model on 2026-10-03.
 
 ## Problem and boundary
 

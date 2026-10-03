@@ -6,10 +6,9 @@ of the [Regions release](https://github.com/ironarachne/ironarachne/issues/322).
 **Status:** accepted. The human reviewer approved the release boundary and domain model on
 2026-09-28. Implementation remains tracked by #328–#349.
 
-The remaining optional integrations have separate model proposals:
+The remaining optional integrations have separate approved models:
 [creature context #337](region-creature-context.md) and
-[settlement material context #342](region-material-context.md). Those proposals await human
-approval before implementation. The [second-genre assessment #351](region-second-genre.md)
+[settlement material context #342](region-material-context.md). Those models were approved on 2026-10-03 and are implemented. The [second-genre assessment #351](region-second-genre.md)
 records an explicit deferral, using the alternative permitted by that issue's acceptance criteria.
 
 ## User flow and release boundary

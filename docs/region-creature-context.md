@@ -1,7 +1,7 @@
 # Regional creature context
 
-**Status:** proposal for [#337](https://github.com/ironarachne/ironarachne/issues/337).
-Implementation awaits human approval of this document and domain model.
+**Status:** implemented for [#337](https://github.com/ironarachne/ironarachne/issues/337).
+The human reviewer approved this document and domain model on 2026-10-03.
 
 ## Problem and boundary
 
@@ -66,8 +66,8 @@ currently resolved region. The individual remains usable independently.
 When the caller supplied a saved region ID, return a reference with `targetKind: 'region'` and
 `role: 'habitat-context'`. A future saving consumer must persist that reference and the assignment
 in its own approved codec; it may not embed the region. This library-only integration adds no
-new persisted shape and does not claim a saved assignment round trip. Existing encounter,
-dungeon, creature and region payload versions remain unchanged.
+new persisted shape and does not claim a saved assignment round trip. This contract changes no encounter, dungeon or creature payload versions. The region version
+bump described by the separate material-context integration is independent of this API.
 
 For an unsaved region the assignment is transient and has no artifact reference. Presentation
 returns an explicit unresolved state if the habitat/inhabitant disappears, its species changes,
@@ -149,3 +149,6 @@ consumer's persistence design first.
 Implement the neutral contextual generator, saved-fact projection and presentation helpers,
 their public exports and library README examples. Keep this issue limited to the optional
 contract; adding a new saving consumer or standalone creature kind is separate work.
+
+The broader creatures-library refactor was agreed as separate follow-on work on 2026-10-03.
+This contract does not expand into that refactor.

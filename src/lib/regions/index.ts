@@ -1,4 +1,9 @@
 export type { default as Region } from './region';
+export {
+  buildRegionCreatureContext,
+  describeRegionCreatureContext,
+} from './region_creature_context';
+export { regionMaterialSources, describeRegionMaterials } from './region_material_context';
 export type { default as RegionGeneratorConfig } from './region_generator_config';
 export * from './regions';
 export * from './settlement_tiles';

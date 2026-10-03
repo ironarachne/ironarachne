@@ -27,6 +27,7 @@
   type Props = {
     /** The kind to offer. Anything in the registry works; nothing here knows which. */
     kind: ArtifactKind;
+    scopeProjectId?: string;
     /**
      * What the chosen artifact is *for*, recorded on the reference. Required, per decision 1 in
      * docs/workshop.md: two references of the same kind are otherwise indistinguishable, and it is
@@ -59,6 +60,7 @@
 
   let {
     kind,
+    scopeProjectId,
     role,
     checkboxLabel,
     selectLabel,
@@ -81,9 +83,11 @@
   let choices: ArtifactSummary[] = $state([]);
   /** Whether the store has been read at all. Before it has, an empty list means "not looked yet". */
   let looked = $state(false);
+  let refreshVersion = $state(0);
 
   function refresh() {
-    projectId = getActiveProject()?.id;
+    projectId = scopeProjectId ?? getActiveProject()?.id;
+    refreshVersion += 1;
     choices = projectId === undefined ? [] : listArtifactsOfKind(projectId, kind);
     looked = true;
   }
@@ -124,6 +128,7 @@
    * had asked for it.
    */
   $effect(() => {
+    const _version = refreshVersion;
     const chosenProject = projectId;
     const chosen = artifactId;
     if (!enabled || chosenProject === undefined || chosen === undefined) {
@@ -134,6 +139,9 @@
     }
 
     let current = true;
+    value = undefined;
+    reference = undefined;
+    problem = null;
     void loadArtifactValue(chosenProject, chosen).then((result) => {
       // A slower load for an artifact the user has since moved off must not overwrite a faster one.
       if (!current) {
@@ -146,6 +154,12 @@
           result.reason === 'missing-target'
             ? `That ${kindName} is no longer in this project.`
             : `That ${kindName} could not be read (${result.reason}). ${result.message}`;
+        return;
+      }
+      if (result.summary.kind !== kind) {
+        value = undefined;
+        reference = undefined;
+        problem = 'That artifact has a different kind.';
         return;
       }
       value = result.value as TValue;

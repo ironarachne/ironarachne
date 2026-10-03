@@ -3,6 +3,8 @@ import {
   readArtifactAssets,
   artifactSourceFingerprint,
   isArtifactAssetCurrent,
+  getArtifactSummary,
+  hydrateArtifacts,
   updateArtifact,
   updateArtifactPayload,
   type ArtifactSummary,
@@ -11,6 +13,9 @@ import {
 import { artifactEditorEntry, ARTIFACT_EDITORS } from './artifact_editors';
 import { artifactPreviewRenderer } from './artifact_visuals';
 import { ARTIFACT_KINDS } from './artifact_kind_catalog';
+// Metadata-only validation keeps the generic editing surface separate from generators.
+import { validateSettlementSnapshot } from '$lib/settlements/settlement_artifact_kind';
+import { regionalMaterialReference } from '$lib/settlements/settlement_artifact_kind';
 import type {
   ArtifactEditingTarget,
   ArtifactEditorRegistry,
@@ -188,7 +193,20 @@ export async function saveArtifactEdits(
 ): Promise<ArtifactEditResult> {
   let snapshot = edits.payload;
   if (edits.payload !== undefined) {
-    const written = await updateArtifactPayload(ARTIFACT_KINDS, projectId, id, edits.payload);
+    const ready = await hydrateArtifacts();
+    if (!ready.ok) return { ok: false, reason: ready.reason, message: ready.message };
+    const summary = getArtifactSummary(projectId, id);
+    let references;
+    if (summary?.kind === 'settlement') {
+      const accepted = validateSettlementSnapshot(edits.payload);
+      if (!accepted.ok) return accepted;
+      references = summary.references.filter((entry) => entry.role !== 'material-context');
+      if (accepted.value.regionalMaterialContext)
+        references.push(regionalMaterialReference(accepted.value.regionalMaterialContext));
+    }
+    const written = await updateArtifactPayload(ARTIFACT_KINDS, projectId, id, edits.payload, {
+      references,
+    });
     if (written === undefined) {
       return missingTarget(id);
     }
@@ -241,7 +259,24 @@ export async function rerollArtifact(
     };
   }
 
-  const written = await updateArtifactPayload(ARTIFACT_KINDS, projectId, target.summary.id, rolled);
+  let references;
+  if (target.summary.kind === 'settlement') {
+    const original = validateSettlementSnapshot(target.snapshot);
+    const accepted = validateSettlementSnapshot(rolled);
+    if (!accepted.ok) return accepted;
+    const link = original.ok ? original.value.regionalMaterialContext : null;
+    rolled = { ...accepted.value, regionalMaterialContext: link };
+    references = target.summary.references.filter((entry) => entry.role !== 'material-context');
+    if (link) references.push(regionalMaterialReference(link));
+  }
+
+  const written = await updateArtifactPayload(
+    ARTIFACT_KINDS,
+    projectId,
+    target.summary.id,
+    rolled,
+    { references },
+  );
   if (written === undefined) {
     return missingTarget(target.summary.id);
   }

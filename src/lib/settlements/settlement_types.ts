@@ -4,6 +4,7 @@ import type { Character, CharacterGenerationConfig } from '$lib/characters';
 import type { Environment } from '$lib/environment';
 import type { Organization } from '$lib/organizations';
 import type { Vertex } from '$lib/geometry';
+import type { RegionalMaterialLink } from './settlement_material_types';
 
 /**
  * One row in the settlement size table (village, town, city, …).
@@ -87,6 +88,7 @@ export type SettlementGeneratorConfig = {
  * A populated place: narrative description plus structured fields for later rules and UI.
  */
 export type Settlement = {
+  regionalMaterialContext?: RegionalMaterialLink | null;
   name: string;
   description: string;
   category: SettlementCategory;
