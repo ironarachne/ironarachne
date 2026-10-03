@@ -223,26 +223,21 @@ describe('stored regional facts on the illustrative map', () => {
 });
 
 describe('complete gazetteer exports', () => {
-  it('exports every supporting fact and explanation, including entries omitted from the short entry', () => {
+  it('exports the reading narrative without supporting facts or explanations', () => {
     const before = structuredClone(snapshot);
-    const document = regionToExportDocument(snapshot);
-    const appendix = document.sections.at(-1)!;
-    const facts = regionSupportingFacts(snapshot);
-    expect(appendix.heading).toBe('Supporting facts and explanations');
-    expect(appendix.factIds).toEqual(facts.map((fact) => fact.id));
-    expect(appendix.lines).toHaveLength(facts.length);
+    expect(regionToExportDocument(snapshot)).toEqual(regionToDocument(snapshot));
     for (const prose of [regionToMarkdown(snapshot), regionToText(snapshot)]) {
-      for (const fact of facts) {
-        expect(prose).toContain(fact.description);
-        for (const explanation of regionFactExplanation(snapshot, fact)) {
-          expect(prose).toContain(explanation);
-        }
+      expect(prose).not.toMatch(
+        /Supporting facts and explanations|SUPPORTING FACTS AND EXPLANATIONS|Supporting explanation:/,
+      );
+      for (const section of regionToDocument(snapshot).sections) {
+        for (const line of section.lines) expect(prose).toContain(line);
       }
     }
     expect(snapshot).toEqual(before);
   });
 
-  it('preserves unnamed authored facts and suppresses stale evidence in the appendix', () => {
+  it('preserves unnamed authored narrative and suppresses stale evidence', () => {
     const edited = {
       ...snapshot,
       facts: {
@@ -269,8 +264,8 @@ describe('complete gazetteer exports', () => {
       },
     };
     for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
-      expect(prose).toContain('Unnamed fact: A saved detail with no name.');
-      expect(prose).toContain('Supporting information changed; this explanation needs review.');
+      expect(prose).toContain('A saved detail with no name.');
+      expect(prose).toContain('Supporting explanation needs review.');
       expect(prose).not.toContain('obsolete climate');
     }
   });
@@ -303,7 +298,7 @@ describe('complete gazetteer exports', () => {
     const pdf = new TextDecoder('latin1').decode(await blob.arrayBuffer());
     expect(Number(/\/Count (\d+)/.exec(pdf)?.[1])).toBeGreaterThan(2);
     expect(pdf).toContain('END OF SAVED DETAIL');
-    expect(pdf).toContain('SUPPORTING FACTS AND EXPLANATIONS');
+    expect(pdf).not.toContain('SUPPORTING FACTS AND EXPLANATIONS');
   });
 });
 
@@ -453,7 +448,7 @@ describe('sourcebook gazetteer', () => {
     ).toBe(false);
   });
 
-  it('offers saved sources by name, flags unavailable support and suppresses stale evidence', () => {
+  it('offers saved sources by name and hides internal or unavailable evidence', () => {
     const source = snapshot.facts.habitats[0];
     const fact = {
       ...source,
@@ -481,16 +476,22 @@ describe('sourcebook gazetteer', () => {
     };
     expect(regionFactExplanation(snapshot, fact)).toEqual([
       `${source.name}: ${source.description}`,
-      'Supporting fact is unavailable.',
-      'Recorded climate: warm.',
-      'Recorded map site 1: moisture = 0.5.',
-      'Recorded map connection 2: road = true.',
     ]);
     expect(
       regionFactExplanation(snapshot, { ...fact, reason: { ...fact.reason, status: 'stale' } }),
     ).toEqual(['Supporting information changed; this explanation needs review.']);
-    expect(regionFactExplanation(snapshot, { ...source, reason: undefined })).toEqual([
-      'No generated explanation is recorded.',
-    ]);
+    expect(regionFactExplanation(snapshot, { ...source, reason: undefined })).toEqual([]);
+    const edited = { ...snapshot, facts: { ...emptyRegionFacts('legacy'), habitats: [fact] } };
+    for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
+      expect(prose).not.toContain('Supporting explanation:');
+      expect(prose).not.toMatch(/Recorded |moisture =|road =|unavailable/);
+    }
+    const noProse = { ...fact, reason: { ...fact.reason, sources: fact.reason.sources.slice(1) } };
+    expect(regionFactExplanation(snapshot, noProse)).toEqual([]);
+    const withoutSupport = { ...edited, facts: { ...edited.facts, habitats: [noProse] } };
+    for (const prose of [regionToMarkdown(withoutSupport), regionToText(withoutSupport)]) {
+      expect(prose).toContain(fact.description);
+      expect(prose).not.toContain('Supporting explanation:');
+    }
   });
 });

@@ -171,7 +171,7 @@ test.describe('a region', () => {
     expect((await download).suggestedFilename()).toMatch(/\.svg$/);
   });
 
-  test('offers map inspection and a few explanations in a narrow workshop panel', async ({
+  test('offers map inspection and a concise narrative in a narrow workshop panel', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 320, height: 740 });
@@ -193,11 +193,12 @@ test.describe('a region', () => {
     await expect.poll(() => viewport.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
     await map.getByRole('button', { name: 'Fit map' }).click();
     await expect(map.getByRole('status')).toHaveText('100%');
-    const reasons = panel.getByRole('region', { name: 'Why this region looks this way' });
-    await expect(reasons.locator('details')).toHaveCount(3);
-    await reasons.locator('summary').first().focus();
-    await page.keyboard.press('Enter');
-    await expect(reasons.locator('details').first()).toHaveAttribute('open', '');
+    await expect(panel.getByRole('region', { name: 'Why this region looks this way' })).toHaveCount(
+      0,
+    );
+    await expect(
+      panel.getByRole('link', { name: 'Supporting explanation', exact: true }),
+    ).toHaveCount(0);
     await expect(panel.getByRole('button', { name: 'Download Map (SVG)' })).toBeVisible();
   });
 
@@ -254,6 +255,8 @@ test.describe('a region', () => {
   test('downloads a gazetteer a referee can take to the table', async ({ page }) => {
     await openGenerator(page);
     const heading = await page.locator('section.main h2').first().innerText();
+    const gazetteerText = await page.locator('.gazetteer').textContent();
+    expect(gazetteerText).not.toMatch(/Recorded map|Recorded climate|isWater =|moisture =|road =/);
 
     const markdown = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download Markdown' }).click();
@@ -271,16 +274,12 @@ test.describe('a region', () => {
       expect(contents).toContain(await paragraph.innerText());
     }
     expect(contents).toContain('Hook:');
-    expect(contents).toContain('## Supporting facts and explanations');
-    for (const detail of await page.locator('.gazetteer > details p').allTextContents()) {
-      expect(contents).toContain(detail);
-    }
-
-    await page.getByRole('link', { name: 'Supporting explanation', exact: true }).first().click();
-    const evidence = page.locator('.gazetteer > details');
-    await expect(evidence).toHaveAttribute('open', '');
-    await expect(evidence.locator('details[open]')).toHaveCount(1);
-    await expect(evidence.locator('details[open] p').first()).toBeVisible();
+    expect(contents).not.toContain('## Supporting facts and explanations');
+    expect(contents).not.toContain('Supporting explanation:');
+    await expect(page.locator('.gazetteer details')).toHaveCount(0);
+    await expect(
+      page.getByRole('link', { name: 'Supporting explanation', exact: true }),
+    ).toHaveCount(0);
 
     const pdf = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download PDF' }).click();
@@ -289,7 +288,9 @@ test.describe('a region', () => {
     const pdfBytes = await new Response(await pdfFile.createReadStream()).arrayBuffer();
     const pdfContents = new TextDecoder('latin1').decode(pdfBytes);
     expect(pdfContents.startsWith('%PDF')).toBe(true);
-    expect(pdfContents).toContain('SUPPORTING FACTS AND EXPLANATIONS');
+    expect(pdfContents).not.toContain('SUPPORTING FACTS AND EXPLANATIONS');
+    expect(pdfContents).not.toContain('Supporting explanation:');
+    expect(pdfContents).not.toMatch(/Recorded map|Recorded climate|isWater =|moisture =|road =/);
   });
 
   test('reproduces the same region from the same seed', async ({ page }) => {

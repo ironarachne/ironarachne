@@ -97,11 +97,12 @@ The modules the readiness pass gives every Release-ready tool
   Markdown and PDF text, plus `regionToMapSvg` and `regionMapDataUrl`. Landscape, flora/fauna,
   inhabitants, livelihoods, notable places, travel and hazards reuse saved descriptions; empty
   sections disappear. Generated livelihoods use one representative per settlement/topic and
-  supply one per settlement; all authored entries remain. Every saved supporting fact is available
-  through the page's expandable explanation links. Stale assertions are marked in all formats.
-  Realms (including saved descriptions), settlements and organizations remain in the entry.
-  `regionToExportDocument` adds a complete supporting-facts appendix for Markdown, standalone
-  PDF text and project PDF publication, including generated entries omitted from the short entry.
+  supply one per settlement; all authored narrative entries remain. Stale assertions are marked
+  in all formats. Realms (including saved descriptions), settlements and organizations remain
+  in the entry. The page and exports omit supporting-explanation links, disclosures and evidence
+  appendices; supporting facts remain stored for editing and validation.
+  `regionToExportDocument` shares the concise reading entry for Markdown, standalone PDF text
+  and project PDF publication.
   PDF pagination has no fixed page cap. The illustrative map remains a separate SVG rendered
   from the same snapshot; no new map or facts are generated on export. See
   [region export decisions](../../../docs/region-exports.md).
