@@ -89,7 +89,7 @@ describe('dropping what is empty (6.4)', () => {
     expect(regionToDocument(blanked).paragraphs.every((line) => line.trim() !== '')).toBe(true);
   });
 
-  it('drops a settlement whose name and description are both empty', () => {
+  it('drops a settlement with no name, description or supporting facts', () => {
     const emptied = setRegionPlaceText(
       setRegionPlaceText(snapshot, 'settlements', 0, 'name', ''),
       'settlements',
@@ -97,9 +97,10 @@ describe('dropping what is empty (6.4)', () => {
       'description',
       '',
     );
-    const settlements = regionToDocument(emptied).sections.find(
-      (section) => section.heading === 'Settlements',
-    );
+    const settlements = regionToDocument({
+      ...emptied,
+      facts: emptyRegionFacts('legacy'),
+    }).sections.find((section) => section.heading === 'Settlements');
     expect(settlements?.lines.length).toEqual(snapshot.settlements.length - 1);
   });
 
@@ -253,7 +254,8 @@ describe('complete gazetteer exports', () => {
         /Supporting facts and explanations|SUPPORTING FACTS AND EXPLANATIONS|Supporting explanation:/,
       );
       for (const section of regionToDocument(snapshot).sections) {
-        for (const line of section.lines) expect(prose).toContain(line);
+        for (const line of section.lines.flatMap((line) => line.split('\n\n')))
+          expect(prose).toContain(line);
       }
     }
     expect(snapshot).toEqual(before);
@@ -341,15 +343,15 @@ describe('sourcebook gazetteer', () => {
       },
     };
     const document = regionToDocument(edited);
-    const settlements = document.sections.find(
-      (section) => section.heading === 'Settlement character',
-    )!;
+    const settlements = document.sections.find((section) => section.heading === 'Settlements')!;
     const inhabitants = document.sections.find((section) => section.heading === 'Inhabitants')!;
     expect(settlements.lines.join(' ')).toContain('Regional capital');
     expect(settlements.lines.join(' ')).not.toContain('Woodland guardians');
     expect(inhabitants.lines).toEqual(['Woodland guardians: Guardians dwell among the trees.']);
     for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
-      for (const line of [...settlements.lines, ...inhabitants.lines])
+      for (const line of [...settlements.lines, ...inhabitants.lines].flatMap((line) =>
+        line.split('\n\n'),
+      ))
         expect(prose).toContain(line);
     }
   });
@@ -361,7 +363,9 @@ describe('sourcebook gazetteer', () => {
     const text = regionToText(snapshot);
     for (const line of [
       ...document.paragraphs,
-      ...document.sections.flatMap((section) => section.lines),
+      ...document.sections.flatMap((section) =>
+        section.lines.flatMap((line) => line.split('\n\n')),
+      ),
     ]) {
       expect(markdown).toContain(line);
       expect(text).toContain(line);
@@ -370,8 +374,7 @@ describe('sourcebook gazetteer', () => {
       expect.arrayContaining([
         'Landscape',
         'Flora and fauna',
-        'Settlement character',
-        'Livelihoods',
+        'Settlements',
         'Notable places',
         'Travel',
         'Hazards',

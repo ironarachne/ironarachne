@@ -48,3 +48,5 @@ export { settlementSupplyContext, describeSettlementSupply } from './region_supp
 
 export { regionToUiDocument } from './region_ui_presentation';
 export type * from './region_ui_presentation_types';
+
+export { generateLandscapeNames } from './region_landscape_names';

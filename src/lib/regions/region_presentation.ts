@@ -7,6 +7,9 @@ import type { RegionSnapshot, StoredRealm } from './region_snapshot.js';
 import { regionFactsNeedingReview } from './region_editing';
 import type { FactBase, SettlementTarget, RouteEndpoint } from './region_fact_types';
 import { regionSemanticFactLists } from './region_resource_editing';
+import { landscapeSummaryHeading } from './region_landscape_names';
+import { sameSettlement } from './region_livelihood_evidence';
+import type { DailyLifeCategory } from './region_livelihood_types';
 
 /** A titled list of lines; dropped entirely when it has no lines. */
 export type RegionSection = {
@@ -86,7 +89,11 @@ function endpointName(snapshot: RegionSnapshot, endpoint: RouteEndpoint): string
 }
 
 function factSections(heading: string, facts: FactBase[]): RegionSection[] {
-  const printable = facts.filter((fact) => isPrintable(fact.name) || isPrintable(fact.description));
+  const printable = facts.filter((fact) =>
+    heading === 'Landscape' && fact.id === 'area:land'
+      ? isPrintable(fact.description)
+      : isPrintable(fact.name) || isPrintable(fact.description),
+  );
   return printable.length === 0
     ? []
     : [
@@ -94,7 +101,9 @@ function factSections(heading: string, facts: FactBase[]): RegionSection[] {
           heading,
           lines: printable.map(
             (fact) =>
-              [fact.name.trim(), fact.description.trim()].filter(isPrintable).join(': ') +
+              (heading === 'Landscape' && fact.id === 'area:land'
+                ? fact.description.trim()
+                : [fact.name.trim(), fact.description.trim()].filter(isPrintable).join(': ')) +
               (fact.reason?.status === 'stale' ? ' [Supporting explanation needs review.]' : ''),
           ),
           factIds: printable.map((fact) => fact.id),
@@ -114,16 +123,87 @@ function representativeFacts<T extends FactBase>(facts: T[], topic: (fact: T) =>
   });
 }
 
-function atSettlement<T extends FactBase & { settlement: SettlementTarget }>(
-  snapshot: RegionSnapshot,
-  facts: T[],
-): T[] {
-  return facts
-    .filter((fact) => isPrintable(fact.name) || isPrintable(fact.description))
-    .map((fact) => ({
-      ...fact,
-      name: `${targetName(snapshot, fact.settlement)} — ${fact.name}`,
-    }));
+/** Group saved settlement prose by identity, including referenced or missing settlements. */
+export function regionSettlementEntries(snapshot: RegionSnapshot) {
+  const dailyLife = representativeFacts(snapshot.facts.dailyLife, (fact) =>
+    JSON.stringify([fact.settlement, fact.category]),
+  );
+  const supply = representativeFacts(snapshot.facts.supply, (fact) =>
+    JSON.stringify(fact.settlement),
+  );
+  const roles = snapshot.facts.settlementRoles.filter(
+    (fact) => isPrintable(fact.name) || isPrintable(fact.description),
+  );
+  const targets: SettlementTarget[] = snapshot.settlements.map((entry) => ({
+    kind: 'embedded',
+    settlementId: entry.id,
+  }));
+  for (const fact of [...roles, ...dailyLife, ...supply])
+    if (!targets.some((target) => sameSettlement(target, fact.settlement)))
+      targets.push(fact.settlement);
+  const labels: Record<DailyLifeCategory, string> = {
+    livelihood: 'Local work',
+    staple: 'Food',
+    'building-material': 'Building materials',
+    fuel: 'Fuel',
+    craft: 'Household crafts',
+  };
+  const factLine = (fact: FactBase) =>
+    [fact.name.trim(), fact.description.trim()].filter(isPrintable).join(': ') +
+    (fact.reason?.status === 'stale' ? ' [Supporting explanation needs review.]' : '');
+  return targets
+    .map((target) => {
+      const settlement =
+        target.kind === 'embedded'
+          ? snapshot.settlements.find((entry) => entry.id === target.settlementId)?.snapshot
+          : undefined;
+      return {
+        target,
+        name: settlement?.name.trim() || targetName(snapshot, target),
+        description: settlement?.description.trim() || '',
+        paragraphs: [
+          ...dailyLife
+            .filter((fact) => sameSettlement(target, fact.settlement))
+            .map((fact) => `${labels[fact.category]} — ${factLine(fact)}`),
+          ...supply
+            .filter((fact) => sameSettlement(target, fact.settlement))
+            .map((fact) => `Supply needs — ${factLine(fact)}`),
+        ],
+        character: roles.filter((fact) => sameSettlement(target, fact.settlement)).map(factLine),
+      };
+    })
+    .filter(
+      (entry) =>
+        entry.description ||
+        entry.paragraphs.length ||
+        entry.character.length ||
+        snapshot.settlements.some(
+          (settlement) =>
+            sameSettlement(entry.target, {
+              kind: 'embedded',
+              settlementId: settlement.id,
+            }) && isPrintable(settlement.snapshot.name),
+        ),
+    );
+}
+
+function settlementSections(snapshot: RegionSnapshot): RegionSection[] {
+  const entries = regionSettlementEntries(snapshot);
+  return entries.length
+    ? [
+        {
+          heading: 'Settlements',
+          lines: entries.map((entry) =>
+            [
+              entry.name,
+              ...(isPrintable(entry.description) ? [entry.description] : []),
+              ...entry.paragraphs,
+              ...(entry.character.length ? ['Settlement character:', ...entry.character] : []),
+            ].join('\n\n'),
+          ),
+        },
+      ]
+    : [];
 }
 
 /** All supporting saved assertions remain inspectable, even those omitted from the short entry. */
@@ -172,27 +252,22 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
           description: 'Supporting information changed; saved text has not been recomputed.',
         })),
       ),
-      ...factSections('Landscape', [...snapshot.facts.areas, ...snapshot.facts.habitats]),
+      ...factSections('Landscape', [
+        ...snapshot.facts.areas,
+        ...snapshot.facts.habitats
+          .filter((fact) => isPrintable(fact.name) || isPrintable(fact.description))
+          .map((fact) => ({
+            ...fact,
+            name: fact.origin === 'authored' ? fact.name : landscapeSummaryHeading(fact.name),
+          })),
+      ]),
       ...factSections(
         'Flora and fauna',
         snapshot.facts.ecologyInhabitants.filter((fact) => fact.category !== 'fantastical'),
       ),
       ...factSections(
-        'Settlement character',
-        atSettlement(snapshot, snapshot.facts.settlementRoles),
-      ),
-      ...factSections(
         'Inhabitants',
         snapshot.facts.ecologyInhabitants.filter((fact) => fact.category === 'fantastical'),
-      ),
-      ...factSections(
-        'Livelihoods',
-        atSettlement(snapshot, [
-          ...representativeFacts(snapshot.facts.dailyLife, (fact) =>
-            JSON.stringify([fact.settlement, fact.category]),
-          ),
-          ...representativeFacts(snapshot.facts.supply, (fact) => JSON.stringify(fact.settlement)),
-        ]),
       ),
       ...factSections(
         'Notable places',
@@ -212,10 +287,7 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
         snapshot.facts.notables.filter((fact) => fact.kind === 'hazard'),
       ),
       ...(realmLines.length === 0 ? [] : [{ heading: 'Realms', lines: realmLines }]),
-      ...namedList(
-        'Settlements',
-        snapshot.settlements.map(({ snapshot: settlement }) => settlement),
-      ),
+      ...settlementSections(snapshot),
       ...namedList('Organizations', snapshot.organizations),
     ],
   };
@@ -232,7 +304,24 @@ export function regionToMarkdown(snapshot: RegionSnapshot): string {
   const blocks = [`# ${document.title}`, ...document.paragraphs];
 
   for (const section of document.sections) {
-    blocks.push(`## ${section.heading}`, section.lines.map((line) => `- ${line}`).join('\n'));
+    blocks.push(`## ${section.heading}`);
+    if (section.heading === 'Settlements') {
+      for (const entry of regionSettlementEntries(snapshot)) {
+        blocks.push(`### ${entry.name}`);
+        if (isPrintable(entry.description)) blocks.push(entry.description);
+        blocks.push(...entry.paragraphs);
+        if (entry.character.length) blocks.push('#### Settlement character:', ...entry.character);
+      }
+    } else
+      blocks.push(
+        section.lines
+          .map((line, index) =>
+            section.heading === 'Landscape' && section.factIds?.[index] === 'area:land'
+              ? line
+              : `- ${line}`,
+          )
+          .join('\n\n'),
+      );
   }
 
   return `${blocks.join('\n\n')}\n`;

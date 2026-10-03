@@ -16,9 +16,21 @@
       <h3>{section.heading}</h3>
       {#each section.entries as entry}
         {@const factId = entry.factId}
-        <article data-notable-id={factId && notableIds.has(factId) ? factId : undefined}>
-          <h4>{entry.heading}</h4>
+        <article
+          data-fact-id={factId}
+          data-notable-id={factId && notableIds.has(factId) ? factId : undefined}
+        >
+          {#if entry.heading}<h4>{entry.heading}</h4>{/if}
           {#if entry.body}<p data-gazetteer-text>{entry.body}</p>{/if}
+          {#each entry.paragraphs ?? [] as paragraph}
+            <p data-gazetteer-text>{paragraph}</p>
+          {/each}
+          {#if entry.character?.length}
+            <h5>{entry.characterHeading}</h5>
+            {#each entry.character as paragraph}
+              <p data-gazetteer-text>{paragraph}</p>
+            {/each}
+          {/if}
           {#if entry.hook}
             <h5>{entry.hookHeading}</h5>
             <p data-gazetteer-text>{entry.hook}</p>

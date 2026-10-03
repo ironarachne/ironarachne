@@ -45,6 +45,7 @@ describe('dependent generation passes', () => {
     'generateProcessingFacts',
     'generateGeologyFacts',
     'generateHabitatFacts',
+    'generateLandscapeNames',
     'generateEcologyInhabitants',
     'generateEcologyRelationships',
     'generateResourceFacts',
@@ -66,6 +67,14 @@ describe('dependent generation passes', () => {
         facts.map(({ description: _description, ...fact }) => fact);
       expect(withoutProse(after.facts.areas)).toEqual(withoutProse(before.facts.areas));
       expect(withoutProse(after.facts.habitats)).toEqual(withoutProse(before.facts.habitats));
+    } else if (name === 'generateLandscapeNames') {
+      const withoutNames = (facts: typeof before.facts.areas) =>
+        facts.map(({ name: _name, ...fact }) => fact);
+      expect(withoutNames(after.facts.areas)).toEqual(withoutNames(before.facts.areas));
+      expect(after.facts.habitats).toEqual(before.facts.habitats);
+      expect(after.facts.areas.map((fact) => fact.name)).not.toEqual(
+        before.facts.areas.map((fact) => fact.name),
+      );
     } else {
       expect(after.facts.areas).toEqual(before.facts.areas);
       expect(after.facts.habitats).toEqual(before.facts.habitats);

@@ -20,6 +20,13 @@ generators for exactly that reason.
   `nameGeneratorSetFromPatternSources`, and `patternSourceFromNameGenerator` in
   `name_generator_patterns`.
 
+- **`generateLandscapeName(input, context, rng)`** — evocative, directional and occasional
+  cultural place names from caller-selected landscape nouns. The transient input carries eligible
+  directions and optional stored culture patterns. The returned context tracks used names and
+  recent styles without global state. Cultural generators are rebuilt with the caller's RNG;
+  live culture generators are never consumed. See the
+  [approved naming model](../../../docs/region-landscape-names.md).
+
 ## Usage
 
 ```typescript

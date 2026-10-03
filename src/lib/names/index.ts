@@ -65,3 +65,6 @@ export function getFantasyNameGeneratorSet(setName: string, rng: RNG): NameGener
 }
 
 export * from './name_generator_patterns';
+
+export { generateLandscapeName } from './landscape_names';
+export type * from './landscape_name_types';

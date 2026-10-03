@@ -100,7 +100,8 @@ it.each(
     .join('\n');
   for (const section of regionToExportDocument(payload).sections) {
     expect(printed).toContain(section.heading);
-    for (const line of section.lines) expect(printed).toContain(line);
+    for (const line of section.lines.flatMap((line) => line.split('\n\n')))
+      expect(printed).toContain(line);
   }
 });
 

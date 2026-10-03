@@ -266,22 +266,43 @@ test.describe('a region', () => {
     for (const section of await gazetteer.locator('section').all()) {
       await expect(section.locator(':scope > h3')).toHaveCount(1);
       for (const article of await section.locator('article').all()) {
-        await expect(article.locator(':scope > h4')).toHaveCount(1);
+        await expect(article.locator(':scope > h4')).toHaveCount(
+          (await article.getAttribute('data-fact-id')) === 'area:land' ? 0 : 1,
+        );
       }
     }
     const gazetteerText = await page.locator('.gazetteer').textContent();
     expect(gazetteerText).not.toMatch(/Recorded map|Recorded climate|isWater =|moisture =|road =/);
     const settlementCharacter = page.getByRole('region', {
-      name: 'Settlement character',
+      name: 'Settlements',
       exact: true,
     });
     await expect(
-      settlementCharacter.getByRole('heading', { level: 4, name: /^The Regional Capital at / }),
+      settlementCharacter
+        .getByRole('heading', { level: 5, name: /^Settlement character of / })
+        .first(),
     ).toBeVisible();
-    await expect(settlementCharacter).not.toContainText(
-      /generated|mapped|cells|edges|fallback|selected|implied/,
-    );
+    await expect(
+      gazetteer.getByRole('heading', { level: 3, name: 'Livelihoods', exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      gazetteer.getByRole('heading', { level: 3, name: 'Settlement character', exact: true }),
+    ).toHaveCount(0);
+    await expect(settlementCharacter).toContainText('Local work —');
+    await expect(settlementCharacter).toContainText('Supply needs —');
     const landscape = page.getByRole('region', { name: 'Landscape', exact: true });
+    await expect(landscape.locator('[data-fact-id="area:land"] > p')).toBeVisible();
+    await expect(landscape.getByRole('heading', { name: /Regional land/i })).toHaveCount(0);
+    await expect(landscape.getByRole('heading', { name: /^The Landscape of / })).toHaveCount(0);
+    const zoneHeadings = landscape.locator('[data-fact-id^="area:habitat-zone:"] > h4');
+    expect(await zoneHeadings.count()).toBeGreaterThan(0);
+    for (const name of await zoneHeadings.allTextContents()) {
+      expect(name).not.toMatch(/zone$/);
+      expect(name.trim().length).toBeGreaterThan(0);
+    }
+    await expect(landscape.locator('[data-fact-id^="habitat:"] > h4').first()).toContainText(
+      'across the region',
+    );
     await expect(landscape).not.toContainText(
       /cells|edges|median|°C|0–1|temperatures of|moisture of|not achieved/,
     );
