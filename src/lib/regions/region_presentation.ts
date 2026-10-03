@@ -131,21 +131,20 @@ export function regionSupportingFacts(snapshot: RegionSnapshot): FactBase[] {
   return regionSemanticFactLists.flatMap<FactBase>((list) => snapshot.facts[list]);
 }
 
-/** Read saved evidence without treating a stale reason as a current explanation. */
+/** Show saved supporting prose, keeping raw generation evidence out of reading formats. */
 export function regionFactExplanation(snapshot: RegionSnapshot, fact: FactBase): string[] {
-  if (!fact.reason) return ['No generated explanation is recorded.'];
+  if (!fact.reason) return [];
   if (fact.reason.status === 'stale')
     return ['Supporting information changed; this explanation needs review.'];
   const facts = regionSupportingFacts(snapshot);
-  return fact.reason.sources.map((source) => {
-    if (source.kind === 'fact') {
-      const supporting = facts.find((entry) => entry.id === source.factId);
-      return supporting
-        ? `${supporting.name || 'Unnamed fact'}: ${supporting.description}${supporting.reason?.status === 'stale' ? ' [Needs review.]' : ''}`
-        : 'Supporting fact is unavailable.';
-    }
-    if (source.kind === 'environment') return `Recorded ${source.field}: ${source.observedValue}.`;
-    return `Recorded map ${source.kind === 'map-node' ? 'site' : 'connection'} ${source.kind === 'map-node' ? source.nodeId : source.edgeId}: ${source.property} = ${source.observedValue}.`;
+  return fact.reason.sources.flatMap((source) => {
+    if (source.kind !== 'fact') return [];
+    const supporting = facts.find((entry) => entry.id === source.factId);
+    if (!supporting || (!isPrintable(supporting.name) && !isPrintable(supporting.description)))
+      return [];
+    return [
+      `${supporting.name.trim() || 'Unnamed fact'}: ${supporting.description}${supporting.reason?.status === 'stale' ? ' [Needs review.]' : ''}`,
+    ];
   });
 }
 
@@ -169,7 +168,7 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
       ...namedList(
         'Facts needing review',
         regionFactsNeedingReview(snapshot).map((fact) => ({
-          name: fact.name || fact.id,
+          name: fact.name.trim() || 'Unnamed fact',
           description: 'Supporting information changed; saved text has not been recomputed.',
         })),
       ),
@@ -218,31 +217,9 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
   };
 }
 
-/**
- * The reading entry plus the saved detail available through the page's disclosure controls.
- * Exports cannot offer those controls, so include every fact and its explanation in an appendix.
- * No page-count limit or representative selection is applied to this appendix.
- */
+/** Exports use the same concise narrative as the page, without an evidence appendix. */
 export function regionToExportDocument(snapshot: RegionSnapshot): RegionDocument {
-  const document = regionToDocument(snapshot);
-  const facts = regionSupportingFacts(snapshot);
-  if (facts.length === 0) return document;
-  return {
-    ...document,
-    sections: [
-      ...document.sections,
-      {
-        heading: 'Supporting facts and explanations',
-        lines: facts.map((fact) =>
-          [
-            `${fact.name.trim() || 'Unnamed fact'}: ${fact.description}`,
-            `Supporting explanation: ${regionFactExplanation(snapshot, fact).join(' ')}`,
-          ].join(' '),
-        ),
-        factIds: facts.map((fact) => fact.id),
-      },
-    ],
-  };
+  return regionToDocument(snapshot);
 }
 
 /** A complete region as Markdown; the illustrative map remains a separate SVG export. */
