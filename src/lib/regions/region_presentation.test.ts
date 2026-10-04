@@ -23,6 +23,16 @@ import { REGION_SEED_BANK } from '../../../test_fixtures/region_seeds';
 
 const snapshot = rollRegionSnapshot('presentation-seed');
 
+function capitalMarkers(svg: string): string[] {
+  return [
+    ...svg.matchAll(
+      /<g data-feature-id="([^"]+)" data-feature-kind="settlement" data-settlement-icon=[\s\S]*?<\/g><\/g>/g,
+    ),
+  ]
+    .filter((match) => match[0].includes('data-capital-pennant'))
+    .map((match) => match[1]);
+}
+
 describe('arranging a region for reading', () => {
   const document = regionToDocument(snapshot);
 
@@ -186,20 +196,22 @@ describe('exporting a region (6.3)', () => {
   });
 
   it('keeps the capital marker on its saved site after settlement reordering', () => {
-    const capitals = (svg: string) =>
-      [
-        ...svg.matchAll(
-          /<g data-feature-id="([^"]+)" data-feature-kind="settlement" data-settlement-icon=[\s\S]*?<\/g><\/g>/g,
-        ),
-      ]
-        .filter((match) => match[0].includes('data-capital-pennant'))
-        .map((match) => match[1]);
     const reordered = { ...snapshot, settlements: [...snapshot.settlements].reverse() };
-    expect(capitals(regionToMapSvg(reordered))).toEqual(capitals(regionToMapSvg(snapshot)));
+    expect(capitalMarkers(regionToMapSvg(reordered))).toEqual(
+      capitalMarkers(regionToMapSvg(snapshot)),
+    );
+  });
+
+  it('removes the capital marker when its settlement is removed', () => {
     const removed = removeRegionPlace(snapshot, 'settlements', 0);
-    expect(capitals(regionToMapSvg(removed))).toEqual([]);
+    expect(capitalMarkers(regionToMapSvg(removed))).toEqual([]);
+  });
+
+  it('retains the legacy capital marker without settlement role facts', () => {
     const legacy = { ...snapshot, facts: { ...snapshot.facts, settlementRoles: [] } };
-    expect(capitals(regionToMapSvg(legacy))).toEqual(capitals(regionToMapSvg(snapshot)));
+    expect(capitalMarkers(regionToMapSvg(legacy))).toEqual(
+      capitalMarkers(regionToMapSvg(snapshot)),
+    );
   });
 
   it('offers the map as a data URL for the page to show', () => {
