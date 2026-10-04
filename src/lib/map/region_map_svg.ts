@@ -8,14 +8,14 @@ import {
   INK_EDGE_MAX_OFFSET,
   STROKE_WIDTHS,
   MASK_PAINT,
-  hash01,
-  toBipolar,
   cartographyFilterDefs,
   parchmentRect,
 } from '$lib/cartography';
 import { makeWaterClearanceTest } from './water_clearance';
 import { assignTerrainGlyphs } from './terrain_glyph_assignment';
-import { REGION_WATER_FILL, terrainToneSvg } from './terrain_tones';
+import { REGION_LAND_FILL, REGION_WATER_FILL, terrainToneSvg } from './terrain_tones';
+import { riverEnvelope } from './river_geometry';
+import { riverNetworkError } from './river_validation';
 import { TERRAIN_GLYPHS, TERRAIN_GLYPH_VARIANTS } from './terrain_glyph_catalog';
 import { inkStrokePath } from './terrain_glyph_ink';
 import type { PlacedTerrainGlyph, TerrainGlyphAssignment, TextBox } from './terrain_glyph_types';
@@ -26,6 +26,7 @@ import {
   riverChannelWidth,
   riverRibbon,
   sampleRiverCurve,
+  subdivideRiverChordJittered,
 } from './river_paths';
 
 import type {
@@ -99,42 +100,6 @@ function openRoadPolylinePathD(vertices: Vertex[]): string {
     bits.push(`L ${n(v.x)} ${n(v.y)}`);
   }
   return bits.join(' ');
-}
-
-/**
- * One Voronoi river edge: halve twice → four segments (interior knots at ¼, ½, ¾).
- * Only those interior points are nudged, perpendicular to the original chord; endpoints stay fixed.
- */
-function subdivideRiverChordJittered(
-  x0: number,
-  y0: number,
-  x1: number,
-  y1: number,
-  salt: number,
-): Vertex[] {
-  const dx = x1 - x0;
-  const dy = y1 - y0;
-  const len = Math.hypot(dx, dy);
-  if (len < 1e-10) {
-    return [
-      { x: x0, y: y0 },
-      { x: x1, y: y1 },
-    ];
-  }
-  const nx = -dy / len;
-  const ny = dx / len;
-  const verts: Vertex[] = [{ x: x0, y: y0 }];
-  for (let k = 1; k <= 3; k++) {
-    const t = k / 4;
-    const bx = x0 + dx * t;
-    const by = y0 + dy * t;
-    const h = hash01(salt, k * 2.718281828, t * 3.14159265);
-    const ampScale = 0.022 + hash01(salt * 1.3, k, len) * 0.034;
-    const off = toBipolar(h) * len * ampScale;
-    verts.push({ x: bx + nx * off, y: by + ny * off });
-  }
-  verts.push({ x: x1, y: y1 });
-  return verts;
 }
 
 function isComponentBoundaryEdge(edge: MapEdge, component: Set<number>): boolean {
@@ -281,6 +246,7 @@ type WaterPolygonItem = {
   outline: Vertex[];
   d: string;
   strokeKind: 'ocean' | 'lake';
+  nodeIds: Set<number>;
 };
 
 function listWaterPolygonsForMap(map: RegionMap): WaterPolygonItem[] {
@@ -301,7 +267,7 @@ function listWaterPolygonsForMap(map: RegionMap): WaterPolygonItem[] {
       if (verts.length < 3) continue;
       const d = polygonToPathD(verts);
       if (!d) continue;
-      out.push({ id: `waterBody${out.length}`, outline: verts, d, strokeKind });
+      out.push({ id: `waterBody${out.length}`, outline: verts, d, strokeKind, nodeIds: comp });
     }
   }
   return out;
@@ -446,6 +412,15 @@ function appendRivers(
   waterPolygons: WaterPolygonItem[],
   routeBoxes: TextBox[],
 ): void {
+  if (map.rivers !== undefined) {
+    const error = riverNetworkError(map, map.rivers);
+    if (error) throw new Error(error);
+    if (map.rivers.reaches.length === 0) return;
+    {
+      appendRiverNetwork(map, parts, waterPolygons, routeBoxes);
+      return;
+    }
+  }
   const scale = Math.min(map.width, map.height) / 35;
   const clearOfWater = makeWaterClearanceTest(
     waterPolygons.map((water) => water.outline),
@@ -529,6 +504,100 @@ function appendRivers(
   if (banks.length)
     parts.push(
       `<g data-map-rivers="true" mask="url(#riverInk)"><g fill="${CARTOGRAPHY.palette.water.color}">${banks.join('\n')}</g><g fill="${REGION_WATER_FILL}">${channels.join('\n')}</g></g>`,
+    );
+}
+
+/** Saved channels drive both ink and clearance. Only a bounded shoreline connector is transient. */
+function appendRiverNetwork(
+  map: RegionMap,
+  parts: string[],
+  waterPolygons: WaterPolygonItem[],
+  routeBoxes: TextBox[],
+): void {
+  const network = map.rivers!;
+  const scale = Math.min(map.width, map.height) / 35;
+  const junctions = new Map(network.junctions.map((j) => [j.id, j]));
+  const banks: string[] = [],
+    channels: string[] = [];
+  const joins = new Map<string, { width: number; interior: boolean }>();
+  for (const saved of network.reaches) {
+    const reach = { ...saved, samples: [...saved.samples] };
+    const end = junctions.get(reach.toJunctionId)!;
+    if (end.role.kind === 'outlet' && end.role.target.kind !== 'boundary') {
+      const targetId = end.role.target.nodeId;
+      const targetWater = waterPolygons.filter((water) => water.nodeIds.has(targetId));
+      if (targetWater.length === 0) throw new Error(`River outlet ${end.id} has no drawn water`);
+      const clear = makeWaterClearanceTest(
+        targetWater.map((water) => water.outline),
+        0,
+      );
+      if (clear([end.point])) {
+        const shore = nearestWaterPoint(end.point, targetWater);
+        if (!shore || Math.hypot(shore.x - end.point.x, shore.y - end.point.y) > 2 * scale)
+          throw new Error(`River outlet ${end.id} cannot reach its processed shore`);
+        const dx = shore.x - end.point.x,
+          dy = shore.y - end.point.y,
+          length = Math.hypot(dx, dy) || 1;
+        reach.samples.push({
+          point: {
+            x: shore.x + (dx / length) * 0.15 * scale,
+            y: shore.y + (dy / length) * 0.15 * scale,
+          },
+          waterWidth: reach.samples.at(-1)!.waterWidth,
+        });
+      }
+    }
+    const interior = network.origin === 'legacy' || saved.sizeClass !== 'stream';
+    const bank = interior ? STROKE_WIDTHS.hairline * scale : 0;
+    banks.push(
+      `<path data-river-edge="${saved.drainageEdgeId}" data-flow="${saved.flow}" data-river-reach="${escapeXml(saved.id)}" data-river-kind="${saved.kind}" data-river-size="${saved.sizeClass}" d="${polygonToPathD(riverEnvelope(reach, bank))}"/>`,
+    );
+    if (interior) channels.push(`<path d="${polygonToPathD(riverEnvelope(reach))}"/>`);
+    for (let i = 1; i < reach.samples.length; i++)
+      routeBoxes.push(
+        segmentBox(
+          reach.samples[i - 1].point,
+          reach.samples[i].point,
+          Math.max(reach.samples[i - 1].waterWidth, reach.samples[i].waterWidth) / 2 +
+            bank +
+            0.1 * scale,
+        ),
+      );
+    for (const [id, sample] of [
+      [reach.fromJunctionId, saved.samples[0]],
+      [reach.toJunctionId, saved.samples.at(-1)!],
+    ] as const) {
+      if (sample.waterWidth === 0) continue;
+      const existing = joins.get(id);
+      joins.set(id, {
+        width: Math.max(existing?.width ?? 0, sample.waterWidth),
+        interior: interior || (existing?.interior ?? false),
+      });
+    }
+  }
+  for (const [id, join] of joins) {
+    const p = junctions.get(id)!.point;
+    banks.push(
+      `<circle cx="${n(p.x)}" cy="${n(p.y)}" r="${n(join.width / 2 + (join.interior ? STROKE_WIDTHS.hairline * scale : 0))}"/>`,
+    );
+    if (join.interior)
+      channels.push(`<circle cx="${n(p.x)}" cy="${n(p.y)}" r="${n(join.width / 2)}"/>`);
+  }
+  const cutouts = waterPolygons
+    .map((water) => `<use href="#${water.id}" fill="${MASK_PAINT.hidden}"/>`)
+    .join('');
+  parts.push(
+    `<defs><mask id="riverInk" maskUnits="userSpaceOnUse" x="0" y="0" width="${map.width}" height="${map.height}"><rect width="${map.width}" height="${map.height}" fill="${MASK_PAINT.visible}"/>${cutouts}</mask></defs>`,
+  );
+  const islands = network.islands
+    .map(
+      (island) =>
+        `<path data-river-island="${escapeXml(island.id)}" d="${polygonToPathD(island.outline)}" fill="${REGION_LAND_FILL}" stroke="${CARTOGRAPHY.palette.water.color}" stroke-width="${n(STROKE_WIDTHS.hairline * scale)}"/>`,
+    )
+    .join('');
+  if (banks.length)
+    parts.push(
+      `<g data-map-rivers="true" data-river-network-version="1" mask="url(#riverInk)"><g fill="${CARTOGRAPHY.palette.water.color}">${banks.join('\n')}</g><g fill="${REGION_WATER_FILL}">${channels.join('\n')}</g>${islands}</g>`,
     );
 }
 

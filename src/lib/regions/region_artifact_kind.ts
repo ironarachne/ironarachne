@@ -1,4 +1,5 @@
 import map from '$lib/assets/icons/set1/map.svg?raw';
+import { legacyRiverNetwork, riverNetworkError } from '$lib/map';
 import {
   acceptedPayload,
   asRecord,
@@ -33,8 +34,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 9 adds nullable material links to embedded settlement snapshots. */
-export const REGION_PAYLOAD_VERSION = 9 as const;
+/** Version 10 adds saved, conserving surface river networks. */
+export const REGION_PAYLOAD_VERSION = 10 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -58,6 +59,10 @@ function validateMap(value: unknown): PayloadResult<unknown> {
   const missing = (['nodes', 'edges', 'corners'] as const).find(
     (field) => !Array.isArray(graph[field]),
   );
+  if (missing === undefined && graph.rivers !== undefined) {
+    const error = riverNetworkError(graph, graph.rivers);
+    if (error) return rejectedPayload('invalid-payload', error);
+  }
   return missing === undefined
     ? acceptedPayload(graph)
     : rejectedPayload('invalid-payload', `region map ${missing} is not a list`);
@@ -179,10 +184,7 @@ export function validateRegionSnapshot(payload: unknown): PayloadResult<RegionSn
 }
 
 /** Adds semantic identities without inventing absent facts; version 1 also migrates actors. */
-export function migrateRegionSnapshot(
-  payload: unknown,
-  from: number,
-): PayloadResult<RegionSnapshot> {
+function migrateOldRegionSnapshot(payload: unknown, from: number): PayloadResult<RegionSnapshot> {
   if (
     from !== 1 &&
     from !== 2 &&
@@ -326,6 +328,20 @@ export function migrateRegionSnapshot(
     realms,
     facts: emptyRegionFacts('legacy'),
   });
+}
+
+/** Older payload migrations finish first; river adoption neither rerolls nor invents geography. */
+export function migrateRegionSnapshot(
+  payload: unknown,
+  from: number,
+): PayloadResult<RegionSnapshot> {
+  const result =
+    from === 9 ? validateRegionSnapshot(payload) : migrateOldRegionSnapshot(payload, from);
+  if (!result.ok || result.value.map.rivers !== undefined) return result;
+  const rivers = legacyRiverNetwork(result.value.map);
+  return rivers === undefined
+    ? result
+    : validateRegionSnapshot({ ...result.value, map: { ...result.value.map, rivers } });
 }
 
 /** What to call a saved region: its name, or the kind when the name has been emptied. */

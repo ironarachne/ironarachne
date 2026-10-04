@@ -31,6 +31,18 @@ function forceStyle(style: LandscapeNameStyle, seed = 'style') {
 }
 
 describe('landscape names', () => {
+  it('selects a style at the upper RNG boundary after a repeat penalty', () => {
+    const rng = new RNG('upper-bound');
+    vi.spyOn(rng, 'next').mockReturnValue(0.999999);
+    expect(() =>
+      generateLandscapeName(
+        { ...input, directions: [] },
+        { usedNames: [], recentStyles: ['descriptive'] },
+        rng,
+      ),
+    ).not.toThrow();
+  });
+
   it('repeats names and batch history with the same seed and varies them with other seeds', () => {
     expect(generateLandscapeName(input, context, new RNG('a'))).toEqual(
       generateLandscapeName(input, context, new RNG('a')),
@@ -62,13 +74,13 @@ describe('landscape names', () => {
     const select = vi.spyOn(rng, 'weighted');
     generateLandscapeName(input, context, rng);
     expect(select).toHaveBeenCalledWith([
-      { value: 'descriptive', commonality: 55 },
-      { value: 'geographic', commonality: 30 },
-      { value: 'cultural', commonality: 15 },
+      { value: 'descriptive', commonality: 220 },
+      { value: 'geographic', commonality: 120 },
+      { value: 'cultural', commonality: 60 },
     ]);
     select.mockClear();
     generateLandscapeName({ id: 'a', nouns: [], directions: [] }, context, rng);
-    expect(select).toHaveBeenCalledWith([{ value: 'descriptive', commonality: 55 }]);
+    expect(select).toHaveBeenCalledWith([{ value: 'descriptive', commonality: 220 }]);
     expect(
       generateLandscapeName({ id: 'a', nouns: [' '], directions: [] }, context, new RNG('blank'))
         .name,
@@ -122,7 +134,7 @@ describe('landscape names', () => {
     const select = vi.spyOn(rng, 'weighted');
     generateLandscapeName(input, { usedNames: [], recentStyles: ['cultural'] }, rng);
     expect(select).toHaveBeenCalledWith(
-      expect.arrayContaining([{ value: 'cultural', commonality: 11.25 }]),
+      expect.arrayContaining([{ value: 'cultural', commonality: 45 }]),
     );
   });
 

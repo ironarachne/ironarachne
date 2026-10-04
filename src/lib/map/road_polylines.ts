@@ -112,6 +112,15 @@ export function minDistanceSquaredToRoads(map: RegionMap, px: number, py: number
 export function minDistanceSquaredToRivers(map: RegionMap, px: number, py: number): number {
   const p: Vertex = { x: px, y: py };
   let best = Infinity;
+  if (map.rivers) {
+    for (const reach of map.rivers.reaches)
+      for (let i = 1; i < reach.samples.length; i++)
+        best = Math.min(
+          best,
+          distancePointToSegmentSquared(p, reach.samples[i - 1].point, reach.samples[i].point),
+        );
+    return best;
+  }
   for (const e of map.edges) {
     if (!e.river || e.river <= 0) continue;
     const a = map.corners[e.v0]?.point;

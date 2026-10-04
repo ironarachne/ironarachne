@@ -127,6 +127,7 @@ describe('simulateWater', () => {
       downslope: undefined,
     });
     expect(result.nodes[0]).toMatchObject({ isOcean: false, isWater: true });
+    expect(result.rivers!.reaches).toEqual([]);
     expect(map).toEqual(original);
   });
 
@@ -179,12 +180,14 @@ describe('simulateWater', () => {
     });
     const rng = new RNG('lake');
     vi.spyOn(rng, 'int').mockReturnValue(0);
-    const result = simulateWater(map, { seaLevel: -0.1, springCountPercentage: 0.25, rng });
+    const result = simulateWater(map, { seaLevel: -0.1, springCountPercentage: 0.5, rng });
     expect(result.edges.filter((e) => e.river > 0).map((e) => [e.v0, e.v1])).toEqual([
       [0, 2],
       [2, 4],
     ]);
     expect(result.corners[4]).toMatchObject({ isOcean: false, isWater: true, downslope: 6 });
+    expect(result.rivers!.junctions.find((j) => j.role.kind === 'source')!.localSupply).toBe(2);
+    expect(result.rivers!.reaches.map((r) => r.flow)).toEqual([2, 2]);
   });
 });
 

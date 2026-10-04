@@ -1,3 +1,4 @@
+import { hash01, toBipolar } from '$lib/cartography';
 import { distancePointToSegmentSquared, type Vertex } from '$lib/geometry';
 import type { MapEdge, RegionMap } from './map_graph';
 
@@ -133,4 +134,40 @@ export function riverRibbon(
     right.push({ x: points[i].x + (dy / norm) * radius, y: points[i].y - (dx / norm) * radius });
   }
   return [...simplifyBank(left, 0.01 * scale), ...simplifyBank(right, 0.01 * scale).reverse()];
+}
+
+/**
+ * One Voronoi river edge: halve twice → four segments (interior knots at ¼, ½, ¾).
+ * Only those interior points are nudged, perpendicular to the original chord; endpoints stay fixed.
+ */
+export function subdivideRiverChordJittered(
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  salt: number,
+): Vertex[] {
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const len = Math.hypot(dx, dy);
+  if (len < 1e-10) {
+    return [
+      { x: x0, y: y0 },
+      { x: x1, y: y1 },
+    ];
+  }
+  const nx = -dy / len;
+  const ny = dx / len;
+  const verts: Vertex[] = [{ x: x0, y: y0 }];
+  for (let k = 1; k <= 3; k++) {
+    const t = k / 4;
+    const bx = x0 + dx * t;
+    const by = y0 + dy * t;
+    const h = hash01(salt, k * 2.718281828, t * 3.14159265);
+    const ampScale = 0.022 + hash01(salt * 1.3, k, len) * 0.034;
+    const off = toBipolar(h) * len * ampScale;
+    verts.push({ x: bx + nx * off, y: by + ny * off });
+  }
+  verts.push({ x: x1, y: y1 });
+  return verts;
 }

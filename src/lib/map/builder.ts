@@ -175,6 +175,7 @@ function addNodeForCell(
 
   // Merging a short Voronoi edge must not leave a self-loop or duplicate polygon vertex.
   const nodeCorners = [...new Set(clippedVertices.map((v) => accumulator.getOrCreateCorner(v)))];
+  if (nodeCorners.length < 3) return;
   const nodeEdges: MapEdge[] = [];
 
   // Link node back to corners
@@ -254,7 +255,7 @@ export function buildBaseMapGraph(config: MapBuilderConfig): RegionMap {
   const accumulator = createGraphAccumulator(regionMap);
 
   for (let i = 0; i < voronoi.cells.length; i++) {
-    addNodeForCell(regionMap, accumulator, voronoi.cells[i], i, config);
+    addNodeForCell(regionMap, accumulator, voronoi.cells[i], regionMap.nodes.length, config);
   }
 
   linkNodeNeighborsAcrossEdges(regionMap);

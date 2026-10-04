@@ -30,7 +30,7 @@ import {
 } from './region_generation_passes.js';
 import { emptyRegionFacts } from './region_facts.js';
 import type RegionGeneratorConfig from './region_generator_config.js';
-import type { RegionMap } from '$lib/map';
+import { generateRiverGeometry, type RegionMap } from '$lib/map';
 import {
   MapBuilder,
   MapElevation,
@@ -268,6 +268,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   const habitationConfig = stageConfig('habitation');
   const habitationNames = Names.nameGeneratorSetFromPatternSources(patterns, habitationConfig.rng);
   populateRegionInhabitants(region, habitationConfig, region.environment, habitationNames);
+  region.map = generateRiverGeometry(region.map, createRegionStageRng(seed, 'river-geometry'));
   addRealmsToRegion(region, habitationConfig, habitationNames);
   region.settlementIds = region.settlements.map((_, index) => `settlement:${index + 1}`);
   generateHabitationFacts(region, habitationConfig.rng);

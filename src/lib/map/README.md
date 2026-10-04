@@ -73,9 +73,15 @@ positions so their geometry agrees with the graph.
   consume candidate-placement draws. No terrain glyph record is persisted. Text uses conservative serif bounds
   including halo and rounding clearance. Labels stay within the sheet and outside marker footprints
   and the title cartouche; only other-label overlap is best-effort. Names that cannot fit are omitted.
-  Rivers use fine banks around a flow-scaled parchment channel. Their stored corner paths must
-  reach mapped water or the crop; only natural sources taper. The internal `river_paths` helpers
-  handle connectivity, curve sampling, and simplified bank geometry without changing the graph.
+  New maps save a versioned `RiverNetwork`, with directed reaches, actual local spring supplies,
+  channel samples and widths, island polygons, and conserving terminal deltas. Narrow streams are
+  solid tapered ink; larger channels have pale blue interiors and fine banks. Terrain-constrained
+  curves retain road crossings and fall back to straight, narrower channels where necessary.
+  `generateRiverGeometry` finalizes the network after roads, using a parent-owned RNG;
+  `riverNetworkError` validates topology, conservation, graph bindings, geometry, and optional features.
+  `riverEnvelope`, `isRiverWaterAt`, and the incoming/outgoing/outlet queries share that saved data.
+  Maps without a network retain the historical `river_paths` drawing path; an empty present network
+  draws no rivers. See [the river model](../../../docs/region-rivers.md) for storage and migration rules.
   Road leaves require settlements, water, or the crop; a faint continuous stroke joins their dashes.
   Rivers draw below terrain glyphs; roads draw above terrain glyphs and below markers and labels.
   A proportionally enlarged parchment sheet and two inset ruled lines frame every map. The drawing
