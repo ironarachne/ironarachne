@@ -27,3 +27,13 @@ export * as Suitability from './suitability';
 // Vector inspection tools use the same authored geometry and taper as the region renderer.
 export { TERRAIN_GLYPHS, TERRAIN_GLYPH_VARIANTS } from './terrain_glyph_catalog';
 export { inkStrokePath } from './terrain_glyph_ink';
+
+export { normalizeSettlementIconCategory } from './settlement_icons';
+export type * from './settlement_icon_types';
+
+export {
+  SETTLEMENT_BUILDING_VARIANTS,
+  SETTLEMENT_ICON_PROFILES,
+  CAPITAL_PENNANT,
+} from './settlement_icon_catalog';
+export { composeSettlementIcon, capitalPennantAnchor } from './settlement_icons';

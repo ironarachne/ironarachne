@@ -3,6 +3,7 @@ import { RNG } from '@ironarachne/rng';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { generate, getDefaultConfig } from '$lib/regions';
 import { buildRegionMapSvgString } from './region_map_svg';
+import { normalizeSettlementIconCategory } from './settlement_icons';
 import { atMapEdge } from './river_paths';
 
 for (const seed of ['alpha', 'bravo', 'charlie']) {
@@ -18,7 +19,11 @@ for (const seed of ['alpha', 'bravo', 'charlie']) {
       const original = structuredClone(map);
       const options = {
         title: region.name,
-        settlements: region.settlements.map((s, i) => ({ ...s, isCapital: i === 0 })),
+        settlements: region.settlements.map((s, i) => ({
+          ...s,
+          category: normalizeSettlementIconCategory(s.category.name),
+          isCapital: i === 0,
+        })),
       };
       const svg = buildRegionMapSvgString(map, options);
       const drawn = [...svg.matchAll(/data-river-edge="(\d+)" data-flow="([\d.]+)"/g)];

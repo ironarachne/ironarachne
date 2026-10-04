@@ -186,13 +186,20 @@ describe('exporting a region (6.3)', () => {
   });
 
   it('keeps the capital marker on its saved site after settlement reordering', () => {
-    const stars = (svg: string) => svg.match(/<text[^>]*>★<\/text>/g);
+    const capitals = (svg: string) =>
+      [
+        ...svg.matchAll(
+          /<g data-feature-id="([^"]+)" data-feature-kind="settlement" data-settlement-icon=[\s\S]*?<\/g><\/g>/g,
+        ),
+      ]
+        .filter((match) => match[0].includes('data-capital-pennant'))
+        .map((match) => match[1]);
     const reordered = { ...snapshot, settlements: [...snapshot.settlements].reverse() };
-    expect(stars(regionToMapSvg(reordered))).toEqual(stars(regionToMapSvg(snapshot)));
+    expect(capitals(regionToMapSvg(reordered))).toEqual(capitals(regionToMapSvg(snapshot)));
     const removed = removeRegionPlace(snapshot, 'settlements', 0);
-    expect(stars(regionToMapSvg(removed))).toBeNull();
+    expect(capitals(regionToMapSvg(removed))).toEqual([]);
     const legacy = { ...snapshot, facts: { ...snapshot.facts, settlementRoles: [] } };
-    expect(stars(regionToMapSvg(legacy))).toEqual(stars(regionToMapSvg(snapshot)));
+    expect(capitals(regionToMapSvg(legacy))).toEqual(capitals(regionToMapSvg(snapshot)));
   });
 
   it('offers the map as a data URL for the page to show', () => {

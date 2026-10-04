@@ -488,11 +488,11 @@ describe('buildRegionMapSvgString', () => {
   it('sizes settlement labels by population and places them above the settlement', () => {
     const map: RegionMap = {
       width: 40,
-      height: 30,
+      height: 40,
       nodes: [
-        { ...squareCellNode(0, 0, 0, 10), biomeId: 'temperate grassland' },
-        { ...squareCellNode(1, 20, 0, 10), biomeId: 'temperate grassland' },
-        { ...squareCellNode(2, 0, 15, 10), biomeId: 'temperate grassland' },
+        { ...squareCellNode(0, 5, 10, 10), biomeId: 'temperate grassland' },
+        { ...squareCellNode(1, 25, 10, 10), biomeId: 'temperate grassland' },
+        { ...squareCellNode(2, 5, 25, 10), biomeId: 'temperate grassland' },
       ],
       edges: [],
       corners: [],
@@ -513,9 +513,9 @@ describe('buildRegionMapSvgString', () => {
 
     // Each name sits above its settlement's center, centered on it.
     for (const [name, centerY] of [
-      ['Bigton', 5],
-      ['Midham', 5],
-      ['Smallby', 20],
+      ['Bigton', 15],
+      ['Midham', 15],
+      ['Smallby', 30],
     ] as const) {
       const label = byName.get(name)!;
       expect(label.anchor).toBe('middle');
@@ -637,12 +637,12 @@ describe('buildRegionMapSvgString', () => {
         if (label === labels.at(-1)) continue;
         expect(boxesOverlap(box, panel)).toBe(false);
       }
-      // Marker footprints are checked independently, using the emitted ring geometry.
-      for (const match of svg.matchAll(
-        /<circle cx="([^"]+)" cy="([^"]+)" r="([^"]+)" fill="none"/g,
-      )) {
-        const [x, y, r] = match.slice(1).map(Number);
-        const marker = { minX: x - r, maxX: x + r, minY: y - r, maxY: y + r };
+      // The emitted composed bounds include roofs and the capital pennant.
+      const markers = [...svg.matchAll(/data-icon-bounds="([^"]+)"/g)];
+      expect(markers).toHaveLength(settlements.length);
+      for (const match of markers) {
+        const [minX, minY, maxX, maxY] = match[1].split(' ').map(Number);
+        const marker = { minX, minY, maxX, maxY };
         for (const label of labels) expect(boxesOverlap(labelBox(label), marker)).toBe(false);
         expect(boxesOverlap(panel, marker)).toBe(false);
       }
@@ -691,7 +691,7 @@ describe('buildRegionMapSvgString', () => {
 
     const svg = buildRegionMapSvgString(map, { settlements: [{ mapNodeId: 0 }] });
 
-    expect(svg).toContain('<circle ');
+    expect(svg).toContain('data-settlement-icon=');
     expect(parseMapLabels(svg)).toHaveLength(0);
   });
 
@@ -848,8 +848,8 @@ describe('buildRegionMapSvgString', () => {
 
     expect(svg).toContain('data-river-edge="0" data-flow="2"');
     expect(svg).toContain('stroke-dasharray="0.45 0.4"');
-    expect(svg).toContain('<circle ');
-    expect(svg).toContain('★');
+    expect(svg).toContain('data-settlement-icon=');
+    expect(svg).toContain('data-capital-pennant="true"');
   });
 
   it('renders a procedurally built map with roads or rivers when present', () => {

@@ -250,6 +250,8 @@ test.describe('a region', () => {
     expect(contents.startsWith('<?xml')).toBe(true);
     expect(contents).toContain('</svg>');
     expect(contents).not.toContain('NaN');
+    expect(contents).toContain('data-settlement-icon=');
+    expect(contents).toContain('data-capital-pennant="true"');
   });
 
   test('downloads a gazetteer a referee can take to the table', async ({ page }) => {

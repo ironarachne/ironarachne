@@ -18,6 +18,9 @@ import { riverEnvelope } from './river_geometry';
 import { riverNetworkError } from './river_validation';
 import { TERRAIN_GLYPHS, TERRAIN_GLYPH_VARIANTS } from './terrain_glyph_catalog';
 import { inkStrokePath } from './terrain_glyph_ink';
+import { CAPITAL_PENNANT, SETTLEMENT_BUILDING_VARIANTS } from './settlement_icon_catalog';
+import { capitalPennantAnchor, placeSettlementIcon } from './settlement_icons';
+import type { PlacedSettlementIcon } from './settlement_icon_types';
 import type { PlacedTerrainGlyph, TerrainGlyphAssignment, TextBox } from './terrain_glyph_types';
 import { buildRoadCentroidPolylines } from './road_polylines.js';
 import {
@@ -922,67 +925,44 @@ const MAP_TEXT_FONT_FAMILY = '&apos;Times New Roman&apos;, Times, serif';
 /** Very dark brown, so map text reads as ink on parchment rather than fading into the terrain. */
 const MAP_TEXT_INK = CARTOGRAPHY.palette.text.color;
 
-/** Marker radius in map units: the ring's radius, and the basis for the capital's star. */
+/** Existing site scale supplies the category icon footprint in map units. */
 function settlementMarkerRadius(node: MapNode, map: RegionMap): number {
   return Math.max(0.25, symbolFontSizeForNode(node, map) * 0.45);
 }
 
-/** How far the drawn marker reaches from its center — the star covers more ground than a ring. */
-const CAPITAL_MARKER_EXTENT_FACTOR = 1.6;
-
-/**
- * Half-extent of a settlement's marker. Label placement and marker reservation both measure from
- * this, so a label always clears the marker it belongs to instead of being pushed off the map.
- */
-function settlementMarkerExtent(
-  settlement: RegionMapSvgSettlement,
-  node: MapNode,
-  map: RegionMap,
-): number {
-  const radius = settlementMarkerRadius(node, map);
-  return settlement.isCapital === true
-    ? radius * CAPITAL_MARKER_EXTENT_FACTOR + 0.07
-    : radius + STROKE_WIDTHS.fine / 2 + INK_EDGE_MAX_OFFSET;
-}
-
-function appendSettlements(
+/** Placed once, so painting and every reservation use identical geometry. */
+function placeSettlementIcons(
   map: RegionMap,
   settlements: RegionMapSvgSettlement[],
-  parts: string[],
-): void {
-  const rings: string[] = [];
-  const stars: string[] = [];
-  for (const s of settlements) {
-    if (s.mapNodeId === undefined) continue;
-    const node = map.nodes.find((node) => node.id === s.mapNodeId);
-    if (!node) continue;
-    const x = node.center.x;
-    const y = node.center.y;
-    const r = settlementMarkerRadius(node, map);
-    if (s.isCapital) {
-      // The capital star is the one prominent glyph on the sheet, so it keeps a shadow — drawn as an
-      // offset copy rather than a blur filter, which for a single element is the same picture for far
-      // less work.
-      stars.push(
-        `<text x="${n(x + 0.05)}" y="${n(y + 0.07)}" font-size="${n(r * 3)}" fill="${CARTOGRAPHY.palette.body.color}" fill-opacity="0.3">${escapeXml('★')}</text>`,
-        `<text x="${n(x)}" y="${n(y)}" font-size="${n(r * 3)}" ${featureIdentity(s.id, 'settlement')} fill="${CARTOGRAPHY.palette.text.color}">${escapeXml('★')}</text>`,
-      );
-    } else {
-      rings.push(
-        `<circle ${featureIdentity(s.id, 'settlement')} cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}"/>`,
-      );
-    }
-  }
-  if (rings.length > 0) {
-    parts.push(`<g filter="url(#inkEdge)">
-${rings.join('\n')}
-</g>`);
-  }
-  if (stars.length > 0) {
+): PlacedSettlementIcon[] {
+  return settlements.flatMap((settlement) => {
+    const node = map.nodes.find((node) => node.id === settlement.mapNodeId);
+    return node
+      ? [placeSettlementIcon(map, node, settlement, settlementMarkerRadius(node, map))]
+      : [];
+  });
+}
+
+function appendSettlements(map: RegionMap, icons: PlacedSettlementIcon[], parts: string[]): void {
+  for (const placed of icons) {
+    const { settlement, icon, anchor, scale, bounds } = placed;
+    const site = map.nodes.find((node) => node.id === settlement.mapNodeId)!.center;
+    const connector =
+      site.x === anchor.x && site.y === anchor.y
+        ? ''
+        : `<path d="M ${n(site.x)} ${n(site.y)} L ${n(anchor.x)} ${n(anchor.y)}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="0.04"/>`;
+    const buildings = icon.buildings
+      .map(
+        (building) =>
+          `<use data-settlement-building="${building.variantId}" href="#${building.variantId}" transform="translate(${n(building.anchor.x)} ${n(building.anchor.y)}) scale(${n(building.scale)})"/>`,
+      )
+      .join('');
+    const pennant = capitalPennantAnchor(icon);
+    const capital = icon.isCapital
+      ? `<use data-capital-pennant="true" href="#${CAPITAL_PENNANT.id}" transform="translate(${n(pennant.x)} ${n(pennant.y)})"/>`
+      : '';
     parts.push(
-      `<g font-family="Georgia, serif" text-anchor="middle" dominant-baseline="middle" font-weight="bold">
-${stars.join('\n')}
-</g>`,
+      `<g ${featureIdentity(settlement.id, 'settlement')} data-settlement-icon="${icon.category}" data-icon-bounds="${n(bounds.minX)} ${n(bounds.minY)} ${n(bounds.maxX)} ${n(bounds.maxY)}">${connector}<g transform="translate(${anchor.x} ${anchor.y}) scale(${scale})">${buildings}${capital}</g></g>`,
     );
   }
 }
@@ -1272,24 +1252,34 @@ type LabelCandidate = {
  */
 function labelCandidates(
   anchorPoint: Vertex,
-  markerExtent: number,
+  markerBounds: TextBox,
   fontSize: number,
 ): LabelCandidate[] {
   const { x, y } = anchorPoint;
-  const gap = markerExtent + fontSize * 0.2 + TEXT_BOX_PADDING;
-  const far = gap * 2;
-  const above = y - gap - fontSize * TEXT_DESCENT;
-  const below = y + gap + fontSize * TEXT_ASCENT;
+  const padding = fontSize * 0.2 + TEXT_BOX_PADDING;
+  const right = markerBounds.maxX + padding;
+  const left = markerBounds.minX - padding;
+  const far =
+    Math.max(
+      x - markerBounds.minX,
+      markerBounds.maxX - x,
+      y - markerBounds.minY,
+      markerBounds.maxY - y,
+    ) *
+      2 +
+    padding;
+  const above = markerBounds.minY - padding - fontSize * TEXT_DESCENT;
+  const below = markerBounds.maxY + padding + fontSize * TEXT_ASCENT;
   const beside = y + fontSize * (TEXT_ASCENT - TEXT_DESCENT) * 0.5;
   return [
     { x, baselineY: above, anchor: 'middle' },
-    { x: x + gap, baselineY: beside, anchor: 'start' },
-    { x: x - gap, baselineY: beside, anchor: 'end' },
+    { x: right, baselineY: beside, anchor: 'start' },
+    { x: left, baselineY: beside, anchor: 'end' },
     { x, baselineY: below, anchor: 'middle' },
-    { x: x + gap, baselineY: above, anchor: 'start' },
-    { x: x - gap, baselineY: above, anchor: 'end' },
-    { x: x + gap, baselineY: below, anchor: 'start' },
-    { x: x - gap, baselineY: below, anchor: 'end' },
+    { x: right, baselineY: above, anchor: 'start' },
+    { x: left, baselineY: above, anchor: 'end' },
+    { x: right, baselineY: below, anchor: 'start' },
+    { x: left, baselineY: below, anchor: 'end' },
     { x, baselineY: y - far - fontSize * TEXT_DESCENT, anchor: 'middle' },
     { x, baselineY: y + far + fontSize * TEXT_ASCENT, anchor: 'middle' },
   ];
@@ -1299,27 +1289,25 @@ type PlaceableLabel = {
   id?: string;
   name: string;
   point: Vertex;
-  markerExtent: number;
+  markerBounds: TextBox;
   fontSize: number;
   /** Larger settlements are placed first, so they keep the spot directly above the marker. */
   priority: number;
 };
 
 function listPlaceableLabels(
-  map: RegionMap,
-  settlements: RegionMapSvgSettlement[],
+  icons: PlacedSettlementIcon[],
   titleFontSize: number,
 ): PlaceableLabel[] {
   const out: PlaceableLabel[] = [];
-  for (const s of settlements) {
-    if (s.mapNodeId === undefined || s.name === undefined || s.name.length === 0) continue;
-    const node = map.nodes.find((node) => node.id === s.mapNodeId);
-    if (!node) continue;
+  for (const placed of icons) {
+    const s = placed.settlement;
+    if (s.name === undefined || s.name.length === 0) continue;
     out.push({
       id: s.id,
       name: s.name,
-      point: node.center,
-      markerExtent: settlementMarkerExtent(s, node, map),
+      point: placed.anchor,
+      markerBounds: placed.bounds,
       fontSize: settlementLabelFontSize(s, titleFontSize),
       priority: (s.isCapital === true ? 1e9 : 0) + (s.population ?? 0),
     });
@@ -1343,7 +1331,7 @@ function bestLabelPlacement(
 ): LabelPlacement | null {
   let best: LabelPlacement | null = null;
 
-  const candidates = labelCandidates(label.point, label.markerExtent, label.fontSize);
+  const candidates = labelCandidates(label.point, label.markerBounds, label.fontSize);
   // Names near a cartouche can move just beyond its top or bottom instead of being lost.
   for (const obstacle of forbidden) {
     candidates.push(
@@ -1389,14 +1377,14 @@ function bestLabelPlacement(
 /** Places settlement names largest-settlement-first, so the biggest keep the spot above the marker. */
 function layoutSettlementLabels(
   map: RegionMap,
-  settlements: RegionMapSvgSettlement[],
+  icons: PlacedSettlementIcon[],
   titleFontSize: number,
   occupied: TextBox[],
 ): TextParts[] {
   const taken: TextBox[] = [];
   const parts: TextParts[] = [];
 
-  for (const label of listPlaceableLabels(map, settlements, titleFontSize)) {
+  for (const label of listPlaceableLabels(icons, titleFontSize)) {
     const placement = bestLabelPlacement(label, map, taken, occupied);
     if (placement === null) continue;
 
@@ -1492,7 +1480,7 @@ function appendRegionalFeatures(
     const label = {
       name: feature.name,
       point,
-      markerExtent: radius + 0.08 * scale,
+      markerBounds: markerBox,
       fontSize: mapTitleFontSize(map) * (feature.kind === 'habitat' ? 0.26 : 0.22),
       priority: 0,
     };
@@ -1529,24 +1517,6 @@ function appendRegionalFeatures(
   }
 }
 
-/** Marker footprints, so a label never lands on another settlement's star or ring. */
-function settlementMarkerBoxes(map: RegionMap, settlements: RegionMapSvgSettlement[]): TextBox[] {
-  const out: TextBox[] = [];
-  for (const s of settlements) {
-    if (s.mapNodeId === undefined) continue;
-    const node = map.nodes.find((node) => node.id === s.mapNodeId);
-    if (!node) continue;
-    const r = settlementMarkerExtent(s, node, map);
-    out.push({
-      minX: node.center.x - r,
-      maxX: node.center.x + r,
-      minY: node.center.y - r,
-      maxY: node.center.y + r,
-    });
-  }
-  return out;
-}
-
 /** Expand each authored variant once; maps reference only the definitions they actually use. */
 const TERRAIN_SYMBOL_DEFS = new Map(
   TERRAIN_GLYPH_VARIANTS.map((variant) => [
@@ -1555,10 +1525,34 @@ const TERRAIN_SYMBOL_DEFS = new Map(
   ]),
 );
 
-function svgDefs(map: RegionMap, symbols: PlacedTerrainGlyph[]): string {
+const SETTLEMENT_SYMBOL_DEFS = new Map(
+  [...SETTLEMENT_BUILDING_VARIANTS.map((variant) => variant.artwork), CAPITAL_PENNANT].map(
+    (artwork) => [
+      artwork.id,
+      `<g id="${artwork.id}"><path d="${artwork.bodyPaths.join(' ')}" fill="${PARCHMENT_FILL}"/><path d="${artwork.strokes.map(inkStrokePath).join(' ')}" fill="${CARTOGRAPHY.palette.body.color}"/></g>`,
+    ],
+  ),
+);
+
+function svgDefs(
+  map: RegionMap,
+  symbols: PlacedTerrainGlyph[],
+  icons: PlacedSettlementIcon[],
+): string {
   const used = [...new Set(symbols.map((symbol) => symbol.variantId))].sort();
   return `<defs>${cartographyFilterDefs(map.width, map.height)}
-${used.map((id) => TERRAIN_SYMBOL_DEFS.get(id)).join('\n')}</defs>`;
+${used.map((id) => TERRAIN_SYMBOL_DEFS.get(id)).join('\n')}
+${[
+  ...new Set(
+    icons.flatMap((placed) => [
+      ...placed.icon.buildings.map((b) => b.variantId),
+      ...(placed.icon.isCapital ? [CAPITAL_PENNANT.id] : []),
+    ]),
+  ),
+]
+  .sort()
+  .map((id) => SETTLEMENT_SYMBOL_DEFS.get(id))
+  .join('\n')}</defs>`;
 }
 
 /**
@@ -1570,7 +1564,8 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   const h = map.height;
   const title = options?.title ?? '';
   const settlements = options?.settlements ?? [];
-  const reserved = settlementMarkerBoxes(map, settlements);
+  const icons = placeSettlementIcons(map, settlements);
+  const reserved = icons.map((icon) => icon.bounds);
   const titleLayout = layoutMapTitle(title, map, reserved);
 
   const body: string[] = [];
@@ -1593,12 +1588,12 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   appendRivers(map, body, waterPolygons, routeBoxes);
   const scatterLayerIndex = body.length;
   appendRoads(map, body, settlements, routeBoxes);
-  appendSettlements(map, settlements, body);
+  appendSettlements(map, icons, body);
 
   // Only other-label crowding is soft. The sheet, cartouche, and marker boundaries are hard.
   const textParts = layoutSettlementLabels(
     map,
-    settlements,
+    icons,
     titleLayout === null
       ? mapTitleFontSize(map)
       : Math.min(mapTitleFontSize(map), (titleLayout.fontSize * 0.9) / MAX_LABEL_FRACTION_OF_TITLE),
@@ -1620,6 +1615,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   appendScatterSymbolsBackToFront(
     symbols.filter(
       (symbol) =>
+        !icons.some((icon) => overlapArea(symbol.bounds, icon.bounds) > 0) &&
         !featureBoxes.some((box) => overlapArea(symbol.bounds, box) > 0) &&
         (compass === null || overlapArea(symbol.bounds, compass) === 0),
     ),
@@ -1638,7 +1634,7 @@ ${textParts.map((t) => t.ink).join('\n')}
     marginY = h * 0.05;
   const sheetW = w + marginX * 2,
     sheetH = h + marginY * 2;
-  const inner = `${svgDefs(map, symbols)}
+  const inner = `${svgDefs(map, symbols, icons)}
 <g transform="translate(${n(-marginX)} ${n(-marginY)})">${parchmentRect(sheetW, sheetH)}</g>
 <defs><clipPath id="map-content-clip"><rect width="${w}" height="${h}"/></clipPath></defs>
 <g id="map-content" clip-path="url(#map-content-clip)">

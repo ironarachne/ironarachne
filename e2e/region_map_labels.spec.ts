@@ -25,11 +25,32 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
         const panelBox = panel.getBBox();
         const markers = [
           ...root.querySelectorAll<SVGGraphicsElement>(
-            '#map-layers circle[fill="none"], #map-layers text, #map-layers [data-feature-marker]',
+            '#map-layers [data-settlement-icon], #map-layers [data-feature-marker]',
           ),
         ].map((marker) => marker.getBBox());
         const labels = [...root.querySelectorAll<SVGTextElement>('text[data-text-box]')];
         const errors: string[] = [];
+        const icons = [...root.querySelectorAll<SVGGraphicsElement>('[data-settlement-icon]')];
+        if (!icons.length) errors.push('Missing settlement building clusters');
+        if (root.querySelectorAll('[data-capital-pennant]').length !== 1)
+          errors.push('Expected exactly one capital pennant');
+        for (const icon of icons) {
+          const [minX, minY, maxX, maxY] = icon
+            .getAttribute('data-icon-bounds')!
+            .split(' ')
+            .map(Number);
+          const actual = icon.getBBox();
+          if (
+            actual.width <= 0 ||
+            actual.height <= 0 ||
+            actual.x < minX - 0.005 ||
+            actual.y < minY - 0.005 ||
+            actual.x + actual.width > maxX + 0.005 ||
+            actual.y + actual.height > maxY + 0.005
+          )
+            errors.push('Settlement artwork exceeds its reserved bounds');
+        }
+
         const areaLabels = [
           ...document.querySelectorAll('.gazetteer [data-fact-id^="area:habitat-zone:"]'),
         ].map((entry) => ({

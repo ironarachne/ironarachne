@@ -1,3 +1,5 @@
+import type { SettlementIconCategory } from './settlement_icon_types';
+
 export type RegionMapSvgSettlement = {
   id?: string;
   mapNodeId?: number;
@@ -5,6 +7,7 @@ export type RegionMapSvgSettlement = {
   name?: string;
   /** Drives label size, so a city reads larger than a hamlet. */
   population?: number;
+  category?: SettlementIconCategory;
 };
 
 /** Derived drawing inputs only; semantic IDs and names come from saved regional facts. */
