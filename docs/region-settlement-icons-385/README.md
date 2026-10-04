@@ -73,3 +73,7 @@ All seven region-map browser cases measured the actual composed SVG artwork agai
 bounds, checked the capital pennant, and verified label clearance. Region save/reopen/edit,
 SVG/PDF downloads, and locked-seed reproduction passed. The reviewed desktop and phone images
 were captured from the final built app after confirming seeded regeneration had completed.
+
+The region export/import integration cases have a scoped 15-second timeout because each
+generates a region and renders both copies and its publication. The initial GitHub coverage
+run exceeded the default five seconds on two `bravo` cases; their assertions remain intact.
