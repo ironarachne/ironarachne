@@ -53,12 +53,15 @@ describe.each(['alpha', 'bravo', 'charlie'])('reference coastline: %s', (seed) =
     ];
     expect(water.length).toBeGreaterThan(0);
     expect(svg).not.toContain('fill-opacity="0.92"');
-    // Terrain remains glyph-only: no regional wash beneath the trees or peaks.
+    // The former uniform ink wash stays retired; terrain tones use biome colors instead.
     expect(svg).not.toContain(`fill="${INK_WASH}"`);
+    expect(svg).toContain('data-terrain-tones="true"');
     expect(svg).toContain('data-water-hatching="ocean"');
     expect(svg).not.toContain('<line ');
     const previousSizes: Record<string, number> = { alpha: 285558, bravo: 229217, charlie: 308770 };
-    expect(Buffer.byteLength(svg)).toBeLessThan(previousSizes[seed]);
+    // One colored polygon per cell, plus fixed filter/mask definitions and water references.
+    const toneBudget = region.map.nodes.length * 400 + 4096;
+    expect(Buffer.byteLength(svg)).toBeLessThan(previousSizes[seed] + toneBudget);
     const loops = water.map((match) => parseLoop(match[1]));
     for (let i = 0; i < loops.length; i++) {
       const points = loops[i];

@@ -54,9 +54,11 @@ positions so their geometry agrees with the graph.
   root).
 - **Rendering** — `buildRegionMapSvgString(map, options)`. Water outlines use the shared
   cartography Chaikin strategy, with bounded noise at a scale set by map dimensions. Coast ink, water hatching,
-  clips, and river cutouts reuse the same outline, defined once in SVG. Water is bare parchment
-  with coast-following hatch bands. Eight terrain families (high/ordinary mountains, hills, deciduous/conifer/palm trees, marsh,
-  and prairie) each have four authored ink drawings, with no region washes or outlines.
+  clips, and river cutouts reuse the same outline, defined once in SVG. Pale blue water sits beneath
+  coast-following hatch bands. `terrain_tones` blends muted biome colors beneath the ink, darkens
+  them using relative landform classification, and masks the blurred land at those same processed
+  water outlines. Rivers share the water fill. Eight terrain glyph families (high/ordinary mountains,
+  hills, deciduous/conifer/palm trees, marsh, and prairie) each have four authored ink drawings.
   `terrain_glyph_catalog` owns their cubic pen curves, parchment bodies, and conservative
   control-hull footprints; `terrain_glyph_ink` expands tapered strokes into filled ribbons once
   per definition. Small intersecting hatch marks shade the appropriate drawings. Glyph scale fitting checks full
