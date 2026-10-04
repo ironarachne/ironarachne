@@ -1,6 +1,6 @@
 # Region map tree icons
 
-**Status:** accepted — design, domain model, and artwork approved on 2026-10-04; implementation under verification.
+**Status:** implemented — design, domain model, and artwork approved on 2026-10-04.
 
 Tracked by [#389](https://github.com/ironarachne/ironarachne/issues/389). Extends
 [Region terrain glyphs](region-terrain-glyphs.md) and
@@ -240,3 +240,15 @@ approved vector specimens and the full-map comparisons.
 2. Integrate approved artwork, the size ceiling, and the separate forest candidate pass.
 3. Verify geometry, placement, density, determinism, full-map appearance, and exports.
 4. Run the required checks; open a PR only after explicit artwork approval.
+
+## Implementation record
+
+The approved twelve drawings are integrated into the runtime catalog. Trees use a
+separate deterministic candidate pass, retain shared fitting/clearance/spacing, and obey
+the map-wide footprint ceiling. Rotation and scale serialization are included in that
+ceiling. Regression tests cover size hierarchy, forest density, spacing, and repeatable
+SVG output. Saved geography and schemas are unchanged.
+
+The [review folder](region-tree-icons-389/README.md) records artwork, actual placements,
+reference comparisons, and the measured rendering cost. Final gate and browser-suite
+results are recorded in [PR #398](https://github.com/ironarachne/ironarachne/pull/398).

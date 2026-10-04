@@ -134,10 +134,10 @@ describe('buildRegionMapSvgString', () => {
     ];
     const elevations = [0.1, 0.1, 0.1, 0.35, 0.6, 0.9, 0.1, 0.1];
     const map: RegionMap = {
-      width: 80,
+      width: 20,
       height: 10,
       nodes: biomes.map((biomeId, id) => ({
-        ...squareCellNode(id, id * 10, 0, 10),
+        ...squareCellNode(id, (id % 4) * 5, Math.floor(id / 4) * 5, 5),
         biomeId,
         elevation: elevations[id],
       })),
@@ -148,7 +148,7 @@ describe('buildRegionMapSvgString', () => {
     expect(buildRegionMapSvgString(structuredClone(map))).toBe(svg);
     const placed = parsePlacedSymbols(svg);
     const groups = Array.from({ length: 6 }, (_, i) =>
-      placed.filter((s) => s.x >= i * 10 && s.x < (i + 1) * 10),
+      placed.filter((s) => Math.floor(s.x / 5) + Math.floor(s.y / 5) * 4 === i),
     );
     const extent = (s: PlacedSymbol) => {
       const points = variants.get(s.id)!.footprint.map((p) => placeSilhouettePoint(s, p.x, p.y));
@@ -157,17 +157,16 @@ describe('buildRegionMapSvgString', () => {
         height: Math.max(...points.map((p) => p.y)) - Math.min(...points.map((p) => p.y)),
       };
     };
+    const reliefGroups = groups.slice(3);
+    for (const relief of reliefGroups) expect(relief.length).toBeGreaterThan(0);
+    const reliefSizes = reliefGroups.flat().map(extent);
+    const smallestWidth = Math.min(...reliefSizes.map((size) => size.width));
+    const smallestHeight = Math.min(...reliefSizes.map((size) => size.height));
     for (const trees of groups.slice(0, 3)) {
-      expect(trees.length).toBeGreaterThan(0);
-      for (const relief of groups.slice(3)) {
-        expect(relief.length).toBeGreaterThan(0);
-        expect(trees.length).toBeGreaterThan(relief.length);
-        for (const tree of trees) {
-          const size = extent(tree);
-          expect(size.width).toBeLessThan(Math.min(...relief.map((s) => extent(s).width)));
-          expect(size.height).toBeLessThan(Math.min(...relief.map((s) => extent(s).height)));
-        }
-      }
+      expect(trees.length).toBeGreaterThan(Math.max(...reliefGroups.map((group) => group.length)));
+      const treeSizes = trees.map(extent);
+      expect(Math.max(...treeSizes.map((size) => size.width))).toBeLessThan(smallestWidth);
+      expect(Math.max(...treeSizes.map((size) => size.height))).toBeLessThan(smallestHeight);
     }
   });
   it('returns SVG with viewBox and at least one cell path for a built map', () => {

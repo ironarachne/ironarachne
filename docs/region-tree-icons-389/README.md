@@ -1,6 +1,7 @@
 # Tree artwork review — #389
 
-**Status:** artwork approved on 2026-10-04; implementation under verification.
+**Status:** implemented; artwork approved on 2026-10-04. Final validation is recorded in
+[PR #398](https://github.com/ironarachne/ironarachne/pull/398).
 
 The [design and domain model](../region-tree-icons.md) were approved on 2026-10-04.
 This sheet proposes four new drawings each for deciduous, coniferous, and palm trees.
