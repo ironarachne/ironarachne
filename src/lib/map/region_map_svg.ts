@@ -13,6 +13,7 @@ import {
 } from '$lib/cartography';
 import { makeWaterClearanceTest } from './water_clearance';
 import { assignTerrainGlyphs } from './terrain_glyph_assignment';
+import { deriveDesertOasisSites, desertBiomeKind } from './desert_terrain';
 import { REGION_LAND_FILL, REGION_WATER_FILL, terrainToneSvg } from './terrain_tones';
 import { riverEnvelope } from './river_geometry';
 import { riverNetworkError } from './river_validation';
@@ -21,7 +22,12 @@ import { inkStrokePath } from './terrain_glyph_ink';
 import { CAPITAL_PENNANT, SETTLEMENT_BUILDING_VARIANTS } from './settlement_icon_catalog';
 import { capitalPennantAnchor, placeSettlementIcon } from './settlement_icons';
 import type { PlacedSettlementIcon } from './settlement_icon_types';
-import type { PlacedTerrainGlyph, TerrainGlyphAssignment, TextBox } from './terrain_glyph_types';
+import type {
+  PlacedTerrainGlyph,
+  TerrainGlyphAssignment,
+  TerrainGlyphFamily,
+  TextBox,
+} from './terrain_glyph_types';
 import { buildRoadCentroidPolylines } from './road_polylines.js';
 import {
   atMapEdge,
@@ -414,13 +420,14 @@ function appendRivers(
   parts: string[],
   waterPolygons: WaterPolygonItem[],
   routeBoxes: TextBox[],
+  riverOutlines: Vertex[][],
 ): void {
   if (map.rivers !== undefined) {
     const error = riverNetworkError(map, map.rivers);
     if (error) throw new Error(error);
     if (map.rivers.reaches.length === 0) return;
     {
-      appendRiverNetwork(map, parts, waterPolygons, routeBoxes);
+      appendRiverNetwork(map, parts, waterPolygons, routeBoxes, riverOutlines);
       return;
     }
   }
@@ -480,8 +487,17 @@ function appendRivers(
           Math.max(start, end) / 2 + (STROKE_WIDTHS.hairline + 0.1) * scale,
         ),
       );
+    const bankOutline = riverRibbon(
+      points,
+      start,
+      end,
+      reach.source,
+      STROKE_WIDTHS.hairline * scale,
+      scale,
+    );
+    riverOutlines.push(bankOutline);
     banks.push(
-      `<path data-river-edge="${reach.edge.id}" data-flow="${reach.edge.river}" d="${polygonToPathD(riverRibbon(points, start, end, reach.source, STROKE_WIDTHS.hairline * scale, scale))}"/>`,
+      `<path data-river-edge="${reach.edge.id}" data-flow="${reach.edge.river}" d="${polygonToPathD(bankOutline)}"/>`,
     );
     channels.push(
       `<path d="${polygonToPathD(riverRibbon(points, start, end, reach.source, 0, scale))}"/>`,
@@ -491,6 +507,7 @@ function appendRivers(
   }
   for (const [id, width] of joins) {
     const p = map.corners[id].point;
+    riverOutlines.push(circleClearanceOutline(p, width / 2 + STROKE_WIDTHS.hairline * scale));
     banks.push(
       `<circle cx="${n(p.x)}" cy="${n(p.y)}" r="${n(width / 2 + STROKE_WIDTHS.hairline * scale)}"/>`,
     );
@@ -510,12 +527,22 @@ function appendRivers(
     );
 }
 
+/** Circumscribe drawn river join disks so clearance cannot slip between polygon chords. */
+function circleClearanceOutline(center: Vertex, radius: number): Vertex[] {
+  const outer = radius / Math.cos(Math.PI / 16);
+  return Array.from({ length: 16 }, (_, i) => ({
+    x: center.x + outer * Math.cos((i * Math.PI) / 8),
+    y: center.y + outer * Math.sin((i * Math.PI) / 8),
+  }));
+}
+
 /** Saved channels drive both ink and clearance. Only a bounded shoreline connector is transient. */
 function appendRiverNetwork(
   map: RegionMap,
   parts: string[],
   waterPolygons: WaterPolygonItem[],
   routeBoxes: TextBox[],
+  riverOutlines: Vertex[][],
 ): void {
   const network = map.rivers!;
   const scale = Math.min(map.width, map.height) / 35;
@@ -552,8 +579,10 @@ function appendRiverNetwork(
     }
     const interior = network.origin === 'legacy' || saved.sizeClass !== 'stream';
     const bank = interior ? STROKE_WIDTHS.hairline * scale : 0;
+    const bankOutline = riverEnvelope(reach, bank);
+    riverOutlines.push(bankOutline);
     banks.push(
-      `<path data-river-edge="${saved.drainageEdgeId}" data-flow="${saved.flow}" data-river-reach="${escapeXml(saved.id)}" data-river-kind="${saved.kind}" data-river-size="${saved.sizeClass}" d="${polygonToPathD(riverEnvelope(reach, bank))}"/>`,
+      `<path data-river-edge="${saved.drainageEdgeId}" data-flow="${saved.flow}" data-river-reach="${escapeXml(saved.id)}" data-river-kind="${saved.kind}" data-river-size="${saved.sizeClass}" d="${polygonToPathD(bankOutline)}"/>`,
     );
     if (interior) channels.push(`<path d="${polygonToPathD(riverEnvelope(reach))}"/>`);
     for (let i = 1; i < reach.samples.length; i++)
@@ -580,6 +609,12 @@ function appendRiverNetwork(
   }
   for (const [id, join] of joins) {
     const p = junctions.get(id)!.point;
+    riverOutlines.push(
+      circleClearanceOutline(
+        p,
+        join.width / 2 + (join.interior ? STROKE_WIDTHS.hairline * scale : 0),
+      ),
+    );
     banks.push(
       `<circle cx="${n(p.x)}" cy="${n(p.y)}" r="${n(join.width / 2 + (join.interior ? STROKE_WIDTHS.hairline * scale : 0))}"/>`,
     );
@@ -840,6 +875,8 @@ function makeScatterNodeLookup(
 function collectScatterSymbols(
   map: RegionMap,
   clearOfWater: (outline: Vertex[]) => boolean,
+  waterPolygons: WaterPolygonItem[],
+  riverOutlines: Vertex[][],
 ): PlacedTerrainGlyph[] {
   if (map.width <= 0 || map.height <= 0) return [];
   const assignments = assignTerrainGlyphs(map);
@@ -862,20 +899,20 @@ function collectScatterSymbols(
   const containment = new Map(
     Object.values(TERRAIN_GLYPHS).map((definition) => [
       definition.family,
-      makeRegionContainmentTest(
-        map,
-        (node) => assignments.get(node.id)?.family === definition.family,
+      makeRegionContainmentTest(map, (node) =>
+        definition.family.startsWith('desert')
+          ? !isWaterNode(node) && desertBiomeKind(node.biomeId) !== null
+          : assignments.get(node.id)?.family === definition.family,
       ),
     ]),
   );
   const acceptSpacing = makeGlyphSpacingTest(mapScale);
+  const clearOfRivers = makeWaterClearanceTest(riverOutlines, WATER_EDGE_MARGIN);
   const out: PlacedTerrainGlyph[] = [];
-  for (const [index, anchor] of candidates.entries()) {
+  const place = (index: number, family: TerrainGlyphFamily, key: string): boolean => {
+    const anchor = candidates[index];
     const node = nodeAt(anchor)!;
-    const family = assignments.get(node.id)!.family;
     const definition = TERRAIN_GLYPHS[family];
-    const key = `${seedKey}:${node.id}:${index}`;
-    if (new RNG(`${key}:density`).float(0, 1) >= definition.densityRatio) continue;
     const variant = new RNG(`${key}:variant`).item(definition.variants);
     const styleRng = new RNG(`${key}:style`);
     const outline = SYMBOL_FIT_OUTLINES[variant.id];
@@ -894,11 +931,13 @@ function collectScatterSymbols(
       rotation,
       node.id,
       containment.get(family)!,
-      clearOfWater,
+      family.startsWith('desert')
+        ? (outline) => clearOfWater(outline) && clearOfRivers(outline)
+        : clearOfWater,
     );
-    if (scale === null) continue;
+    if (scale === null) return false;
     const halfWidth = Math.max(...variant.footprint.map((point) => Math.abs(point.x))) * scale;
-    if (!acceptSpacing(anchor, halfWidth * 0.55)) continue;
+    if (!acceptSpacing(anchor, halfWidth * 0.55)) return false;
     out.push({
       nodeId: node.id,
       variantId: variant.id,
@@ -907,6 +946,32 @@ function collectScatterSymbols(
       rotationDegrees: rotation,
       bounds: glyphBox(anchor, outline, scale, rotation),
     });
+    return true;
+  };
+  for (const site of deriveDesertOasisSites(map)) {
+    if (new RNG(`${seedKey}:${site.id}:selection`).float(0, 1) >= 0.35) continue;
+    const shore = waterPolygons.filter(
+      (water) =>
+        water.strokeKind === 'lake' &&
+        water.nodeIds.size === site.waterNodeIds.length &&
+        site.waterNodeIds.every((id) => water.nodeIds.has(id)),
+    );
+    if (shore.length === 0) continue;
+    const land = new Set(site.shoreNodeIds);
+    for (const [index, anchor] of candidates.entries()) {
+      if (!land.has(nodeAt(anchor)!.id)) continue;
+      const nearest = nearestWaterPoint(anchor, shore);
+      if (!nearest || Math.hypot(anchor.x - nearest.x, anchor.y - nearest.y) > 2 * mapScale)
+        continue;
+      if (place(index, 'desertOasis', `${seedKey}:${site.id}:${index}:oasis`)) break;
+    }
+  }
+  for (const [index, anchor] of candidates.entries()) {
+    const node = nodeAt(anchor)!;
+    const family = assignments.get(node.id)!.family;
+    const key = `${seedKey}:${node.id}:${index}`;
+    if (new RNG(`${key}:density`).float(0, 1) >= TERRAIN_GLYPHS[family].densityRatio) continue;
+    place(index, family, key);
   }
   return out;
 }
@@ -1575,7 +1640,6 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     waterPolygons.map((item) => item.outline),
     WATER_EDGE_MARGIN,
   );
-  const symbols = collectScatterSymbols(map, clearOfWater);
   if (titleLayout !== null) reserved.push(titleLayout.box);
   body.push(waterGeometryDefs(waterPolygons));
   body.push(
@@ -1585,7 +1649,9 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     ),
   );
   appendWaterBodiesFromItems(waterPolygons, body, w, h);
-  appendRivers(map, body, waterPolygons, routeBoxes);
+  const riverOutlines: Vertex[][] = [];
+  appendRivers(map, body, waterPolygons, routeBoxes, riverOutlines);
+  const symbols = collectScatterSymbols(map, clearOfWater, waterPolygons, riverOutlines);
   const scatterLayerIndex = body.length;
   appendRoads(map, body, settlements, routeBoxes);
   appendSettlements(map, icons, body);

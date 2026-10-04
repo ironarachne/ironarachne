@@ -1,6 +1,8 @@
 import type { MapNode, RegionMap } from './map_graph';
 import { classifyRegionLandforms } from './region_terrain';
 import type { TerrainGlyphAssignment, TerrainGlyphFamily } from './terrain_glyph_types';
+import { RNG } from '@ironarachne/rng';
+import { desertCellProfile } from './desert_terrain';
 
 const MARSH_BIOMES = new Set([
   'flooded grassland',
@@ -25,10 +27,19 @@ function vegetationFamily(biome: string): TerrainGlyphFamily | null {
 function familyForNode(
   node: MapNode,
   landform: TerrainGlyphAssignment['landform'],
+  seedKey: string,
 ): TerrainGlyphFamily | null {
   const vegetation = vegetationFamily(node.biomeId?.trim().toLowerCase() ?? '');
   if (landform === 'highMountain') return 'mountainHigh';
   if (landform === 'mountain') return 'mountain';
+  const desert = desertCellProfile(node, landform);
+  if (desert !== null) {
+    if (landform === 'hill') return 'desertRock';
+    // This renderer-owned stream never advances Poisson candidate generation or style draws.
+    return desert.cactusEligible && new RNG(`${seedKey}:${node.id}:cactus`).float(0, 1) < 0.2
+      ? 'desertCactus'
+      : 'desertDune';
+  }
   if (vegetation === 'marsh') return 'marsh';
   if (landform === 'hill') return 'hill';
   return vegetation;
@@ -38,10 +49,11 @@ function familyForNode(
 export function assignTerrainGlyphs(map: RegionMap): Map<number, TerrainGlyphAssignment> {
   const classified = classifyRegionLandforms(map);
   const result = new Map<number, TerrainGlyphAssignment>();
+  const seedKey = `region-glyphs:${map.width}:${map.height}:${map.nodes.length}`;
   for (const node of map.nodes) {
     const landform = classified.byNodeId.get(node.id);
     if (landform === undefined) continue;
-    const family = familyForNode(node, landform);
+    const family = familyForNode(node, landform, seedKey);
     if (family !== null) result.set(node.id, { nodeId: node.id, landform, family });
   }
   return result;

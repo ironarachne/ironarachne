@@ -74,9 +74,9 @@ function insideConvex(p: { x: number; y: number }, polygon: { x: number; y: numb
 }
 
 describe('authored terrain catalog', () => {
-  it('has four unique drawings in each of eight families with positive placement profiles', () => {
-    expect(Object.keys(TERRAIN_GLYPHS)).toHaveLength(8);
-    expect(new Set(TERRAIN_GLYPH_VARIANTS.map((v) => v.id)).size).toBe(32);
+  it('has four unique drawings in each of twelve families with positive placement profiles', () => {
+    expect(Object.keys(TERRAIN_GLYPHS)).toHaveLength(12);
+    expect(new Set(TERRAIN_GLYPH_VARIANTS.map((v) => v.id)).size).toBe(48);
     for (const definition of Object.values(TERRAIN_GLYPHS)) {
       expect(definition.variants).toHaveLength(4);
       expect(new Set(definition.variants.map((v) => JSON.stringify(v.strokes))).size).toBe(4);

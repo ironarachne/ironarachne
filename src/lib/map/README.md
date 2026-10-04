@@ -57,8 +57,8 @@ positions so their geometry agrees with the graph.
   clips, and river cutouts reuse the same outline, defined once in SVG. Pale blue water sits beneath
   coast-following hatch bands. `terrain_tones` blends muted biome colors beneath the ink, darkens
   them using relative landform classification, and masks the blurred land at those same processed
-  water outlines. Rivers share the water fill. Eight terrain glyph families (high/ordinary mountains,
-  hills, deciduous/conifer/palm trees, marsh, and prairie) each have four authored ink drawings.
+  water outlines. Rivers share the water fill. Twelve terrain glyph families (high/ordinary mountains,
+  hills, deciduous/conifer/palm trees, marsh, prairie, desert dunes, rocks, cacti, and oasis vegetation) each have four authored ink drawings.
   `terrain_glyph_catalog` owns their cubic pen curves, parchment bodies, and conservative
   control-hull footprints; `terrain_glyph_ink` expands tapered strokes into filled ribbons once
   per definition. Small intersecting hatch marks shade the appropriate drawings. Glyph scale fitting checks full
@@ -67,7 +67,12 @@ positions so their geometry agrees with the graph.
   spacing keep trees and peaks from stacking, with partial overlap drawn in base-y order. Shared relative landform classification chooses high peaks, ordinary mountains, and hills.
   Peaks take precedence over wetland, wetland over hills, and hills over forest. Temperate
   grassland and prairie get sparse grass tufts; flooded grassland, freshwater wetland, and
-  explicit marsh/bog/fen/swamp aliases get reeds. Other open plains remain bare. The local RNG is derived from map dimensions
+  explicit marsh/bog/fen/swamp aliases get reeds. Supported deserts get low dunes on plains,
+  craggy rocks on hills, and sparse cacti only on warm plains; cold deserts have no cacti.
+  Small enclosed lakes surrounded by desert can receive one warm-shore oasis vegetation mark.
+  `desert_terrain` derives eligibility from existing graph evidence; it never creates water or
+  changes saved facts. All desert marks clear the drawn river banks and join disks as well as lakes.
+  See [region desert display](../../../docs/region-desert-display.md). Other open plains remain bare. The local RNG is derived from map dimensions
   and node count, so saved graphs render without an extra seed. Candidate placement, density,
   variant choice, and styling use separate deterministic streams; changing the catalog does not
   consume candidate-placement draws. No terrain glyph record is persisted. Text uses conservative serif bounds
