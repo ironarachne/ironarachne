@@ -3,6 +3,7 @@ import { RNG } from '@ironarachne/rng';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { generate, getDefaultConfig } from '$lib/regions';
 import { buildRegionMapSvgString } from './region_map_svg';
+import { normalizeSettlementIconCategory } from './settlement_icons';
 import type { RegionMap } from './map_graph';
 
 function checkFrame(svg: string, width: number, height: number) {
@@ -44,7 +45,11 @@ describe('region furniture', () => {
         original = structuredClone(region.map);
       const options = {
         title: region.name,
-        settlements: region.settlements.map((s, i) => ({ ...s, isCapital: i === 0 })),
+        settlements: region.settlements.map((s, i) => ({
+          ...s,
+          category: normalizeSettlementIconCategory(s.category.name),
+          isCapital: i === 0,
+        })),
       };
       const svg = buildRegionMapSvgString(region.map, options);
       checkFrame(svg, 60, 35);

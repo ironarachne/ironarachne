@@ -58,6 +58,10 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   '$lib/heraldry/heraldry_artifact_kind',
   '$lib/religion/religion_artifact_kind',
   '$lib/settlements/settlement_artifact_kind',
+  // Map rendering consumes the category table only. The full barrel pulls the settlement
+  // generator/artifact graph into map chunks and closes a workshop → regions → map cycle;
+  // the region-artifact suite exercises that initialization order.
+  '$lib/settlements/settlement_categories',
   // The fifth kind, measured the same way. `$lib/adnd`'s entry point re-exports the PDF renderer,
   // and from there jsPDF, along with the spell, class, race and equipment tables. Routed through
   // it the registry chunk goes from 25.4 KB to 50.2 KB — it very nearly doubles, and every page

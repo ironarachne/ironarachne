@@ -170,3 +170,16 @@ Inspect the implemented glyph vocabulary with
 `npx vite-node scripts/render_terrain_glyphs.ts --out /tmp/terrain-glyphs.svg`.
 See [the approved design](../../../docs/region-terrain-glyphs.md) and
 [rendered comparisons](../../../docs/region-terrain-glyphs-373/README.md).
+
+### Settlement icons
+
+Settlements use deterministic building clusters from `settlement_icon_catalog.ts`, composed by
+`settlement_icons.ts`. The six settlement categories select exact cottage/hall/tower counts;
+capitals receive a pennant above their tallest roof. Stable settlement identity and saved site
+coordinates own separate renderer RNG streams, so renaming or reordering towns does not redraw
+their buildings. Actual icon bounds reserve space for labels, furniture, and terrain. Old renderer
+inputs without a category fall back to the existing settlement population table. No icon data is saved.
+
+See [the accepted design](../../../docs/region-settlement-icons.md). Render the catalog with
+`npx vite-node scripts/render_settlement_icons.ts --out /tmp/settlement-icons.svg`; region previews
+continue to use `npm run render:region -- --seed alpha --svg-out /tmp/region.svg`.

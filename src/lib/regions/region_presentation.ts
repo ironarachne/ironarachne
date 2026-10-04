@@ -1,7 +1,11 @@
 /** Shared sourcebook presentation for the page, Markdown and PDF. Saved prose is never rerolled. */
 
 import { getHonorific, type StoredCharacter } from '$lib/characters';
-import { buildRegionMapSvgString, type RegionMapSvgSettlement } from '$lib/map';
+import {
+  buildRegionMapSvgString,
+  normalizeSettlementIconCategory,
+  type RegionMapSvgSettlement,
+} from '$lib/map';
 
 import type { RegionSnapshot, StoredRealm } from './region_snapshot.js';
 import { regionFactsNeedingReview } from './region_editing';
@@ -360,6 +364,7 @@ export function regionToMapSvg(snapshot: RegionSnapshot): string {
           : capital.settlement.kind === 'embedded' && capital.settlement.settlementId === id,
       name: settlement.name,
       population: settlement.population,
+      category: normalizeSettlementIconCategory(settlement.category.name),
     }),
   );
 
