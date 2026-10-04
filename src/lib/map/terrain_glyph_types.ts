@@ -9,7 +9,11 @@ export type TerrainGlyphFamily =
   | 'treeConifer'
   | 'treePalm'
   | 'marsh'
-  | 'prairie';
+  | 'prairie'
+  | 'desertDune'
+  | 'desertRock'
+  | 'desertCactus'
+  | 'desertOasis';
 
 export interface CubicInkSegment {
   start: Vertex;

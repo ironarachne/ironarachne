@@ -52,7 +52,7 @@ function fixture(): RegionMap {
   };
 }
 
-it('assigns the eight families with mountain, wetland, hill, forest, prairie precedence', () => {
+it('assigns vegetation, relief, and desert families with mountain, wetland, hill, forest, prairie precedence', () => {
   const map = fixture();
   const original = structuredClone(map);
   const assignments = assignTerrainGlyphs(map);
@@ -65,10 +65,11 @@ it('assigns the eight families with mountain, wetland, hill, forest, prairie pre
     'treePalm',
     'marsh',
     'prairie',
+    ...Array(8).fill('desertDune'),
   ]);
   expect(assignments.get(2)?.landform).toBe('hill');
   expect(assignments.get(6)?.landform).toBe('hill');
-  expect(assignments.has(8)).toBe(false);
+  expect(assignments.get(8)?.family).toBe('desertDune');
   expect(map).toEqual(original);
 });
 
@@ -86,18 +87,14 @@ it.each(['marsh', 'bog', 'fen', 'swamp', 'freshwater wetland', 'flooded grasslan
   },
 );
 
-it.each([
-  'montane grassland',
-  'tropical savanna',
-  'desert',
-  'tundra',
-  'unknown',
-  'salt marsh grass',
-])('does not invent prairie or marsh evidence for %s', (biome) => {
-  const map = fixture();
-  map.nodes[7].biomeId = biome;
-  expect(assignTerrainGlyphs(map).has(7)).toBe(false);
-});
+it.each(['montane grassland', 'tropical savanna', 'tundra', 'unknown', 'salt marsh grass'])(
+  'does not invent prairie or marsh evidence for %s',
+  (biome) => {
+    const map = fixture();
+    map.nodes[7].biomeId = biome;
+    expect(assignTerrainGlyphs(map).has(7)).toBe(false);
+  },
+);
 
 it.each([
   ['tropical rainforest', 'treePalm'],
@@ -151,7 +148,7 @@ it('renders reproducible, varied terrain inside every assigned cell using its ac
         y > n.polygon.vertices[0].y &&
         y < n.polygon.vertices[2].y,
     )!;
-    expect(cell.id).toBeLessThan(8);
+    expect(cell.id).toBeLessThan(16);
     for (const p of variants.get(id)!.footprint) {
       const px = x + s * (p.x * Math.cos(angle) - p.y * Math.sin(angle));
       const py = y + s * (p.x * Math.sin(angle) + p.y * Math.cos(angle));
@@ -164,7 +161,7 @@ it('renders reproducible, varied terrain inside every assigned cell using its ac
     usedFamilies.add(id.replace(/-\d$/, ''));
     expect(svg).toContain(`<g id="${id}">`);
   }
-  expect(usedFamilies.size).toBe(8);
+  expect(usedFamilies.size).toBe(9);
   expect(seen.size).toBeGreaterThan(16);
   expect(svg).toContain('data-terrain-ink="true"');
   expect(svg).not.toMatch(/NaN|Infinity|undefined/);

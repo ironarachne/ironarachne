@@ -622,6 +622,261 @@ function prairies(): TerrainGlyphVariant[] {
   });
 }
 
+function desertDunes(): TerrainGlyphVariant[] {
+  const crests: SketchPoint[][] = [
+    [
+      [-38, 0],
+      [-19, -8],
+      [3, -20],
+      [18, -15],
+      [38, 0],
+    ],
+    [
+      [-39, 0],
+      [-26, -14],
+      [-10, -19],
+      [15, -7],
+      [36, 0],
+    ],
+    [
+      [-36, 0],
+      [-16, -5],
+      [12, -23],
+      [24, -14],
+      [40, 0],
+    ],
+    [
+      [-40, 0],
+      [-22, -9],
+      [-2, -17],
+      [23, -12],
+      [37, 0],
+    ],
+  ];
+  return crests.map((crest, v) =>
+    variant(`desert-dune-${v}`, [
+      pen(crest, 1.15),
+      pen(
+        [
+          [crest[2][0], crest[2][1]],
+          [crest[2][0] + 7, -7],
+          [30, 1],
+        ],
+        0.7,
+      ),
+      pen(
+        [
+          [-28, 9],
+          [-9 + v * 3, 3],
+          [15, 9],
+        ],
+        0.65,
+      ),
+    ]),
+  );
+}
+
+function desertRocks(): TerrainGlyphVariant[] {
+  const tops: SketchPoint[][] = [
+    [
+      [-26, 0],
+      [-22, -25],
+      [-9, -32],
+      [-2, -23],
+      [11, -28],
+      [24, 0],
+    ],
+    [
+      [-25, 0],
+      [-20, -18],
+      [-7, -18],
+      [-3, -35],
+      [15, -29],
+      [25, 0],
+    ],
+    [
+      [-27, 0],
+      [-17, -30],
+      [-4, -24],
+      [4, -31],
+      [21, -21],
+      [27, 0],
+    ],
+    [
+      [-24, 0],
+      [-23, -22],
+      [-8, -28],
+      [3, -20],
+      [16, -34],
+      [26, 0],
+    ],
+  ];
+  return tops.map((top, v) => {
+    // Split at corners rather than bending a continuous ribbon around a sharp cusp.
+    const strokes = top.slice(0, -1).map((p, i) => pen([p, top[i + 1]], 1.2));
+    strokes.push(
+      pen([top[3], [9 + v, -12], [12 + v, -2]], 0.8),
+      ...crossHatch(10, -17, 3),
+      pen(
+        [
+          [-28, 3],
+          [-13, 1],
+          [-4, 3],
+        ],
+        0.6,
+      ),
+    );
+    return variant(`desert-rock-${v}`, strokes, [pen(top)]);
+  });
+}
+
+function desertCacti(): TerrainGlyphVariant[] {
+  const outlines: SketchPoint[][] = [
+    [
+      [-4, 0],
+      [-4, -15],
+      [-16, -19],
+      [-17, -34],
+      [-11, -35],
+      [-10, -24],
+      [-4, -22],
+      [-4, -45],
+      [0, -48],
+      [4, -44],
+      [4, -27],
+      [12, -30],
+      [12, -39],
+      [18, -38],
+      [18, -25],
+      [4, -20],
+      [4, 0],
+    ],
+    [
+      [-4, 0],
+      [-4, -25],
+      [-14, -29],
+      [-14, -40],
+      [-9, -41],
+      [-9, -33],
+      [-4, -31],
+      [-4, -48],
+      [0, -51],
+      [4, -47],
+      [4, -19],
+      [13, -22],
+      [13, -32],
+      [19, -31],
+      [19, -17],
+      [4, -12],
+      [4, 0],
+    ],
+    [
+      [-4, 0],
+      [-4, -16],
+      [-17, -20],
+      [-17, -29],
+      [-12, -30],
+      [-11, -24],
+      [-4, -22],
+      [-4, -42],
+      [0, -46],
+      [4, -42],
+      [4, 0],
+    ],
+    [
+      [-4, 0],
+      [-4, -43],
+      [0, -47],
+      [4, -42],
+      [4, -28],
+      [14, -32],
+      [14, -43],
+      [20, -42],
+      [20, -27],
+      [4, -21],
+      [4, 0],
+    ],
+  ];
+  return outlines.map((outline, v) => {
+    const contour = pen(outline, 1.1);
+    return variant(
+      `desert-cactus-${v}`,
+      [
+        contour,
+        pen(
+          [
+            [0, -5],
+            [0, -19],
+            [v % 2, -37],
+          ],
+          0.45,
+        ),
+        pen(
+          [
+            [-17, 3],
+            [-7, 1],
+            [12, 3],
+          ],
+          0.6,
+        ),
+      ],
+      [contour],
+    );
+  });
+}
+
+function desertOases(): TerrainGlyphVariant[] {
+  const crowns: SketchPoint[] = [
+    [-7, -42],
+    [4, -46],
+    [-2, -39],
+    [9, -43],
+  ];
+  return crowns.map(([x, y], v) => {
+    const strokes = [
+      pen(
+        [
+          [-8, 0],
+          [-6 + v, -21],
+          [x, y],
+        ],
+        1.5,
+      ),
+    ];
+    for (const [dx, dy] of [
+      [-24, 13],
+      [-18, 0],
+      [-8, -10],
+      [12, -9],
+      [24, 2],
+      [28, 17],
+    ]) {
+      strokes.push(
+        pen(
+          [
+            [x, y],
+            [x + dx * 0.65, y + dy * 0.3 - 5],
+            [x + dx, y + dy],
+          ],
+          1.1,
+        ),
+      );
+    }
+    for (let i = 0; i < 3; i++)
+      strokes.push(
+        pen(
+          [
+            [15 + i * 3, 0],
+            [16 + i * 4, -8],
+            [12 + i * 6 + v, -15 - i * 2],
+          ],
+          0.75,
+        ),
+      );
+    return variant(`desert-oasis-${v}`, strokes);
+  });
+}
+
 function definition(
   family: TerrainGlyphFamily,
   variants: TerrainGlyphVariant[],
@@ -648,6 +903,10 @@ export const TERRAIN_GLYPHS: Record<TerrainGlyphFamily, TerrainGlyphDefinition> 
   treePalm: definition('treePalm', palms(), 0.6),
   marsh: definition('marsh', marshes(), 0.6, 0.5),
   prairie: definition('prairie', prairies(), 0.6, 0.35),
+  desertDune: definition('desertDune', desertDunes(), 0.65, 0.35),
+  desertRock: definition('desertRock', desertRocks(), 0.7, 0.45),
+  desertCactus: definition('desertCactus', desertCacti(), 0.6, 0.25),
+  desertOasis: definition('desertOasis', desertOases(), 0.6, 1),
 };
 
 export const TERRAIN_GLYPH_VARIANTS = Object.values(TERRAIN_GLYPHS).flatMap((d) => d.variants);

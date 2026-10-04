@@ -18,9 +18,14 @@ const labels = [
   'Palms',
   'Marsh',
   'Prairie',
+  'Desert dunes',
+  'Desert rocks',
+  'Desert cacti',
+  'Oasis vegetation',
 ];
+const height = 170 + Object.keys(TERRAIN_GLYPHS).length * 145;
 const elements = [
-  `<rect width="1200" height="1330" fill="${paper}"/>`,
+  `<rect width="1200" height="${height}" fill="${paper}"/>`,
   `<g fill="${ink}" font-family="Georgia,serif"><text x="40" y="45" font-size="28">Terrain glyphs — implemented vector catalog</text><text x="40" y="75" font-size="15">Four authored variants per family · tapered ink ribbons · enlarged and small-scale checks</text></g>`,
 ];
 for (const [row, definition] of Object.values(TERRAIN_GLYPHS).entries()) {
@@ -39,6 +44,6 @@ for (const [row, definition] of Object.values(TERRAIN_GLYPHS).entries()) {
 }
 writeFileSync(
   values.out!,
-  `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1330" viewBox="0 0 1200 1330">${elements.join('\n')}</svg>`,
+  `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="${height}" viewBox="0 0 1200 ${height}">${elements.join('\n')}</svg>`,
 );
 console.log(`Wrote terrain specimens to ${values.out}`);

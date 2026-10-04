@@ -435,7 +435,7 @@ describe('buildRegionMapSvgString', () => {
   });
 
   it('leaves open biomes free of glyphs and the old dust-speck text marks', () => {
-    for (const biomeId of ['montane grassland', 'desert', 'tundra', 'savanna', 'unknown']) {
+    for (const biomeId of ['montane grassland', 'tundra', 'savanna', 'unknown']) {
       const map: RegionMap = {
         width: 10,
         height: 10,
