@@ -34,6 +34,7 @@ export function terrainToneCss(color: TerrainToneColor): string {
 }
 
 export const REGION_WATER_FILL = terrainToneCss(PALETTE.water);
+export const REGION_LAND_FILL = terrainToneCss(PALETTE.land);
 
 /** Derived only from map facts; no random draws or changes to the saved map. */
 export function buildTerrainToneLayer(map: RegionMap): TerrainToneLayer {

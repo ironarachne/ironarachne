@@ -9,6 +9,11 @@ export * from './road';
 export * from './road_polylines';
 export * from './suitability';
 export * from './water';
+export * from './river_geometry';
+export * from './river_network_types';
+export * from './river_network';
+export * from './river_validation';
+export * from './river_generation';
 
 export * as MapBiome from './biome';
 export * as MapBuilder from './builder';

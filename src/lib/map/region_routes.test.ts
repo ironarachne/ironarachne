@@ -26,7 +26,14 @@ for (const seed of ['alpha', 'bravo', 'charlie']) {
       expect(drawn.length).toBeGreaterThan(0);
       for (const match of drawn) {
         const edge = map.edges[Number(match[1])];
-        expect(Number(match[2])).toBe(edge.river);
+        // Surface reconciliation can discharge historical drainage contributions at newer lakes.
+        expect(Number(match[2])).toBeGreaterThan(0);
+        expect(Number(match[2])).toBeLessThanOrEqual(edge.river);
+        expect(
+          map.rivers!.reaches.some(
+            (reach) => reach.drainageEdgeId === edge.id && reach.flow === Number(match[2]),
+          ),
+        ).toBe(true);
         let corner = map.corners[edge.v0].downslope === edge.v1 ? edge.v1 : edge.v0;
         const seen = new Set<number>();
         while (

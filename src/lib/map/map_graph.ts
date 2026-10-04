@@ -1,5 +1,6 @@
 import type Vertex from '../geometry/vertex.js';
 import type Polygon from '../geometry/polygon.js';
+import type { RiverNetwork } from './river_network_types';
 
 /**
  * A MapNode represents a region/polygon cell on the map.
@@ -74,4 +75,6 @@ export interface RegionMap {
   nodes: MapNode[];
   edges: MapEdge[];
   corners: MapCorner[];
+  /** Absent on historical/intermediate maps; present empty means no surface rivers. */
+  rivers?: RiverNetwork;
 }

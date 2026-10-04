@@ -147,6 +147,23 @@ describe('dependent generation passes', () => {
     expect(regionFactsError(after.facts, after.map, after.settlements)).toBeNull();
   });
 
+  it('isolates river geometry draws from every other generation stage', () => {
+    const before = snapshot('river-stream');
+    const original = Passes.createRegionStageRng;
+    vi.spyOn(Passes, 'createRegionStageRng').mockImplementation((seed, stage) => {
+      const rng = original(seed, stage);
+      if (stage === 'river-geometry') rng.randomString(30);
+      return rng;
+    });
+    const after = snapshot('river-stream');
+    expect(after.map.rivers).not.toEqual(before.map.rivers);
+    const withoutGeometry = (value: typeof before) => ({
+      ...value,
+      map: { ...value.map, rivers: undefined },
+    });
+    expect(withoutGeometry(after)).toEqual(withoutGeometry(before));
+  });
+
   it('grounds freshwater and notable places in recorded map evidence', () => {
     let resources = 0;
     let inhabitants = 0;

@@ -102,7 +102,8 @@ export function generateLandscapeName(
   const selected = rng.weighted(
     options.map((option) => ({
       ...option,
-      commonality: option.commonality * (option.value === lastStyle ? 0.75 : 1),
+      // The RNG draws integer weights; scale the 3/4 repeat penalty to whole numbers.
+      commonality: option.commonality * (option.value === lastStyle ? 3 : 4),
     })),
   );
   let style = selected;

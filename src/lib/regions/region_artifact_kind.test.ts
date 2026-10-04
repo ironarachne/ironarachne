@@ -14,6 +14,63 @@ import { regionToMarkdown, regionToMapSvg } from './region_presentation';
 
 const snapshot = rollRegionSnapshot('kind-seed');
 
+describe('river payload version 10', () => {
+  it('saves and rehydrates the complete network without consuming a new generation seed', async () => {
+    const codec = await regionArtifactKind.loadCodec();
+    const restored = codec.toSnapshot(codec.fromSnapshot(snapshot, undefined as never));
+    expect(restored.map.rivers).toEqual(snapshot.map.rivers);
+    expect(validateRegionSnapshot(restored).ok).toBe(true);
+  });
+
+  it('migrates version 9 without changing material links or inventing islands and deltas', () => {
+    const old = structuredClone(snapshot);
+    delete old.map.rivers;
+    const before = structuredClone(old);
+    const result = migrateRegionSnapshot(old, 9);
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error('migration failed');
+    expect(result.value.settlements).toEqual(old.settlements);
+    expect(result.value.map.nodes).toEqual(old.map.nodes);
+    expect(result.value.map.edges).toEqual(old.map.edges);
+    expect(result.value.map.rivers?.islands ?? []).toEqual([]);
+    expect(result.value.map.rivers?.deltas ?? []).toEqual([]);
+    expect(old).toEqual(before);
+  });
+
+  it('adopts an empty valid old graph and preserves the fallback for incomplete historical maps', () => {
+    const old = structuredClone(snapshot);
+    delete old.map.rivers;
+    old.map.edges.forEach((edge) => {
+      edge.river = 0;
+    });
+    old.facts = emptyRegionFacts('legacy');
+    const migrated = migrateRegionSnapshot(old, 9);
+    expect(migrated.ok && migrated.value.map.rivers).toMatchObject({
+      version: 1,
+      origin: 'legacy',
+      reaches: [],
+      islands: [],
+      deltas: [],
+    });
+    const incomplete = {
+      ...old,
+      map: { width: 10, height: 10, nodes: [], corners: [], edges: [{ river: 1 }] },
+    };
+    const fallback = migrateRegionSnapshot(incomplete, 9);
+    expect(fallback.ok && fallback.value.map.rivers).toBeUndefined();
+  });
+
+  it('rejects malformed present networks instead of treating them as legacy omissions', () => {
+    expect(
+      validateRegionSnapshot({ ...snapshot, map: { ...snapshot.map, rivers: { version: 99 } } }).ok,
+    ).toBe(false);
+    expect(
+      migrateRegionSnapshot({ ...snapshot, map: { ...snapshot.map, rivers: null } }, 9).ok,
+    ).toBe(false);
+    expect(migrateRegionSnapshot(snapshot, 10).ok).toBe(false);
+  });
+});
+
 function withoutMechanics(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(withoutMechanics);
   if (typeof value !== 'object' || value === null) return value;
@@ -371,7 +428,12 @@ describe('validating a stored region', () => {
 
   it('validates anchored resources and boundary route endpoints', () => {
     const edge = { ...snapshot.map.edges[0], d1: undefined };
-    const map = { ...snapshot.map, edges: [edge, ...snapshot.map.edges.slice(1)] };
+    // This deliberately edited graph exercises the historical coarse-map acceptance policy.
+    const map = {
+      ...snapshot.map,
+      rivers: undefined,
+      edges: [edge, ...snapshot.map.edges.slice(1)],
+    };
     const resource = {
       id: 'resource:one',
       kind: 'timber',

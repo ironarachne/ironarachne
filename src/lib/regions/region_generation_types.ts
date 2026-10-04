@@ -13,6 +13,7 @@ export type RegionGenerationStage =
   | 'supply'
   | 'resources'
   | 'habitation'
+  | 'river-geometry'
   | 'notable-places'
   | 'presentation';
 export type RegionTerrainProfile = { altitude: AltitudeBand; relief: ReliefClass };

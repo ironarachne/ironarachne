@@ -1,5 +1,6 @@
 import type { RegionMap, MapCorner, MapEdge } from './map_graph.js';
 import type { RNG } from '@ironarachne/rng';
+import { buildRiverNetwork } from './river_network';
 
 export interface WaterConfig {
   seaLevel: number;
@@ -92,6 +93,7 @@ export function simulateWater(map: RegionMap, config: WaterConfig): RegionMap {
   // 4. Generate Rivers using Downslopes
   const landCorners = newMap.corners.filter((c) => !c.isWater);
   const riverCount = Math.floor(landCorners.length * springCountPercentage);
+  const springs = new Map<number, number>();
 
   if (landCorners.length > 0) {
     for (let i = 0; i < riverCount; i++) {
@@ -99,6 +101,7 @@ export function simulateWater(map: RegionMap, config: WaterConfig): RegionMap {
       const spring = landCorners[rng.int(0, landCorners.length - 1)];
       // Spring must be sufficiently high above sea level relative to map scale
       if (spring.elevation < seaLevel + 0.1) continue;
+      springs.set(spring.id, (springs.get(spring.id) ?? 0) + 1);
 
       let current: number | undefined = spring.id;
       while (current !== undefined) {
@@ -140,5 +143,6 @@ export function simulateWater(map: RegionMap, config: WaterConfig): RegionMap {
   // exists, then derive coasts from the geography the rest of generation will consume.
   normalizeOceanConnectedWater(newMap);
   updateWaterBoundaries(newMap);
+  newMap.rivers = buildRiverNetwork(newMap, springs);
   return newMap;
 }
