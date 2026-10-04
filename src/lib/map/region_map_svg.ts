@@ -15,6 +15,7 @@ import {
 } from '$lib/cartography';
 import { makeWaterClearanceTest } from './water_clearance';
 import { assignTerrainGlyphs } from './terrain_glyph_assignment';
+import { REGION_WATER_FILL, terrainToneSvg } from './terrain_tones';
 import { TERRAIN_GLYPHS, TERRAIN_GLYPH_VARIANTS } from './terrain_glyph_catalog';
 import { inkStrokePath } from './terrain_glyph_ink';
 import type { PlacedTerrainGlyph, TerrainGlyphAssignment, TextBox } from './terrain_glyph_types';
@@ -527,7 +528,7 @@ function appendRivers(
   );
   if (banks.length)
     parts.push(
-      `<g data-map-rivers="true" mask="url(#riverInk)"><g fill="${CARTOGRAPHY.palette.water.color}">${banks.join('\n')}</g><g fill="${PARCHMENT_FILL}">${channels.join('\n')}</g></g>`,
+      `<g data-map-rivers="true" mask="url(#riverInk)"><g fill="${CARTOGRAPHY.palette.water.color}">${banks.join('\n')}</g><g fill="${REGION_WATER_FILL}">${channels.join('\n')}</g></g>`,
     );
 }
 
@@ -1513,6 +1514,12 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   const symbols = collectScatterSymbols(map, clearOfWater);
   if (titleLayout !== null) reserved.push(titleLayout.box);
   body.push(waterGeometryDefs(waterPolygons));
+  body.push(
+    terrainToneSvg(
+      map,
+      waterPolygons.map((item) => item.id),
+    ),
+  );
   appendWaterBodiesFromItems(waterPolygons, body, w, h);
   appendRivers(map, body, waterPolygons, routeBoxes);
   const scatterLayerIndex = body.length;
