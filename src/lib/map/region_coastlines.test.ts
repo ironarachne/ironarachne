@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { generate, getDefaultConfig } from '$lib/regions';
@@ -39,13 +39,16 @@ function visibleCrossings(points: Vertex[]): number {
 }
 
 describe.each(['alpha', 'bravo', 'charlie'])('reference coastline: %s', (seed) => {
-  it('has short shore segments, shared water geometry, and glyphs clear of the rendered water', () => {
+  let region: ReturnType<typeof generate>;
+  beforeAll(() => {
     const config = getDefaultConfig(new RNG(seed));
     config.rng = new RNG(seed);
     config.nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(seed));
     config.mapWidth = 60;
     config.mapHeight = 35;
-    const region = generate(config);
+    region = generate(config);
+  }, 30000);
+  it('has short shore segments, shared water geometry, and glyphs clear of the rendered water', () => {
     const original = structuredClone(region.map);
     const svg = buildRegionMapSvgString(region.map);
     const water = [

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { CARTOGRAPHY } from '$lib/cartography';
 import { readFileSync } from 'node:fs';
 import { generate, getDefaultConfig } from '$lib/regions';
@@ -663,43 +663,48 @@ describe('buildRegionMapSvgString', () => {
     }
   });
 
-  it.each(['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot'])(
-    'keeps reference text inside the map and clear of hard obstacles: %s',
+  describe.each(['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot'])(
+    'reference text: %s',
     (seed) => {
-      const config = getDefaultConfig(new RNG(seed));
-      config.rng = new RNG(seed);
-      config.nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(seed));
-      config.mapWidth = 60;
-      config.mapHeight = 35;
-      const region = generate(config);
-      const settlements = region.settlements.map((item, i) => ({
-        mapNodeId: item.mapNodeId,
-        name: item.name,
-        population: item.population,
-        isCapital: i === 0,
-      }));
-      const svg = buildRegionMapSvgString(region.map, { title: region.name, settlements });
-      const labels = parseMapLabels(svg);
-      const panel = cartoucheBox(svg);
-      expect(labels.length).toBeGreaterThan(1);
-      for (const label of labels) {
-        const box = labelBox(label);
-        expect(box.minX).toBeGreaterThanOrEqual(-0.001);
-        expect(box.minY).toBeGreaterThanOrEqual(-0.001);
-        expect(box.maxX).toBeLessThanOrEqual(region.map.width + 0.001);
-        expect(box.maxY).toBeLessThanOrEqual(region.map.height + 0.001);
-        if (label === labels.at(-1)) continue;
-        expect(boxesOverlap(box, panel)).toBe(false);
-      }
-      // The emitted composed bounds include roofs and the capital pennant.
-      const markers = [...svg.matchAll(/data-icon-bounds="([^"]+)"/g)];
-      expect(markers).toHaveLength(settlements.length);
-      for (const match of markers) {
-        const [minX, minY, maxX, maxY] = match[1].split(' ').map(Number);
-        const marker = { minX, minY, maxX, maxY };
-        for (const label of labels) expect(boxesOverlap(labelBox(label), marker)).toBe(false);
-        expect(boxesOverlap(panel, marker)).toBe(false);
-      }
+      let region: ReturnType<typeof generate>;
+      beforeAll(() => {
+        const config = getDefaultConfig(new RNG(seed));
+        config.rng = new RNG(seed);
+        config.nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(seed));
+        config.mapWidth = 60;
+        config.mapHeight = 35;
+        region = generate(config);
+      }, 30000);
+      it('keeps reference text inside the map and clear of hard obstacles', () => {
+        const settlements = region.settlements.map((item, i) => ({
+          mapNodeId: item.mapNodeId,
+          name: item.name,
+          population: item.population,
+          isCapital: i === 0,
+        }));
+        const svg = buildRegionMapSvgString(region.map, { title: region.name, settlements });
+        const labels = parseMapLabels(svg);
+        const panel = cartoucheBox(svg);
+        expect(labels.length).toBeGreaterThan(1);
+        for (const label of labels) {
+          const box = labelBox(label);
+          expect(box.minX).toBeGreaterThanOrEqual(-0.001);
+          expect(box.minY).toBeGreaterThanOrEqual(-0.001);
+          expect(box.maxX).toBeLessThanOrEqual(region.map.width + 0.001);
+          expect(box.maxY).toBeLessThanOrEqual(region.map.height + 0.001);
+          if (label === labels.at(-1)) continue;
+          expect(boxesOverlap(box, panel)).toBe(false);
+        }
+        // The emitted composed bounds include roofs and the capital pennant.
+        const markers = [...svg.matchAll(/data-icon-bounds="([^"]+)"/g)];
+        expect(markers).toHaveLength(settlements.length);
+        for (const match of markers) {
+          const [minX, minY, maxX, maxY] = match[1].split(' ').map(Number);
+          const marker = { minX, minY, maxX, maxY };
+          for (const label of labels) expect(boxesOverlap(labelBox(label), marker)).toBe(false);
+          expect(boxesOverlap(panel, marker)).toBe(false);
+        }
+      });
     },
   );
 

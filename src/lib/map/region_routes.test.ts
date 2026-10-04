@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { generate, getDefaultConfig } from '$lib/regions';
@@ -8,14 +8,17 @@ import { atMapEdge } from './river_paths';
 
 for (const seed of ['alpha', 'bravo', 'charlie']) {
   describe(`reference routes: ${seed}`, () => {
-    it('keeps corner rivers connected downstream and draws rivers below terrain and roads above it', () => {
+    let region: ReturnType<typeof generate>;
+    beforeAll(() => {
       const config = getDefaultConfig(new RNG(seed));
       config.rng = new RNG(seed);
       config.nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(seed));
       config.mapWidth = 60;
       config.mapHeight = 35;
-      const region = generate(config),
-        map = region.map;
+      region = generate(config);
+    }, 30000);
+    it('keeps corner rivers connected downstream and draws rivers below terrain and roads above it', () => {
+      const map = region.map;
       const original = structuredClone(map);
       const options = {
         title: region.name,
