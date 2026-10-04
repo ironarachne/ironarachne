@@ -230,284 +230,362 @@ function hills(): TerrainGlyphVariant[] {
   });
 }
 
-const crowns: readonly (readonly SketchPoint[])[] = [
+const deciduousCrowns: SketchPoint[][] = [
   [
-    [-10, -17],
-    [-25, -22],
-    [-28, -34],
-    [-23, -39],
-    [-28, -46],
-    [-18, -53],
-    [-12, -51],
-    [-7, -65],
-    [6, -64],
-    [14, -56],
-    [24, -55],
-    [30, -44],
-    [26, -35],
-    [30, -28],
-    [20, -18],
-    [8, -17],
+    [-5, -10],
+    [-16, -12],
+    [-23, -19],
+    [-22, -25],
+    [-26, -30],
+    [-20, -38],
+    [-12, -37],
+    [-10, -45],
+    [-1, -48],
+    [8, -43],
+    [15, -44],
+    [21, -37],
+    [19, -32],
+    [25, -27],
+    [22, -18],
+    [13, -12],
+    [5, -10],
   ],
   [
-    [-9, -18],
-    [-21, -19],
-    [-30, -29],
-    [-26, -38],
-    [-30, -45],
-    [-19, -52],
-    [-12, -61],
-    [1, -66],
-    [11, -59],
-    [17, -60],
-    [27, -49],
-    [24, -41],
-    [31, -34],
-    [24, -23],
-    [9, -17],
+    [-5, -12],
+    [-18, -13],
+    [-24, -22],
+    [-20, -29],
+    [-23, -35],
+    [-15, -41],
+    [-8, -40],
+    [-5, -48],
+    [5, -50],
+    [12, -43],
+    [19, -39],
+    [18, -32],
+    [25, -26],
+    [20, -17],
+    [10, -12],
+    [5, -12],
   ],
   [
-    [-11, -16],
-    [-24, -21],
-    [-23, -31],
-    [-32, -35],
-    [-29, -46],
-    [-20, -49],
-    [-16, -62],
-    [-4, -58],
-    [5, -68],
-    [17, -60],
-    [20, -52],
-    [30, -45],
-    [25, -37],
-    [31, -25],
-    [18, -19],
-    [8, -17],
+    [-6, -11],
+    [-19, -13],
+    [-25, -20],
+    [-23, -29],
+    [-17, -32],
+    [-19, -38],
+    [-10, -45],
+    [-2, -43],
+    [5, -49],
+    [14, -45],
+    [16, -37],
+    [23, -34],
+    [22, -27],
+    [26, -22],
+    [19, -14],
+    [6, -11],
   ],
   [
-    [-8, -19],
-    [-19, -18],
-    [-29, -29],
-    [-23, -37],
-    [-28, -48],
-    [-17, -57],
-    [-7, -55],
-    [0, -64],
-    [12, -61],
-    [16, -51],
-    [28, -52],
-    [33, -39],
-    [26, -31],
-    [27, -24],
-    [15, -18],
-    [7, -19],
+    [-5, -10],
+    [-15, -12],
+    [-21, -18],
+    [-19, -24],
+    [-24, -30],
+    [-21, -37],
+    [-14, -39],
+    [-12, -46],
+    [-2, -47],
+    [4, -42],
+    [13, -44],
+    [20, -38],
+    [18, -31],
+    [24, -26],
+    [21, -19],
+    [14, -13],
+    [5, -10],
   ],
 ];
-function deciduous(): TerrainGlyphVariant[] {
-  return crowns.map((c, i) => {
-    const crown = pen(c, 1.4);
-    return variant(
-      `tree-oak-${i}`,
-      [
-        crown,
-        pen(
-          [
-            [-4, 0],
-            [-3, -17],
-            [-10 - i, -27],
-          ],
-          1.4,
-        ),
-        pen(
-          [
-            [5, 0],
-            [3, -19],
-            [12 + i, -30],
-          ],
-          1.1,
-        ),
-        pen(
-          [
-            [-20, -37],
-            [-14, -43],
-            [-4, -39],
-          ],
-          0.7,
-        ),
-        pen(
-          [
-            [0, -50],
-            [8, -53],
-            [16, -48],
-          ],
-          0.7,
-        ),
-        ...crossHatch(12, -33, 4),
-      ],
-      [crown],
-    );
-  });
-}
-
-const branchTiers = [
-  [
-    [-7, 8, -63],
-    [-12, 11, -52],
-    [-16, 20, -40],
-    [-25, 22, -28],
-    [-29, 31, -15],
-  ],
-  [
-    [-8, 6, -69],
-    [-10, 15, -57],
-    [-19, 16, -43],
-    [-21, 25, -30],
-    [-33, 27, -16],
-  ],
-  [
-    [-5, 8, -60],
-    [-13, 10, -48],
-    [-17, 21, -36],
-    [-27, 24, -25],
-    [-26, 34, -13],
-  ],
-  [
-    [-8, 7, -66],
-    [-14, 15, -54],
-    [-15, 23, -41],
-    [-26, 23, -27],
-    [-32, 30, -15],
-  ],
-] as const;
-function conifers(): TerrainGlyphVariant[] {
-  return branchTiers.map((tiers, i) => {
-    const lean = [-3, 2, 4, -1][i];
-    const strokes = [
+function oak(crownPoints: SketchPoint[], i: number): TerrainGlyphVariant {
+  const crown = pen(crownPoints, 2.1);
+  const trunk = pen(
+    [
+      [-4, 0],
+      [-3, -13],
+      [-6, -22],
+      [0, -17],
+      [5, -25],
+      [3, -12],
+      [4, 0],
+    ],
+    2,
+  );
+  return variant(
+    `tree-oak-${i}`,
+    [
+      trunk,
+      crown,
       pen(
         [
-          [lean, 0],
-          [lean * 0.4, -35],
-          [0, tiers[0][2] - 8],
+          [-17, -28],
+          [-12, -32],
+          [-7, -30],
         ],
-        1.4,
-      ),
-    ];
-    for (const [left, right, y] of tiers)
-      strokes.push(
-        pen(
-          [
-            [left, y + 9],
-            [left * 0.55, y + 5],
-            [lean * 0.2, y - 3],
-            [right * 0.55, y + 5],
-            [right, y + 10],
-          ],
-          1.2,
-        ),
-      );
-    const silhouette: SketchPoint[] = [
-      [lean, 0],
-      ...[...tiers].reverse().map(([l, _r, y]) => [l, y + 9] as SketchPoint),
-      [0, tiers[0][2] - 8],
-      ...tiers.map(([_l, r, y]) => [r, y + 10] as SketchPoint),
-      [lean, 0],
-    ];
-    const body = pen(silhouette, 0.1);
-    return variant(`tree-pine-${i}`, [...strokes, ...crossHatch(8, -26, 3)], [body]);
-  });
-}
-
-function palms(): TerrainGlyphVariant[] {
-  const crowns: readonly (readonly SketchPoint[])[] = [
-    [
-      [-33, 9],
-      [-25, -7],
-      [-10, -16],
-      [17, -13],
-      [32, 1],
-      [23, 16],
-    ],
-    [
-      [-28, 15],
-      [-29, -4],
-      [-14, -19],
-      [10, -17],
-      [31, -1],
-      [29, 12],
-      [16, 20],
-    ],
-    [
-      [-35, 5],
-      [-22, -10],
-      [-3, -21],
-      [23, -13],
-      [34, 8],
-      [17, 18],
-    ],
-    [
-      [-31, 13],
-      [-20, -5],
-      [-12, -19],
-      [15, -20],
-      [29, -6],
-      [35, 12],
-      [21, 23],
-    ],
-  ];
-  return crowns.map((fronds, i) => {
-    const lean = [-8, 0, 7, 12][i];
-    const trunk = pen(
-      [
-        [-5, 0],
-        [-8, -20],
-        [lean, -52],
-        [lean + 3, -52],
-        [-2, -23],
-        [1, 0],
-      ],
-      0.9,
-    );
-    const strokes = [
-      pen(
-        [
-          [-5, 0],
-          [-8, -20],
-          [lean, -52],
-        ],
-        1.6,
+        0.7,
       ),
       pen(
         [
-          [1, 0],
-          [-2, -23],
-          [lean + 3, -52],
-        ],
-        0.8,
-      ),
-    ];
-    for (const [dx, dy] of fronds)
-      strokes.push(
-        pen(
-          [
-            [lean, -52],
-            [lean + dx * 0.65, -60 + dy],
-            [lean + dx, -52 + dy],
-          ],
-          1.1,
-        ),
-      );
-    strokes.push(
-      pen(
-        [
-          [-15, 0],
-          [-3, -2],
-          [13, 0],
+          [2, -37],
+          [8, -39],
+          [13, -35],
         ],
         0.65,
       ),
+      pen(
+        [
+          [12, -24],
+          [16, -21],
+          [15, -17],
+        ],
+        0.6,
+      ),
+      pen(
+        [
+          [0, -4],
+          [0, -12],
+          [3, -17],
+        ],
+        0.6,
+      ),
+    ],
+    [trunk, crown],
+  );
+}
+const pineContours: SketchPoint[][] = [
+  [
+    [-3, 0],
+    [-3, -8],
+    [-21, -9],
+    [-13, -18],
+    [-19, -18],
+    [-10, -29],
+    [-14, -29],
+    [-6, -40],
+    [-8, -40],
+    [0, -53],
+    [7, -41],
+    [5, -41],
+    [13, -30],
+    [9, -30],
+    [18, -19],
+    [12, -19],
+    [22, -10],
+    [3, -8],
+    [3, 0],
+  ],
+  [
+    [-3, 0],
+    [-3, -9],
+    [-20, -10],
+    [-12, -21],
+    [-17, -21],
+    [-7, -32],
+    [-12, -32],
+    [-3, -43],
+    [-5, -43],
+    [2, -55],
+    [9, -41],
+    [6, -41],
+    [15, -29],
+    [10, -29],
+    [20, -17],
+    [14, -17],
+    [23, -9],
+    [4, -8],
+    [4, 0],
+  ],
+  [
+    [-4, 0],
+    [-4, -9],
+    [-23, -10],
+    [-16, -19],
+    [-19, -21],
+    [-10, -31],
+    [-14, -31],
+    [-5, -41],
+    [-8, -41],
+    [-1, -51],
+    [5, -40],
+    [3, -38],
+    [12, -29],
+    [7, -29],
+    [17, -20],
+    [11, -19],
+    [20, -10],
+    [3, -8],
+    [3, 0],
+  ],
+  [
+    [-3, 0],
+    [-3, -8],
+    [-22, -10],
+    [-14, -19],
+    [-17, -19],
+    [-8, -31],
+    [-12, -31],
+    [-4, -41],
+    [-6, -41],
+    [1, -54],
+    [8, -42],
+    [5, -42],
+    [14, -32],
+    [9, -31],
+    [18, -21],
+    [13, -20],
+    [23, -11],
+    [4, -9],
+    [4, 0],
+  ],
+];
+function pine(contourPoints: SketchPoint[], i: number): TerrainGlyphVariant {
+  // Break the outline at the trunk base, leaving a tapered ground contact at each side.
+  const outline = pen(contourPoints, 2.1);
+  return variant(
+    `tree-pine-${i}`,
+    [
+      outline,
+      pen(
+        [
+          [0, -39],
+          [2, -34],
+          [7, -30],
+        ],
+        0.65,
+      ),
+      pen(
+        [
+          [-7, -26],
+          [-3, -22],
+          [3, -19],
+        ],
+        0.7,
+      ),
+      pen(
+        [
+          [6, -17],
+          [10, -13],
+          [14, -12],
+        ],
+        0.6,
+      ),
+      pen(
+        [
+          [0, -10],
+          [0, -3],
+        ],
+        0.65,
+      ),
+    ],
+    [outline],
+  );
+}
+function palm(i: number): TerrainGlyphVariant {
+  const lean = [-5, 1, 5, -2][i];
+  const crownY = [-32, -35, -33, -34][i];
+  const trunk = pen(
+    [
+      [-3, 0],
+      [-5, -12],
+      [lean - 1, crownY],
+      [lean + 3, crownY],
+      [-1, -12],
+      [3, 0],
+    ],
+    2,
+  );
+  const strokes = [trunk];
+  const bodies = [trunk];
+  const frondVariants: SketchPoint[][] = [
+    [
+      [-22, 13],
+      [-21, -1],
+      [-8, -13],
+      [11, -11],
+      [23, 1],
+      [21, 14],
+    ],
+    [
+      [-24, 8],
+      [-18, -6],
+      [-4, -15],
+      [13, -8],
+      [24, 4],
+      [15, 18],
+    ],
+    [
+      [-18, 18],
+      [-24, 3],
+      [-12, -10],
+      [5, -16],
+      [21, -2],
+      [24, 12],
+    ],
+    [
+      [-24, 15],
+      [-23, -3],
+      [-7, -14],
+      [15, -12],
+      [25, 2],
+      [18, 20],
+    ],
+  ];
+  const fronds = frondVariants[i];
+  for (const [index, [dx, dy]] of fronds.entries()) {
+    const x = lean,
+      y = crownY;
+    const bend = (index < 3 ? -1 : 1) * (3 + (i % 2));
+    const leaf = pen(
+      [
+        [x, y],
+        [x + dx * 0.42, y + dy * 0.18 - 5],
+        [x + dx * 0.8, y + dy * 0.64 - 3],
+        [x + dx, y + dy],
+        [x + dx * 0.66 + bend, y + dy * 0.58 + 2],
+        [x + dx * 0.3 + bend, y + dy * 0.2 + 1],
+        [x, y],
+      ],
+      2,
     );
-    return variant(`tree-palm-${i}`, strokes, [trunk]);
-  });
+    bodies.push(leaf);
+    strokes.push(leaf);
+    strokes.push(
+      pen(
+        [
+          [x + dx * 0.18, y + dy * 0.08 - 1],
+          [x + dx * 0.55, y + dy * 0.4 - 1],
+          [x + dx * 0.87, y + dy * 0.8],
+        ],
+        0.6,
+      ),
+    );
+  }
+  strokes.push(
+    pen(
+      [
+        [-2, -9],
+        [1, -10],
+      ],
+      0.6,
+    ),
+    pen(
+      [
+        [-2, -17],
+        [1, -18],
+      ],
+      0.6,
+    ),
+  );
+  return variant(`tree-palm-${i}`, strokes, bodies);
 }
 
 function marshes(): TerrainGlyphVariant[] {
@@ -889,6 +967,7 @@ function definition(
     variants,
     scaleFactor,
     densityRatio,
+    candidateSpacingFactor: family.startsWith('tree') ? 0.55 : 1.1,
     minimumScaleRatio: mountain ? 0.4 : 0.45,
     rotationLimitDegrees: mountain ? 3 : 5,
   };
@@ -898,9 +977,9 @@ export const TERRAIN_GLYPHS: Record<TerrainGlyphFamily, TerrainGlyphDefinition> 
   mountainHigh: definition('mountainHigh', mountains(true), 0.9),
   mountain: definition('mountain', mountains(false), 0.9),
   hill: definition('hill', hills(), 0.75, 0.65),
-  treeDeciduous: definition('treeDeciduous', deciduous(), 0.6),
-  treeConifer: definition('treeConifer', conifers(), 0.6),
-  treePalm: definition('treePalm', palms(), 0.6),
+  treeDeciduous: definition('treeDeciduous', deciduousCrowns.map(oak), 0.4),
+  treeConifer: definition('treeConifer', pineContours.map(pine), 0.4),
+  treePalm: definition('treePalm', [0, 1, 2, 3].map(palm), 0.4),
   marsh: definition('marsh', marshes(), 0.6, 0.5),
   prairie: definition('prairie', prairies(), 0.6, 0.35),
   desertDune: definition('desertDune', desertDunes(), 0.65, 0.35),

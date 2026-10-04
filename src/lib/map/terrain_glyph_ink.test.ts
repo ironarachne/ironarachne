@@ -85,6 +85,19 @@ describe('authored terrain catalog', () => {
       expect(definition.minimumScaleRatio).toBeLessThan(1);
       expect(definition.densityRatio).toBeGreaterThan(0);
       expect(definition.densityRatio).toBeLessThanOrEqual(1);
+      expect(definition.candidateSpacingFactor).toBeGreaterThan(0);
+    }
+  });
+  it('shares a denser candidate spacing across all three forest families', () => {
+    const trees = [
+      TERRAIN_GLYPHS.treeDeciduous,
+      TERRAIN_GLYPHS.treeConifer,
+      TERRAIN_GLYPHS.treePalm,
+    ];
+    expect(new Set(trees.map((tree) => tree.candidateSpacingFactor)).size).toBe(1);
+    for (const tree of trees) {
+      expect(tree.candidateSpacingFactor).toBeLessThan(TERRAIN_GLYPHS.hill.candidateSpacingFactor);
+      expect(tree.densityRatio).toBe(1);
     }
   });
   it('bounds all ink ribbons, body controls and ground marks with each variant footprint', () => {

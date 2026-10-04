@@ -1,0 +1,41 @@
+[
+  {
+    "seed": "alpha",
+    "before": {
+      "medianMs": 101.50237500000003,
+      "bytes": 213800,
+      "glyphs": 120
+    },
+    "after": {
+      "medianMs": 132.4135000000001,
+      "bytes": 223593,
+      "glyphs": 123
+    }
+  },
+  {
+    "seed": "bravo",
+    "before": {
+      "medianMs": 113.97291599999971,
+      "bytes": 250301,
+      "glyphs": 273
+    },
+    "after": {
+      "medianMs": 154.39900000000034,
+      "bytes": 284161,
+      "glyphs": 591
+    }
+  },
+  {
+    "seed": "charlie",
+    "before": {
+      "medianMs": 105.67708299999958,
+      "bytes": 266131,
+      "glyphs": 246
+    },
+    "after": {
+      "medianMs": 134.06924999999956,
+      "bytes": 294521,
+      "glyphs": 504
+    }
+  }
+]

@@ -42,6 +42,7 @@ export interface TerrainGlyphDefinition {
   minimumScaleRatio: number;
   rotationLimitDegrees: number;
   densityRatio: number;
+  candidateSpacingFactor: number;
 }
 
 export interface TerrainGlyphAssignment {

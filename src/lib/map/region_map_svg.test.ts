@@ -121,6 +121,55 @@ function squareCellNode(id: number, minX: number, minY: number, size: number) {
 }
 
 describe('buildRegionMapSvgString', () => {
+  it('places each forest more densely and smaller than relief across equal-area cells', () => {
+    const biomes = [
+      'temperate deciduous forest',
+      'boreal forest',
+      'tropical rainforest',
+      'temperate grassland',
+      'temperate grassland',
+      'temperate grassland',
+      '',
+      '',
+    ];
+    const elevations = [0.1, 0.1, 0.1, 0.35, 0.6, 0.9, 0.1, 0.1];
+    const map: RegionMap = {
+      width: 80,
+      height: 10,
+      nodes: biomes.map((biomeId, id) => ({
+        ...squareCellNode(id, id * 10, 0, 10),
+        biomeId,
+        elevation: elevations[id],
+      })),
+      edges: [],
+      corners: [],
+    };
+    const svg = buildRegionMapSvgString(map);
+    expect(buildRegionMapSvgString(structuredClone(map))).toBe(svg);
+    const placed = parsePlacedSymbols(svg);
+    const groups = Array.from({ length: 6 }, (_, i) =>
+      placed.filter((s) => s.x >= i * 10 && s.x < (i + 1) * 10),
+    );
+    const extent = (s: PlacedSymbol) => {
+      const points = variants.get(s.id)!.footprint.map((p) => placeSilhouettePoint(s, p.x, p.y));
+      return {
+        width: Math.max(...points.map((p) => p.x)) - Math.min(...points.map((p) => p.x)),
+        height: Math.max(...points.map((p) => p.y)) - Math.min(...points.map((p) => p.y)),
+      };
+    };
+    for (const trees of groups.slice(0, 3)) {
+      expect(trees.length).toBeGreaterThan(0);
+      for (const relief of groups.slice(3)) {
+        expect(relief.length).toBeGreaterThan(0);
+        expect(trees.length).toBeGreaterThan(relief.length);
+        for (const tree of trees) {
+          const size = extent(tree);
+          expect(size.width).toBeLessThan(Math.min(...relief.map((s) => extent(s).width)));
+          expect(size.height).toBeLessThan(Math.min(...relief.map((s) => extent(s).height)));
+        }
+      }
+    }
+  });
   it('returns SVG with viewBox and at least one cell path for a built map', () => {
     const rng = new RNG('region-svg-test-seed');
     const map = buildBaseMapGraph({
@@ -416,10 +465,16 @@ describe('buildRegionMapSvgString', () => {
       TERRAIN_GLYPH_VARIANTS.map((v) => [v.id, Math.max(...v.footprint.map((p) => Math.abs(p.x)))]),
     );
     const overlappingKinds = new Set<string>();
-    for (let i = 0; i < placed.length; i++) {
-      const a = placed[i];
-      for (const b of placed.slice(i + 1)) {
+    const byX = [...placed].sort((a, b) => a.x - b.x);
+    const maximumWidth = Math.max(...placed.map((symbol) => widths[symbol.id] * symbol.scale));
+    for (let i = 0; i < byX.length; i++) {
+      const a = byX[i];
+      for (let j = i + 1; j < byX.length; j++) {
+        const b = byX[j];
+        // Beyond two maximum half-widths, neither overlap nor a spacing violation is possible.
+        if (b.x - a.x >= 2 * maximumWidth) break;
         const widthsSum = widths[a.id] * a.scale + widths[b.id] * b.scale;
+        if (b.x - a.x >= widthsSum) continue;
         const distance = Math.hypot(a.x - b.x, a.y - b.y);
         expect(distance).toBeGreaterThanOrEqual(0.55 * widthsSum - 0.002);
         if (distance < widthsSum)
