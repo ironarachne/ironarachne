@@ -36,4 +36,6 @@ mountains, and high mountains in the middle row. The drawings are unchanged.
 ## Validation
 
 - Targeted SVG and sizing tests: 30 passed, including export visibility with a tiny outlier cell.
-- Full verification and browser-suite results will be recorded after completion.
+- `npm run verify`: passed; 6,983 tests and all 100 libraries above the coverage gate.
+- Region browser workflows, map label bounds, and SVG/PDF exports: passed.
+- Full browser-suite and CI results: see [PR #399](https://github.com/ironarachne/ironarachne/pull/399).

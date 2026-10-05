@@ -120,7 +120,7 @@ radii, and label reservation bounds must all come from the updated catalog geome
 These are renderer-local types in `terrain_glyph_types.ts`. The only proposed new field
 is `TerrainGlyphDefinition.candidateSpacingFactor`; the other declarations and relationships
 already exist. `TerrainGlyphFamily` retains all twelve current string variants. Tree
-membership and the map-wide size ceiling are derived calculations, not new stored records.
+membership and the local size ceiling are derived calculations, not new stored records.
 
 ```mermaid
 classDiagram
