@@ -63,8 +63,13 @@ positions so their geometry agrees with the graph.
   control-hull footprints; `terrain_glyph_ink` expands tapered strokes into filled ribbons once
   per definition. Small intersecting hatch marks shade the appropriate drawings. Glyph scale fitting checks full
   silhouettes against that drawn water (with stroke/filter clearance), using row bins to avoid
-  scanning every coast segment for every candidate. Terrain membership still uses the raw cells. A shared Poisson candidate set and variable glyph
-  spacing keep trees and peaks from stacking, with partial overlap drawn in base-y order. Shared relative landform classification chooses high peaks, ordinary mountains, and hills.
+  scanning every coast segment for every candidate. Terrain membership still uses the raw cells.
+  Non-tree terrain uses the original Poisson candidates; forests use a separate deterministic
+  stream at half the candidate distance. Both passes share variable glyph spacing, with partial
+  overlap drawn in base-y order. `terrain_glyph_sizing` caps tree footprint width and height below
+  the smallest permitted relief profiles across the map, including rotations and serialized scale
+  rounding. Tree outlines use heavier brushwork than their interior details. See
+  [region tree icons](../../../docs/region-tree-icons.md). Shared relative landform classification chooses high peaks, ordinary mountains, and hills.
   Peaks take precedence over wetland, wetland over hills, and hills over forest. Temperate
   grassland and prairie get sparse grass tufts; flooded grassland, freshwater wetland, and
   explicit marsh/bog/fen/swamp aliases get reeds. Supported deserts get low dunes on plains,

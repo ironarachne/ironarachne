@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { generate, getDefaultConfig } from '$lib/regions';
@@ -33,15 +33,22 @@ function checkFrame(svg: string, width: number, height: number) {
 }
 
 describe('region furniture', () => {
-  it.each(['alpha', 'bravo', 'charlie'])(
-    'frames %s with a compass clear of its text and markers',
-    (seed) => {
+  const regions = new Map<string, ReturnType<typeof generate>>();
+  // Full-region generation is fixture preparation; each renderer assertion keeps its default timeout.
+  beforeAll(() => {
+    for (const seed of ['alpha', 'bravo', 'charlie']) {
       const config = getDefaultConfig(new RNG(seed));
       config.rng = new RNG(seed);
       config.nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(seed));
       config.mapWidth = 60;
       config.mapHeight = 35;
-      const region = generate(config),
+      regions.set(seed, generate(config));
+    }
+  }, 30000);
+  it.each(['alpha', 'bravo', 'charlie'])(
+    'frames %s with a compass clear of its text and markers',
+    (seed) => {
+      const region = regions.get(seed)!,
         original = structuredClone(region.map);
       const options = {
         title: region.name,

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { CARTOGRAPHY } from '$lib/cartography';
 import { readFileSync } from 'node:fs';
 import { generate, getDefaultConfig } from '$lib/regions';
@@ -121,6 +121,54 @@ function squareCellNode(id: number, minX: number, minY: number, size: number) {
 }
 
 describe('buildRegionMapSvgString', () => {
+  it('places each forest more densely and smaller than relief across equal-area cells', () => {
+    const biomes = [
+      'temperate deciduous forest',
+      'boreal forest',
+      'tropical rainforest',
+      'temperate grassland',
+      'temperate grassland',
+      'temperate grassland',
+      '',
+      '',
+    ];
+    const elevations = [0.1, 0.1, 0.1, 0.35, 0.6, 0.9, 0.1, 0.1];
+    const map: RegionMap = {
+      width: 20,
+      height: 10,
+      nodes: biomes.map((biomeId, id) => ({
+        ...squareCellNode(id, (id % 4) * 5, Math.floor(id / 4) * 5, 5),
+        biomeId,
+        elevation: elevations[id],
+      })),
+      edges: [],
+      corners: [],
+    };
+    const svg = buildRegionMapSvgString(map);
+    expect(buildRegionMapSvgString(structuredClone(map))).toBe(svg);
+    const placed = parsePlacedSymbols(svg);
+    const groups = Array.from({ length: 6 }, (_, i) =>
+      placed.filter((s) => Math.floor(s.x / 5) + Math.floor(s.y / 5) * 4 === i),
+    );
+    const extent = (s: PlacedSymbol) => {
+      const points = variants.get(s.id)!.footprint.map((p) => placeSilhouettePoint(s, p.x, p.y));
+      return {
+        width: Math.max(...points.map((p) => p.x)) - Math.min(...points.map((p) => p.x)),
+        height: Math.max(...points.map((p) => p.y)) - Math.min(...points.map((p) => p.y)),
+      };
+    };
+    const reliefGroups = groups.slice(3);
+    for (const relief of reliefGroups) expect(relief.length).toBeGreaterThan(0);
+    const reliefSizes = reliefGroups.flat().map(extent);
+    const smallestWidth = Math.min(...reliefSizes.map((size) => size.width));
+    const smallestHeight = Math.min(...reliefSizes.map((size) => size.height));
+    for (const trees of groups.slice(0, 3)) {
+      expect(trees.length).toBeGreaterThan(Math.max(...reliefGroups.map((group) => group.length)));
+      const treeSizes = trees.map(extent);
+      expect(Math.max(...treeSizes.map((size) => size.width))).toBeLessThan(smallestWidth);
+      expect(Math.max(...treeSizes.map((size) => size.height))).toBeLessThan(smallestHeight);
+    }
+  });
   it('returns SVG with viewBox and at least one cell path for a built map', () => {
     const rng = new RNG('region-svg-test-seed');
     const map = buildBaseMapGraph({
@@ -416,10 +464,16 @@ describe('buildRegionMapSvgString', () => {
       TERRAIN_GLYPH_VARIANTS.map((v) => [v.id, Math.max(...v.footprint.map((p) => Math.abs(p.x)))]),
     );
     const overlappingKinds = new Set<string>();
-    for (let i = 0; i < placed.length; i++) {
-      const a = placed[i];
-      for (const b of placed.slice(i + 1)) {
+    const byX = [...placed].sort((a, b) => a.x - b.x);
+    const maximumWidth = Math.max(...placed.map((symbol) => widths[symbol.id] * symbol.scale));
+    for (let i = 0; i < byX.length; i++) {
+      const a = byX[i];
+      for (let j = i + 1; j < byX.length; j++) {
+        const b = byX[j];
+        // Beyond two maximum half-widths, neither overlap nor a spacing violation is possible.
+        if (b.x - a.x >= 2 * maximumWidth) break;
         const widthsSum = widths[a.id] * a.scale + widths[b.id] * b.scale;
+        if (b.x - a.x >= widthsSum) continue;
         const distance = Math.hypot(a.x - b.x, a.y - b.y);
         expect(distance).toBeGreaterThanOrEqual(0.55 * widthsSum - 0.002);
         if (distance < widthsSum)
@@ -609,43 +663,48 @@ describe('buildRegionMapSvgString', () => {
     }
   });
 
-  it.each(['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot'])(
-    'keeps reference text inside the map and clear of hard obstacles: %s',
+  describe.each(['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot'])(
+    'reference text: %s',
     (seed) => {
-      const config = getDefaultConfig(new RNG(seed));
-      config.rng = new RNG(seed);
-      config.nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(seed));
-      config.mapWidth = 60;
-      config.mapHeight = 35;
-      const region = generate(config);
-      const settlements = region.settlements.map((item, i) => ({
-        mapNodeId: item.mapNodeId,
-        name: item.name,
-        population: item.population,
-        isCapital: i === 0,
-      }));
-      const svg = buildRegionMapSvgString(region.map, { title: region.name, settlements });
-      const labels = parseMapLabels(svg);
-      const panel = cartoucheBox(svg);
-      expect(labels.length).toBeGreaterThan(1);
-      for (const label of labels) {
-        const box = labelBox(label);
-        expect(box.minX).toBeGreaterThanOrEqual(-0.001);
-        expect(box.minY).toBeGreaterThanOrEqual(-0.001);
-        expect(box.maxX).toBeLessThanOrEqual(region.map.width + 0.001);
-        expect(box.maxY).toBeLessThanOrEqual(region.map.height + 0.001);
-        if (label === labels.at(-1)) continue;
-        expect(boxesOverlap(box, panel)).toBe(false);
-      }
-      // The emitted composed bounds include roofs and the capital pennant.
-      const markers = [...svg.matchAll(/data-icon-bounds="([^"]+)"/g)];
-      expect(markers).toHaveLength(settlements.length);
-      for (const match of markers) {
-        const [minX, minY, maxX, maxY] = match[1].split(' ').map(Number);
-        const marker = { minX, minY, maxX, maxY };
-        for (const label of labels) expect(boxesOverlap(labelBox(label), marker)).toBe(false);
-        expect(boxesOverlap(panel, marker)).toBe(false);
-      }
+      let region: ReturnType<typeof generate>;
+      beforeAll(() => {
+        const config = getDefaultConfig(new RNG(seed));
+        config.rng = new RNG(seed);
+        config.nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(seed));
+        config.mapWidth = 60;
+        config.mapHeight = 35;
+        region = generate(config);
+      }, 30000);
+      it('keeps reference text inside the map and clear of hard obstacles', () => {
+        const settlements = region.settlements.map((item, i) => ({
+          mapNodeId: item.mapNodeId,
+          name: item.name,
+          population: item.population,
+          isCapital: i === 0,
+        }));
+        const svg = buildRegionMapSvgString(region.map, { title: region.name, settlements });
+        const labels = parseMapLabels(svg);
+        const panel = cartoucheBox(svg);
+        expect(labels.length).toBeGreaterThan(1);
+        for (const label of labels) {
+          const box = labelBox(label);
+          expect(box.minX).toBeGreaterThanOrEqual(-0.001);
+          expect(box.minY).toBeGreaterThanOrEqual(-0.001);
+          expect(box.maxX).toBeLessThanOrEqual(region.map.width + 0.001);
+          expect(box.maxY).toBeLessThanOrEqual(region.map.height + 0.001);
+          if (label === labels.at(-1)) continue;
+          expect(boxesOverlap(box, panel)).toBe(false);
+        }
+        // The emitted composed bounds include roofs and the capital pennant.
+        const markers = [...svg.matchAll(/data-icon-bounds="([^"]+)"/g)];
+        expect(markers).toHaveLength(settlements.length);
+        for (const match of markers) {
+          const [minX, minY, maxX, maxY] = match[1].split(' ').map(Number);
+          const marker = { minX, minY, maxX, maxY };
+          for (const label of labels) expect(boxesOverlap(labelBox(label), marker)).toBe(false);
+          expect(boxesOverlap(panel, marker)).toBe(false);
+        }
+      });
     },
   );
 

@@ -19,6 +19,7 @@ import { riverEnvelope } from './river_geometry';
 import { riverNetworkError } from './river_validation';
 import { TERRAIN_GLYPHS, TERRAIN_GLYPH_VARIANTS } from './terrain_glyph_catalog';
 import { inkStrokePath } from './terrain_glyph_ink';
+import { cappedTreeScale, isTreeGlyph, treeSizeCeiling } from './terrain_glyph_sizing';
 import { CAPITAL_PENNANT, SETTLEMENT_BUILDING_VARIANTS } from './settlement_icon_catalog';
 import { capitalPennantAnchor, placeSettlementIcon } from './settlement_icons';
 import type { PlacedSettlementIcon } from './settlement_icon_types';
@@ -888,13 +889,21 @@ function collectScatterSymbols(
   const candidates = generatePoissonDisk(
     map.width,
     map.height,
-    1.1 * mapScale,
+    TERRAIN_GLYPHS.hill.candidateSpacingFactor * mapScale,
     new RNG(seedKey),
     30,
     {
       accept: (point) => nodeAt(point) !== undefined,
       maxPoints: 12000,
     },
+  );
+  const treeCeiling = treeSizeCeiling(
+    Math.min(
+      ...map.nodes
+        .filter((node) => !isWaterNode(node))
+        .map((node) => symbolFontSizeForNode(node, map)),
+    ),
+    mapScale,
   );
   const containment = new Map(
     Object.values(TERRAIN_GLYPHS).map((definition) => [
@@ -909,20 +918,28 @@ function collectScatterSymbols(
   const acceptSpacing = makeGlyphSpacingTest(mapScale);
   const clearOfRivers = makeWaterClearanceTest(riverOutlines, WATER_EDGE_MARGIN);
   const out: PlacedTerrainGlyph[] = [];
-  const place = (index: number, family: TerrainGlyphFamily, key: string): boolean => {
-    const anchor = candidates[index];
+  const place = (anchor: Vertex, family: TerrainGlyphFamily, key: string): boolean => {
     const node = nodeAt(anchor)!;
     const definition = TERRAIN_GLYPHS[family];
     const variant = new RNG(`${key}:variant`).item(definition.variants);
     const styleRng = new RNG(`${key}:style`);
     const outline = SYMBOL_FIT_OUTLINES[variant.id];
     const mountain = family === 'mountain' || family === 'mountainHigh';
-    const rotation = styleRng.float(-1, 1) * definition.rotationLimitDegrees;
-    const desiredScale = Math.max(
+    const rawRotation = styleRng.float(-1, 1) * definition.rotationLimitDegrees;
+    // Fit and cap trees at the same angle serialized into SVG, so rounding cannot break the ceiling.
+    const rotation = isTreeGlyph(family) ? Number(rawRotation.toFixed(1)) : rawRotation;
+    const baseScale = Math.max(
       symbolFontSizeForNode(node, map) * definition.scaleFactor,
       mapScale * (mountain ? 0.65 : 0.5),
     );
-    const wantedScale = desiredScale * (1 + styleRng.float(-1, 1) * (mountain ? 0.12 : 0.18));
+    const desiredScale = isTreeGlyph(family)
+      ? cappedTreeScale(variant, rotation, baseScale, treeCeiling)
+      : baseScale;
+    const variedScale = desiredScale * (1 + styleRng.float(-1, 1) * (mountain ? 0.12 : 0.18));
+    const wantedScale = isTreeGlyph(family)
+      ? cappedTreeScale(variant, rotation, variedScale, treeCeiling)
+      : variedScale;
+    if (wantedScale <= 0) return false;
     const scale = largestFittingScale(
       anchor,
       outline,
@@ -963,15 +980,39 @@ function collectScatterSymbols(
       const nearest = nearestWaterPoint(anchor, shore);
       if (!nearest || Math.hypot(anchor.x - nearest.x, anchor.y - nearest.y) > 2 * mapScale)
         continue;
-      if (place(index, 'desertOasis', `${seedKey}:${site.id}:${index}:oasis`)) break;
+      if (place(anchor, 'desertOasis', `${seedKey}:${site.id}:${index}:oasis`)) break;
     }
   }
   for (const [index, anchor] of candidates.entries()) {
     const node = nodeAt(anchor)!;
     const family = assignments.get(node.id)!.family;
+    if (isTreeGlyph(family)) continue;
     const key = `${seedKey}:${node.id}:${index}`;
     if (new RNG(`${key}:density`).float(0, 1) >= TERRAIN_GLYPHS[family].densityRatio) continue;
-    place(index, family, key);
+    place(anchor, family, key);
+  }
+  if ([...assignments.values()].some(({ family }) => isTreeGlyph(family))) {
+    const trees = generatePoissonDisk(
+      map.width,
+      map.height,
+      TERRAIN_GLYPHS.treeDeciduous.candidateSpacingFactor * mapScale,
+      new RNG(`${seedKey}:trees`),
+      30,
+      {
+        accept: (point) => {
+          const node = nodeAt(point);
+          return node !== undefined && isTreeGlyph(assignments.get(node.id)!.family);
+        },
+        maxPoints: 12000,
+      },
+    );
+    for (const [index, anchor] of trees.entries()) {
+      const node = nodeAt(anchor)!;
+      const family = assignments.get(node.id)!.family;
+      const key = `${seedKey}:trees:${node.id}:${index}`;
+      if (new RNG(`${key}:density`).float(0, 1) >= TERRAIN_GLYPHS[family].densityRatio) continue;
+      place(anchor, family, key);
+    }
   }
   return out;
 }
