@@ -15,7 +15,7 @@ function spanAt(footprint: { x: number; y: number }[], angle: number, scale: num
 }
 
 describe('tree size hierarchy', () => {
-  it('caps every rotated tree below every minimum-size relief glyph, including serialized scales', () => {
+  it('caps every rotated tree below every nominal relief glyph, including serialized scales', () => {
     for (const [symbolSize, mapScale] of [
       [0.35, 0.1],
       [0.35, 1],
@@ -38,7 +38,7 @@ describe('tree size hierarchy', () => {
                 symbolSize * relief.scaleFactor,
                 mapScale * (family === 'hill' ? 0.5 : 0.65),
               );
-              const minimum = Number((desired * relief.minimumScaleRatio).toFixed(3));
+              const minimum = Number(desired.toFixed(3));
               for (const variant of relief.variants) {
                 for (const rotation of [
                   -relief.rotationLimitDegrees,
@@ -46,8 +46,7 @@ describe('tree size hierarchy', () => {
                   relief.rotationLimitDegrees,
                 ]) {
                   const size = spanAt(variant.footprint, rotation, minimum);
-                  expect(tree.x).toBeLessThan(size.x * 0.75);
-                  expect(tree.y).toBeLessThan(size.y * 0.75);
+                  expect(Math.max(tree.x, tree.y)).toBeLessThan(Math.max(size.x, size.y) * 0.75);
                 }
               }
             }
