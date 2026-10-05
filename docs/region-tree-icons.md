@@ -57,26 +57,23 @@ dark knot at normal output size. Trunks and frond edges count as structural outl
 Measure size from the complete footprint, including ribbon width and ground marks,
 after rotation and scale. A smaller `scaleFactor` alone is insufficient.
 
-Establish a map-wide tree size ceiling from the existing hill, mountain, and high-mountain
-catalog profiles. For each of those families, use its smallest permitted fitted scale
-at the smallest desired scale among land nodes in this map. Include every variant and
-the family's allowed rotation range when deriving conservative lower bounds on width
-and height. Compute this once per render; it does not depend on whether a landform
-actually finds a placement. Empty or invalid maps return no glyphs as today.
+Use the local cell's symbol size and the existing map-scale floor to derive nominal
+hill, mountain, and high-mountain profiles. Compare their longest footprint dimensions,
+including every variant and conservative bounds over the permitted rotation range.
+Each tree's longest transformed footprint dimension is capped at 75% of the smallest
+nominal relief diameter. A wide, shallow hill must not make a tree equally shallow.
 
-Each tree's transformed footprint must be at most 75% of both reference dimensions:
-the smallest reference width and the smallest reference height. This guarantees that
-trees remain smaller than every legal hill or mountain on that map, even when a landform
-fits at its minimum size. Landform fitting must continue to reject placements below
-its declared minimum. A conservative bound over the continuous rotation range is
-required; checking only a handful of angles would not establish the guarantee.
+Use tree scale factors of 0.25 and a tree-specific floor of `0.35 * mapScale`. Apply the
+ceiling after random size variation and before fitting. Use the capped desired tree
+scale as the basis for the existing 0.45 minimum fitting ratio; omit a tree when it
+cannot fit. Keep relief artwork and its size profiles unchanged.
 
-Start tree scale factors at 0.4. Apply the ceiling after random size variation and before
-fitting. The common `0.5 * mapScale` floor must not override this ceiling. Use the capped
-desired tree scale as the basis for its existing 0.45 minimum fitting ratio; omit a tree
-when it cannot fit. All three families obey the same ceiling, including the tall palm.
-Tune the drawing proportions and starting factor during visual review, while retaining
-the 75% invariant. Keep relief artwork and its size profiles unchanged.
+**Visibility correction (2026-10-05):** the original implementation compared both axes
+against the smallest permitted fitted relief profile at the smallest land cell anywhere
+on the map. On a default 40×30 map this produced about 1.6-pixel trees, effectively
+removing the forest artwork. Local nominal profiles and the longest-dimension comparison
+restore readable trees while preserving the smaller, denser visual hierarchy. The
+approved twelve drawings and domain model are unchanged.
 
 ### 3. Forest density
 
@@ -123,7 +120,7 @@ radii, and label reservation bounds must all come from the updated catalog geome
 These are renderer-local types in `terrain_glyph_types.ts`. The only proposed new field
 is `TerrainGlyphDefinition.candidateSpacingFactor`; the other declarations and relationships
 already exist. `TerrainGlyphFamily` retains all twelve current string variants. Tree
-membership and the map-wide size ceiling are derived calculations, not new stored records.
+membership and the local size ceiling are derived calculations, not new stored records.
 
 ```mermaid
 classDiagram
@@ -201,7 +198,7 @@ classDiagram
   at actual placement scales; its current sheet enlarges families equally and cannot
   demonstrate the hierarchy by itself.
 - Test the size ceiling against every landform and tree variant, extreme scale variation,
-  rotation limits, minimum fitted landforms, heterogeneous cell sizes, and different map
+  rotation limits, nominal relief dimensions, heterogeneous cell sizes and a tiny unrelated land cell, and different map
   dimensions. Check complete transformed footprints, not just scale values.
 - Retain the catalog's unique IDs, four distinct variants per family, finite tapered
   ribbons, and complete footprint containment. Check positive candidate spacing factors
@@ -245,7 +242,7 @@ approved vector specimens and the full-map comparisons.
 
 The approved twelve drawings are integrated into the runtime catalog. Trees use a
 separate deterministic candidate pass, retain shared fitting/clearance/spacing, and obey
-the map-wide footprint ceiling. Rotation and scale serialization are included in that
+the local nominal footprint ceiling. Rotation and scale serialization are included in that
 ceiling. Regression tests cover size hierarchy, forest density, spacing, and repeatable
 SVG output. Saved geography and schemas are unchanged.
 

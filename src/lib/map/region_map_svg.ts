@@ -897,14 +897,6 @@ function collectScatterSymbols(
       maxPoints: 12000,
     },
   );
-  const treeCeiling = treeSizeCeiling(
-    Math.min(
-      ...map.nodes
-        .filter((node) => !isWaterNode(node))
-        .map((node) => symbolFontSizeForNode(node, map)),
-    ),
-    mapScale,
-  );
   const containment = new Map(
     Object.values(TERRAIN_GLYPHS).map((definition) => [
       definition.family,
@@ -930,8 +922,9 @@ function collectScatterSymbols(
     const rotation = isTreeGlyph(family) ? Number(rawRotation.toFixed(1)) : rawRotation;
     const baseScale = Math.max(
       symbolFontSizeForNode(node, map) * definition.scaleFactor,
-      mapScale * (mountain ? 0.65 : 0.5),
+      mapScale * (mountain ? 0.65 : isTreeGlyph(family) ? 0.35 : 0.5),
     );
+    const treeCeiling = treeSizeCeiling(symbolFontSizeForNode(node, map), mapScale);
     const desiredScale = isTreeGlyph(family)
       ? cappedTreeScale(variant, rotation, baseScale, treeCeiling)
       : baseScale;

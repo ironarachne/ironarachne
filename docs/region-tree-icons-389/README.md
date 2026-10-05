@@ -40,8 +40,10 @@ Reference maps: [alpha before](alpha-before.svg), [alpha after](alpha-after.svg)
 [bravo before](bravo-before.svg), [bravo after](bravo-after.svg),
 [charlie before](charlie-before.svg), [charlie after](charlie-after.svg).
 
-The map-wide ceiling is deliberately conservative: in maps with very small cells, trees
-read as fine forest texture at full-map size; zoom reveals the approved silhouettes.
+The original map-wide ceiling caused a visibility regression: default-size maps could
+render trees only about 1.6 pixels tall. The 2026-10-05 correction uses local nominal
+relief dimensions and compares overall glyph size; see the corrected size decision in
+[the design](../region-tree-icons.md). The comparisons below record the original PR.
 The controlled fixture uses equal cell sizes and makes the relative size hierarchy clearer.
 
 [Performance measurements](performance.json) compare five warmed renderer runs per seed

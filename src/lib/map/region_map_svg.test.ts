@@ -160,15 +160,53 @@ describe('buildRegionMapSvgString', () => {
     const reliefGroups = groups.slice(3);
     for (const relief of reliefGroups) expect(relief.length).toBeGreaterThan(0);
     const reliefSizes = reliefGroups.flat().map(extent);
-    const smallestWidth = Math.min(...reliefSizes.map((size) => size.width));
-    const smallestHeight = Math.min(...reliefSizes.map((size) => size.height));
+    const smallestDiameter = Math.min(
+      ...reliefSizes.map((size) => Math.max(size.width, size.height)),
+    );
     for (const trees of groups.slice(0, 3)) {
       expect(trees.length).toBeGreaterThan(Math.max(...reliefGroups.map((group) => group.length)));
       const treeSizes = trees.map(extent);
-      expect(Math.max(...treeSizes.map((size) => size.width))).toBeLessThan(smallestWidth);
-      expect(Math.max(...treeSizes.map((size) => size.height))).toBeLessThan(smallestHeight);
+      expect(Math.max(...treeSizes.map((size) => Math.max(size.width, size.height)))).toBeLessThan(
+        smallestDiameter,
+      );
     }
   });
+  it('keeps all forest families readable at export size despite a tiny unrelated land cell', () => {
+    const biomes = ['temperate deciduous forest', 'boreal forest', 'tropical rainforest'];
+    const map: RegionMap = {
+      width: 40,
+      height: 30,
+      nodes: Array.from({ length: 12 }, (_, id) => ({
+        ...squareCellNode(id, (id % 4) * 10, Math.floor(id / 4) * 10, 10),
+        biomeId: id < 3 ? biomes[id] : '',
+      })),
+      edges: [],
+      corners: [],
+    };
+    // Replace a distant empty cell by a tiny clipped cell, like a real coast boundary.
+    map.nodes[11] = { ...squareCellNode(11, 39.9, 29.9, 0.1), biomeId: '' };
+    const svg = buildRegionMapSvgString(map);
+    const viewBoxHeight = Number(svg.match(/viewBox="[^"]* ([\d.]+)"/)![1]);
+    const pixelScale = 600 / viewBoxHeight;
+    const placed = parsePlacedSymbols(svg);
+    for (const prefix of ['tree-oak-', 'tree-pine-', 'tree-palm-']) {
+      const heights = placed
+        .filter((symbol) => symbol.id.startsWith(prefix))
+        .map((symbol) => {
+          const points = variants
+            .get(symbol.id)!
+            .footprint.map((p) => placeSilhouettePoint(symbol, p.x, p.y));
+          return (
+            (Math.max(...points.map((p) => p.y)) - Math.min(...points.map((p) => p.y))) * pixelScale
+          );
+        })
+        .sort((a, b) => a - b);
+      expect(heights.length).toBeGreaterThan(20);
+      // The previous map-wide minimum produced roughly 1.6px trees at this output size.
+      expect(heights[Math.floor(heights.length / 2)]).toBeGreaterThan(6);
+    }
+  });
+
   it('returns SVG with viewBox and at least one cell path for a built map', () => {
     const rng = new RNG('region-svg-test-seed');
     const map = buildBaseMapGraph({
