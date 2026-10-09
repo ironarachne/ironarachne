@@ -167,7 +167,9 @@ export function setRegionText(
  * worse than one whose seat is unchanged.
  */
 export function setRegionMainRealm(snapshot: RegionSnapshot, index: number): RegionSnapshot {
-  return hasIndex(snapshot.realms.length, index) ? { ...snapshot, mainRealm: index } : snapshot;
+  return snapshot.affiliation === 'affiliated' && hasIndex(snapshot.realms.length, index)
+    ? { ...snapshot, mainRealm: index, authority: snapshot.realms[index].authority }
+    : snapshot;
 }
 
 function editRealm(

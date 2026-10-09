@@ -144,3 +144,34 @@ export function generateLandscapeNames(
     context = result.nextContext;
   }
 }
+
+/** Name the whole region without inventing a compass frame or named water body. */
+export function generateRegionGeographicName(region: Region, rng: RNG): string {
+  const nodes = region.map.nodes.filter((node) => !node.isWater && !node.isOcean);
+  const biomeCounts = new Map<string, number>();
+  for (const node of nodes) {
+    const biome = node.biomeId ?? '';
+    biomeCounts.set(biome, (biomeCounts.get(biome) ?? 0) + 1);
+  }
+  const supportedBiome =
+    [...biomeCounts.entries()].find(([, count]) => count * 3 >= nodes.length * 2)?.[0] ?? '';
+  const nouns = nodes.length
+    ? namingNouns(supportedBiome, nodes, classifyRegionLandforms(region.map).byNodeId)
+    : ['Reaches'];
+  return generateLandscapeName(
+    {
+      id: 'region',
+      nouns,
+      directions: [],
+      ...(region.dominantCulture === null
+        ? {}
+        : {
+            culturePatterns: nameGeneratorSetToStoredPatternSet(
+              region.dominantCulture.nameGenerators,
+            ),
+          }),
+    },
+    { usedNames: region.facts?.areas.map((area) => area.name) ?? [], recentStyles: [] },
+    rng,
+  ).name;
+}

@@ -21,7 +21,10 @@ import { toRegionSnapshot } from './region_snapshot';
 import { rollRegion } from './region_roll';
 import { REGION_SEED_BANK } from '../../../test_fixtures/region_seeds';
 
-const snapshot = rollRegionSnapshot('presentation-seed');
+const snapshot = rollRegionSnapshot('presentation-seed', {
+  affiliation: 'affiliated',
+  generateNeighbors: true,
+});
 
 function capitalMarkers(svg: string): string[] {
   return [
@@ -59,7 +62,7 @@ describe('arranging a region for reading', () => {
 
   it('is headed by the region and says who rules it', () => {
     expect(document.title).toEqual(snapshot.name);
-    expect(document.paragraphs.at(-1)).toContain(snapshot.authority.firstName);
+    expect(document.paragraphs.at(-1)).toContain(snapshot.authority!.firstName);
   });
 
   it.each(REGION_SEED_BANK)(
@@ -95,9 +98,13 @@ describe('arranging a region for reading', () => {
 
 describe('dropping what is empty (6.4)', () => {
   it('prints no culture line for a region whose culture was referenced', () => {
-    const referenced = toRegionSnapshot(rollRegion('presentation-seed').region, {
-      cultureIsReferenced: true,
-    });
+    const referenced = toRegionSnapshot(
+      rollRegion('presentation-seed', { affiliation: 'affiliated', generateNeighbors: true })
+        .region,
+      {
+        cultureIsReferenced: true,
+      },
+    );
     expect(
       regionToDocument(referenced).paragraphs.some((line) => line.includes('dominant culture')),
     ).toBe(false);
@@ -144,9 +151,9 @@ describe('dropping what is empty (6.4)', () => {
 
 describe('describing a ruler', () => {
   it('gives an honorific, a name and a species', () => {
-    const line = describeRuler(snapshot.authority);
-    expect(line).toContain(snapshot.authority.firstName);
-    expect(line).toContain(snapshot.authority.speciesName);
+    const line = describeRuler(snapshot.authority!);
+    expect(line).toContain(snapshot.authority!.firstName);
+    expect(line).toContain(snapshot.authority!.speciesName);
   });
 });
 

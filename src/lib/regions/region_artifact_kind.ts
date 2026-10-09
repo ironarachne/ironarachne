@@ -34,8 +34,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 10 adds saved, conserving surface river networks. */
-export const REGION_PAYLOAD_VERSION = 10 as const;
+/** Version 11 adds explicit affiliation and optional regional authority. */
+export const REGION_PAYLOAD_VERSION = 11 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -130,8 +130,8 @@ function validateRegionSettlement(value: unknown, index: number): PayloadResult<
  *
  * `dominantCulture` may be `null`, which is what a region named from a referenced culture stores;
  * a region with no settlements, no realms or no organizations is accepted, because each of those
- * is something a user can remove. What is not optional is the map and the region's own ruler: the
- * first is the tool's output and the second is the only thing every region has exactly one of.
+ * is something a user can remove. Affiliated legacy results may retain their seat index after
+ * removing every realm; unaffiliated results have neither a seat nor a regional ruler.
  */
 export function validateRegionSnapshot(payload: unknown): PayloadResult<RegionSnapshot> {
   const record = asRecord(payload);
@@ -141,8 +141,19 @@ export function validateRegionSnapshot(payload: unknown): PayloadResult<RegionSn
   if (!hasStringFields(record, ['name', 'description'])) {
     return rejectedPayload('invalid-payload', 'region payload needs a name and a description');
   }
-  if (!isFiniteNumber(record.mainRealm)) {
-    return rejectedPayload('invalid-payload', 'region payload has no main realm index');
+  if (record.affiliation !== 'affiliated' && record.affiliation !== 'unaffiliated') {
+    return rejectedPayload('invalid-payload', 'region payload has no valid affiliation');
+  }
+  if (record.affiliation === 'unaffiliated') {
+    if (record.mainRealm !== null || record.authority !== null)
+      return rejectedPayload('invalid-payload', 'unaffiliated region has a regional seat or ruler');
+  } else if (
+    !Number.isInteger(record.mainRealm) ||
+    !Array.isArray(record.realms) ||
+    Number(record.mainRealm) < 0 ||
+    (record.realms.length > 0 && Number(record.mainRealm) >= record.realms.length)
+  ) {
+    return rejectedPayload('invalid-payload', 'region payload has an invalid main realm index');
   }
   if (asRecord(record.environment) === null) {
     return rejectedPayload('invalid-payload', 'region payload has no environment');
@@ -157,7 +168,9 @@ export function validateRegionSnapshot(payload: unknown): PayloadResult<RegionSn
 
   const checks = [
     validateMap(record.map),
-    validateCharacterSnapshot(record.authority),
+    record.affiliation === 'unaffiliated'
+      ? acceptedPayload(null)
+      : validateCharacterSnapshot(record.authority),
     validateList(record.settlements, 'settlements', validateRegionSettlement),
     validateList(record.realms, 'realms', validateRealm),
     validateList(record.organizations, 'organizations', (entry) =>
@@ -335,8 +348,15 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
+  if (!Number.isInteger(from) || from < 1 || from > 10)
+    return rejectedPayload(
+      'unsupported-version',
+      `Regions have no migration from payload version ${from}`,
+    );
+  const record = asRecord(payload);
+  const adopted = record === null ? payload : { ...record, affiliation: 'affiliated' };
   const result =
-    from === 9 ? validateRegionSnapshot(payload) : migrateOldRegionSnapshot(payload, from);
+    from >= 9 ? validateRegionSnapshot(adopted) : migrateOldRegionSnapshot(adopted, from);
   if (!result.ok || result.value.map.rivers !== undefined) return result;
   const rivers = legacyRiverNetwork(result.value.map);
   return rivers === undefined

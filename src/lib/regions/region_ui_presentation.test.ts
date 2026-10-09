@@ -5,7 +5,10 @@ import { rollRegionSnapshot } from './region_roll';
 import { emptyRegionFacts } from './region_facts';
 import { REGION_SEED_BANK } from '../../../test_fixtures/region_seeds';
 
-const snapshot = rollRegionSnapshot('heading-seed');
+const snapshot = rollRegionSnapshot('heading-seed', {
+  affiliation: 'affiliated',
+  generateNeighbors: true,
+});
 
 describe('region entry headings', () => {
   it('disambiguates a section whose title matches the edited region name', () => {

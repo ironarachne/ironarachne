@@ -12,7 +12,10 @@ import { rollRegionSnapshot } from './region_roll';
 import { emptyRegionFacts } from './region_facts';
 import { regionToMarkdown, regionToMapSvg } from './region_presentation';
 
-const snapshot = rollRegionSnapshot('kind-seed');
+const snapshot = rollRegionSnapshot('kind-seed', {
+  affiliation: 'affiliated',
+  generateNeighbors: true,
+});
 
 describe('river payload version 10', () => {
   it('saves and rehydrates the complete network without consuming a new generation seed', async () => {
@@ -67,7 +70,7 @@ describe('river payload version 10', () => {
     expect(
       migrateRegionSnapshot({ ...snapshot, map: { ...snapshot.map, rivers: null } }, 9).ok,
     ).toBe(false);
-    expect(migrateRegionSnapshot(snapshot, 10).ok).toBe(false);
+    expect(migrateRegionSnapshot(snapshot, 11).ok).toBe(false);
   });
 });
 
@@ -557,7 +560,7 @@ describe('migrating a stored region (7.3)', () => {
       expect(result.value.settlements.map((entry) => entry.id)).toEqual(
         snapshot.settlements.map((entry) => entry.id),
       );
-      expect(result.value.authority.mechanics.variants[0]).toMatchObject({ origin: 'migrated' });
+      expect(result.value.authority!.mechanics.variants[0]).toMatchObject({ origin: 'migrated' });
       expect(result.value.realms[0].authority.mechanics.variants[0]).toMatchObject({
         origin: 'migrated',
       });

@@ -35,6 +35,7 @@ import { toSettlementSnapshot } from '$lib/settlements';
 import { stripFunctionValuesDeep } from '$lib/persistent_save';
 
 import type Region from './region.js';
+import type { RegionAffiliation } from './region_affiliation_types';
 import { removeRegionPlace } from './region_editing.js';
 import { emptyRegionFacts } from './region_facts.js';
 import type { RegionFacts, RegionSettlement } from './region_fact_types.js';
@@ -55,9 +56,10 @@ export type RegionSnapshot = {
   dominantCulture: CultureSnapshot | null;
   settlements: RegionSettlement[];
   facts: RegionFacts;
-  mainRealm: number;
+  affiliation: RegionAffiliation;
+  mainRealm: number | null;
   realms: StoredRealm[];
-  authority: StoredCharacter;
+  authority: StoredCharacter | null;
   organizations: StoredOrganization[];
   map: RegionMap;
 };
@@ -95,6 +97,7 @@ export function toRegionSnapshot(
   const settlements = region.settlements.map((settlement, index) => ({ settlement, index }));
   const snapshot: RegionSnapshot = {
     name: region.name,
+    affiliation: region.affiliation,
     description: region.description,
     environment: region.environment,
     dominantCulture:
@@ -108,7 +111,7 @@ export function toRegionSnapshot(
     facts: region.facts ?? emptyRegionFacts('current'),
     mainRealm: region.mainRealm,
     realms: region.realms.map(toStoredRealm),
-    authority: toStoredCharacter(region.authority),
+    authority: region.authority === null ? null : toStoredCharacter(region.authority),
     organizations: region.organizations.map((organization) => toStoredOrganization(organization)),
     map: region.map,
   };

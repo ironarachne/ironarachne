@@ -153,11 +153,15 @@ describe('release coherence across page-default regions', () => {
 
   it.each(fixtures)(
     '$seed opens pre-facts saves without generating missing systems or changing the map',
-    ({ saved }) => {
-      const { facts: _facts, ...legacy } = saved;
+    ({ seed }) => {
+      const historical = rollRegionSnapshot(seed, {
+        affiliation: 'affiliated',
+        generateNeighbors: true,
+      });
+      const { facts: _facts, ...legacy } = historical;
       const old = {
         ...legacy,
-        settlements: saved.settlements.map((entry) => entry.snapshot),
+        settlements: historical.settlements.map((entry) => entry.snapshot),
         description: 'Old authored prose.',
       };
       const before = structuredClone(old);
@@ -168,8 +172,8 @@ describe('release coherence across page-default regions', () => {
       expect(migrated.value.facts.state).toBe('legacy');
       expect(Object.values(migrated.value.facts).filter(Array.isArray).flat()).toEqual([]);
       const reopened = toRegionSnapshot(regionFromSnapshot(migrated.value, new RNG('legacy-read')));
-      expect(reopened.map).toEqual(saved.map);
-      expect(reopened.environment).toEqual(saved.environment);
+      expect(reopened.map).toEqual(historical.map);
+      expect(reopened.environment).toEqual(historical.environment);
       expect(reopened.description).toBe('Old authored prose.');
       expect(reopened.settlements.map((entry) => entry.snapshot)).toEqual(old.settlements);
     },

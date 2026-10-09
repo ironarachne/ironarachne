@@ -41,6 +41,10 @@
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
 
+  let affiliation = $state<Regions.RegionAffiliationMode>('random');
+  let generateNeighbors = $state(false);
+  let rolledAffiliation = $state<Regions.RegionAffiliationMode>('random');
+  let rolledNeighbors = $state(false);
   let nameSetName = $state(Regions.REGION_ANY_NAME_SET);
   const nameSetOptions = [Regions.REGION_ANY_NAME_SET, ...Regions.regionNameSetNames()];
 
@@ -67,13 +71,18 @@
   let usedCulture = $state(false);
   let usedSettlementName = $state<string | undefined>(undefined);
 
-  const ruler = $derived<Character | undefined>(region?.authority);
+  const mainRealm = $derived(
+    region?.mainRealm == null ? undefined : region.realms[region.mainRealm],
+  );
+  const ruler = $derived<Character | undefined>(region?.authority ?? undefined);
 
   /** What the roll records about itself: the resolved name set, as provenance (3.6). */
   let rolledNameSet = $state<string | undefined>(undefined);
-  const generatorConfig = $derived<RegionGeneratorConfigRecord>(
-    usedCulture || rolledNameSet === undefined ? {} : { nameSet: rolledNameSet },
-  );
+  const generatorConfig = $derived<RegionGeneratorConfigRecord>({
+    affiliation: rolledAffiliation,
+    generateNeighbors: rolledNeighbors,
+    ...(usedCulture || rolledNameSet === undefined ? {} : { nameSet: rolledNameSet }),
+  });
 
   /**
    * What is stored.
@@ -128,7 +137,11 @@
         ? {}
         : { nameSet: nameSetName };
 
+    config.affiliation = affiliation;
+    config.generateNeighbors = generateNeighbors;
     const rolled = Regions.rollRegion(seed, config, chosen);
+    rolledAffiliation = affiliation;
+    rolledNeighbors = generateNeighbors;
     rolledSeed = seed;
     usedCulture = chosen !== null;
     rolledNameSet = rolled.nameSet;
@@ -158,7 +171,7 @@
   }
 
   function replaceRulerHeraldry(arms: Arms) {
-    if (!region) return;
+    if (!region?.authority) return;
     region = { ...region, authority: { ...region.authority, heraldry: arms } };
   }
 
@@ -196,6 +209,17 @@
       options={nameSetOptions}
       disabled={useSavedCulture && culture !== undefined}
     />
+    <div class="input-group">
+      <label for="{uid}-affiliation">Affiliation</label>
+      <select id="{uid}-affiliation" bind:value={affiliation}>
+        <option value="random">Random (usually unaffiliated)</option>
+        <option value="unaffiliated">Unaffiliated</option>
+        <option value="affiliated">Affiliated</option>
+      </select>
+    </div>
+    <label
+      ><input type="checkbox" bind:checked={generateNeighbors} /> Generate neighboring realms</label
+    >
     <details>
       <summary>Use saved inputs</summary>
       <p>
@@ -260,31 +284,29 @@
       <RegionGazetteer snapshot={presentationSnapshot} />
     {/if}
 
+    <p>Affiliation: {region.affiliation === 'unaffiliated' ? 'Unaffiliated' : 'Affiliated'}</p>
     <details>
       <summary>Rulers and heraldry</summary>
 
-      {#if region.realms[region.mainRealm].parent != -1}
+      {#if mainRealm && mainRealm.parent != -1}
         <div class="parent-realm">
           <p>
-            {Words.title(region.name)} is part of {region.realms[
-              region.realms[region.mainRealm].parent
-            ].name}
+            {Words.title(region.name)} is part of {region.realms[mainRealm!.parent].name}
             <button
               type="button"
               class="heraldry-inline-target"
-              aria-label="View heraldry for {region.realms[region.realms[region.mainRealm].parent]
-                .name}"
+              aria-label="View heraldry for {region.realms[mainRealm!.parent].name}"
               onclick={() =>
                 openHeraldryModal(
-                  region!.realms[region!.realms[region!.mainRealm].parent].heraldry,
-                  region!.realms[region!.realms[region!.mainRealm].parent].name,
-                  (arms) => replaceRealmHeraldry(region!.realms[region!.mainRealm].parent, arms),
+                  region!.realms[mainRealm!.parent].heraldry,
+                  region!.realms[mainRealm!.parent].name,
+                  (arms) => replaceRealmHeraldry(mainRealm!.parent, arms),
                 )}
             >
               <!-- Renders app-generated markup (no external or user-supplied input). -->
               <!-- eslint-disable-next-line svelte/no-at-html-tags -->
               {@html renderHeraldryDeviceSvg(
-                region.realms[region.realms[region.mainRealm].parent].heraldry.device,
+                region.realms[mainRealm!.parent].heraldry.device,
                 20,
                 22,
                 rng,
@@ -361,8 +383,8 @@
                 {neighbor.authority.species.adjective}
                 {neighbor.authority.ageCategory.noun}.
               </p>
-              {#if region.realms[region.mainRealm].parent == index}
-                <p>{Words.title(region.realms[region.mainRealm].name)} is part of this.</p>
+              {#if mainRealm && mainRealm.parent == index}
+                <p>{Words.title(mainRealm!.name)} is part of this.</p>
               {/if}
             </div>
           </div>
@@ -372,7 +394,7 @@
       <h3>Nearby Realms</h3>
 
       {#each region.realms as neighbor, index}
-        {#if index != region.mainRealm && index != region.realms[region.mainRealm].parent && neighbor.parent != -1}
+        {#if index != region.mainRealm && index != mainRealm?.parent && neighbor.parent != -1}
           <div class="neighbor">
             <HeraldryEmblemButton
               arms={neighbor.heraldry}

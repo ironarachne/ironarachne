@@ -18,6 +18,8 @@ function fixture(seed = 'overview') {
     dominantCulture: null,
     mapWidth: 12,
     mapHeight: 10,
+    affiliation: 'affiliated',
+    generateNeighbors: true,
     minRealms: 1,
     maxRealms: 1,
   });

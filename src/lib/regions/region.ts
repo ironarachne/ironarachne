@@ -1,3 +1,4 @@
+import type { RegionAffiliation } from './region_affiliation_types';
 import { type Character } from '$lib/characters';
 import { type Culture } from '$lib/culture';
 import type { Environment } from '$lib/environment';
@@ -25,9 +26,10 @@ export default interface Region {
   /** Local identities survive a snapshot read and subsequent edit/save cycle. */
   settlementIds?: string[];
   facts?: RegionFacts;
-  mainRealm: number;
+  affiliation: RegionAffiliation;
+  mainRealm: number | null;
   realms: Realm[];
-  authority: Character;
+  authority: Character | null;
   organizations: Organization[];
   map: RegionMap;
 }

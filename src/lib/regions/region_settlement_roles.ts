@@ -310,7 +310,7 @@ export function generateHabitationFacts(region: Region, rng: RNG): void {
   const capital = roles.find(
     (role) => role.settlement.kind === 'embedded' && role.settlement.settlementId === capitalId,
   );
-  if (capital) {
+  if (capital && region.affiliation === 'affiliated') {
     const capitalRole: SettlementRoleFact = {
       ...structuredClone(capital),
       id: 'role:capital',

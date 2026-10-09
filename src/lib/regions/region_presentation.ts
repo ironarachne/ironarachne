@@ -240,7 +240,9 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
     culture !== null && isPrintable(culture.name)
       ? `The dominant culture here is the ${culture.name}.`
       : '',
-    `It is ruled by ${describeRuler(snapshot.authority)}.`,
+    snapshot.authority === null
+      ? 'This region is unaffiliated.'
+      : `It is ruled by ${describeRuler(snapshot.authority)}.`,
   ].filter(isPrintable);
 
   const realmLines = snapshot.realms.map((realm, index) => realmLine(realm, snapshot, index));
@@ -358,10 +360,11 @@ export function regionToMapSvg(snapshot: RegionSnapshot): string {
       id,
       ...(settlement.mapNodeId === undefined ? {} : { mapNodeId: settlement.mapNodeId }),
       isCapital:
-        capital === undefined
+        snapshot.affiliation === 'affiliated' &&
+        (capital === undefined
           ? index === 0 &&
             !snapshot.facts.settlementRoles.some((role) => role.id.startsWith('role:site:'))
-          : capital.settlement.kind === 'embedded' && capital.settlement.settlementId === id,
+          : capital.settlement.kind === 'embedded' && capital.settlement.settlementId === id),
       name: settlement.name,
       population: settlement.population,
       category: normalizeSettlementIconCategory(settlement.category.name),

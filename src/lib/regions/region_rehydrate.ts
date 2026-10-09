@@ -76,6 +76,7 @@ function realmFromStored(stored: StoredRealm): Realm {
 export function regionFromSnapshot(snapshot: RegionSnapshot, rng: RNG): Region {
   return {
     name: snapshot.name,
+    affiliation: snapshot.affiliation,
     description: snapshot.description,
     environment: snapshot.environment,
     dominantCulture:
@@ -87,7 +88,7 @@ export function regionFromSnapshot(snapshot: RegionSnapshot, rng: RNG): Region {
     facts: snapshot.facts,
     mainRealm: snapshot.mainRealm,
     realms: snapshot.realms.map(realmFromStored),
-    authority: characterFromStored(snapshot.authority),
+    authority: snapshot.authority === null ? null : characterFromStored(snapshot.authority),
     organizations: snapshot.organizations.map(organizationFromStored),
     map: snapshot.map,
   };

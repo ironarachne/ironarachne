@@ -69,7 +69,10 @@ describe('material links and migrations', () => {
     expect(old).not.toHaveProperty('regionalMaterialContext');
   });
   it('adds null to embedded v8 settlements without touching region facts or map', () => {
-    const snapshot = rollRegionSnapshot('region-material-migration');
+    const snapshot = rollRegionSnapshot('region-material-migration', {
+      affiliation: 'affiliated',
+      generateNeighbors: true,
+    });
     const old = {
       ...snapshot,
       settlements: snapshot.settlements.map((entry) => {

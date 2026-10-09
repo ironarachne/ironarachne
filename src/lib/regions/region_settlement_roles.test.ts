@@ -39,6 +39,7 @@ function fixture(nodes: MapNode[], edges: MapEdge[] = [], sites = [nodes[0].id])
       .sort((a, b) => a - b),
   });
   return {
+    affiliation: 'affiliated',
     map: { width: 30, height: 30, nodes, edges, corners: [] },
     facts,
     settlements: sites.map(

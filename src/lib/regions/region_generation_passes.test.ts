@@ -16,6 +16,8 @@ function snapshot(seed: string) {
       dominantCulture: null,
       mapWidth: 12,
       mapHeight: 10,
+      affiliation: 'affiliated',
+      generateNeighbors: true,
       minRealms: 1,
       maxRealms: 1,
     }),
@@ -223,6 +225,8 @@ describe('dependent generation passes', () => {
       dominantCulture: null,
       mapWidth: 12,
       mapHeight: 10,
+      affiliation: 'affiliated',
+      generateNeighbors: true,
       minRealms: 0,
       maxRealms: 0,
     });
@@ -246,6 +250,8 @@ describe('dependent generation passes', () => {
       dominantCulture: null,
       mapWidth: 12,
       mapHeight: 10,
+      affiliation: 'affiliated',
+      generateNeighbors: true,
       minRealms: 0,
       maxRealms: 0,
     });
@@ -279,6 +285,8 @@ describe('dependent generation passes', () => {
       dominantCulture: null,
       mapWidth: 12,
       mapHeight: 10,
+      affiliation: 'affiliated',
+      generateNeighbors: true,
       minRealms: 0,
       maxRealms: 0,
     });
