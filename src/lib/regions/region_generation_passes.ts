@@ -7,6 +7,7 @@ import { RNG } from '@ironarachne/rng';
 import { classifyAltitude, classifyRelief, measureRegionTerrain } from '$lib/map';
 import type Region from './region.js';
 export { generateEcologyRelationships } from './region_ecology_relationships.js';
+export { generateEcologyNarrative } from './region_ecology_narrative';
 export { generateEcologyInhabitants } from './region_ecology.js';
 export { generateLandscapeNames } from './region_landscape_names';
 export { generateHabitatFacts } from './region_habitats.js';

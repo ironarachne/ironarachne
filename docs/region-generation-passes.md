@@ -68,6 +68,11 @@ saved observations or prior facts. A random choice decides among supported candi
 is never evidence for a physical claim. Ore claims cite newly saved geological settings and deposits. Navigability, port, crossing and
 economic claims still require their own supporting facts.
 
+The `ecology-narrative` stage added by #395 runs after notable places. It selects supported local
+relationships through the shared narrative composer and saves the final Flora and fauna paragraph
+as an existing causal claim. Its draws do not affect other passes. Reading and export reuse saved
+words; see [regional ecology paragraph](region-ecology-paragraph.md).
+
 ## Domain model
 
 The persisted domain model is the accepted `RegionFacts`, `RegionArea`, `HabitatFact`, `ResourceFact`,

@@ -6,6 +6,8 @@
   import BaseButton from '$components/common/BaseButton.svelte';
   import {
     canRemoveRegionSettlement,
+    ECOLOGY_SUMMARY_ID,
+    setRegionResourceFactText,
     removeRegionPlace,
     regionFactsNeedingReview,
     setRealmText,
@@ -53,6 +55,9 @@
   const accepted = $derived(validateRegionSnapshot(snapshot));
   const region = $derived<RegionSnapshot | undefined>(accepted.ok ? accepted.value : undefined);
   const reviewFacts = $derived(region === undefined ? [] : regionFactsNeedingReview(region));
+  const ecologySummary = $derived(
+    region?.facts.claims.find((fact) => fact.id === ECOLOGY_SUMMARY_ID),
+  );
 
   /** Applies one edit. Every handler goes through here so `onChange` is called in one place. */
   function edit(change: (current: RegionSnapshot) => RegionSnapshot): void {
@@ -131,6 +136,27 @@
           edit((current) => setRegionText(current, 'description', event.currentTarget.value))}
       ></textarea>
     </div>
+
+    {#if ecologySummary}
+      <div class="input-group">
+        <label for="{uid}-ecology">Flora and fauna description</label>
+        <textarea
+          id="{uid}-ecology"
+          rows="4"
+          value={ecologySummary.description}
+          oninput={(event) =>
+            edit((current) =>
+              setRegionResourceFactText(
+                current,
+                'claims',
+                ECOLOGY_SUMMARY_ID,
+                'description',
+                event.currentTarget.value,
+              ),
+            )}
+        ></textarea>
+      </div>
+    {/if}
 
     <p>Affiliation: {region.affiliation === 'unaffiliated' ? 'Unaffiliated' : 'Affiliated'}</p>
     {#if region.affiliation === 'affiliated' && region.realms.length > 0}

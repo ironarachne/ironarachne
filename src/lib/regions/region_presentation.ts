@@ -13,6 +13,7 @@ import type { FactBase, SettlementTarget, RouteEndpoint } from './region_fact_ty
 import { regionSemanticFactLists } from './region_resource_editing';
 import { landscapeSummaryHeading } from './region_landscape_names';
 import { sameSettlement } from './region_livelihood_evidence';
+import { ECOLOGY_SUMMARY_ID, legacyEcologyParagraph } from './region_ecology_narrative';
 import type { DailyLifeCategory } from './region_livelihood_types';
 
 /** A titled list of lines; dropped entirely when it has no lines. */
@@ -232,6 +233,22 @@ export function regionFactExplanation(snapshot: RegionSnapshot, fact: FactBase):
   });
 }
 
+function ecologySections(snapshot: RegionSnapshot): RegionSection[] {
+  const summary = snapshot.facts.claims.find((fact) => fact.id === ECOLOGY_SUMMARY_ID);
+  const text = summary ? summary.description.trim() : legacyEcologyParagraph(snapshot);
+  if (!text) return [];
+  return [
+    {
+      heading: 'Flora and fauna',
+      lines: [
+        text +
+          (summary?.reason?.status === 'stale' ? ' [Supporting explanation needs review.]' : ''),
+      ],
+      ...(summary ? { factIds: [summary.id] } : {}),
+    },
+  ];
+}
+
 /** Arrange a region for reading. */
 export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
   const culture = snapshot.dominantCulture;
@@ -267,14 +284,7 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
             name: fact.origin === 'authored' ? fact.name : landscapeSummaryHeading(fact.name),
           })),
       ]),
-      ...factSections(
-        'Flora and fauna',
-        snapshot.facts.ecologyInhabitants.filter((fact) => fact.category !== 'fantastical'),
-      ),
-      ...factSections(
-        'Inhabitants',
-        snapshot.facts.ecologyInhabitants.filter((fact) => fact.category === 'fantastical'),
-      ),
+      ...ecologySections(snapshot),
       ...factSections(
         'Notable places',
         snapshot.facts.notables.filter((fact) => fact.kind === 'landmark'),
@@ -322,7 +332,8 @@ export function regionToMarkdown(snapshot: RegionSnapshot): string {
       blocks.push(
         section.lines
           .map((line, index) =>
-            section.heading === 'Landscape' && section.factIds?.[index] === 'area:land'
+            section.heading === 'Flora and fauna' ||
+            (section.heading === 'Landscape' && section.factIds?.[index] === 'area:land')
               ? line
               : `- ${line}`,
           )

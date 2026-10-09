@@ -32,6 +32,7 @@ export { generateGeologyFacts } from './region_geology';
 export { generateResourceFacts, isUsableRegionResource } from './region_resources';
 export type { RegionResourceCatalog } from './region_resource_rule_types';
 export * from './region_resource_editing';
+export { ECOLOGY_SUMMARY_ID } from './region_ecology_narrative';
 
 export type * from './region_processing_types';
 export { generateProcessingFacts } from './region_processing';

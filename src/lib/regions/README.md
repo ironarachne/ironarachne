@@ -166,9 +166,21 @@ and related causal claims without changing saved placements or names. A separate
 preserves the seat's identity when settlements are reordered. Rules use observed river/road edges,
 coastal ocean access, and suitable grassland or forest cells; unsupported sites retain a land-role
 description. Seeded narrative variants describe geography and political importance without
-generation diagnostics; settlement roles appear in each settlement’s character subsection, while Inhabitants
-contains living fantastical creatures. Loading preserves authored snapshots and facts. See
+generation diagnostics; settlement roles appear in each settlement’s character subsection. Flora and fauna
+uses one saved paragraph about locally important relationships, with occasional supported fantastical
+life included there. Loading preserves authored snapshots and facts. See
 [geographic settlement sites](../../../docs/region-settlement-sites.md).
+
+## Ecology paragraph
+
+`generateEcologyNarrative` runs after notable places on the isolated `ecology-narrative` stream.
+The shared narrative composer selects up to four relationship-backed meanings, prioritizing local
+uses and gathering hazards over feeding relationships. Mere presence is omitted. Fantastical
+candidates pass a one-in-ten admission draw, with at most one selected. The final words and selected
+evidence are saved as `claim:ecology-summary` in existing causal claims. Page and exports reuse those
+words, supporting edits mark the explanation stale, and the saved editor allows authored changes.
+Older snapshots use a bounded deterministic paragraph from saved relationship wording, without
+composition or migration. See [ecology paragraph](../../../docs/region-ecology-paragraph.md).
 
 ## Notable places
 

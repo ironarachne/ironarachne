@@ -174,6 +174,10 @@ test.describe('a region', () => {
       await realmName.pressSequentially('h');
       const description = panel.getByRole('textbox', { name: 'Region description' });
       await description.fill('An authored gazetteer entry.');
+      const ecologyField = panel.getByRole('textbox', { name: 'Flora and fauna description' });
+      const hasEcology = (await ecologyField.count()) > 0;
+      if (seed === 'alpha' || seed === 'bravo') await expect(ecologyField).toHaveCount(1);
+      if (hasEcology) await ecologyField.fill('Marsh reeds sustain local weaving.');
       await panel
         .getByRole('textbox', { name: 'Settlement 1 name', exact: true })
         .fill('Reviewtown');
@@ -195,6 +199,18 @@ test.describe('a region', () => {
       await expect(reopened.getByRole('textbox', { name: 'Region description' })).toHaveValue(
         'An authored gazetteer entry.',
       );
+      if (hasEcology) {
+        await expect(
+          reopened.getByRole('textbox', { name: 'Flora and fauna description' }),
+        ).toHaveValue('Marsh reeds sustain local weaving.');
+        const ecology = reopened.getByRole('region', { name: 'Flora and fauna', exact: true });
+        await expect(ecology).toContainText('Marsh reeds sustain local weaving.');
+        await expect(ecology.locator('h4')).toHaveCount(0);
+      } else {
+        await expect(
+          reopened.getByRole('textbox', { name: 'Flora and fauna description' }),
+        ).toHaveCount(0);
+      }
       await expect(reopened).toContainText('These saved facts need review');
     });
   }
@@ -287,6 +303,9 @@ test.describe('a region', () => {
     // Requirement 6.3. `region_map_svg.ts` had existed the whole time with one caller, a CLI
     // script, and the page never drew the map at all.
     await openGenerator(page);
+    // A fixed map makes the icon assertion reproducible; the seed bank covers other layouts.
+    await page.getByLabel('Seed', { exact: true }).fill('alpha');
+    await page.getByLabel('Lock Seed').check();
     await page.getByLabel('Affiliation', { exact: true }).selectOption('affiliated');
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
     await expect(page.locator('img.region-map')).toBeVisible();
@@ -321,11 +340,25 @@ test.describe('a region', () => {
       await expect(section.locator(':scope > h3')).toHaveCount(1);
       for (const article of await section.locator('article').all()) {
         await expect(article.locator(':scope > h4')).toHaveCount(
-          (await article.getAttribute('data-fact-id')) === 'area:land' ? 0 : 1,
+          (await article.getAttribute('data-fact-id')) === 'area:land' ||
+            (await section.locator(':scope > h3').innerText()) === 'Flora and fauna'
+            ? 0
+            : 1,
         );
       }
     }
     const gazetteerText = await page.locator('.gazetteer').textContent();
+    await expect(gazetteer.getByRole('heading', { name: 'Inhabitants', exact: true })).toHaveCount(
+      0,
+    );
+    const ecology = gazetteer
+      .locator('section')
+      .filter({ has: page.getByRole('heading', { name: 'Flora and fauna', exact: true }) });
+    if (await ecology.count()) {
+      await expect(ecology.locator('article')).toHaveCount(1);
+      await expect(ecology.locator('h4')).toHaveCount(0);
+      await expect(ecology.locator('[data-gazetteer-text]').first()).not.toBeEmpty();
+    }
     expect(gazetteerText).not.toMatch(/Recorded map|Recorded climate|isWater =|moisture =|road =/);
     const settlementCharacter = page.getByRole('region', {
       name: 'Settlements',

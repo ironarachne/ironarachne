@@ -375,11 +375,21 @@ describe('complete gazetteer exports', () => {
 });
 
 describe('sourcebook gazetteer', () => {
-  it('separates settlement character from living inhabitants in the page and exports', () => {
+  it('combines notable living inhabitants into saved ecology prose in the page and exports', () => {
     const edited = {
       ...snapshot,
       facts: {
         ...snapshot.facts,
+        claims: [
+          {
+            id: 'claim:ecology-summary',
+            name: 'Regional ecology',
+            description: 'Woodland guardians dwell among the trees and protect local gatherers.',
+            origin: 'authored' as const,
+            subjectId: 'area:land',
+            relatedIds: [],
+          },
+        ],
         ecologyInhabitants: [
           {
             ...snapshot.facts.ecologyInhabitants[0],
@@ -392,10 +402,13 @@ describe('sourcebook gazetteer', () => {
     };
     const document = regionToDocument(edited);
     const settlements = document.sections.find((section) => section.heading === 'Settlements')!;
-    const inhabitants = document.sections.find((section) => section.heading === 'Inhabitants')!;
+    const inhabitants = document.sections.find((section) => section.heading === 'Flora and fauna')!;
+    expect(document.sections.some((section) => section.heading === 'Inhabitants')).toBe(false);
     expect(settlements.lines.join(' ')).toContain('Regional capital');
     expect(settlements.lines.join(' ')).not.toContain('Woodland guardians');
-    expect(inhabitants.lines).toEqual(['Woodland guardians: Guardians dwell among the trees.']);
+    expect(inhabitants.lines).toEqual([
+      'Woodland guardians dwell among the trees and protect local gatherers.',
+    ]);
     for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
       for (const line of [...settlements.lines, ...inhabitants.lines].flatMap((line) =>
         line.split('\n\n'),

@@ -80,6 +80,7 @@ function realmHeading(realm: StoredRealm, index: number, mainRealm: number | nul
 }
 
 function factHeading(snapshot: RegionSnapshot, section: string, fact: FactBase): string {
+  if (section === 'Flora and fauna') return '';
   if (section === 'Landscape' && fact.id === 'area:land') return '';
   const name = displayName(fact.name, 'an Unnamed Feature');
   if (section === 'Landscape')
@@ -93,12 +94,10 @@ function factHeading(snapshot: RegionSnapshot, section: string, fact: FactBase):
   }
   const qualifiers: Record<string, string> = {
     Landscape: 'Landscape',
-    'Flora and fauna': 'Local Population',
     'Notable places': 'Landmark',
     Travel: 'Route',
     Hazards: 'Hazard',
   };
-  if (section === 'Inhabitants') return `The Local Inhabitants Known as ${name}`;
   return `The ${qualifiers[section]} of ${name}`;
 }
 
@@ -147,6 +146,7 @@ export function regionToUiDocument(snapshot: RegionSnapshot): RegionUiDocument {
       const factId = section.factIds?.[index];
       let entry: RegionUiEntry;
       if (factId) entry = factEntry(snapshot, section.heading, facts.get(factId)!);
+      else if (section.heading === 'Flora and fauna') entry = { heading: '', body: _line };
       else if (section.heading === 'Facts needing review') {
         entry = {
           heading: `A Review of ${displayName(review[index].name, 'an Unnamed Fact')}`,
