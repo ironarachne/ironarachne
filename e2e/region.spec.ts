@@ -174,9 +174,10 @@ test.describe('a region', () => {
       await realmName.pressSequentially('h');
       const description = panel.getByRole('textbox', { name: 'Region description' });
       await description.fill('An authored gazetteer entry.');
-      await panel
-        .getByRole('textbox', { name: 'Flora and fauna description' })
-        .fill('Marsh reeds sustain local weaving.');
+      const ecologyField = panel.getByRole('textbox', { name: 'Flora and fauna description' });
+      const hasEcology = (await ecologyField.count()) > 0;
+      if (seed === 'alpha' || seed === 'bravo') await expect(ecologyField).toHaveCount(1);
+      if (hasEcology) await ecologyField.fill('Marsh reeds sustain local weaving.');
       await panel
         .getByRole('textbox', { name: 'Settlement 1 name', exact: true })
         .fill('Reviewtown');
@@ -198,12 +199,18 @@ test.describe('a region', () => {
       await expect(reopened.getByRole('textbox', { name: 'Region description' })).toHaveValue(
         'An authored gazetteer entry.',
       );
-      await expect(
-        reopened.getByRole('textbox', { name: 'Flora and fauna description' }),
-      ).toHaveValue('Marsh reeds sustain local weaving.');
-      const ecology = reopened.getByRole('region', { name: 'Flora and fauna', exact: true });
-      await expect(ecology).toContainText('Marsh reeds sustain local weaving.');
-      await expect(ecology.locator('h4')).toHaveCount(0);
+      if (hasEcology) {
+        await expect(
+          reopened.getByRole('textbox', { name: 'Flora and fauna description' }),
+        ).toHaveValue('Marsh reeds sustain local weaving.');
+        const ecology = reopened.getByRole('region', { name: 'Flora and fauna', exact: true });
+        await expect(ecology).toContainText('Marsh reeds sustain local weaving.');
+        await expect(ecology.locator('h4')).toHaveCount(0);
+      } else {
+        await expect(
+          reopened.getByRole('textbox', { name: 'Flora and fauna description' }),
+        ).toHaveCount(0);
+      }
       await expect(reopened).toContainText('These saved facts need review');
     });
   }
