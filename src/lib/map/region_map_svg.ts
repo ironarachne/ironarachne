@@ -920,9 +920,17 @@ function collectScatterSymbols(
     const rawRotation = styleRng.float(-1, 1) * definition.rotationLimitDegrees;
     // Fit and cap trees at the same angle serialized into SVG, so rounding cannot break the ceiling.
     const rotation = isTreeGlyph(family) ? Number(rawRotation.toFixed(1)) : rawRotation;
+    // Grass and reeds also need half the minimum scale used by other open terrain.
+    const minimumScaleFactor = mountain
+      ? 0.65
+      : isTreeGlyph(family)
+        ? 0.35
+        : family === 'marsh' || family === 'prairie'
+          ? 0.25
+          : 0.5;
     const baseScale = Math.max(
       symbolFontSizeForNode(node, map) * definition.scaleFactor,
-      mapScale * (mountain ? 0.65 : isTreeGlyph(family) ? 0.35 : 0.5),
+      mapScale * minimumScaleFactor,
     );
     const treeCeiling = treeSizeCeiling(symbolFontSizeForNode(node, map), mapScale);
     const desiredScale = isTreeGlyph(family)
