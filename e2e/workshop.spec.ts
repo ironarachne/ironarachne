@@ -203,11 +203,15 @@ test.describe('the workshop bench', () => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await mountTool(page, /^Culture/);
 
-    const bench = await page.locator('.workshop__bench').boundingBox();
-    const tool = await page.locator('.workshop-panel--tool').boundingBox();
-    expect(bench).not.toBeNull();
-    expect(tool).not.toBeNull();
-    expect(Math.abs(tool!.width - bench!.width)).toBeLessThan(1);
+    // Completing generation opens the session-log column. Measure both widths in one
+    // layout state rather than letting that change fall between two browser round trips.
+    const widths = await page.evaluate(() => ({
+      bench: document.querySelector('.workshop__bench')?.getBoundingClientRect().width ?? null,
+      tool: document.querySelector('.workshop-panel--tool')?.getBoundingClientRect().width ?? null,
+    }));
+    expect(widths.bench).not.toBeNull();
+    expect(widths.tool).not.toBeNull();
+    expect(Math.abs(widths.tool! - widths.bench!)).toBeLessThan(1);
   });
 
   test('continues to let a lone artifact use the full bench width', async ({ page }) => {

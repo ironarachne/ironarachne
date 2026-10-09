@@ -107,6 +107,8 @@ test('saved regional materials survive editing and use current source evidence',
   await panel.getByRole('button', { name: 'Download PDF' }).click();
   expect((await pdf).suggestedFilename()).toMatch(/\.pdf$/);
   await page.setViewportSize({ width: 320, height: 740 });
+  // The sidebar keeps visibility during its closing slide after crossing the breakpoint.
+  await expect(page.locator('.sidebar')).toHaveCSS('visibility', 'hidden');
   await expectNoHorizontalOverflow(page);
   await page.setViewportSize({ width: 1280, height: 720 });
   panel = await openInWorkshop(page, 'Material region');

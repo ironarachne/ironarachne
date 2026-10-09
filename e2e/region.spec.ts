@@ -303,6 +303,9 @@ test.describe('a region', () => {
     // Requirement 6.3. `region_map_svg.ts` had existed the whole time with one caller, a CLI
     // script, and the page never drew the map at all.
     await openGenerator(page);
+    // A fixed map makes the icon assertion reproducible; the seed bank covers other layouts.
+    await page.getByLabel('Seed', { exact: true }).fill('alpha');
+    await page.getByLabel('Lock Seed').check();
     await page.getByLabel('Affiliation', { exact: true }).selectOption('affiliated');
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
     await expect(page.locator('img.region-map')).toBeVisible();
