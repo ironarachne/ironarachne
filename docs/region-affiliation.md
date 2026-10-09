@@ -223,4 +223,5 @@ resolved name-set provenance shifting the generation seed on reroll.
 
 The unit, type, lint and coverage gates passed: 6,995 unit tests and all 100 libraries above the
 coverage threshold. Region desktop lifecycle, export and seeded map-layout checks passed.
-The complete browser suite is still running at the time this record is written.
+`npm run verify:all` passed: 664 browser tests, including all five mobile widths; five optional
+golden-image tests were skipped.
