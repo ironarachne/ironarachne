@@ -39,7 +39,8 @@ describe('region entry headings', () => {
       for (const section of document.sections) {
         expect(section.entries.length).toBeGreaterThan(0);
         for (const entry of section.entries) {
-          if (entry.factId === 'area:land') expect(entry.heading).toBe('');
+          if (entry.factId === 'area:land' || section.heading === 'Flora and fauna')
+            expect(entry.heading).toBe('');
           else if (section.heading !== 'Landscape')
             expect(entry.heading).toMatch(/^(The |A Review |An Adventure )/);
           else expect(entry.heading).not.toContain('The Landscape of');

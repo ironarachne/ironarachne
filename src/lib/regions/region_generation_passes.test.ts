@@ -50,6 +50,7 @@ describe('dependent generation passes', () => {
     'generateLandscapeNames',
     'generateEcologyInhabitants',
     'generateEcologyRelationships',
+    'generateEcologyNarrative',
     'generateResourceFacts',
     'generateHabitationFacts',
     'generateNotableFacts',
@@ -123,6 +124,10 @@ describe('dependent generation passes', () => {
       expect(after.facts.supply).toEqual(before.facts.supply);
     expect(after.settlements).toEqual(before.settlements);
     expect(after.realms).toEqual(before.realms);
+    if (name === 'generateEcologyNarrative') {
+      expect(after.description).toEqual(before.description);
+      expect({ ...after.facts, claims: [] }).toEqual({ ...before.facts, claims: [] });
+    }
     expect(after.name).toEqual(before.name);
   });
 

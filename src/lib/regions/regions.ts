@@ -17,6 +17,7 @@ import {
   generateLandscapeNames,
   generateEcologyInhabitants,
   generateEcologyRelationships,
+  generateEcologyNarrative,
   generateResourceFacts,
   generateGeologyFacts,
   generateProcessingFacts,
@@ -304,6 +305,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   generateLivelihoodFacts(region, createRegionStageRng(seed, 'livelihoods'));
   generateSupplyFacts(region, createRegionStageRng(seed, 'supply'));
   generateNotableFacts(region, createRegionStageRng(seed, 'notable-places'));
+  generateEcologyNarrative(region, createRegionStageRng(seed, 'ecology-narrative'));
   presentRegion(region, createRegionStageRng(seed, 'presentation'));
   addNeighborsToRegion(region, stageConfig('neighbors'));
   return region;

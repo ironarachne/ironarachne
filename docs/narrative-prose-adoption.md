@@ -16,6 +16,12 @@ pools; candidate/template selections use explicit context across a stable ordere
 
 These consumers prove the engine, not completion of the application-wide goal.
 
+Region ecology reading paragraphs now use the composer under #395: current local-use,
+gathering-hazard and organism relationships supply bounded candidates, with occasional supported
+fantastical life. The words and selected evidence are persisted in an existing causal claim.
+Population and relationship fact descriptions remain supporting prose; this does not finish their
+independent adoption or the other region prose passes.
+
 ## Inventory and work items
 
 The baseline inventory searches TypeScript description writers, exported description/narrative

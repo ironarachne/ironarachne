@@ -23,10 +23,16 @@ the snapshot, so colons inside either are preserved rather than treated as parsi
 
 Qualifiers reflect the entry's kind and context: a saved capital city reads “The Capital City of
 Shadowreach,” while a town retains its town category. Capital identity follows the saved role,
-with the same legacy fallback as the map. Settlement roles, livelihoods, realms, populations,
+with the same legacy fallback as the map. Settlement roles, livelihoods, realms,
 landmarks, routes, hazards and organizations receive their own qualifiers. Route headings retain
 endpoint names. Repeated heading text is disambiguated with a visible entry ordinal, without
 exposing fact IDs. The snapshot and existing Markdown/PDF document remain unchanged.
+
+Under #395, Flora and fauna is a single unheaded paragraph drawn from the saved
+`claim:ecology-summary`, replacing population subheadings and the separate Inhabitants section.
+The page and exports use identical saved words and retain stale-explanation warnings. Older
+snapshots use a bounded paragraph of saved supported relationship wording without random
+composition. See [regional ecology paragraph](region-ecology-paragraph.md).
 
 ## Printing and maps
 
