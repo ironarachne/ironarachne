@@ -17,6 +17,8 @@ function configFor(seed: string, overrides: Partial<RegionGeneratorConfig> = {})
     dominantCulture: null,
     mapWidth: 12,
     mapHeight: 10,
+    affiliation: 'affiliated',
+    generateNeighbors: true,
     minRealms: 1,
     maxRealms: 2,
     rng,
@@ -67,13 +69,13 @@ describe('generate', () => {
   it('names the region after its main realm', () => {
     const region = generate(configFor('named'));
 
-    expect(region.name).toBe(region.realms[region.mainRealm].name);
+    expect(region.name).toBe(region.realms[region.mainRealm!].name);
   });
 
   it('takes its authority from the main realm', () => {
     const region = generate(configFor('authority'));
 
-    expect(region.authority).toBe(region.realms[region.mainRealm].authority);
+    expect(region.authority).toBe(region.realms[region.mainRealm!].authority);
   });
 
   it('makes the first realm the main realm', () => {

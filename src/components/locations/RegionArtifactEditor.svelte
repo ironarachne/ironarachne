@@ -132,7 +132,8 @@
       ></textarea>
     </div>
 
-    {#if region.realms.length > 0}
+    <p>Affiliation: {region.affiliation === 'unaffiliated' ? 'Unaffiliated' : 'Affiliated'}</p>
+    {#if region.affiliation === 'affiliated' && region.realms.length > 0}
       <div class="input-group input-group--inline">
         <label for="{uid}-seat">Seat of the region</label>
         <select

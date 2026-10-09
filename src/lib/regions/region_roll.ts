@@ -15,6 +15,7 @@
 
 import { RNG } from '@ironarachne/rng';
 
+import type { RegionAffiliationMode } from './region_affiliation_types';
 import type { Culture } from '$lib/culture';
 import * as Names from '$lib/names';
 
@@ -35,6 +36,8 @@ export const REGION_ANY_NAME_SET = 'any';
  */
 export type RegionGeneratorConfigRecord = {
   nameSet?: string;
+  affiliation?: RegionAffiliationMode;
+  generateNeighbors?: boolean;
 };
 
 /** Every name set the page offers, by name. */
@@ -56,7 +59,17 @@ export function readRegionGeneratorConfig(
     typeof config.nameSet === 'string' && regionNameSetNames().includes(config.nameSet)
       ? config.nameSet
       : undefined;
-  return named === undefined ? {} : { nameSet: named };
+  const legacy = config.affiliation === undefined && config.generateNeighbors === undefined;
+  return {
+    ...(named === undefined ? {} : { nameSet: named }),
+    affiliation: ['random', 'affiliated', 'unaffiliated'].includes(String(config.affiliation))
+      ? (config.affiliation as RegionAffiliationMode)
+      : legacy
+        ? 'affiliated'
+        : 'random',
+    generateNeighbors:
+      typeof config.generateNeighbors === 'boolean' ? config.generateNeighbors : legacy,
+  };
 }
 
 /** A rolled region, and the name set it actually used — which is what provenance records. */
@@ -80,13 +93,17 @@ export function rollRegion(
   const generatorConfig = getDefaultConfig(rng);
   const sets = Names.getAllFantasyNameGeneratorSets(rng);
 
+  // Always consume the selection draw: recorded resolved names must not shift the region seed.
+  const fallback = rng.item(sets);
   const chosen =
     config.nameSet === undefined
-      ? rng.item(sets)
-      : (sets.find((set) => set.name === config.nameSet) ?? rng.item(sets));
+      ? fallback
+      : (sets.find((set) => set.name === config.nameSet) ?? fallback);
 
   generatorConfig.nameGeneratorSet = chosen;
   generatorConfig.dominantCulture = culture;
+  generatorConfig.affiliation = config.affiliation ?? 'random';
+  generatorConfig.generateNeighbors = config.generateNeighbors ?? false;
 
   const region = generate(generatorConfig);
   return { region, nameSet: culture === null ? chosen.name : culture.nameGenerators.name };

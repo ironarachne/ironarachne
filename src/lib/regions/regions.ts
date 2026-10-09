@@ -1,4 +1,3 @@
-import { type Character } from '$lib/characters';
 import type { Environment } from '$lib/environment';
 import { Environments } from '$lib/environment';
 import * as Characters from '$lib/characters';
@@ -43,6 +42,7 @@ import {
   type ReliefClass,
 } from '$lib/map';
 
+import { generateRegionGeographicName } from './region_landscape_names';
 import type { RegionTerrainProfile } from './region_generation_types.js';
 
 function createEmptyRegion(): Region {
@@ -52,9 +52,10 @@ function createEmptyRegion(): Region {
     description: '',
     dominantCulture: null,
     settlements: [] as Settlement[],
-    mainRealm: 0,
+    affiliation: 'unaffiliated',
+    mainRealm: null,
     realms: [] as Realm[],
-    authority: {} as Character,
+    authority: null,
     organizations: [] as Organization[],
     map: {} as RegionMap, // Will be populated
   };
@@ -155,7 +156,13 @@ function populateRegionInhabitants(
   environment: Environment,
   nameGenSet: Names.NameGeneratorSet,
 ): void {
-  region.settlements = randomSettlements(environment, nameGenSet, config.rng, region.map);
+  region.settlements = randomSettlements(
+    environment,
+    nameGenSet,
+    config.rng,
+    region.map,
+    region.affiliation === 'affiliated',
+  );
   const townIds = region.settlements
     .map((s) => s.mapNodeId)
     .filter((id) => id !== undefined) as number[];
@@ -182,8 +189,7 @@ function generateParentRealm(
 }
 
 /**
- * The region's main realm, the realm above it if it has one, and a handful of neighbours — some of
- * which are vassals of the main realm's parent, and some of which bring a parent of their own.
+ * An affiliated region's main realm and its required parent. Optional neighbors use another stream.
  */
 function addRealmsToRegion(
   region: Region,
@@ -194,6 +200,7 @@ function addRealmsToRegion(
   realmGenConfig.rng = config.rng;
   realmGenConfig.nameGeneratorSet = nameGenSet;
 
+  if (region.affiliation === 'unaffiliated') return;
   const mainRealm = Realms.generate(realmGenConfig);
   region.realms.push(mainRealm);
   region.mainRealm = 0;
@@ -205,6 +212,15 @@ function addRealmsToRegion(
     mainRealm.parent = 1;
   }
 
+  region.authority = mainRealm.authority;
+  region.name = mainRealm.name;
+}
+
+function addNeighborsToRegion(region: Region, config: RegionGeneratorConfig): void {
+  if (!config.generateNeighbors) return;
+  const realmGenConfig = Realms.getDefaultConfig();
+  realmGenConfig.rng = config.rng;
+  const mainRealm = region.mainRealm === null ? null : region.realms[region.mainRealm];
   const numberOfNeighbors = config.rng.int(config.minRealms, config.maxRealms);
   for (let i = 0; i < numberOfNeighbors; i++) {
     realmGenConfig.nameGeneratorSet = Names.getFantasyNameGeneratorSet('tiefling', config.rng);
@@ -214,7 +230,11 @@ function addRealmsToRegion(
     }
     const neighbor = Realms.generate(realmGenConfig);
     if (!neighbor.realmType.isStandalone) {
-      if (config.rng.int(1, 100) > 50) {
+      if (
+        config.rng.int(1, 100) > 50 &&
+        mainRealm?.parent !== undefined &&
+        mainRealm.parent !== -1
+      ) {
         neighbor.parent = mainRealm.parent;
       } else {
         region.realms.push(
@@ -229,9 +249,6 @@ function addRealmsToRegion(
     }
     region.realms.push(neighbor);
   }
-
-  region.authority = mainRealm.authority;
-  region.name = mainRealm.name;
 }
 
 export function generate(config: RegionGeneratorConfig): Region {
@@ -244,6 +261,13 @@ export function generate(config: RegionGeneratorConfig): Region {
     ...config,
     rng: createRegionStageRng(seed, stage),
   });
+  region.affiliation =
+    config.affiliation === 'random'
+      ? createRegionStageRng(seed, 'affiliation').weighted([
+          { value: 'unaffiliated' as const, commonality: 3 },
+          { value: 'affiliated' as const, commonality: 1 },
+        ])
+      : config.affiliation;
   const physicalConfig = stageConfig('physical-geography');
   const profile = chooseTerrainProfile(physicalConfig.rng);
   const latitude = chooseLatitude(physicalConfig.rng);
@@ -270,6 +294,9 @@ export function generate(config: RegionGeneratorConfig): Region {
   populateRegionInhabitants(region, habitationConfig, region.environment, habitationNames);
   region.map = generateRiverGeometry(region.map, createRegionStageRng(seed, 'river-geometry'));
   addRealmsToRegion(region, habitationConfig, habitationNames);
+  if (region.affiliation === 'unaffiliated') {
+    region.name = generateRegionGeographicName(region, createRegionStageRng(seed, 'region-name'));
+  }
   region.settlementIds = region.settlements.map((_, index) => `settlement:${index + 1}`);
   generateHabitationFacts(region, habitationConfig.rng);
   generateEcologyRelationships(region, createRegionStageRng(seed, 'ecology-relationships'));
@@ -278,6 +305,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   generateSupplyFacts(region, createRegionStageRng(seed, 'supply'));
   generateNotableFacts(region, createRegionStageRng(seed, 'notable-places'));
   presentRegion(region, createRegionStageRng(seed, 'presentation'));
+  addNeighborsToRegion(region, stageConfig('neighbors'));
   return region;
 }
 
@@ -310,6 +338,8 @@ export function getDefaultConfig(rng: RNG.RNG): RegionGeneratorConfig {
     dominantCulture: null,
     mapWidth: 40,
     mapHeight: 30,
+    affiliation: 'random',
+    generateNeighbors: false,
     minRealms: 2,
     maxRealms: 4,
     rng,
@@ -344,6 +374,7 @@ function randomSettlements(
   nameGeneratorSet: Names.NameGeneratorSet,
   rng: RNG.RNG,
   map: RegionMap,
+  affiliated: boolean,
 ): Settlement[] {
   const settlementGenConfig = Settlements.getDefaultConfig(rng);
   settlementGenConfig.rng = rng;
@@ -356,7 +387,7 @@ function randomSettlements(
   const numberOfSmallTowns = rng.int(3, 5);
   const towns = [];
 
-  capital.description += ' This is the capital of the region.';
+  if (affiliated) capital.description += ' This is the capital of the region.';
   towns.push(capital);
 
   for (let i = 0; i < numberOfMediumTowns; i++) {

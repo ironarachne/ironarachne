@@ -15,7 +15,10 @@ import type { RegionFacts } from './region_fact_types';
  * species object, a charge's rendering closure, a realm type's table row — so those are checked by
  * name rather than by identity.
  */
-const region = rollRegion('round-trip-seed').region;
+const region = rollRegion('round-trip-seed', {
+  affiliation: 'affiliated',
+  generateNeighbors: true,
+}).region;
 
 describe('a region snapshot', () => {
   const snapshot = toRegionSnapshot(region);
@@ -118,8 +121,8 @@ describe('a region snapshot', () => {
   });
 
   it('keeps the region’s own ruler', () => {
-    expect(restored.authority.firstName).toEqual(region.authority.firstName);
-    expect(restored.authority.species.name).toEqual(region.authority.species.name);
+    expect(restored.authority!.firstName).toEqual(region.authority!.firstName);
+    expect(restored.authority!.species.name).toEqual(region.authority!.species.name);
   });
 
   it('carries no functions into storage', () => {

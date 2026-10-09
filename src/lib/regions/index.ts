@@ -1,3 +1,4 @@
+export type * from './region_affiliation_types';
 export type { default as Region } from './region';
 export {
   buildRegionCreatureContext,

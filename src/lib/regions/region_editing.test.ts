@@ -14,7 +14,10 @@ import { emptyRegionFacts } from './region_facts';
 import { validateRegionSnapshot } from './region_artifact_kind';
 import { regionToMarkdown, regionToText, regionToMapSvg } from './region_presentation';
 
-const snapshot = rollRegionSnapshot('editing-seed');
+const snapshot = rollRegionSnapshot('editing-seed', {
+  affiliation: 'affiliated',
+  generateNeighbors: true,
+});
 
 describe('the fixture these edits are made against', () => {
   it('has the realms and settlements the edits below address', () => {

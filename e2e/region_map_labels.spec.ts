@@ -5,6 +5,7 @@ import { REGION_SEED_BANK } from '../test_fixtures/region_seeds';
 for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'delta', 'echo'])]) {
   test(`region map text stays within its reserved bounds: ${seed}`, async ({ page }) => {
     await visitRoute(page, '/region');
+    await page.getByLabel('Affiliation', { exact: true }).selectOption('affiliated');
     await page.getByLabel('Seed', { exact: true }).fill(seed);
     await page.getByLabel('Lock Seed').check();
     await page.getByRole('button', { name: 'Generate', exact: true }).click();

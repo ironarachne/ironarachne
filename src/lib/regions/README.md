@@ -3,7 +3,10 @@
 This library generates a **region**: the largest single thing the site produces in one go. It generates
 an environment and map from shared physical inputs, places settlements on suitable cells, runs
 roads between those settlements, invents the realms that claim the territory and the organizations
-operating in it, and takes its own name and ruler from the realm that holds it.
+operating in it. Affiliated regions take their name and ruler from a main realm; unaffiliated
+regions have geographic names and locally governed settlements without a capital. Affiliation
+defaults to random (3:1 toward unaffiliated), and optional political neighbors default to off.
+See [region affiliation](../../../docs/region-affiliation.md).
 
 It is a composition library — nearly all the work belongs to
 [`$lib/map`](../map/README.md), [`$lib/environment`](../environment/README.md),
@@ -19,12 +22,12 @@ seed streams, migrations and concrete extension examples.
 ## Features
 
 - **`Region`** — `name`, `map`, `environment`, `description`, `dominantCulture`, `settlements`,
-  `realms` (with `mainRealm` as an index into them), `authority`, and `organizations`.
+  `affiliation`, `realms` (with nullable `mainRealm` as an index into them), nullable `authority`, and `organizations`.
   `dominantCulture` is `Culture | null`: the generator only sets it when a caller supplies one, and
   it used to leave `{} as Culture` behind otherwise — an empty object claiming to be a `Culture`,
   which every reader had to guard against by testing a field for `undefined`.
 - **`RegionGeneratorConfig`** — name generators, an optional dominant culture, map dimensions, the
-  realm count range, and the `RNG`.
+  affiliation mode, neighbor toggle, realm count range, and the `RNG`.
 - **`generate`** / **`getDefaultConfig`**. The config helper takes the RNG it should draw from;
   it used to seed both that RNG _and_ its fallback name generator set from the clock, so a caller
   that overwrote the first still got clock-driven names.
@@ -39,14 +42,16 @@ seed streams, migrations and concrete extension examples.
 import { generate, getDefaultConfig } from '$lib/regions';
 
 const config = getDefaultConfig(rng);
+config.affiliation = 'unaffiliated';
+config.generateNeighbors = false;
 config.minRealms = 2;
 config.maxRealms = 4;
 
 const region = generate(config);
 
-region.name; // taken from the realm that holds it
+region.name; // a geographic name or the name of the main realm
 region.settlements.length;
-region.realms[region.mainRealm];
+region.mainRealm === null ? null : region.realms[region.mainRealm];
 ```
 
 Give the region a culture and everything inside it is named consistently — the culture's name
@@ -82,12 +87,12 @@ The modules the readiness pass gives every Release-ready tool
   charge art. Writing, listing and validating reach none of it. Almost no conversion work is here:
   every part of a region already had a stored form by the time this tool reached the front of the
   pass, which is the whole point of the ordering.
-- **`region_artifact_kind.ts`** — kind `region`, payload version 9. Its validator composes the
+- **`region_artifact_kind.ts`** — kind `region`, payload version 11. Its validator composes the
   culture, settlement, organization and character validators rather than reimplementing them.
 - **`region_fact_types.ts`** / **`region_facts.ts`** — the versioned semantic fact vocabulary and
   graph validation. Embedded settlements have region-local IDs; areas, habitats, settlement roles,
   notable places, resources, routes and causal claims cite those IDs or IDs in the saved map.
-  Current facts are version 6, independently of payload version 9. Migration initializes missing
+  Current facts are version 6, independently of payload version 11. Migration initializes missing
   lists without generating causes; payloads 1–2 receive empty `legacy` facts. See the
   [migration table](../../../docs/region-authoring.md#migrations-and-authored-content) for each
   supported version. Existing map, environment, identities and authored text are preserved.

@@ -59,7 +59,7 @@ describe('rolling a region', () => {
   });
 
   it('produces a map, settlements and realms', () => {
-    const region = rollRegion('populated').region;
+    const region = rollRegion('populated', { affiliation: 'affiliated' }).region;
     expect(region.map.nodes.length).toBeGreaterThan(0);
     expect(region.realms.length).toBeGreaterThan(0);
     expect(region.settlements.length).toBeGreaterThan(0);
@@ -77,19 +77,35 @@ describe('the name sets on offer', () => {
 describe('reading a stored generator config', () => {
   it('reads back what the page recorded', () => {
     const name = regionNameSetNames()[0];
-    expect(readRegionGeneratorConfig({ nameSet: name })).toEqual({ nameSet: name });
+    expect(readRegionGeneratorConfig({ nameSet: name })).toEqual({
+      nameSet: name,
+      affiliation: 'affiliated',
+      generateNeighbors: true,
+    });
   });
 
   it('drops a name set this build no longer has', () => {
-    expect(readRegionGeneratorConfig({ nameSet: 'atlantean' })).toEqual({});
+    expect(readRegionGeneratorConfig({ nameSet: 'atlantean' })).toEqual({
+      affiliation: 'affiliated',
+      generateNeighbors: true,
+    });
   });
 
   it('drops the page value that means the seed chooses', () => {
-    expect(readRegionGeneratorConfig({ nameSet: REGION_ANY_NAME_SET })).toEqual({});
+    expect(readRegionGeneratorConfig({ nameSet: REGION_ANY_NAME_SET })).toEqual({
+      affiliation: 'affiliated',
+      generateNeighbors: true,
+    });
   });
 
-  it('reads an empty config as no settings at all', () => {
-    expect(readRegionGeneratorConfig({})).toEqual({});
-    expect(readRegionGeneratorConfig({ nameSet: 7 })).toEqual({});
+  it('reads old settings with historical affiliation and neighbors', () => {
+    expect(readRegionGeneratorConfig({})).toEqual({
+      affiliation: 'affiliated',
+      generateNeighbors: true,
+    });
+    expect(readRegionGeneratorConfig({ nameSet: 7 })).toEqual({
+      affiliation: 'affiliated',
+      generateNeighbors: true,
+    });
   });
 });

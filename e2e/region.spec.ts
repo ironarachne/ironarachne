@@ -97,9 +97,54 @@ test.describe('a region', () => {
     await createProject(page, 'The Marches');
   });
 
+  test('saves and reopens an unaffiliated region with optional political neighbors', async ({
+    page,
+  }) => {
+    await openGenerator(page);
+    await expect(page.getByLabel('Affiliation', { exact: true })).toHaveValue('random');
+    await expect(page.getByLabel('Generate neighboring realms')).not.toBeChecked();
+    await page.getByLabel('Affiliation', { exact: true }).selectOption('unaffiliated');
+    await page.getByLabel('Seed', { exact: true }).fill('unaffiliated-browser');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    await expect(page.getByText('Affiliation: Unaffiliated', { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /^Ruler:/ })).toHaveCount(0);
+    const before = await page.locator('img.region-map').getAttribute('src');
+    await page.getByLabel('Generate neighboring realms').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    await expect(page.locator('img.region-map')).toHaveAttribute('src', before!);
+    await saveAs(page, 'Free Country');
+    const panel = await openInWorkshop(page, 'Free Country');
+    await expect(panel.getByText('Affiliation: Unaffiliated', { exact: true })).toBeVisible();
+    await expect(panel.getByLabel('Seat of the region')).toHaveCount(0);
+    await expect(panel.getByRole('textbox', { name: 'Realm 1 name', exact: true })).toBeVisible();
+    await panel.getByRole('textbox', { name: 'Region name', exact: true }).fill('The Free Reaches');
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+    await page.reload({ waitUntil: 'load' });
+    const reopened = await openInWorkshop(page, 'Free Country');
+    await expect(reopened.getByRole('textbox', { name: 'Region name', exact: true })).toHaveValue(
+      'The Free Reaches',
+    );
+    await expect(reopened.getByLabel('Seat of the region')).toHaveCount(0);
+    await reopened.getByRole('button', { name: 'Roll again', exact: true }).click();
+    await page
+      .getByRole('alertdialog')
+      .getByRole('button', { name: 'Roll again', exact: true })
+      .click();
+    await expect(
+      reopened.getByRole('textbox', { name: 'Region name', exact: true }),
+    ).not.toHaveValue('The Free Reaches');
+    await expect(reopened.getByText('Affiliation: Unaffiliated', { exact: true })).toBeVisible();
+    await expect(
+      reopened.getByRole('textbox', { name: 'Realm 1 name', exact: true }),
+    ).toBeVisible();
+  });
+
   for (const { seed, contrast } of REGION_SEED_BANK) {
     test(`is generated, saved, reopened, and edited: ${contrast}`, async ({ page }) => {
       await openGenerator(page);
+      await page.getByLabel('Affiliation', { exact: true }).selectOption('affiliated');
       await page.getByLabel('Seed', { exact: true }).fill(seed);
       await page.getByLabel('Lock Seed').check();
       await page.getByRole('button', { name: 'Generate', exact: true }).click();
@@ -221,6 +266,9 @@ test.describe('a region', () => {
     // Requirement 4.2: the description may have been rewritten by hand, and a generator that
     // quietly corrects it is regenerating over the user's work.
     await openGenerator(page);
+    await page.getByLabel('Affiliation', { exact: true }).selectOption('affiliated');
+    await page.getByLabel('Generate neighboring realms').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
     await saveAs(page, 'Riverlands');
 
     const panel = await openInWorkshop(page, 'Riverlands');
@@ -239,6 +287,8 @@ test.describe('a region', () => {
     // Requirement 6.3. `region_map_svg.ts` had existed the whole time with one caller, a CLI
     // script, and the page never drew the map at all.
     await openGenerator(page);
+    await page.getByLabel('Affiliation', { exact: true }).selectOption('affiliated');
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
     await expect(page.locator('img.region-map')).toBeVisible();
 
     const download = page.waitForEvent('download');
@@ -256,6 +306,8 @@ test.describe('a region', () => {
 
   test('downloads a gazetteer a referee can take to the table', async ({ page }) => {
     await openGenerator(page);
+    await page.getByLabel('Affiliation', { exact: true }).selectOption('affiliated');
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
     const heading = await page.locator('section.main h2').first().innerText();
     const gazetteer = page.locator('.gazetteer');
     const entryHeadings = gazetteer.locator('article > h4');

@@ -60,15 +60,16 @@ function settlementHeading(snapshot: RegionSnapshot, id: string, index: number):
   const settlement = snapshot.settlements[index].snapshot;
   const capital = snapshot.facts.settlementRoles.find((role) => role.id === 'role:capital');
   const isCapital =
-    capital === undefined
+    snapshot.affiliation === 'affiliated' &&
+    (capital === undefined
       ? index === 0 &&
         !snapshot.facts.settlementRoles.some((role) => role.id.startsWith('role:site:'))
-      : capital.settlement.kind === 'embedded' && capital.settlement.settlementId === id;
+      : capital.settlement.kind === 'embedded' && capital.settlement.settlementId === id);
   const category = title(settlement.category.name.trim() || 'settlement');
   return `The ${isCapital ? 'Capital ' : ''}${category} of ${displayName(settlement.name, 'an Unnamed Settlement')}`;
 }
 
-function realmHeading(realm: StoredRealm, index: number, mainRealm: number): string {
+function realmHeading(realm: StoredRealm, index: number, mainRealm: number | null): string {
   const type = realm.realmTypeName.trim() || 'realm';
   const name = displayName(realm.name, 'an Unnamed Realm');
   const prefix = `the ${type} of `;
