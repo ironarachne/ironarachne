@@ -182,13 +182,21 @@ describe('geographic settlement roles', () => {
 
   it('records paths through intermediate cells without inventing disconnected links', () => {
     const region = fixture(
-      [node(5), node(9), node(11), node(20)],
+      [node(5), node(9, { biomeId: 'woodland' }), node(11), node(20)],
       [edge(70, 5, 9, 0, 1), edge(71, 9, 11, 0, 1), edge(72, 11, undefined, 0, 1)],
       [5, 11, 20],
     );
     const facts = derive(region);
     expect(facts.routes).toHaveLength(1);
     expect(facts.routes[0].anchor).toEqual({ nodeIds: [11, 9, 5], edgeIds: [71, 70] });
+    expect(facts.routes[0].description).toMatch(/forest|woodland/);
+    expect(facts.routes[0].description).toContain('Hook:');
+    expect(facts.routes[0].reason?.sources).toContainEqual({
+      kind: 'map-node',
+      nodeId: 9,
+      property: 'biomeId',
+      observedValue: 'woodland',
+    });
     expect(facts.claims[0].relatedIds).toContain(facts.routes[0].id);
     expect(
       facts.routes[0].endpoints.map(

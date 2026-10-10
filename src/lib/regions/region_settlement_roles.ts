@@ -1,6 +1,7 @@
 import { isUsableRegionResource } from './region_resources';
 import type { NarrativeContext } from '$lib/narrative';
 import { settlementRoleNarrative } from './region_narrative';
+import { roadNarrative } from './region_road_narrative';
 import type { RNG } from '@ironarachne/rng';
 import { Suitability, type MapNode, type MapEdge, type RegionMap } from '$lib/map';
 import type Region from './region.js';
@@ -195,7 +196,8 @@ function roadPaths(map: RegionMap, start: number) {
   return previous;
 }
 
-function addRoadRelationships(region: Region, roles: SettlementRoleFact[]): void {
+function addRoadRelationships(region: Region, roles: SettlementRoleFact[], rng: RNG): void {
+  let context: NarrativeContext = { recentSelections: [] };
   // Each connected component has a stable root, independent of the settlement list order.
   const connected = new Set<string>();
   for (const root of roles) {
@@ -217,6 +219,14 @@ function addRoadRelationships(region: Region, roles: SettlementRoleFact[]): void
       }
       connected.add(target.id);
       const id = `route:road:${root.id}:${target.id}`;
+      const narrative = roadNarrative(
+        id,
+        nodeIds.map((nodeId) => region.map.nodes.find((node) => node.id === nodeId)!),
+        edges,
+        context,
+        rng,
+      );
+      context = narrative.nextContext;
       const areas = region.facts!.areas.filter((area) =>
         area.mapNodeIds.some((node) => nodeIds.includes(node)),
       );
@@ -225,18 +235,17 @@ function addRoadRelationships(region: Region, roles: SettlementRoleFact[]): void
         name: 'Settlement road',
         kind: 'road',
         origin: 'generated',
-        description:
-          'A road runs between these settlements, binding their places in the surrounding country together.',
+        description: narrative.text,
         areaIds: areas.map((area) => area.id),
         anchor: { nodeIds, edgeIds: edges.map((edge) => edge.id) },
         endpoints: [
           { kind: 'settlement', settlement: root.settlement },
           { kind: 'settlement', settlement: target.settlement },
         ],
-        reason: reason(
-          'settlement-road',
-          edges.map((edge) => edgeObservation(edge, 'road')),
-        ),
+        reason: reason('settlement-road-narrative', [
+          ...edges.map((edge) => edgeObservation(edge, 'road')),
+          ...narrative.sources,
+        ]),
       });
       region.facts!.claims.push({
         id: `claim:${id}`,
@@ -305,7 +314,6 @@ export function generateHabitationFacts(region: Region, rng: RNG): void {
     context = result.nextContext;
   }
   region.facts!.settlementRoles.push(...roles);
-  addRoadRelationships(region, roles);
   const capitalId = region.settlementIds?.[0];
   const capital = roles.find(
     (role) => role.settlement.kind === 'embedded' && role.settlement.settlementId === capitalId,
@@ -326,4 +334,5 @@ export function generateHabitationFacts(region: Region, rng: RNG): void {
     ).text;
     region.facts!.settlementRoles.push(capitalRole);
   }
+  addRoadRelationships(region, roles, rng);
 }
