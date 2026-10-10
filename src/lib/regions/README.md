@@ -106,7 +106,8 @@ The modules the readiness pass gives every Release-ready tool
   across the region. See [landscape names](../../../docs/region-landscape-names.md).
 - **`region_presentation.ts`** — one gazetteer document shared by the page, saved editor,
   Markdown and PDF text, plus `regionToMapSvg` and `regionMapDataUrl`. Landscape, flora/fauna,
-  inhabitants, notable places, travel and hazards reuse saved descriptions; empty
+  inhabitants, notable places, travel and hazards reuse saved descriptions; road paragraphs
+  select path-supported scenery or travel conditions with matching adventure hooks; empty
   sections disappear. Each settlement includes daily-life and supply-needs paragraphs and a
   settlement-character subsection. Generated livelihoods use one representative per settlement/topic and
   supply one per settlement; all authored narrative entries remain. Stale assertions are marked
