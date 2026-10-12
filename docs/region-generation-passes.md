@@ -105,3 +105,11 @@ The [data-flow and rule-authoring guide](region-authoring.md) maps these stages 
 modules, explains payload/fact versions and references, and gives concrete extension paths.
 Separate streams isolate random draws; they do not provide a partial-regeneration API. The
 implemented [edit contract](region-edit-consistency.md) supports whole-region rerolls only.
+
+The `mountain-ranges` stage added by #416 runs after landscape naming and before ecology
+inhabitants. Pure map detection records qualifying mountain components and ordered spines;
+only range naming and narrative composition consume this stage's RNG. Existing habitat
+names are reserved without consuming their stream. The overview and later region naming
+may intentionally use the newly saved ranges. Payload version 12 / facts version 7 migrates
+old results with an empty list rather than detecting ranges on read. See
+[regional mountain ranges](region-mountain-ranges.md).

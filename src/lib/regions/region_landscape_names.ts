@@ -80,7 +80,7 @@ function namingNouns(
   return nouns;
 }
 
-function namingDirections(nodes: MapNode[], map: RegionMap): LandscapeDirection[] {
+export function namingDirections(nodes: MapNode[], map: RegionMap): LandscapeDirection[] {
   const supports = (test: (node: MapNode) => boolean) =>
     nodes.filter(test).length * 3 >= nodes.length * 2;
   const north = supports((node) => node.center.y < map.height / 3);
@@ -173,7 +173,12 @@ export function generateRegionGeographicName(region: Region, rng: RNG): string {
             ),
           }),
     },
-    { usedNames: region.facts?.areas.map((area) => area.name) ?? [], recentStyles: [] },
+    {
+      usedNames: [...(region.facts?.areas ?? []), ...(region.facts?.mountainRanges ?? [])].map(
+        (area) => area.name,
+      ),
+      recentStyles: [],
+    },
     rng,
   ).name;
 }

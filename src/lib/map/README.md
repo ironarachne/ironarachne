@@ -198,3 +198,17 @@ inputs without a category fall back to the existing settlement population table.
 See [the accepted design](../../../docs/region-settlement-icons.md). Render the catalog with
 `npx vite-node scripts/render_settlement_icons.ts --out /tmp/settlement-icons.svg`; region previews
 continue to use `npm run render:region -- --seed alpha --svg-out /tmp/region.svg`.
+
+### Mountain ranges
+
+`detectMountainRanges(map)` recognizes bounded, elongated ridges in the realized mountain
+cells without changing terrain or consuming randomness. `mountainRangeGeometryError`
+checks saved memberships and ordered spines; `mountainRangeCandidates` exposes candidate
+components for diagnostic review. Node references use IDs rather than array positions.
+
+The region adapter supplies saved ranges separately through `RegionMapSvgOptions.mountainRanges`.
+The renderer follows their spines with upright peak silhouettes, joined tapered saddles,
+shared spacing, and the existing clearance and label reservations. Bare graphs retain
+individual mountains. Drawings and labels are derived; rendering never detects new facts.
+See [the design](../../../docs/region-mountain-ranges.md) and
+[visual review](../../../docs/region-mountain-ranges-416/README.md).

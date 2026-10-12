@@ -9,6 +9,7 @@
     ECOLOGY_SUMMARY_ID,
     setRegionResourceFactText,
     removeRegionPlace,
+    removeRegionResourceFact,
     regionFactsNeedingReview,
     setRealmText,
     setRegionMainRealm,
@@ -174,6 +175,53 @@
         </select>
       </div>
     {/if}
+
+    {#each region.facts.mountainRanges as range, index (range.id)}
+      <fieldset>
+        <legend>Mountain range {index + 1}</legend>
+        {@render textRow(
+          `${uid}-range-${index}-name`,
+          `Mountain range ${index + 1} name`,
+          range.name,
+          (next) =>
+            edit((current) =>
+              setRegionResourceFactText(current, 'mountainRanges', range.id, 'name', next),
+            ),
+        )}
+        <div class="input-group">
+          <label for="{uid}-range-{index}-description">Mountain range {index + 1} description</label
+          >
+          <textarea
+            id="{uid}-range-{index}-description"
+            rows="3"
+            value={range.description}
+            oninput={(event) =>
+              edit((current) =>
+                setRegionResourceFactText(
+                  current,
+                  'mountainRanges',
+                  range.id,
+                  'description',
+                  event.currentTarget.value,
+                ),
+              )}
+          ></textarea>
+        </div>
+        <BaseButton
+          aria-label="Remove mountain range {index + 1} from this region"
+          disabled={removeRegionResourceFact(region, 'mountainRanges', range.id) === region}
+          onclick={() =>
+            edit((current) => removeRegionResourceFact(current, 'mountainRanges', range.id))}
+        >
+          Remove mountain range {index + 1}
+        </BaseButton>
+        {#if removeRegionResourceFact(region, 'mountainRanges', range.id) === region}
+          <p class="region-editor__note">
+            Authored regional facts refer to this range, so it cannot be removed here.
+          </p>
+        {/if}
+      </fieldset>
+    {/each}
 
     <RegionExports snapshot={region} />
     <RegionMapInspection snapshot={region} />

@@ -1,5 +1,12 @@
 import type { SettlementIconCategory } from './settlement_icon_types';
 
+export type RegionMapSvgMountainRange = {
+  id: string;
+  name: string;
+  mapNodeIds: number[];
+  spineNodeIds: number[];
+};
+
 export type RegionMapSvgSettlement = {
   id?: string;
   mapNodeId?: number;
@@ -14,12 +21,13 @@ export type RegionMapSvgSettlement = {
 export type RegionMapSvgFeature = {
   id: string;
   name: string;
-  kind: 'habitat' | 'landmark' | 'hazard';
+  kind: 'habitat' | 'landmark' | 'hazard' | 'range';
   nodeIds: number[];
   edgeIds: number[];
 };
 
 export type RegionMapSvgOptions = {
+  mountainRanges?: RegionMapSvgMountainRange[];
   title?: string;
   settlements?: RegionMapSvgSettlement[];
   features?: RegionMapSvgFeature[];

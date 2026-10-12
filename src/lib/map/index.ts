@@ -37,3 +37,6 @@ export {
   CAPITAL_PENNANT,
 } from './settlement_icon_catalog';
 export { composeSettlementIcon, capitalPennantAnchor } from './settlement_icons';
+
+export type * from './mountain_range_types';
+export * from './mountain_ranges';

@@ -637,7 +637,8 @@ describe('ecology save compatibility', () => {
       ...legacy,
       facts: {
         ...legacy.facts,
-        version: 6,
+        version: 7,
+        mountainRanges: [],
         supply: [],
         dailyLife: [],
         products: [],
@@ -769,7 +770,14 @@ describe('processing save migration', () => {
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...input,
-      facts: { ...input.facts, version: 6, supply: [], products: [], dailyLife: [] },
+      facts: {
+        ...input.facts,
+        version: 7,
+        mountainRanges: [],
+        supply: [],
+        products: [],
+        dailyLife: [],
+      },
     });
     expect(input).toEqual(original);
     expect(validateRegionSnapshot(result.value).ok).toBe(true);
@@ -794,7 +802,7 @@ describe('daily-life save migration', () => {
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...input,
-      facts: { ...input.facts, version: 6, supply: [], dailyLife: [] },
+      facts: { ...input.facts, version: 7, mountainRanges: [], supply: [], dailyLife: [] },
     });
     expect(input).toEqual(original);
     expect(validateRegionSnapshot(result.value).ok).toBe(true);
@@ -877,7 +885,10 @@ describe('supply save migration', () => {
     const result = migrateRegionSnapshot(input, 7);
     expect(result.ok).toBe(true);
     if (!result.ok) throw new Error(result.message);
-    expect(result.value).toEqual({ ...input, facts: { ...input.facts, version: 6, supply: [] } });
+    expect(result.value).toEqual({
+      ...input,
+      facts: { ...input.facts, version: 7, mountainRanges: [], supply: [] },
+    });
     expect(input).toEqual(before);
     expect(validateRegionSnapshot(result.value).ok).toBe(true);
   });

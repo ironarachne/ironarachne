@@ -1,3 +1,4 @@
+import { generateMountainRangeFacts } from './region_mountain_ranges';
 import type { Environment } from '$lib/environment';
 import { Environments } from '$lib/environment';
 import * as Characters from '$lib/characters';
@@ -287,6 +288,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   generateGeologyFacts(region, createRegionStageRng(seed, 'geology'));
   generateHabitatFacts(region, createRegionStageRng(seed, 'habitats'));
   generateLandscapeNames(region, createRegionStageRng(seed, 'landscape-names'));
+  generateMountainRangeFacts(region, createRegionStageRng(seed, 'mountain-ranges'));
   generateEcologyInhabitants(region, createRegionStageRng(seed, 'ecology-inhabitants'));
   generateResourceFacts(region, createRegionStageRng(seed, 'resources'));
 
