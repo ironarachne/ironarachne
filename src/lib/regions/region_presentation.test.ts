@@ -20,6 +20,7 @@ import { rollRegionSnapshot } from './region_roll';
 import { toRegionSnapshot } from './region_snapshot';
 import { rollRegion } from './region_roll';
 import { REGION_SEED_BANK } from '../../../test_fixtures/region_seeds';
+import { regionToUiDocument } from './region_ui_presentation';
 
 const snapshot = rollRegionSnapshot('presentation-seed', {
   affiliation: 'affiliated',
@@ -522,6 +523,24 @@ describe('sourcebook gazetteer', () => {
         expect(travel?.lines.some((line) => line.includes(name))).toBe(true);
       }
     }
+  });
+
+  it('retains generated road paragraphs on reopening, display and export', () => {
+    const saved = JSON.parse(JSON.stringify(snapshot)) as typeof snapshot;
+    const before = structuredClone(saved);
+    expect(saved.facts.routes.length).toBeGreaterThan(0);
+    const ui = regionToUiDocument(saved).sections.find((section) => section.heading === 'Travel')!;
+    const exported = regionToExportDocument(saved).sections.find(
+      (section) => section.heading === 'Travel',
+    )!;
+    for (const route of saved.facts.routes) {
+      expect(route.description).toContain('Hook:');
+      expect(ui.entries.find((entry) => entry.factId === route.id)?.body).toBe(route.description);
+      expect(exported.lines.some((line) => line.includes(route.description))).toBe(true);
+      expect(regionToMarkdown(saved)).toContain(route.description);
+      expect(regionToText(saved)).toContain(route.description);
+    }
+    expect(saved).toEqual(before);
   });
 
   it('omits every new section for sparse migrated content instead of inventing facts', () => {

@@ -16,6 +16,13 @@ pools; candidate/template selections use explicit context across a stable ordere
 
 These consumers prove the engine, not completion of the application-wide goal.
 
+Road descriptions now use the composer under #396. Traced route nodes and edges supply
+eligible river, coastal, woodland, grassland and demanding-weather details. Each road stores
+a three-sentence paragraph with a hook matched to the chosen detail and its supporting evidence.
+Routes without distinctive geographic evidence offer an exploration or escort opportunity.
+An explicit road batch context varies wording and focus; existing saved and authored prose is
+unchanged.
+
 Region ecology reading paragraphs now use the composer under #395: current local-use,
 gathering-hazard and organism relationships supply bounded candidates, with occasional supported
 fantastical life. The words and selected evidence are persisted in an existing causal claim.
