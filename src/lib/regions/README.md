@@ -436,3 +436,17 @@ region once; it never follows the source settlement's own material context. See 
 Payload version 9 adds a nullable material link to each embedded settlement snapshot. Migration
 from versions 1–8 initializes it to `null`; regional facts remain version 6. The second-genre
 pilot is [explicitly deferred](../../../docs/region-second-genre.md).
+
+## Mountain ranges (#416)
+
+Payload version 12 / facts version 7 adds `mountainRanges`. Physical terrain retains its
+existing seeded spine policy; a separate `mountain-ranges` pass recognizes realized ridges,
+names them using supplied cultural patterns when available, and saves evidence and final
+narrative text. Ranges have sorted mountain-cell membership and an ordered spine. Their
+geography can cross habitat boundaries without consuming habitat or notable-place slots.
+
+Names and descriptions are editable through the shared semantic fact contract; geometry
+requires a whole-region reroll. Range deletion respects authored dependents and restores
+individual mountain rendering. Historical payloads migrate with an empty range list and
+keep their map, text, and affiliation. No range is detected or named on read or export.
+See [the approved design](../../../docs/region-mountain-ranges.md).

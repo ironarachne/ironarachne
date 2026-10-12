@@ -277,6 +277,7 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
       ),
       ...factSections('Landscape', [
         ...snapshot.facts.areas,
+        ...snapshot.facts.mountainRanges,
         ...snapshot.facts.habitats
           .filter((fact) => isPrintable(fact.name) || isPrintable(fact.description))
           .map((fact) => ({
@@ -385,6 +386,7 @@ export function regionToMapSvg(snapshot: RegionSnapshot): string {
   return buildRegionMapSvgString(snapshot.map, {
     title: regionDisplayName(snapshot),
     settlements,
+    mountainRanges: snapshot.facts.mountainRanges,
     features: [
       ...snapshot.facts.areas
         .filter((fact) => fact.id.startsWith('area:habitat-zone:'))

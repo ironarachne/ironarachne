@@ -1,3 +1,4 @@
+import type { MountainRangeFact } from './region_mountain_range_types';
 import type { SettlementSupplyFact } from './region_supply_types';
 import type { RegionalProductFact } from './region_processing_types';
 import type { SettlementDailyLifeFact } from './region_livelihood_types';
@@ -100,7 +101,8 @@ export type RouteFact = FactBase & {
 export type CausalFact = FactBase & { subjectId: string; relatedIds: string[] };
 
 export type RegionFacts = {
-  version: 6;
+  version: 7;
+  mountainRanges: MountainRangeFact[];
   supply: SettlementSupplyFact[];
   dailyLife: SettlementDailyLifeFact[];
   products: RegionalProductFact[];

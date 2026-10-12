@@ -52,3 +52,6 @@ export { regionToUiDocument } from './region_ui_presentation';
 export type * from './region_ui_presentation_types';
 
 export { generateLandscapeNames } from './region_landscape_names';
+
+export type * from './region_mountain_range_types';
+export { generateMountainRangeFacts } from './region_mountain_ranges';

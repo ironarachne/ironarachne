@@ -1,0 +1,728 @@
+[
+  {
+    "seed": "alpha",
+    "requested": {
+      "altitude": "mid",
+      "relief": "flat"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.5163276399063615,
+      "p10Elevation": 0.48166194795968836,
+      "p90Elevation": 0.5805106218107001,
+      "reliefSpread": 0.09884867385101176,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "bravo",
+    "requested": {
+      "altitude": "mid",
+      "relief": "flat"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.5363395016997183,
+      "p10Elevation": 0.45289956922248237,
+      "p90Elevation": 0.5983949851817847,
+      "reliefSpread": 0.14549541595930232,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "charlie",
+    "requested": {
+      "altitude": "high",
+      "relief": "mountainous"
+    },
+    "candidates": [
+      {
+        "mapNodeIds": [17, 21, 22, 26, 27, 36, 44],
+        "spineNodeIds": [36, 17, 27, 44],
+        "rejection": "mountain range needs distinct membership and a simple spine"
+      },
+      {
+        "mapNodeIds": [30, 38, 49, 64, 69, 76, 94, 107, 119],
+        "spineNodeIds": [38, 94, 49, 119, 107],
+        "rejection": "mountain range does not meet its ridge evidence rule"
+      }
+    ],
+    "terrain": {
+      "medianElevation": 1.1297613099020423,
+      "p10Elevation": 0.9410237807663503,
+      "p90Elevation": 1.5722133192344399,
+      "reliefSpread": 0.6311895384680896,
+      "hillFraction": 0.11486486486486487,
+      "mountainFraction": 0.11486486486486487,
+      "highMountainFraction": 0.02027027027027027
+    },
+    "mountainCells": 20,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-1",
+    "requested": {
+      "altitude": "high",
+      "relief": "hilly"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 1.1591657694982458,
+      "p10Elevation": 0.9931449729779214,
+      "p90Elevation": 1.2295216088577938,
+      "reliefSpread": 0.23637663587987245,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-2",
+    "requested": {
+      "altitude": "low",
+      "relief": "hilly"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.2758261349026491,
+      "p10Elevation": 0.061747667038921275,
+      "p90Elevation": 0.3994181788107792,
+      "reliefSpread": 0.3376705117718579,
+      "hillFraction": 0.03333333333333333,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-3",
+    "requested": {
+      "altitude": "mid",
+      "relief": "flat"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.5461093250223205,
+      "p10Elevation": 0.4525438706670985,
+      "p90Elevation": 0.5949698743618987,
+      "reliefSpread": 0.14242600369480024,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-4",
+    "requested": {
+      "altitude": "mid",
+      "relief": "hilly"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.6881159897678797,
+      "p10Elevation": 0.4564959815074251,
+      "p90Elevation": 0.7945881647934745,
+      "reliefSpread": 0.3380921832860494,
+      "hillFraction": 0.016304347826086956,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-5",
+    "requested": {
+      "altitude": "high",
+      "relief": "flat"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.9961157613571816,
+      "p10Elevation": 0.9054464839529004,
+      "p90Elevation": 1.0413117121463158,
+      "reliefSpread": 0.1358652281934154,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-6",
+    "requested": {
+      "altitude": "mid",
+      "relief": "mountainous"
+    },
+    "candidates": [
+      {
+        "mapNodeIds": [103, 106, 125, 132, 133, 142, 143, 168],
+        "spineNodeIds": [133, 132, 106, 125, 142, 143, 168],
+        "rejection": "mountain range does not meet its ridge evidence rule"
+      }
+    ],
+    "terrain": {
+      "medianElevation": 0.7933605285672212,
+      "p10Elevation": 0.5113365960350398,
+      "p90Elevation": 1.1334000688130657,
+      "reliefSpread": 0.6220634727780259,
+      "hillFraction": 0.14814814814814814,
+      "mountainFraction": 0.09259259259259259,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 15,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-7",
+    "requested": {
+      "altitude": "high",
+      "relief": "mountainous"
+    },
+    "candidates": [
+      {
+        "mapNodeIds": [16, 21, 26, 27, 28, 30, 33, 34, 36, 41, 45, 56, 60, 73, 79, 87, 101],
+        "spineNodeIds": [73, 28, 21, 56, 41, 79, 101],
+        "rejection": "mountain range spine has an unsupported segment"
+      },
+      {
+        "mapNodeIds": [72, 83, 96, 99, 100, 107, 137],
+        "spineNodeIds": [72, 99, 107, 83, 100, 96],
+        "rejection": "mountain range does not meet its ridge evidence rule"
+      }
+    ],
+    "terrain": {
+      "medianElevation": 1.1283581550038086,
+      "p10Elevation": 0.9927771013643427,
+      "p90Elevation": 1.5827486657575127,
+      "reliefSpread": 0.58997156439317,
+      "hillFraction": 0.14285714285714285,
+      "mountainFraction": 0.16883116883116883,
+      "highMountainFraction": 0.006493506493506494
+    },
+    "mountainCells": 27,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-8",
+    "requested": {
+      "altitude": "low",
+      "relief": "flat"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.14581583831276407,
+      "p10Elevation": 0.05375479026005919,
+      "p90Elevation": 0.19374754391916238,
+      "reliefSpread": 0.1399927536591032,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-9",
+    "requested": {
+      "altitude": "high",
+      "relief": "mountainous"
+    },
+    "candidates": [
+      {
+        "mapNodeIds": [99, 100, 119, 121, 123, 166],
+        "spineNodeIds": [121, 99, 119, 123, 166],
+        "rejection": null
+      }
+    ],
+    "terrain": {
+      "medianElevation": 1.1967802029388845,
+      "p10Elevation": 1.005686324281712,
+      "p90Elevation": 1.5284406517887954,
+      "reliefSpread": 0.5227543275070834,
+      "hillFraction": 0.14012738853503184,
+      "mountainFraction": 0.08280254777070063,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 13,
+    "ranges": [
+      {
+        "mapNodeIds": [99, 100, 119, 121, 123, 166],
+        "spineNodeIds": [121, 99, 119, 123, 166],
+        "id": "range:mountain:99",
+        "name": "the Range of the Grey Ramparts",
+        "description": "Linked mountain ridges form a continuous range.",
+        "origin": "generated"
+      }
+    ]
+  },
+  {
+    "seed": "mountain-range-10",
+    "requested": {
+      "altitude": "mid",
+      "relief": "flat"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.5286369589848995,
+      "p10Elevation": 0.4763661635705103,
+      "p90Elevation": 0.5851007270378624,
+      "reliefSpread": 0.10873456346735211,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-11",
+    "requested": {
+      "altitude": "mid",
+      "relief": "mountainous"
+    },
+    "candidates": [
+      {
+        "mapNodeIds": [49, 55, 66, 67, 90, 100, 110, 151, 159],
+        "spineNodeIds": [49, 55, 90, 100, 110, 159, 151],
+        "rejection": "mountain range spine has an unsupported segment"
+      }
+    ],
+    "terrain": {
+      "medianElevation": 0.7333448779958402,
+      "p10Elevation": 0.5495502794135727,
+      "p90Elevation": 1.0611451734819493,
+      "reliefSpread": 0.5115948940683765,
+      "hillFraction": 0.12790697674418605,
+      "mountainFraction": 0.08139534883720931,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 14,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-12",
+    "requested": {
+      "altitude": "mid",
+      "relief": "mountainous"
+    },
+    "candidates": [
+      {
+        "mapNodeIds": [56, 59, 60, 76, 86, 92, 105, 129, 149],
+        "spineNodeIds": [59, 76, 86, 92, 129],
+        "rejection": "mountain range does not meet its ridge evidence rule"
+      }
+    ],
+    "terrain": {
+      "medianElevation": 0.6986017905166958,
+      "p10Elevation": 0.5342649025151087,
+      "p90Elevation": 1.1086705248626052,
+      "reliefSpread": 0.5744056223474965,
+      "hillFraction": 0.1337579617834395,
+      "mountainFraction": 0.10828025477707007,
+      "highMountainFraction": 0.01910828025477707
+    },
+    "mountainCells": 20,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-13",
+    "requested": {
+      "altitude": "high",
+      "relief": "mountainous"
+    },
+    "candidates": [
+      {
+        "mapNodeIds": [87, 109, 114, 121, 125, 131, 137, 142, 144, 151, 174],
+        "spineNodeIds": [87, 109, 131, 121, 137, 151],
+        "rejection": null
+      }
+    ],
+    "terrain": {
+      "medianElevation": 1.1481446210579445,
+      "p10Elevation": 0.9809819866495912,
+      "p90Elevation": 1.489573414759526,
+      "reliefSpread": 0.5085914281099349,
+      "hillFraction": 0.12352941176470589,
+      "mountainFraction": 0.08235294117647059,
+      "highMountainFraction": 0.011764705882352941
+    },
+    "mountainCells": 16,
+    "ranges": [
+      {
+        "mapNodeIds": [87, 109, 114, 121, 125, 131, 137, 142, 144, 151, 174],
+        "spineNodeIds": [87, 109, 131, 121, 137, 151],
+        "id": "range:mountain:87",
+        "name": "the Twilit Mountain Range",
+        "description": "A chain of mountain ridges stretches through this landscape.",
+        "origin": "generated"
+      }
+    ]
+  },
+  {
+    "seed": "mountain-range-14",
+    "requested": {
+      "altitude": "low",
+      "relief": "hilly"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.2906409813419096,
+      "p10Elevation": 0.16693807131448013,
+      "p90Elevation": 0.41657049101129495,
+      "reliefSpread": 0.24963241969681482,
+      "hillFraction": 0.03614457831325301,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-15",
+    "requested": {
+      "altitude": "low",
+      "relief": "mountainous"
+    },
+    "candidates": [
+      {
+        "mapNodeIds": [2, 3, 6, 8, 12, 14, 17, 19, 22, 29, 73, 79, 89, 124, 128, 154, 168],
+        "spineNodeIds": [73, 3, 6, 8, 29, 14, 17, 79, 89, 128, 154, 168],
+        "rejection": "mountain range spine has an unsupported segment"
+      }
+    ],
+    "terrain": {
+      "medianElevation": 0.42323550130539633,
+      "p10Elevation": 0.06470595483038655,
+      "p90Elevation": 0.8286255652853658,
+      "reliefSpread": 0.7639196104549792,
+      "hillFraction": 0.17682926829268292,
+      "mountainFraction": 0.12195121951219512,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 20,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-16",
+    "requested": {
+      "altitude": "high",
+      "relief": "flat"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.9813206985976559,
+      "p10Elevation": 0.9340646912455671,
+      "p90Elevation": 1.032727239899418,
+      "reliefSpread": 0.09866254865385093,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-17",
+    "requested": {
+      "altitude": "high",
+      "relief": "flat"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.987804266916215,
+      "p10Elevation": 0.9034419985258954,
+      "p90Elevation": 1.0444503827308713,
+      "reliefSpread": 0.14100838420497597,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-18",
+    "requested": {
+      "altitude": "low",
+      "relief": "hilly"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.24892483972736523,
+      "p10Elevation": 0.1377336610724746,
+      "p90Elevation": 0.3667875390219566,
+      "reliefSpread": 0.229053877949482,
+      "hillFraction": 0.05747126436781609,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-19",
+    "requested": {
+      "altitude": "high",
+      "relief": "hilly"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 1.0954567645471036,
+      "p10Elevation": 0.9641822502984887,
+      "p90Elevation": 1.2268885494795758,
+      "reliefSpread": 0.2627062991810871,
+      "hillFraction": 0.07428571428571429,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-20",
+    "requested": {
+      "altitude": "low",
+      "relief": "flat"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.13950165776711687,
+      "p10Elevation": 0.08524843631967835,
+      "p90Elevation": 0.18931850885854357,
+      "reliefSpread": 0.10407007253886522,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-21",
+    "requested": {
+      "altitude": "high",
+      "relief": "flat"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.9663386608629805,
+      "p10Elevation": 0.9192339726220585,
+      "p90Elevation": 1.0320796558895868,
+      "reliefSpread": 0.11284568326752831,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-22",
+    "requested": {
+      "altitude": "low",
+      "relief": "mountainous"
+    },
+    "candidates": [
+      {
+        "mapNodeIds": [104, 118, 125, 136, 142, 158, 165, 168],
+        "spineNodeIds": [104, 118, 168, 142, 136],
+        "rejection": "mountain range does not meet its ridge evidence rule"
+      }
+    ],
+    "terrain": {
+      "medianElevation": 0.4237065689238916,
+      "p10Elevation": 0.05910607085129278,
+      "p90Elevation": 0.7016961036394685,
+      "reliefSpread": 0.6425900327881757,
+      "hillFraction": 0.11042944785276074,
+      "mountainFraction": 0.06134969325153374,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 10,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-23",
+    "requested": {
+      "altitude": "mid",
+      "relief": "flat"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.5541709406399884,
+      "p10Elevation": 0.457325887170225,
+      "p90Elevation": 0.5926765014743502,
+      "reliefSpread": 0.13535061430412526,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-24",
+    "requested": {
+      "altitude": "mid",
+      "relief": "hilly"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.6481458479190776,
+      "p10Elevation": 0.5136921846650113,
+      "p90Elevation": 0.7626495587654102,
+      "reliefSpread": 0.24895737410039886,
+      "hillFraction": 0.045454545454545456,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-25",
+    "requested": {
+      "altitude": "mid",
+      "relief": "hilly"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.672113458646219,
+      "p10Elevation": 0.5281522923066606,
+      "p90Elevation": 0.8081578860564369,
+      "reliefSpread": 0.2800055937497763,
+      "hillFraction": 0.03529411764705882,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-26",
+    "requested": {
+      "altitude": "high",
+      "relief": "flat"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.9945089509350746,
+      "p10Elevation": 0.9050155896665842,
+      "p90Elevation": 1.0372905637541332,
+      "reliefSpread": 0.13227497408754896,
+      "hillFraction": 0,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-27",
+    "requested": {
+      "altitude": "mid",
+      "relief": "mountainous"
+    },
+    "candidates": [
+      {
+        "mapNodeIds": [48, 53, 76, 90, 91, 95, 100, 101, 125, 165],
+        "spineNodeIds": [48, 91, 101, 165, 125],
+        "rejection": "mountain range does not meet its ridge evidence rule"
+      },
+      {
+        "mapNodeIds": [65, 78, 106, 107, 115, 117, 130, 149, 158, 169, 191, 198],
+        "spineNodeIds": [65, 106, 115, 198, 169],
+        "rejection": "mountain range does not meet its ridge evidence rule"
+      }
+    ],
+    "terrain": {
+      "medianElevation": 0.7921296939457563,
+      "p10Elevation": 0.4617379225568774,
+      "p90Elevation": 1.200985242650612,
+      "reliefSpread": 0.7392473200937346,
+      "hillFraction": 0.12280701754385964,
+      "mountainFraction": 0.15789473684210525,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 27,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-28",
+    "requested": {
+      "altitude": "low",
+      "relief": "hilly"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.23187250276537702,
+      "p10Elevation": 0.1378655398608708,
+      "p90Elevation": 0.364727695470922,
+      "reliefSpread": 0.22686215561005119,
+      "hillFraction": 0.0658682634730539,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-29",
+    "requested": {
+      "altitude": "low",
+      "relief": "mountainous"
+    },
+    "candidates": [
+      {
+        "mapNodeIds": [0, 1, 3, 10, 12, 14, 21, 23, 27, 36],
+        "spineNodeIds": [14, 1, 0, 3, 23],
+        "rejection": "mountain range does not meet its ridge evidence rule"
+      }
+    ],
+    "terrain": {
+      "medianElevation": 0.3651961319505326,
+      "p10Elevation": 0.08488605237439684,
+      "p90Elevation": 0.656959290244558,
+      "reliefSpread": 0.5720732378701612,
+      "hillFraction": 0.11764705882352941,
+      "mountainFraction": 0.08235294117647059,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 14,
+    "ranges": []
+  },
+  {
+    "seed": "mountain-range-30",
+    "requested": {
+      "altitude": "low",
+      "relief": "hilly"
+    },
+    "candidates": [],
+    "terrain": {
+      "medianElevation": 0.25537640879595624,
+      "p10Elevation": 0.11700498068187934,
+      "p90Elevation": 0.3874790620158473,
+      "reliefSpread": 0.270474081333968,
+      "hillFraction": 0.04294478527607362,
+      "mountainFraction": 0,
+      "highMountainFraction": 0
+    },
+    "mountainCells": 0,
+    "ranges": []
+  }
+]

@@ -97,6 +97,42 @@ test.describe('a region', () => {
     await createProject(page, 'The Marches');
   });
 
+  test('keeps a named mountain range through saving, editing, and reopening', async ({ page }) => {
+    await openGenerator(page);
+    await page.getByLabel('Seed', { exact: true }).fill('mountain-range-9');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    await expect(page.locator('img.region-map')).toHaveAttribute('src', /data-range-id/);
+    await saveAs(page, 'Mountain Country');
+    const panel = await openInWorkshop(page, 'Mountain Country');
+    const originalMap = await panel.locator('img.region-map').getAttribute('src');
+    await expect(panel.getByLabel('Mountain range 1 name', { exact: true })).toBeVisible();
+    await panel.getByLabel('Mountain range 1 name', { exact: true }).fill('The Copper Range');
+    await panel
+      .getByLabel('Mountain range 1 description', { exact: true })
+      .fill('A mountain ridge named by the referee.');
+    await expect(panel.locator('img.region-map')).toHaveAttribute('src', /The%20Copper%20Range/);
+    const editedMap = await panel.locator('img.region-map').getAttribute('src');
+    expect(editedMap).not.toBe(originalMap);
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+    await page.reload({ waitUntil: 'load' });
+    const reopened = await openInWorkshop(page, 'Mountain Country');
+    await expect(reopened.getByLabel('Mountain range 1 name', { exact: true })).toHaveValue(
+      'The Copper Range',
+    );
+    await expect(reopened.getByLabel('Mountain range 1 description', { exact: true })).toHaveValue(
+      'A mountain ridge named by the referee.',
+    );
+    await expect(reopened.locator('img.region-map')).toHaveAttribute('src', editedMap!);
+    await reopened
+      .getByRole('button', { name: 'Remove mountain range 1 from this region' })
+      .click();
+    await expect(reopened.getByLabel('Mountain range 1 name', { exact: true })).toHaveCount(0);
+    await expect(reopened.locator('img.region-map')).not.toHaveAttribute('src', /data-range-id/);
+    await expectNoHorizontalOverflow(page);
+  });
+
   test('saves and reopens an unaffiliated region with optional political neighbors', async ({
     page,
   }) => {

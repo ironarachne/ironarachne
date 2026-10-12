@@ -34,8 +34,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 11 adds explicit affiliation and optional regional authority. */
-export const REGION_PAYLOAD_VERSION = 11 as const;
+/** Version 12 adds saved mountain ranges without inferring them on historical maps. */
+export const REGION_PAYLOAD_VERSION = 12 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -230,13 +230,16 @@ function migrateOldRegionSnapshot(payload: unknown, from: number): PayloadResult
       }),
     };
   }
-  if (from === 8) return validateRegionSnapshot(record);
+  if (from === 8) return validateRegionSnapshot(withEmptyMountainRanges(record));
 
   if (from === 7) {
     const facts = asRecord(record.facts);
     if (facts === null || facts.version !== 5)
       return rejectedPayload('unsupported-version', 'Version 7 requires region facts version 5');
-    return validateRegionSnapshot({ ...record, facts: { ...facts, version: 6, supply: [] } });
+    return validateRegionSnapshot({
+      ...record,
+      facts: { ...facts, version: 7, mountainRanges: [], supply: [] },
+    });
   }
 
   if (from === 6) {
@@ -245,7 +248,7 @@ function migrateOldRegionSnapshot(payload: unknown, from: number): PayloadResult
       return rejectedPayload('unsupported-version', 'Version 6 requires region facts version 4');
     return validateRegionSnapshot({
       ...record,
-      facts: { ...facts, version: 6, supply: [], dailyLife: [] },
+      facts: { ...facts, version: 7, mountainRanges: [], supply: [], dailyLife: [] },
     });
   }
 
@@ -255,7 +258,7 @@ function migrateOldRegionSnapshot(payload: unknown, from: number): PayloadResult
       return rejectedPayload('unsupported-version', 'Version 5 requires region facts version 3');
     return validateRegionSnapshot({
       ...record,
-      facts: { ...facts, version: 6, supply: [], products: [], dailyLife: [] },
+      facts: { ...facts, version: 7, mountainRanges: [], supply: [], products: [], dailyLife: [] },
     });
   }
 
@@ -287,7 +290,8 @@ function migrateOldRegionSnapshot(payload: unknown, from: number): PayloadResult
       ...record,
       facts: {
         ...facts,
-        version: 6,
+        version: 7,
+        mountainRanges: [],
         supply: [],
         dailyLife: [],
         products: [],
@@ -343,21 +347,34 @@ function migrateOldRegionSnapshot(payload: unknown, from: number): PayloadResult
   });
 }
 
+/** No inference on read: every prior snapshot keeps its old words and map. */
+function withEmptyMountainRanges(payload: unknown): unknown {
+  const record = asRecord(payload);
+  const facts = asRecord(record?.facts);
+  if (!record || !facts || facts.version !== 6) return payload;
+  return { ...record, facts: { ...facts, version: 7, mountainRanges: [] } };
+}
+
 /** Older payload migrations finish first; river adoption neither rerolls nor invents geography. */
 export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (!Number.isInteger(from) || from < 1 || from > 10)
+  if (!Number.isInteger(from) || from < 1 || from > 11)
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,
     );
   const record = asRecord(payload);
-  const adopted = record === null ? payload : { ...record, affiliation: 'affiliated' };
+  const adopted =
+    record === null ? payload : { ...record, ...(from < 11 ? { affiliation: 'affiliated' } : {}) };
+  if (from === 11 && asRecord(record?.facts)?.version !== 6)
+    return rejectedPayload('unsupported-version', 'Version 11 requires region facts version 6');
   const result =
-    from >= 9 ? validateRegionSnapshot(adopted) : migrateOldRegionSnapshot(adopted, from);
-  if (!result.ok || result.value.map.rivers !== undefined) return result;
+    from >= 9
+      ? validateRegionSnapshot(withEmptyMountainRanges(adopted))
+      : migrateOldRegionSnapshot(adopted, from);
+  if (!result.ok || from === 11 || result.value.map.rivers !== undefined) return result;
   const rivers = legacyRiverNetwork(result.value.map);
   return rivers === undefined
     ? result

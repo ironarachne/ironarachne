@@ -1,3 +1,10 @@
+import { mountainSaddle } from './mountain_range_artwork';
+import {
+  mountainSpineLength,
+  mountainRangeGeometryError,
+  mountainSegmentContained,
+} from './mountain_ranges';
+import type { PlacedMountainRangeGlyph } from './mountain_range_types';
 import type { MapEdge, MapNode, RegionMap } from './map_graph.js';
 import { generatePoissonDisk, type Vertex } from '$lib/geometry';
 import { RNG } from '@ironarachne/rng';
@@ -45,11 +52,13 @@ import {
 } from './river_paths';
 
 import type {
+  RegionMapSvgMountainRange,
   RegionMapSvgSettlement,
   RegionMapSvgOptions,
   RegionMapSvgFeature,
 } from './region_map_svg_types';
 export type {
+  RegionMapSvgMountainRange,
   RegionMapSvgSettlement,
   RegionMapSvgOptions,
   RegionMapSvgFeature,
@@ -726,11 +735,11 @@ const REGION_EDGE_MARGIN = 0.14;
 const WATER_EDGE_MARGIN = STROKE_WIDTHS.heavy / 2 + INK_EDGE_MAX_OFFSET + 0.01;
 
 /** Cells within two graph steps — the only cells a glyph anchored in `nodeId` can reach. */
-function localCellNeighborhood(map: RegionMap, nodeId: number): number[] {
+function localCellNeighborhood(byId: Map<number, MapNode>, nodeId: number): number[] {
   const near = new Set<number>([nodeId]);
-  for (const first of map.nodes[nodeId]?.neighbors ?? []) {
+  for (const first of byId.get(nodeId)?.neighbors ?? []) {
     near.add(first);
-    for (const second of map.nodes[first]?.neighbors ?? []) {
+    for (const second of byId.get(first)?.neighbors ?? []) {
       near.add(second);
     }
   }
@@ -747,12 +756,13 @@ function makeRegionContainmentTest(
   inRegion: (node: MapNode) => boolean,
 ): (point: Vertex, nodeId: number) => boolean {
   const cache = new Map<number, MapNode[]>();
+  const byId = new Map(map.nodes.map((node) => [node.id, node]));
 
   const cellsNear = (nodeId: number): MapNode[] => {
     const cached = cache.get(nodeId);
     if (cached !== undefined) return cached;
-    const cells = localCellNeighborhood(map, nodeId)
-      .map((id) => map.nodes[id])
+    const cells = localCellNeighborhood(byId, nodeId)
+      .map((id) => byId.get(id))
       .filter((n): n is MapNode => n !== undefined && inRegion(n));
     cache.set(nodeId, cells);
     return cells;
@@ -878,12 +888,125 @@ function makeScatterNodeLookup(
       ?.find((node) => isPointInPolygon(point, node.polygon.vertices));
 }
 
+/** Stable positions along saved spines; skipped placements leave breaks in the chain. */
+function collectRangeSymbols(
+  map: RegionMap,
+  ranges: RegionMapSvgMountainRange[],
+  clear: (outline: Vertex[]) => boolean,
+  acceptSpacing: (point: Vertex, radius: number) => boolean,
+  reserved: TextBox[],
+  nodeAt: (point: Vertex) => MapNode | undefined,
+): PlacedMountainRangeGlyph[] {
+  const out: PlacedMountainRangeGlyph[] = [];
+  const byId = new Map(map.nodes.map((node) => [node.id, node]));
+  const mapScale = Math.min(map.width, map.height) / 35;
+  const free = (bounds: TextBox) => reserved.every((box) => overlapArea(bounds, box) === 0);
+  const assignments = assignTerrainGlyphs(map);
+  const ranked = [...ranges].sort(
+    (a, b) =>
+      mountainSpineLength(map, b.spineNodeIds) - mountainSpineLength(map, a.spineNodeIds) ||
+      a.id.localeCompare(b.id),
+  );
+  for (const range of ranked) {
+    if (mountainRangeGeometryError(map, range) !== null) continue;
+    const members = new Set(range.mapNodeIds);
+    const cells = range.mapNodeIds.map((id) => byId.get(id)!);
+    const contains = makeRegionContainmentTest(map, (node) => members.has(node.id));
+    const spine = range.spineNodeIds.map((id) => byId.get(id)!.center);
+    const lengths = [0];
+    for (let i = 1; i < spine.length; i++)
+      lengths.push(
+        lengths[i - 1] + Math.hypot(spine[i].x - spine[i - 1].x, spine[i].y - spine[i - 1].y),
+      );
+    const total = lengths.at(-1)!;
+    const steps = Math.max(1, Math.ceil(total / (1.25 * mapScale)));
+    let previous: PlacedMountainRangeGlyph | undefined;
+    for (let position = 0; position <= steps; position++) {
+      const along = (total * position) / steps;
+      const segment = Math.max(
+        0,
+        Math.min(spine.length - 2, lengths.findIndex((length) => length >= along) - 1),
+      );
+      const ratio = (along - lengths[segment]) / (lengths[segment + 1] - lengths[segment]);
+      const anchor = {
+        x: spine[segment].x + (spine[segment + 1].x - spine[segment].x) * ratio,
+        y: spine[segment].y + (spine[segment + 1].y - spine[segment].y) * ratio + 0.3 * mapScale,
+      };
+      const node = nodeAt(anchor);
+      if (!node || !members.has(node.id)) {
+        previous = undefined;
+        continue;
+      }
+      const assignment = assignments.get(node.id)!;
+      const definition = TERRAIN_GLYPHS[assignment.family];
+      const key = `region-range:${range.id}:${position}`;
+      const variant = new RNG(`${key}:variant`).item(definition.variants);
+      const style = new RNG(`${key}:style`);
+      const desired = Math.max(
+        symbolFontSizeForNode(node, map) * definition.scaleFactor,
+        mapScale * 0.65,
+      );
+      const rotation = Number((style.float(-1, 1) * definition.rotationLimitDegrees).toFixed(1));
+      const scale = largestFittingScale(
+        anchor,
+        SYMBOL_FIT_OUTLINES[variant.id],
+        desired * style.float(0.88, 1.12),
+        desired * 0.4,
+        rotation,
+        node.id,
+        contains,
+        clear,
+      );
+      if (scale === null) {
+        previous = undefined;
+        continue;
+      }
+      const bounds = glyphBox(anchor, SYMBOL_FIT_OUTLINES[variant.id], scale, rotation);
+      if (!free(bounds)) {
+        previous = undefined;
+        continue;
+      }
+      const radius = Math.max(...variant.footprint.map((p) => Math.abs(p.x))) * scale * 0.25;
+      if (!acceptSpacing(anchor, radius)) {
+        previous = undefined;
+        continue;
+      }
+      const placed: PlacedMountainRangeGlyph = {
+        nodeId: node.id,
+        variantId: variant.id,
+        anchor,
+        scale,
+        rotationDegrees: rotation,
+        bounds,
+        rangeId: range.id,
+        position,
+      };
+      if (previous && previous.position === position - 1) {
+        const saddle = mountainSaddle(previous, placed);
+        if (
+          free(saddle.bounds) &&
+          clear(saddle.outline) &&
+          saddle.outline.every((p, i) =>
+            mountainSegmentContained(p, saddle.outline[(i + 1) % saddle.outline.length], cells),
+          )
+        )
+          placed.saddle = saddle;
+      }
+      out.push(placed);
+      previous = placed;
+    }
+  }
+  return out;
+}
+
 function collectScatterSymbols(
   map: RegionMap,
   clearOfWater: (outline: Vertex[]) => boolean,
   waterPolygons: WaterPolygonItem[],
   riverOutlines: Vertex[][],
-): PlacedTerrainGlyph[] {
+  ranges: RegionMapSvgMountainRange[],
+  reserved: TextBox[],
+): (PlacedTerrainGlyph | PlacedMountainRangeGlyph)[] {
   if (map.width <= 0 || map.height <= 0) return [];
   const assignments = assignTerrainGlyphs(map);
   if (assignments.size === 0) return [];
@@ -914,7 +1037,11 @@ function collectScatterSymbols(
   );
   const acceptSpacing = makeGlyphSpacingTest(mapScale);
   const clearOfRivers = makeWaterClearanceTest(riverOutlines, WATER_EDGE_MARGIN);
-  const out: PlacedTerrainGlyph[] = [];
+  const out: (PlacedTerrainGlyph | PlacedMountainRangeGlyph)[] = [];
+  const rangeClear = (outline: Vertex[]) => clearOfWater(outline) && clearOfRivers(outline);
+  collectRangeSymbols(map, ranges, rangeClear, acceptSpacing, reserved, nodeAt).forEach((symbol) =>
+    out.push(symbol),
+  );
   const place = (anchor: Vertex, family: TerrainGlyphFamily, key: string): boolean => {
     const node = nodeAt(anchor)!;
     const definition = TERRAIN_GLYPHS[family];
@@ -1030,14 +1157,19 @@ function collectScatterSymbols(
 /** One painter ordering for all terrain; each glyph is anchored at its ground contact. */
 function appendScatterSymbolsBackToFront(
   map: RegionMap,
-  symbols: PlacedTerrainGlyph[],
+  symbols: (PlacedTerrainGlyph | PlacedMountainRangeGlyph)[],
   parts: string[],
 ): void {
   const fills = terrainGlyphFills(map);
   const ordered = [...symbols].sort((a, b) => a.anchor.y - b.anchor.y || a.anchor.x - b.anchor.x);
   for (const symbol of ordered) {
+    if ('rangeId' in symbol && symbol.saddle) {
+      parts.push(
+        `<g data-range-saddle="${escapeXml(symbol.rangeId)}"><path d="${symbol.saddle.body}" fill="${fills.get(symbol.nodeId)}"/><path d="${symbol.saddle.ink}" fill="${CARTOGRAPHY.palette.body.color}"/></g>`,
+      );
+    }
     parts.push(
-      `<use href="#${symbol.variantId}" transform="translate(${symbol.anchor.x.toFixed(3)}, ${symbol.anchor.y.toFixed(3)}) rotate(${symbol.rotationDegrees.toFixed(1)}) scale(${symbol.scale.toFixed(3)})" fill="${fills.get(symbol.nodeId)}"/>`,
+      `<use${'rangeId' in symbol ? ` data-range-id="${escapeXml(symbol.rangeId)}"` : ''} href="#${symbol.variantId}" transform="translate(${symbol.anchor.x.toFixed(3)}, ${symbol.anchor.y.toFixed(3)}) rotate(${symbol.rotationDegrees.toFixed(1)}) scale(${symbol.scale.toFixed(3)})" fill="${fills.get(symbol.nodeId)}"/>`,
     );
   }
 }
@@ -1572,20 +1704,25 @@ function appendRegionalFeatures(
   body: string[],
 ): void {
   const scale = Math.min(map.width, map.height) / 35;
-  const ranked = [...features].sort(
-    (a, b) =>
-      Number(b.kind === 'habitat') - Number(a.kind === 'habitat') ||
-      b.nodeIds.length - a.nodeIds.length ||
-      a.id.localeCompare(b.id),
-  );
+  const ranked = features.every((feature) => feature.kind === 'range')
+    ? features
+    : [...features].sort(
+        (a, b) =>
+          Number(b.kind === 'habitat') - Number(a.kind === 'habitat') ||
+          b.nodeIds.length - a.nodeIds.length ||
+          a.id.localeCompare(b.id),
+      );
   let habitats = 0,
     notables = 0;
   for (const feature of ranked) {
     if (!feature.name.trim()) continue;
-    if (feature.kind === 'habitat' ? habitats >= 4 : notables >= 4) continue;
+    if (
+      feature.kind === 'habitat' ? habitats >= 4 : feature.kind === 'range' ? false : notables >= 4
+    )
+      continue;
     const point = featurePoint(feature, map);
     if (!point) continue;
-    const radius = feature.kind === 'habitat' ? 0 : 0.3 * scale;
+    const radius = feature.kind === 'habitat' || feature.kind === 'range' ? 0 : 0.3 * scale;
     const markerBox = {
       minX: point.x - radius - 0.08 * scale,
       maxX: point.x + radius + 0.08 * scale,
@@ -1602,7 +1739,9 @@ function appendRegionalFeatures(
       name: feature.name,
       point,
       markerBounds: markerBox,
-      fontSize: mapTitleFontSize(map) * (feature.kind === 'habitat' ? 0.26 : 0.22),
+      fontSize:
+        mapTitleFontSize(map) *
+        (feature.kind === 'habitat' || feature.kind === 'range' ? 0.26 : 0.22),
       priority: 0,
     };
     const placement = bestLabelPlacement(
@@ -1621,6 +1760,7 @@ function appendRegionalFeatures(
       LABEL_HALO_EMS,
     );
     texts.push(identifyText(text, feature.id, feature.kind));
+    if (feature.kind === 'range') continue;
     if (feature.kind === 'habitat') {
       habitats++;
       continue;
@@ -1707,7 +1847,6 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   appendWaterBodiesFromItems(waterPolygons, body, w, h);
   const riverOutlines: Vertex[][] = [];
   appendRivers(map, body, waterPolygons, routeBoxes, riverOutlines);
-  const symbols = collectScatterSymbols(map, clearOfWater, waterPolygons, riverOutlines);
   const scatterLayerIndex = body.length;
   appendRoads(map, body, settlements, routeBoxes);
   appendSettlements(map, icons, body);
@@ -1722,6 +1861,26 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     reserved,
   );
   const featureBoxStart = reserved.length;
+  appendRegionalFeatures(
+    map,
+    (options?.mountainRanges ?? [])
+      .filter((range) => mountainRangeGeometryError(map, range) === null)
+      .sort(
+        (a, b) =>
+          mountainSpineLength(map, b.spineNodeIds) - mountainSpineLength(map, a.spineNodeIds) ||
+          a.id.localeCompare(b.id),
+      )
+      .map((range) => ({
+        id: range.id,
+        name: range.name,
+        kind: 'range' as const,
+        nodeIds: range.spineNodeIds,
+        edgeIds: [],
+      })),
+    reserved,
+    textParts,
+    body,
+  );
   appendRegionalFeatures(map, options?.features ?? [], reserved, textParts, body);
   const featureBoxes = reserved.slice(featureBoxStart);
   if (titleLayout !== null) {
@@ -1731,6 +1890,15 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     map,
     [...reserved, ...textParts.map((part) => part.box)],
     routeBoxes,
+  );
+  const rangeReservations = [...reserved, ...featureBoxes, ...(compass === null ? [] : [compass])];
+  const symbols = collectScatterSymbols(
+    map,
+    clearOfWater,
+    waterPolygons,
+    riverOutlines,
+    options?.mountainRanges ?? [],
+    rangeReservations,
   );
   // Furniture reserves space in the illustration: do not hide terrain glyphs beneath its paper.
   const scatterLayer: string[] = [];

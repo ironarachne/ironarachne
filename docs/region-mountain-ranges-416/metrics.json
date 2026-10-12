@@ -1,0 +1,74 @@
+[
+  {
+    "label": "straight",
+    "beforeBytes": 151577,
+    "afterBytes": 176362,
+    "beforeMs": 27.66300000000001,
+    "afterMs": 25.139584000000013,
+    "rangeMarks": 26,
+    "saddles": 25
+  },
+  {
+    "label": "curved",
+    "beforeBytes": 147958,
+    "afterBytes": 179064,
+    "beforeMs": 22.840916000000107,
+    "afterMs": 19.301124999999956,
+    "rangeMarks": 29,
+    "saddles": 28
+  },
+  {
+    "label": "lake-gap",
+    "beforeBytes": 146362,
+    "afterBytes": 164526,
+    "beforeMs": 30.8563750000003,
+    "afterMs": 35.27629199999956,
+    "rangeMarks": 15,
+    "saddles": 14
+  },
+  {
+    "label": "alpha",
+    "beforeBytes": 485894,
+    "afterBytes": 485894,
+    "beforeMs": 250.31612499999937,
+    "afterMs": 257.94987500000116,
+    "rangeMarks": 0,
+    "saddles": 0
+  },
+  {
+    "label": "bravo",
+    "beforeBytes": 473835,
+    "afterBytes": 473835,
+    "beforeMs": 177.90795799999978,
+    "afterMs": 158.605458,
+    "rangeMarks": 0,
+    "saddles": 0
+  },
+  {
+    "label": "charlie",
+    "beforeBytes": 214512,
+    "afterBytes": 214512,
+    "beforeMs": 88.46199999999953,
+    "afterMs": 75.83345799999915,
+    "rangeMarks": 0,
+    "saddles": 0
+  },
+  {
+    "label": "mountain-range-9",
+    "beforeBytes": 251832,
+    "afterBytes": 260929,
+    "beforeMs": 77.7022909999996,
+    "afterMs": 77.97412499999882,
+    "rangeMarks": 11,
+    "saddles": 8
+  },
+  {
+    "label": "mountain-range-13",
+    "beforeBytes": 348624,
+    "afterBytes": 361257,
+    "beforeMs": 139.8497090000019,
+    "afterMs": 135.1470420000005,
+    "rangeMarks": 12,
+    "saddles": 8
+  }
+]

@@ -6,6 +6,7 @@ export type RegionGenerationStage =
   | 'geology'
   | 'habitats'
   | 'landscape-names'
+  | 'mountain-ranges'
   | 'ecology-inhabitants'
   | 'ecology-relationships'
   | 'ecology-narrative'

@@ -410,6 +410,8 @@ export const landscapeNounVariants: Record<string, string[]> = {
   Hills: ['Hills', 'Fells', 'Uplands', 'Hill Country'],
   Heights: ['Heights', 'Uplands'],
   Mountains: ['Mountains', 'Peaks', 'Crags', 'Range'],
+  Range: ['Range'],
+  'Mountain Range': ['Mountain Range'],
   Desert: ['Desert', 'Waste', 'Sands', 'Barrens'],
   Marshes: ['Marshes', 'Mire', 'Fens', 'Wetlands'],
   Wetlands: ['Wetlands', 'Fens', 'Mire', 'Marshes'],
@@ -563,7 +565,7 @@ export const landscapeTemplates: LandscapeNameTemplate[] = descriptors.map(([epi
   id: `epithet:${epithet.toLowerCase()}`,
   style: 'descriptive',
   scopes: ['region', 'zone'],
-  eligibleNouns: nouns,
+  eligibleNouns: nouns.includes('Mountains') ? [...nouns, 'Range', 'Mountain Range'] : nouns,
   forms: [`the ${epithet} {noun}`],
   motifKey:
     (
@@ -592,7 +594,7 @@ function addTerrain(
       id: `compound:${name.toLowerCase()}`,
       style: 'compound',
       scopes: ['region'],
-      eligibleNouns: nouns,
+      eligibleNouns: nouns.includes('Mountains') ? [...nouns, 'Range', 'Mountain Range'] : nouns,
       forms: [name],
       motifKey: compoundMotif(name),
     });
@@ -600,7 +602,7 @@ function addTerrain(
       id: `compound-zone:${name.toLowerCase()}`,
       style: 'compound',
       scopes: ['zone'],
-      eligibleNouns: nouns,
+      eligibleNouns: nouns.includes('Mountains') ? [...nouns, 'Range', 'Mountain Range'] : nouns,
       forms: endings.some((ending) => name.toLowerCase().endsWith(ending))
         ? [name]
         : [`${name} {noun}`],
@@ -611,7 +613,7 @@ function addTerrain(
     id: `compound-root:${id}`,
     style: 'compound',
     scopes: ['region', 'zone'],
-    eligibleNouns: nouns,
+    eligibleNouns: nouns.includes('Mountains') ? [...nouns, 'Range', 'Mountain Range'] : nouns,
     forms: endings.map((ending) => `{root}${ending}`),
     rootPalette: palette,
   });
@@ -622,7 +624,7 @@ function addTerrain(
         id: `image:${id}:${motifKey}`,
         style: 'metaphor',
         scopes: ['region'],
-        eligibleNouns: nouns,
+        eligibleNouns: nouns.includes('Mountains') ? [...nouns, 'Range', 'Mountain Range'] : nouns,
         forms: [`the ${image}`, `the ${image.split(' ').at(-1)} of {root}`],
         motifKey,
         rootPalette: palette,
@@ -631,7 +633,7 @@ function addTerrain(
         id: `image-zone:${id}:${motifKey}`,
         style: 'metaphor',
         scopes: ['zone'],
-        eligibleNouns: nouns,
+        eligibleNouns: nouns.includes('Mountains') ? [...nouns, 'Range', 'Mountain Range'] : nouns,
         forms: [`the {noun} of the ${image}`],
         motifKey,
       },

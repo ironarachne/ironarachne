@@ -2,6 +2,7 @@ import type { FactBase, RegionFacts } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
 import type { RegionResourceFactList, RegionSemanticFact } from './region_resource_types';
 export const regionSemanticFactLists = [
+  'mountainRanges',
   'supply',
   'dailyLife',
   'products',

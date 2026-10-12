@@ -11,6 +11,13 @@ function usable(fact: FactBase): boolean {
 function geography(region: Region, rng: RNG): string {
   const land = region.map.nodes.filter((node) => !node.isOcean && !node.isWater);
   if (land.length === 0) return '';
+  const ranges = (region.facts?.mountainRanges ?? []).filter(
+    (fact) => usable(fact) && fact.name.trim(),
+  );
+  if (ranges.length) {
+    const range = rng.item(ranges);
+    return `${region.name} includes ${range.name}, a chain of linked mountain ridges.`;
+  }
   const metrics = measureRegionTerrain(region.map);
   const terrain = `${classifyRelief(metrics.reliefSpread)}, ${classifyAltitude(metrics.medianElevation)}-altitude land`;
   const habitats = (region.facts?.habitats ?? [])
