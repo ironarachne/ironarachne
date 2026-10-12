@@ -121,6 +121,35 @@ function squareCellNode(id: number, minX: number, minY: number, size: number) {
 }
 
 describe('buildRegionMapSvgString', () => {
+  it('paints terrain glyph bodies with their local biome fills and keeps their ink opaque', () => {
+    const input: RegionMap = {
+      width: 40,
+      height: 20,
+      nodes: [
+        { ...squareCellNode(0, 0, 0, 20), biomeId: 'boreal forest' },
+        { ...squareCellNode(1, 20, 0, 20), biomeId: 'temperate deciduous forest' },
+      ],
+      edges: [],
+      corners: [],
+    };
+    const svg = buildRegionMapSvgString(input);
+    for (const [prefix, fill] of [
+      ['tree-pine-', 'rgb(199,208,197)'],
+      ['tree-oak-', 'rgb(207,211,187)'],
+    ]) {
+      const uses = [
+        ...svg.matchAll(/<use href="#([^"]+)" transform="[^"]+" fill="([^"]+)"\/>/g),
+      ].filter((match) => match[1].startsWith(prefix));
+      expect(uses.length).toBeGreaterThan(0);
+      for (const use of uses) {
+        expect(use[2]).toBe(fill);
+        const definition = svg.match(new RegExp(`<g id="${use[1]}">(.*?)</g>`))![1];
+        expect(definition).toMatch(/^<path d="[^"]*"\/>/);
+        expect(definition).toContain(`fill="${CARTOGRAPHY.palette.body.color}"`);
+        expect(definition).not.toContain(CARTOGRAPHY.ground.fill);
+      }
+    }
+  });
   it('places each forest more densely and smaller than relief across equal-area cells', () => {
     const biomes = [
       'temperate deciduous forest',

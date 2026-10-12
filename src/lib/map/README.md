@@ -59,9 +59,10 @@ positions so their geometry agrees with the graph.
   them using relative landform classification, and masks the blurred land at those same processed
   water outlines. Rivers share the water fill. Twelve terrain glyph families (high/ordinary mountains,
   hills, deciduous/conifer/palm trees, marsh, prairie, desert dunes, rocks, cacti, and oasis vegetation) each have four authored ink drawings.
-  `terrain_glyph_catalog` owns their cubic pen curves, parchment bodies, and conservative
+  `terrain_glyph_catalog` owns their cubic pen curves, opaque bodies, and conservative
   control-hull footprints; `terrain_glyph_ink` expands tapered strokes into filled ribbons once
-  per definition. Small intersecting hatch marks shade the appropriate drawings. Glyph scale fitting checks full
+  per definition. Each placed body inherits its node's biome and relief tone blended with the paper,
+  staying opaque to hide overlapping ink. Small intersecting hatch marks shade the appropriate drawings. Glyph scale fitting checks full
   silhouettes against that drawn water (with stroke/filter clearance), using row bins to avoid
   scanning every coast segment for every candidate. Terrain membership still uses the raw cells.
   Non-tree terrain uses the original Poisson candidates; forests use a separate deterministic
