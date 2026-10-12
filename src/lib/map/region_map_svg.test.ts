@@ -526,8 +526,66 @@ describe('buildRegionMapSvgString', () => {
     ).toBe(true);
   });
 
+  it('renders varied tundra across adjacent plains without crossing water or other terrain', () => {
+    const map: RegionMap = {
+      width: 40,
+      height: 20,
+      edges: [],
+      corners: [],
+      nodes: [
+        { ...squareCellNode(0, 0, 0, 20), neighbors: [1], elevation: 0.1, biomeId: 'tundra' },
+        {
+          ...squareCellNode(1, 20, 0, 20),
+          neighbors: [0],
+          elevation: 0.1,
+          biomeId: 'alpine tundra',
+        },
+      ],
+    };
+    const original = structuredClone(map);
+    const svg = buildRegionMapSvgString(map);
+    expect(buildRegionMapSvgString(structuredClone(map))).toBe(svg);
+    expect(map).toEqual(original);
+    const symbols = parsePlacedSymbols(svg);
+    expect(symbols.length).toBeGreaterThan(0);
+    expect(new Set(symbols.map((symbol) => symbol.id)).size).toBeGreaterThan(1);
+    expect(symbols.every((symbol) => symbol.id.startsWith('tundra-'))).toBe(true);
+    // Both tundra classifications form a single mask, so the internal boundary is invisible.
+    expect(
+      symbols.some((symbol) => {
+        const xs = variants
+          .get(symbol.id)!
+          .footprint.map((point) => placeSilhouettePoint(symbol, point.x, point.y).x);
+        return Math.min(...xs) < 20 && Math.max(...xs) > 20;
+      }),
+    ).toBe(true);
+    for (const isWater of [true, false]) {
+      map.nodes[1].isWater = isWater;
+      map.nodes[1].biomeId = 'ice cap';
+      const restricted = parsePlacedSymbols(buildRegionMapSvgString(map));
+      expect(restricted.length).toBeGreaterThan(0);
+      for (const symbol of restricted) {
+        expect(symbol.id).toMatch(/^tundra-/);
+        for (const point of variants.get(symbol.id)!.footprint) {
+          const placed = placeSilhouettePoint(symbol, point.x, point.y);
+          expect(placed.x).toBeGreaterThanOrEqual(0);
+          expect(placed.x).toBeLessThanOrEqual(20);
+          expect(placed.y).toBeGreaterThanOrEqual(0);
+          expect(placed.y).toBeLessThanOrEqual(20);
+        }
+      }
+    }
+  });
+
   it('leaves open biomes free of glyphs and the old dust-speck text marks', () => {
-    for (const biomeId of ['montane grassland', 'tundra', 'savanna', 'unknown']) {
+    for (const biomeId of [
+      'montane grassland',
+      'ice cap',
+      'polar',
+      'unknown tundra',
+      'savanna',
+      'unknown',
+    ]) {
       const map: RegionMap = {
         width: 10,
         height: 10,
