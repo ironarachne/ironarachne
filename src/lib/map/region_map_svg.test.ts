@@ -590,7 +590,7 @@ describe('buildRegionMapSvgString', () => {
     ).toBe(true);
     for (const isWater of [true, false]) {
       map.nodes[1].isWater = isWater;
-      map.nodes[1].biomeId = 'ice cap';
+      map.nodes[1].biomeId = 'polar';
       const restricted = parsePlacedSymbols(buildRegionMapSvgString(map));
       expect(restricted.length).toBeGreaterThan(0);
       for (const symbol of restricted) {
@@ -606,15 +606,84 @@ describe('buildRegionMapSvgString', () => {
     }
   });
 
+  it('places all six new biomes with distinct variants, joined cells, and furniture clearance', () => {
+    const biomes = [
+      ['tropical savanna', 'tree-savanna'],
+      ['montane grassland', 'montane-grass'],
+      ['ice cap', 'ice-cap'],
+      ['mangrove forest', 'tree-mangrove'],
+      ['mediterranean woodland', 'tree-mediterranean'],
+      ['temperate rainforest', 'tree-rainforest'],
+    ];
+    const map: RegionMap = {
+      width: 120,
+      height: 60,
+      edges: [],
+      corners: [],
+      nodes: Array.from({ length: 18 }, (_, id) => ({
+        ...squareCellNode(id, (id % 6) * 20, Math.floor(id / 6) * 20, 20),
+        biomeId: biomes[id % 6][0],
+        neighbors: [id - 6, id + 6].filter((neighbor) => neighbor >= 0 && neighbor < 18),
+      })),
+    };
+    const original = structuredClone(map);
+    const options = {
+      title: 'Six biomes',
+      settlements: [{ mapNodeId: 9, name: 'Rootford', category: 'town' as const }],
+      features: [
+        {
+          id: 'habitat:ice',
+          name: 'Icefields',
+          kind: 'habitat' as const,
+          nodeIds: [14],
+          edgeIds: [],
+        },
+      ],
+    };
+    const svg = buildRegionMapSvgString(map, options);
+    expect(buildRegionMapSvgString(structuredClone(map), options)).toBe(svg);
+    expect(map).toEqual(original);
+    expect(svg).not.toMatch(/NaN|Infinity|undefined/);
+    const symbols = parsePlacedSymbols(svg);
+    const obstacles = [...svg.matchAll(/data-(?:icon-bounds|reserved-box)="([^"]+)"/g)].map(
+      (match) => {
+        const [minX, minY, maxX, maxY] = match[1].split(' ').map(Number);
+        return { minX, minY, maxX, maxY };
+      },
+    );
+    expect(obstacles.length).toBeGreaterThanOrEqual(2);
+    for (const [column, [, prefix]] of biomes.entries()) {
+      const marks = symbols.filter((s) => s.id.startsWith(`${prefix}-`));
+      expect(marks.length, prefix).toBeGreaterThan(3);
+      expect(new Set(marks.map((s) => s.id)).size, prefix).toBeGreaterThan(1);
+      let crossesCellBoundary = false;
+      for (const symbol of marks) {
+        const outline = variants
+          .get(symbol.id)!
+          .footprint.map((p) => placeSilhouettePoint(symbol, p.x, p.y));
+        const box = {
+          minX: Math.min(...outline.map((p) => p.x)),
+          maxX: Math.max(...outline.map((p) => p.x)),
+          minY: Math.min(...outline.map((p) => p.y)),
+          maxY: Math.max(...outline.map((p) => p.y)),
+        };
+        expect(box.minX).toBeGreaterThanOrEqual(column * 20);
+        expect(box.maxX).toBeLessThanOrEqual((column + 1) * 20);
+        expect(box.minY).toBeGreaterThanOrEqual(0);
+        expect(box.maxY).toBeLessThanOrEqual(60);
+        for (const obstacle of obstacles) expect(boxesOverlap(box, obstacle)).toBe(false);
+        if (Math.floor(box.minY / 20) !== Math.floor(box.maxY / 20)) crossesCellBoundary = true;
+      }
+      expect(crossesCellBoundary, prefix).toBe(true);
+    }
+    // Open savanna and dry woodland stay sparser than wet forest on equal areas.
+    const count = (prefix: string) => symbols.filter((s) => s.id.startsWith(`${prefix}-`)).length;
+    expect(count('tree-savanna')).toBeLessThan(count('tree-rainforest'));
+    expect(count('tree-mediterranean')).toBeLessThan(count('tree-rainforest'));
+  });
+
   it('leaves open biomes free of glyphs and the old dust-speck text marks', () => {
-    for (const biomeId of [
-      'montane grassland',
-      'ice cap',
-      'polar',
-      'unknown tundra',
-      'savanna',
-      'unknown',
-    ]) {
+    for (const biomeId of ['polar', 'unknown tundra', 'savanna', 'unknown']) {
       const map: RegionMap = {
         width: 10,
         height: 10,

@@ -1,0 +1,54 @@
+{
+  "before": [
+    {
+      "name": "mixed",
+      "bytes": 407502,
+      "glyphs": 1372,
+      "medianMs": 107.10304199999973
+    },
+    {
+      "name": "alpha",
+      "bytes": 279026,
+      "glyphs": 185,
+      "medianMs": 162.1162919999997
+    },
+    {
+      "name": "bravo",
+      "bytes": 356576,
+      "glyphs": 597,
+      "medianMs": 168.26087499999994
+    },
+    {
+      "name": "charlie",
+      "bytes": 356269,
+      "glyphs": 486,
+      "medianMs": 147.05554200000006
+    }
+  ],
+  "after": [
+    {
+      "name": "mixed",
+      "bytes": 552589,
+      "glyphs": 1206,
+      "medianMs": 102.50716699999975
+    },
+    {
+      "name": "alpha",
+      "bytes": 310697,
+      "glyphs": 285,
+      "medianMs": 162.85670800000025
+    },
+    {
+      "name": "bravo",
+      "bytes": 368230,
+      "glyphs": 602,
+      "medianMs": 157.88537499999984
+    },
+    {
+      "name": "charlie",
+      "bytes": 375132,
+      "glyphs": 509,
+      "medianMs": 146.8150000000005
+    }
+  ]
+}

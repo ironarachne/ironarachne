@@ -15,6 +15,12 @@ const MARSH_BIOMES = new Set([
 const PRAIRIE_BIOMES = new Set(['temperate grassland', 'prairie']);
 
 function vegetationFamily(biome: string): TerrainGlyphFamily | null {
+  if (biome === 'tropical savanna') return 'treeSavanna';
+  if (biome === 'montane grassland') return 'montaneGrass';
+  if (biome === 'ice cap') return 'iceCap';
+  if (biome === 'mangrove forest') return 'treeMangrove';
+  if (biome === 'mediterranean woodland') return 'treeMediterranean';
+  if (biome === 'temperate rainforest') return 'treeRainforest';
   if (biome === 'tundra' || biome === 'alpine tundra') return 'tundra';
   if (MARSH_BIOMES.has(biome)) return 'marsh';
   if (biome.includes('forest') || biome.includes('woodland')) {

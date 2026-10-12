@@ -23,6 +23,12 @@ const labels = [
   'Desert cacti',
   'Oasis vegetation',
   'Tundra',
+  'Savanna trees',
+  'Montane grassland',
+  'Ice cap',
+  'Mangroves',
+  'Mediterranean woodland',
+  'Temperate rainforest',
 ];
 const height = 170 + Object.keys(TERRAIN_GLYPHS).length * 145;
 const elements = [

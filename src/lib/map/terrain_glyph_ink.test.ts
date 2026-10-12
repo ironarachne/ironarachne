@@ -74,9 +74,9 @@ function insideConvex(p: { x: number; y: number }, polygon: { x: number; y: numb
 }
 
 describe('authored terrain catalog', () => {
-  it('has four unique drawings in each of thirteen families with positive placement profiles', () => {
-    expect(Object.keys(TERRAIN_GLYPHS)).toHaveLength(13);
-    expect(new Set(TERRAIN_GLYPH_VARIANTS.map((v) => v.id)).size).toBe(52);
+  it('has four unique drawings in each of nineteen families with positive placement profiles', () => {
+    expect(Object.keys(TERRAIN_GLYPHS)).toHaveLength(19);
+    expect(new Set(TERRAIN_GLYPH_VARIANTS.map((v) => v.id)).size).toBe(76);
     for (const definition of Object.values(TERRAIN_GLYPHS)) {
       expect(definition.variants).toHaveLength(4);
       expect(new Set(definition.variants.map((v) => JSON.stringify(v.strokes))).size).toBe(4);
@@ -88,16 +88,11 @@ describe('authored terrain catalog', () => {
       expect(definition.candidateSpacingFactor).toBeGreaterThan(0);
     }
   });
-  it('shares a denser candidate spacing across all three forest families', () => {
-    const trees = [
-      TERRAIN_GLYPHS.treeDeciduous,
-      TERRAIN_GLYPHS.treeConifer,
-      TERRAIN_GLYPHS.treePalm,
-    ];
+  it('shares a denser candidate spacing across all tree families', () => {
+    const trees = Object.values(TERRAIN_GLYPHS).filter((d) => d.family.startsWith('tree'));
     expect(new Set(trees.map((tree) => tree.candidateSpacingFactor)).size).toBe(1);
     for (const tree of trees) {
       expect(tree.candidateSpacingFactor).toBeLessThan(TERRAIN_GLYPHS.hill.candidateSpacingFactor);
-      expect(tree.densityRatio).toBe(1);
     }
   });
   it('bounds all ink ribbons, body controls and ground marks with each variant footprint', () => {
