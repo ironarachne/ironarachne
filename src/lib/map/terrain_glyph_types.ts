@@ -14,7 +14,13 @@ export type TerrainGlyphFamily =
   | 'desertRock'
   | 'desertCactus'
   | 'desertOasis'
-  | 'tundra';
+  | 'tundra'
+  | 'treeSavanna'
+  | 'montaneGrass'
+  | 'iceCap'
+  | 'treeMangrove'
+  | 'treeMediterranean'
+  | 'treeRainforest';
 
 export interface CubicInkSegment {
   start: Vertex;

@@ -57,8 +57,9 @@ positions so their geometry agrees with the graph.
   clips, and river cutouts reuse the same outline, defined once in SVG. Pale blue water sits beneath
   coast-following hatch bands. `terrain_tones` blends muted biome colors beneath the ink, darkens
   them using relative landform classification, and masks the blurred land at those same processed
-  water outlines. Rivers share the water fill. Twelve terrain glyph families (high/ordinary mountains,
-  hills, deciduous/conifer/palm trees, marsh, prairie, desert dunes, rocks, cacti, and oasis vegetation) each have four authored ink drawings.
+  water outlines. Rivers share the water fill. Nineteen terrain glyph families each have four authored ink drawings: high/ordinary mountains,
+  hills, deciduous/conifer/palm trees, marsh, prairie, desert dunes, rocks, cacti, oasis vegetation,
+  tundra, savanna trees, montane grass, ice caps, mangroves, Mediterranean woodland, and temperate rainforest.
   `terrain_glyph_catalog` owns their cubic pen curves, opaque bodies, and conservative
   control-hull footprints; `terrain_glyph_ink` expands tapered strokes into filled ribbons once
   per definition. Each placed body inherits its node's biome and relief tone blended with the paper,
@@ -78,7 +79,10 @@ positions so their geometry agrees with the graph.
   Small enclosed lakes surrounded by desert can receive one warm-shore oasis vegetation mark.
   `desert_terrain` derives eligibility from existing graph evidence; it never creates water or
   changes saved facts. All desert marks clear the drawn river banks and join disks as well as lakes.
-  See [region desert display](../../../docs/region-desert-display.md). Other open plains remain bare. The local RNG is derived from map dimensions
+  See [region desert display](../../../docs/region-desert-display.md). Tundra and alpine tundra receive sparse snow-and-scrub contours on plains. Tropical savanna,
+  montane grassland, and ice cap have distinct tree/grass/ice marks; mangrove forest, Mediterranean
+  woodland, and temperate rainforest have their own tree silhouettes. These six exact biome matches
+  preserve hill and mountain precedence. See [biome glyph completion](../../../docs/region-biome-glyph-completion.md). Other open plains remain bare. The local RNG is derived from map dimensions
   and node count, so saved graphs render without an extra seed. Candidate placement, density,
   variant choice, and styling use separate deterministic streams; changing the catalog does not
   consume candidate-placement draws. No terrain glyph record is persisted. Text uses conservative serif bounds

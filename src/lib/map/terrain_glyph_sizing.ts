@@ -3,7 +3,7 @@ import { TERRAIN_GLYPHS } from './terrain_glyph_catalog';
 import type { TerrainGlyphFamily, TerrainGlyphVariant } from './terrain_glyph_types';
 
 export function isTreeGlyph(family: TerrainGlyphFamily): boolean {
-  return family === 'treeDeciduous' || family === 'treeConifer' || family === 'treePalm';
+  return family.startsWith('tree');
 }
 
 /** Unrotated span of the complete conservative footprint, including ink and ground marks. */

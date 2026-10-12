@@ -62,7 +62,7 @@ it('assigns vegetation, relief, and desert families with mountain, wetland, hill
     'hill',
     'treeDeciduous',
     'treeConifer',
-    'treePalm',
+    'treeMangrove',
     'marsh',
     'prairie',
     ...Array(8).fill('desertDune'),
@@ -88,10 +88,10 @@ it.each(['marsh', 'bog', 'fen', 'swamp', 'freshwater wetland', 'flooded grasslan
 );
 
 it.each([
-  'montane grassland',
-  'tropical savanna',
-  'ice cap',
   'polar',
+  'savanna',
+  'unknown grassland',
+  'glacial ice',
   'unknown tundra',
   'unknown',
   'salt marsh grass',
@@ -172,9 +172,18 @@ it('renders reproducible, varied terrain inside every assigned cell using its ac
   expect(svg).not.toMatch(/NaN|Infinity|undefined/);
 });
 
-it.each(['marsh', 'tundra'])('keeps %s strokes clear of an adjacent drawn lake', (family) => {
+it.each([
+  ['marsh', 'marsh'],
+  ['tundra', 'tundra'],
+  ['tropical savanna', 'tree-savanna'],
+  ['montane grassland', 'montane-grass'],
+  ['ice cap', 'ice-cap'],
+  ['mangrove forest', 'tree-mangrove'],
+  ['mediterranean woodland', 'tree-mediterranean'],
+  ['temperate rainforest', 'tree-rainforest'],
+])('keeps %s strokes clear of an adjacent drawn lake', (biome, family) => {
   const map = fixture();
-  map.nodes[7].biomeId = family;
+  map.nodes[7].biomeId = biome;
   map.nodes[10].isWater = true;
   map.nodes[10].biomeId = 'lake';
   const vertices = map.nodes[10].polygon.vertices;
@@ -253,3 +262,29 @@ it.each(['tundra', 'alpine tundra', ' TUNDRA ', ' ALPINE TUNDRA '])(
     expect(assignTerrainGlyphs(map).has(7)).toBe(false);
   },
 );
+
+it.each([
+  ['tropical savanna', 'treeSavanna'],
+  ['montane grassland', 'montaneGrass'],
+  ['ice cap', 'iceCap'],
+  ['mangrove forest', 'treeMangrove'],
+  ['mediterranean woodland', 'treeMediterranean'],
+  ['temperate rainforest', 'treeRainforest'],
+])('assigns the distinct %s vocabulary only on plain land', (biome, family) => {
+  for (const spelling of [biome, ` ${biome.toUpperCase()} `]) {
+    const map = fixture();
+    map.nodes.forEach((n) => (n.biomeId = spelling));
+    const original = structuredClone(map);
+    const assigned = assignTerrainGlyphs(map);
+    expect(assigned.get(0)?.family).toBe('mountainHigh');
+    expect(assigned.get(1)?.family).toBe('mountain');
+    expect(assigned.get(2)?.family).toBe('hill');
+    expect(assigned.get(7)?.family).toBe(family);
+    expect(map).toEqual(original);
+    map.nodes[7].isWater = true;
+    expect(assignTerrainGlyphs(map).has(7)).toBe(false);
+    map.nodes[7].isWater = false;
+    map.nodes[7].isOcean = true;
+    expect(assignTerrainGlyphs(map).has(7)).toBe(false);
+  }
+});
