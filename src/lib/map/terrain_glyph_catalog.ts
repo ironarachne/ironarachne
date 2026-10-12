@@ -955,6 +955,169 @@ function desertOases(): TerrainGlyphVariant[] {
   });
 }
 
+/** Low snow shoulders and branching scrub; cartographic motifs rather than seasonal facts. */
+function tundras(): TerrainGlyphVariant[] {
+  const sketches: readonly (readonly (readonly SketchPoint[])[])[] = [
+    [
+      [
+        [-38, -3],
+        [-25, -8],
+        [-10, -9],
+        [6, -5],
+        [22, -4],
+        [36, -7],
+      ],
+      [
+        [-23, 2],
+        [-7, 0],
+        [8, 2],
+      ],
+      [
+        [17, -5],
+        [16, -14],
+        [10, -18],
+      ],
+      [
+        [16, -12],
+        [23, -18],
+        [27, -17],
+      ],
+      [
+        [16, -10],
+        [9, -12],
+      ],
+      [
+        [-7, -9],
+        [-8, -15],
+        [-13, -18],
+      ],
+      [
+        [-8, -13],
+        [-3, -18],
+      ],
+    ],
+    [
+      [
+        [-39, -2],
+        [-23, -6],
+        [-9, -4],
+        [7, -7],
+        [25, -9],
+        [39, -5],
+      ],
+      [
+        [4, 2],
+        [20, 0],
+        [31, 1],
+      ],
+      [
+        [-21, -5],
+        [-22, -15],
+        [-27, -19],
+      ],
+      [
+        [-22, -12],
+        [-16, -18],
+      ],
+      [
+        [-22, -9],
+        [-29, -12],
+      ],
+      [
+        [18, -9],
+        [19, -14],
+        [24, -17],
+      ],
+      [
+        [19, -13],
+        [15, -18],
+      ],
+    ],
+    [
+      [
+        [-35, -4],
+        [-23, -10],
+        [-9, -11],
+        [5, -7],
+        [20, -6],
+      ],
+      [
+        [-18, 1],
+        [-3, -1],
+        [13, 1],
+        [31, -2],
+      ],
+      [
+        [26, -3],
+        [25, -13],
+        [20, -16],
+      ],
+      [
+        [25, -11],
+        [31, -16],
+        [34, -15],
+      ],
+      [
+        [25, -8],
+        [19, -10],
+      ],
+      [
+        [-17, -10],
+        [-17, -15],
+        [-21, -18],
+      ],
+      [
+        [-17, -13],
+        [-12, -17],
+      ],
+    ],
+    [
+      [
+        [-38, -5],
+        [-20, -7],
+        [-2, -4],
+        [14, -9],
+        [30, -10],
+        [39, -7],
+      ],
+      [
+        [-29, 1],
+        [-13, 0],
+        [-1, 2],
+      ],
+      [
+        [-26, -7],
+        [-25, -15],
+        [-29, -19],
+      ],
+      [
+        [-25, -13],
+        [-20, -18],
+      ],
+      [
+        [6, -6],
+        [5, -14],
+        [0, -18],
+      ],
+      [
+        [5, -12],
+        [11, -17],
+        [15, -16],
+      ],
+      [
+        [5, -9],
+        [-1, -12],
+      ],
+    ],
+  ];
+  return sketches.map((sketch, i) =>
+    variant(
+      `tundra-${i}`,
+      sketch.map((points, index) => pen(points, index < 2 ? 1.25 : 1.05)),
+    ),
+  );
+}
+
 function definition(
   family: TerrainGlyphFamily,
   variants: TerrainGlyphVariant[],
@@ -986,6 +1149,7 @@ export const TERRAIN_GLYPHS: Record<TerrainGlyphFamily, TerrainGlyphDefinition> 
   desertRock: definition('desertRock', desertRocks(), 0.7, 0.45),
   desertCactus: definition('desertCactus', desertCacti(), 0.6, 0.25),
   desertOasis: definition('desertOasis', desertOases(), 0.6, 1),
+  tundra: { ...definition('tundra', tundras(), 0.4, 0.3), minimumScaleRatio: 0.55 },
 };
 
 export const TERRAIN_GLYPH_VARIANTS = Object.values(TERRAIN_GLYPHS).flatMap((d) => d.variants);

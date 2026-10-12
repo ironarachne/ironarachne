@@ -22,6 +22,7 @@ const labels = [
   'Desert rocks',
   'Desert cacti',
   'Oasis vegetation',
+  'Tundra',
 ];
 const height = 170 + Object.keys(TERRAIN_GLYPHS).length * 145;
 const elements = [

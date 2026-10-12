@@ -87,14 +87,19 @@ it.each(['marsh', 'bog', 'fen', 'swamp', 'freshwater wetland', 'flooded grasslan
   },
 );
 
-it.each(['montane grassland', 'tropical savanna', 'tundra', 'unknown', 'salt marsh grass'])(
-  'does not invent prairie or marsh evidence for %s',
-  (biome) => {
-    const map = fixture();
-    map.nodes[7].biomeId = biome;
-    expect(assignTerrainGlyphs(map).has(7)).toBe(false);
-  },
-);
+it.each([
+  'montane grassland',
+  'tropical savanna',
+  'ice cap',
+  'polar',
+  'unknown tundra',
+  'unknown',
+  'salt marsh grass',
+])('does not invent prairie or marsh evidence for %s', (biome) => {
+  const map = fixture();
+  map.nodes[7].biomeId = biome;
+  expect(assignTerrainGlyphs(map).has(7)).toBe(false);
+});
 
 it.each([
   ['tropical rainforest', 'treePalm'],
@@ -167,8 +172,9 @@ it('renders reproducible, varied terrain inside every assigned cell using its ac
   expect(svg).not.toMatch(/NaN|Infinity|undefined/);
 });
 
-it('keeps reed tufts and their ground water strokes clear of an adjacent drawn lake', () => {
+it.each(['marsh', 'tundra'])('keeps %s strokes clear of an adjacent drawn lake', (family) => {
   const map = fixture();
+  map.nodes[7].biomeId = family;
   map.nodes[10].isWater = true;
   map.nodes[10].biomeId = 'lake';
   const vertices = map.nodes[10].polygon.vertices;
@@ -209,9 +215,12 @@ it('keeps reed tufts and their ground water strokes clear of an adjacent drawn l
   });
   expect(water).toHaveLength(1);
   const clear = makeWaterClearanceTest(water, 0.18);
-  let reeds = 0;
+  let marks = 0;
   for (const match of svg.matchAll(
-    /<use href="#(marsh-[0-3])" transform="translate\((-?[\d.]+), (-?[\d.]+)\) rotate\((-?[\d.]+)\) scale\(([\d.]+)\)"/g,
+    new RegExp(
+      `<use href="#(${family}-[0-3])" transform="translate\\((-?[\\d.]+), (-?[\\d.]+)\\) rotate\\((-?[\\d.]+)\\) scale\\(([\\d.]+)\\)"`,
+      'g',
+    ),
   )) {
     const [, id, sx, sy, rotation, scale] = match;
     const angle = (Number(rotation) * Math.PI) / 180;
@@ -220,7 +229,27 @@ it('keeps reed tufts and their ground water strokes clear of an adjacent drawn l
       y: Number(sy) + Number(scale) * (p.x * Math.sin(angle) + p.y * Math.cos(angle)),
     }));
     expect(clear(footprint)).toBe(true);
-    reeds++;
+    marks++;
   }
-  expect(reeds).toBeGreaterThan(0);
+  expect(marks).toBeGreaterThan(0);
 });
+
+it.each(['tundra', 'alpine tundra', ' TUNDRA ', ' ALPINE TUNDRA '])(
+  'assigns %s only on plain land while retaining relief',
+  (biome) => {
+    const map = fixture();
+    for (const n of map.nodes) n.biomeId = biome;
+    const original = structuredClone(map);
+    const assigned = assignTerrainGlyphs(map);
+    expect(assigned.get(0)?.family).toBe('mountainHigh');
+    expect(assigned.get(1)?.family).toBe('mountain');
+    expect(assigned.get(2)?.family).toBe('hill');
+    expect(assigned.get(7)?.family).toBe('tundra');
+    expect(map).toEqual(original);
+    map.nodes[7].isWater = true;
+    expect(assignTerrainGlyphs(map).has(7)).toBe(false);
+    map.nodes[7].isWater = false;
+    map.nodes[7].isOcean = true;
+    expect(assignTerrainGlyphs(map).has(7)).toBe(false);
+  },
+);
