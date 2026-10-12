@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RNG } from '@ironarachne/rng';
+import * as Names from '$lib/names';
 import { generate, getDefaultConfig } from './regions';
 import { toRegionSnapshot } from './region_snapshot';
 import { regionFromSnapshot } from './region_rehydrate';
@@ -156,9 +157,12 @@ describe('region affiliation', () => {
     const land = region.map.nodes.filter((node) => !node.isWater && !node.isOcean);
     expect(land.length).toBeGreaterThan(0);
     for (const node of land) node.biomeId = 'desert';
+    const naming = vi.spyOn(Names, 'generateLandscapeName');
     const name = generateRegionGeographicName(region, new RNG('observed-name'));
     expect(name).not.toMatch(/Woods|Forest|Sea|Northern|Western|Eastern|Southern/);
-    expect(name).toMatch(/Desert|Hills|Heights|Mountains$/);
+    expect(naming.mock.calls[0][0]).toMatchObject({ scope: 'region', directions: [] });
+    expect(naming.mock.calls[0][0].nouns).toContain('Desert');
+    expect(naming.mock.calls[0][0].nouns).not.toContain('Woods');
   });
 
   it('uses a neutral name when no land supports a specific geographic noun', () => {
@@ -166,6 +170,12 @@ describe('region affiliation', () => {
     region.map.nodes.forEach((node) => {
       node.isWater = true;
     });
-    expect(generateRegionGeographicName(region, new RNG('name'))).toMatch(/Reaches$/);
+    const naming = vi.spyOn(Names, 'generateLandscapeName');
+    expect(generateRegionGeographicName(region, new RNG('name')).length).toBeGreaterThan(0);
+    expect(naming.mock.calls[0][0]).toMatchObject({
+      nouns: ['Reaches'],
+      scope: 'region',
+      directions: [],
+    });
   });
 });

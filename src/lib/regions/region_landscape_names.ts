@@ -133,6 +133,7 @@ export function generateLandscapeNames(
     const result = generateLandscapeName(
       {
         id: zone.id,
+        scope: 'zone',
         nouns: namingNouns(nodes[0].biomeId ?? '', nodes, landforms),
         directions: namingDirections(nodes, region.map),
         culturePatterns,
@@ -161,6 +162,7 @@ export function generateRegionGeographicName(region: Region, rng: RNG): string {
   return generateLandscapeName(
     {
       id: 'region',
+      scope: 'region',
       nouns,
       directions: [],
       ...(region.dominantCulture === null
