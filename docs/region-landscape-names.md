@@ -2,6 +2,11 @@
 
 **Status:** implemented — domain model approved by Ben on 2026-10-03.
 
+The [landscape name evolution](landscape-name-evolution.md), approved on 2026-10-12, extends the
+repertoire, transient input/context types, repetition rules and uniqueness fallback. Its decisions
+supersede the original three-style weights and permit reviewed geographic metaphors; the geographic
+evidence, RNG isolation, summary and saved-name contracts below remain in force.
+
 ## Problem
 
 The Landscape section presents spatial zones as technical labels such as “central montane

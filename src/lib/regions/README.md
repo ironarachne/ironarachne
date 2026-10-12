@@ -98,12 +98,14 @@ The modules the readiness pass gives every Release-ready tool
   supported version. Existing map, environment, identities and authored text are preserved.
 - **`region_editing.ts`** — pure snapshot-to-snapshot edits over the region's words, its seat, its
   realms, its settlements and its organizations.
-- **`region_landscape_names.ts`** — names connected generated habitat zones with descriptive,
-  geographic and occasional cultural forms on the isolated `landscape-names` stream. Biome and
+- **`region_landscape_names.ts`** — names connected generated habitat zones with varied, terrain-led
+  forms on the isolated `landscape-names` stream, and unaffiliated whole regions with broader
+  geographic identities on `region-name`. Both use the shared names library with explicit scope. Biome and
   observed map landforms constrain the nouns; two-thirds of the footprint must support a direction.
   Existing saved names, authored zones and region-wide habitat category names remain intact.
   Landscape headings display zone names directly and format habitat summaries as categories
-  across the region. See [landscape names](../../../docs/region-landscape-names.md).
+  across the region. See [landscape names](../../../docs/region-landscape-names.md) and the
+  [approved naming evolution](../../../docs/landscape-name-evolution.md).
 - **`region_presentation.ts`** — one gazetteer document shared by the page, saved editor,
   Markdown and PDF text, plus `regionToMapSvg` and `regionMapDataUrl`. Landscape, flora/fauna,
   inhabitants, notable places, travel and hazards reuse saved descriptions; road paragraphs

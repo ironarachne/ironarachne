@@ -1,0 +1,1104 @@
+{
+  "purpose": "Research corpus for geographic region names, especially unaffiliated Iron Arachne regions. Not runtime generator data.",
+  "researched_on": "2026-10-12",
+  "sources": {
+    "feist": {
+      "setting": "Midkemia",
+      "author": "Raymond E. Feist",
+      "period": "1980s core; reference covers later works too",
+      "url": "https://elvandar.crydee.com/names.htm",
+      "evidence": "Author-approved atlas archive; gazetteer text inspected. Individual first-book appearances not established."
+    },
+    "williams": {
+      "setting": "Osten Ard",
+      "author": "Tad Williams",
+      "period": "1988",
+      "url": "https://www.tadwilliams.com/wp-content/uploads/2014/04/osten-ard-map.jpg",
+      "evidence": "Visually inspected author-hosted map bearing 1988 copyright and The Dragonbone Chair title. Articles normalized away."
+    },
+    "mckiernan": {
+      "setting": "Mithgar",
+      "author": "Dennis L. McKiernan",
+      "period": "1980s core; later map",
+      "url": "https://mithgar.infinispace.net/maps/jc_mithgar_l.jpg",
+      "additional_url": "https://mithgar.infinispace.net/maps/am_mithgar_l.jpg",
+      "evidence": "Visually inspected map by Jack R. Cook, hosted on a site stating maps used with permission. Era of each label not established. Barrens and Untamed Lands also visible on the site's world map."
+    },
+    "brooks": {
+      "setting": "Four Lands",
+      "author": "Terry Brooks",
+      "period": "1977 precursor and 1983 novel",
+      "url": "https://reactormag.com/rereading-the-elfstones-of-shannara-chapters-23-26/",
+      "evidence": "Matted Brakes and Wilderun confirmed in publisher-associated reread; other four names in Google Books index of The Sword of Shannara. Not a first-edition map inspection.",
+      "additional_url": "https://books.google.com/books/about/The_Sword_of_Shannara_In_the_Shadow_of_t.html?id=6V4GSXM--48C"
+    },
+    "eddings": {
+      "setting": "Belgariad",
+      "author": "David Eddings",
+      "period": "1980s core; later omnibus reference",
+      "url": "https://www.librarything.com/work/1272805",
+      "evidence": "Secondary, community-maintained place index. Geographic names selected; no first-edition map inspection."
+    },
+    "dragonlance": {
+      "setting": "Ansalon",
+      "author": "Dragonlance setting / multiple authors",
+      "period": "1980s core; later reference",
+      "url": "https://dragonlance.fandom.com/wiki/Plains_of_Dust",
+      "evidence": "Secondary wiki entry inspected. Geographic place, with political history; not evidence of permanent lack of ownership."
+    }
+  },
+  "published_examples": [
+    {
+      "name": "Dimwood",
+      "source_id": "feist",
+      "landscape": "woodland",
+      "form": "compound",
+      "use": "reference only"
+    },
+    {
+      "name": "Green Heart",
+      "source_id": "feist",
+      "landscape": "woodland",
+      "form": "metaphor",
+      "use": "reference only"
+    },
+    {
+      "name": "Grey Towers",
+      "source_id": "feist",
+      "landscape": "mountains",
+      "form": "metaphor",
+      "use": "reference only"
+    },
+    {
+      "name": "High Wold",
+      "source_id": "feist",
+      "landscape": "grassland",
+      "form": "terrain",
+      "use": "reference only"
+    },
+    {
+      "name": "High Fastness",
+      "source_id": "feist",
+      "landscape": "mountains",
+      "form": "terrain",
+      "use": "reference only"
+    },
+    {
+      "name": "Grimstone Mountains",
+      "source_id": "feist",
+      "landscape": "mountains",
+      "form": "compound + terrain",
+      "use": "reference only"
+    },
+    {
+      "name": "Teeth of the World",
+      "source_id": "feist",
+      "landscape": "mountains",
+      "form": "metaphor",
+      "use": "reference only"
+    },
+    {
+      "name": "Mother of Waters",
+      "source_id": "feist",
+      "landscape": "mountains",
+      "form": "metaphor",
+      "use": "reference only"
+    },
+    {
+      "name": "Nornfells",
+      "source_id": "williams",
+      "landscape": "mountains",
+      "form": "compound",
+      "use": "reference only"
+    },
+    {
+      "name": "Frostmarch",
+      "source_id": "williams",
+      "landscape": "cold country",
+      "form": "compound",
+      "use": "reference only"
+    },
+    {
+      "name": "Wealdhelm",
+      "source_id": "williams",
+      "landscape": "mountains",
+      "form": "opaque proper name",
+      "use": "reference only"
+    },
+    {
+      "name": "Aldheorte",
+      "source_id": "williams",
+      "landscape": "woodland",
+      "form": "opaque proper name",
+      "use": "reference only"
+    },
+    {
+      "name": "High Thrithing",
+      "source_id": "williams",
+      "landscape": "open country",
+      "form": "qualified proper name",
+      "use": "reference only"
+    },
+    {
+      "name": "Meadow Thrithing",
+      "source_id": "williams",
+      "landscape": "open country",
+      "form": "qualified proper name",
+      "use": "reference only"
+    },
+    {
+      "name": "Lake Thrithing",
+      "source_id": "williams",
+      "landscape": "open country",
+      "form": "qualified proper name",
+      "use": "reference only"
+    },
+    {
+      "name": "Wran",
+      "source_id": "williams",
+      "landscape": "wetland",
+      "form": "opaque proper name",
+      "use": "reference only"
+    },
+    {
+      "name": "Barrens",
+      "source_id": "mckiernan",
+      "landscape": "barren country",
+      "form": "bare terrain",
+      "use": "reference only"
+    },
+    {
+      "name": "Untamed Lands",
+      "source_id": "mckiernan",
+      "landscape": "broad country",
+      "form": "epithet + terrain",
+      "use": "reference only"
+    },
+    {
+      "name": "Steppes of Kood",
+      "source_id": "mckiernan",
+      "landscape": "grassland",
+      "form": "terrain of proper name",
+      "use": "reference only"
+    },
+    {
+      "name": "Matted Brakes",
+      "source_id": "brooks",
+      "landscape": "wetland",
+      "form": "epithet + terrain",
+      "use": "reference only"
+    },
+    {
+      "name": "Wilderun",
+      "source_id": "brooks",
+      "landscape": "woodland",
+      "form": "compound",
+      "use": "reference only"
+    },
+    {
+      "name": "Black Oaks",
+      "source_id": "brooks",
+      "landscape": "woodland",
+      "form": "color + vegetation",
+      "use": "reference only"
+    },
+    {
+      "name": "Mist Marsh",
+      "source_id": "brooks",
+      "landscape": "wetland",
+      "form": "weather + terrain",
+      "use": "reference only"
+    },
+    {
+      "name": "Shady Vale",
+      "source_id": "brooks",
+      "landscape": "valley",
+      "form": "epithet + terrain",
+      "use": "reference only"
+    },
+    {
+      "name": "Anar Forests",
+      "source_id": "brooks",
+      "landscape": "woodland",
+      "form": "proper name + terrain",
+      "use": "reference only"
+    },
+    {
+      "name": "Wood of the Dryads",
+      "source_id": "eddings",
+      "landscape": "woodland",
+      "form": "terrain of inhabitants",
+      "use": "reference only"
+    },
+    {
+      "name": "Vale of Aldur",
+      "source_id": "eddings",
+      "landscape": "valley",
+      "form": "terrain of proper name",
+      "use": "reference only"
+    },
+    {
+      "name": "Isle of the Winds",
+      "source_id": "eddings",
+      "landscape": "island",
+      "form": "terrain of phenomenon",
+      "use": "reference only"
+    },
+    {
+      "name": "Sea of the Winds",
+      "source_id": "eddings",
+      "landscape": "sea",
+      "form": "terrain of phenomenon",
+      "use": "reference only"
+    },
+    {
+      "name": "Plains of Dust",
+      "source_id": "dragonlance",
+      "landscape": "dry open country",
+      "form": "terrain of substance",
+      "use": "reference only"
+    }
+  ],
+  "original_candidates": [
+    {
+      "name": "Briarshade",
+      "landscape": "woodland",
+      "eligibility": "forest biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Gloamwood",
+      "landscape": "woodland",
+      "eligibility": "forest biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Thornwake",
+      "landscape": "woodland",
+      "eligibility": "forest biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Hushbough",
+      "landscape": "woodland",
+      "eligibility": "forest biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Ragged Weald",
+      "landscape": "woodland",
+      "eligibility": "forest biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Hollow Woods",
+      "landscape": "woodland",
+      "eligibility": "forest biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Grey Canopy",
+      "landscape": "woodland",
+      "eligibility": "forest biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Wood of Lost Bells",
+      "landscape": "woodland",
+      "eligibility": "forest biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Foxglove Wilds",
+      "landscape": "woodland",
+      "eligibility": "forest biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Veldren Wood",
+      "landscape": "woodland",
+      "eligibility": "forest biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Ormath Forest",
+      "landscape": "woodland",
+      "eligibility": "forest biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Elder Tangle",
+      "landscape": "woodland",
+      "eligibility": "forest biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Broken Crown",
+      "landscape": "upland",
+      "eligibility": "hills or mountains; finer form must match noun",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Giant’s Stair",
+      "landscape": "upland",
+      "eligibility": "hills or mountains; finer form must match noun",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Harrow Peaks",
+      "landscape": "upland",
+      "eligibility": "hills or mountains; finer form must match noun",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Iron Fells",
+      "landscape": "upland",
+      "eligibility": "hills or mountains; finer form must match noun",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Stormspires",
+      "landscape": "upland",
+      "eligibility": "hills or mountains; finer form must match noun",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Grey Ramparts",
+      "landscape": "upland",
+      "eligibility": "hills or mountains; finer form must match noun",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Haggard Hills",
+      "landscape": "upland",
+      "eligibility": "hills or mountains; finer form must match noun",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Wyrmback",
+      "landscape": "upland",
+      "eligibility": "hills or mountains; finer form must match noun",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Heights of Mourning",
+      "landscape": "upland",
+      "eligibility": "hills or mountains; finer form must match noun",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Crags of Veyr",
+      "landscape": "upland",
+      "eligibility": "hills or mountains; finer form must match noun",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Thunderscar",
+      "landscape": "upland",
+      "eligibility": "hills or mountains; finer form must match noun",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Bleak Ridges",
+      "landscape": "upland",
+      "eligibility": "hills or mountains; finer form must match noun",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Long Wold",
+      "landscape": "grassland",
+      "eligibility": "open grassland; Downs require hills, Plains require flat terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Sere Downs",
+      "landscape": "grassland",
+      "eligibility": "open grassland; Downs require hills, Plains require flat terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Windworn Plains",
+      "landscape": "grassland",
+      "eligibility": "open grassland; Downs require hills, Plains require flat terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Foxglove Sea",
+      "landscape": "grassland",
+      "eligibility": "open grassland; Downs require hills, Plains require flat terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Empty Meadows",
+      "landscape": "grassland",
+      "eligibility": "open grassland; Downs require hills, Plains require flat terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Pale Pastures",
+      "landscape": "grassland",
+      "eligibility": "open grassland; Downs require hills, Plains require flat terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Larkless Fields",
+      "landscape": "grassland",
+      "eligibility": "open grassland; Downs require hills, Plains require flat terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Grass Ocean",
+      "landscape": "grassland",
+      "eligibility": "open grassland; Downs require hills, Plains require flat terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Plains of Ashen Dreams",
+      "landscape": "grassland",
+      "eligibility": "open grassland; Downs require hills, Plains require flat terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Wold of Vareth",
+      "landscape": "grassland",
+      "eligibility": "open grassland; Downs require hills, Plains require flat terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Tallow Downs",
+      "landscape": "grassland",
+      "eligibility": "open grassland; Downs require hills, Plains require flat terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Fallow Vast",
+      "landscape": "grassland",
+      "eligibility": "open grassland; Downs require hills, Plains require flat terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Sable Mire",
+      "landscape": "wetland",
+      "eligibility": "wetland biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Drowned Reaches",
+      "landscape": "wetland",
+      "eligibility": "wetland biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Hushfen",
+      "landscape": "wetland",
+      "eligibility": "wetland biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Widow’s Marsh",
+      "landscape": "wetland",
+      "eligibility": "wetland biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Lantern Bogs",
+      "landscape": "wetland",
+      "eligibility": "wetland biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Reedmaze",
+      "landscape": "wetland",
+      "eligibility": "wetland biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Mournwater Fens",
+      "landscape": "wetland",
+      "eligibility": "wetland biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Marsh of Lost Voices",
+      "landscape": "wetland",
+      "eligibility": "wetland biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Crooked Sloughs",
+      "landscape": "wetland",
+      "eligibility": "wetland biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Veylan Mire",
+      "landscape": "wetland",
+      "eligibility": "wetland biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Dim Reeds",
+      "landscape": "wetland",
+      "eligibility": "wetland biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Sinking Country",
+      "landscape": "wetland",
+      "eligibility": "wetland biome",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Cinder Waste",
+      "landscape": "dryland",
+      "eligibility": "desert or other evidenced arid terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Thirsting Sands",
+      "landscape": "dryland",
+      "eligibility": "desert or other evidenced arid terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Pale Desolation",
+      "landscape": "dryland",
+      "eligibility": "desert or other evidenced arid terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Glass Barrens",
+      "landscape": "dryland",
+      "eligibility": "desert or other evidenced arid terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Scoured Lands",
+      "landscape": "dryland",
+      "eligibility": "desert or other evidenced arid terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Furnace Plain",
+      "landscape": "dryland",
+      "eligibility": "desert or other evidenced arid terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Sands of Regret",
+      "landscape": "dryland",
+      "eligibility": "desert or other evidenced arid terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Vulture Reach",
+      "landscape": "dryland",
+      "eligibility": "desert or other evidenced arid terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Hollow Desert",
+      "landscape": "dryland",
+      "eligibility": "desert or other evidenced arid terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Bleached Expanse",
+      "landscape": "dryland",
+      "eligibility": "desert or other evidenced arid terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Vaust Wastes",
+      "landscape": "dryland",
+      "eligibility": "desert or other evidenced arid terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Last Dunes",
+      "landscape": "dryland",
+      "eligibility": "desert or other evidenced arid terrain",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Rimewaste",
+      "landscape": "coldland",
+      "eligibility": "cold climate; ice and glacier names additionally require ice",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The White Silence",
+      "landscape": "coldland",
+      "eligibility": "cold climate; ice and glacier names additionally require ice",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Shivering Lands",
+      "landscape": "coldland",
+      "eligibility": "cold climate; ice and glacier names additionally require ice",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Frostwold",
+      "landscape": "coldland",
+      "eligibility": "cold climate; ice and glacier names additionally require ice",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Glass Tundra",
+      "landscape": "coldland",
+      "eligibility": "cold climate; ice and glacier names additionally require ice",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Winter Shroud",
+      "landscape": "coldland",
+      "eligibility": "cold climate; ice and glacier names additionally require ice",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Icebound Reaches",
+      "landscape": "coldland",
+      "eligibility": "cold climate; ice and glacier names additionally require ice",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Cold Vast",
+      "landscape": "coldland",
+      "eligibility": "cold climate; ice and glacier names additionally require ice",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Snowfields of Orven",
+      "landscape": "coldland",
+      "eligibility": "cold climate; ice and glacier names additionally require ice",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Veil of Winter",
+      "landscape": "coldland",
+      "eligibility": "cold climate; ice and glacier names additionally require ice",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Hoarfrost Barrens",
+      "landscape": "coldland",
+      "eligibility": "cold climate; ice and glacier names additionally require ice",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Nacre Icefields",
+      "landscape": "coldland",
+      "eligibility": "cold climate; ice and glacier names additionally require ice",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Ragged Coast",
+      "landscape": "coast",
+      "eligibility": "coastal footprint; cliffs and shoals need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Widow’s Shore",
+      "landscape": "coast",
+      "eligibility": "coastal footprint; cliffs and shoals need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Saltward Reaches",
+      "landscape": "coast",
+      "eligibility": "coastal footprint; cliffs and shoals need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Gullworn Cliffs",
+      "landscape": "coast",
+      "eligibility": "coastal footprint; cliffs and shoals need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Coast of Lost Lanterns",
+      "landscape": "coast",
+      "eligibility": "coastal footprint; cliffs and shoals need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Drowned Strand",
+      "landscape": "coast",
+      "eligibility": "coastal footprint; cliffs and shoals need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Grey Littoral",
+      "landscape": "coast",
+      "eligibility": "coastal footprint; cliffs and shoals need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Wrecking Shore",
+      "landscape": "coast",
+      "eligibility": "coastal footprint; cliffs and shoals need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Far Shallows",
+      "landscape": "coast",
+      "eligibility": "coastal footprint; cliffs and shoals need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Brinewild",
+      "landscape": "coast",
+      "eligibility": "coastal footprint; cliffs and shoals need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Vaelor Coast",
+      "landscape": "coast",
+      "eligibility": "coastal footprint; cliffs and shoals need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Tideworn Margin",
+      "landscape": "coast",
+      "eligibility": "coastal footprint; cliffs and shoals need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Siltward Lands",
+      "landscape": "riverland",
+      "eligibility": "region associated with rivers; floodplain or delta names need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Weeping Banks",
+      "landscape": "riverland",
+      "eligibility": "region associated with rivers; floodplain or delta names need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Reedbound Vale",
+      "landscape": "riverland",
+      "eligibility": "region associated with rivers; floodplain or delta names need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Crooked Waters",
+      "landscape": "riverland",
+      "eligibility": "region associated with rivers; floodplain or delta names need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Sevenfold Delta",
+      "landscape": "riverland",
+      "eligibility": "region associated with rivers; floodplain or delta names need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Floodveil",
+      "landscape": "riverland",
+      "eligibility": "region associated with rivers; floodplain or delta names need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The River’s Cradle",
+      "landscape": "riverland",
+      "eligibility": "region associated with rivers; floodplain or delta names need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Low Reaches",
+      "landscape": "riverland",
+      "eligibility": "region associated with rivers; floodplain or delta names need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Vale of Hadrin",
+      "landscape": "riverland",
+      "eligibility": "region associated with rivers; floodplain or delta names need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Wandering Channels",
+      "landscape": "riverland",
+      "eligibility": "region associated with rivers; floodplain or delta names need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Mudglass Flats",
+      "landscape": "riverland",
+      "eligibility": "region associated with rivers; floodplain or delta names need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Waterwoven Country",
+      "landscape": "riverland",
+      "eligibility": "region associated with rivers; floodplain or delta names need specific evidence",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Far Hush",
+      "landscape": "broad_country",
+      "eligibility": "no particular biome; shape, color and position remain poetic unless evidenced",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Grey Beyond",
+      "landscape": "broad_country",
+      "eligibility": "no particular biome; shape, color and position remain poetic unless evidenced",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Outer Wilds",
+      "landscape": "broad_country",
+      "eligibility": "no particular biome; shape, color and position remain poetic unless evidenced",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Hollow Reaches",
+      "landscape": "broad_country",
+      "eligibility": "no particular biome; shape, color and position remain poetic unless evidenced",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Ragged Expanse",
+      "landscape": "broad_country",
+      "eligibility": "no particular biome; shape, color and position remain poetic unless evidenced",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Lonesome Vast",
+      "landscape": "broad_country",
+      "eligibility": "no particular biome; shape, color and position remain poetic unless evidenced",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Unremembered Lands",
+      "landscape": "broad_country",
+      "eligibility": "no particular biome; shape, color and position remain poetic unless evidenced",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Duskward Country",
+      "landscape": "broad_country",
+      "eligibility": "no particular biome; shape, color and position remain poetic unless evidenced",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Veiled Reach",
+      "landscape": "broad_country",
+      "eligibility": "no particular biome; shape, color and position remain poetic unless evidenced",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Worn Lands",
+      "landscape": "broad_country",
+      "eligibility": "no particular biome; shape, color and position remain poetic unless evidenced",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Lost Breadth",
+      "landscape": "broad_country",
+      "eligibility": "no particular biome; shape, color and position remain poetic unless evidenced",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "The Hither Wilds",
+      "landscape": "broad_country",
+      "eligibility": "no particular biome; shape, color and position remain poetic unless evidenced",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Varneth",
+      "landscape": "proper_name_country",
+      "eligibility": "no particular biome; invented place roots, not political names",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Ossarel",
+      "landscape": "proper_name_country",
+      "eligibility": "no particular biome; invented place roots, not political names",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Thervane",
+      "landscape": "proper_name_country",
+      "eligibility": "no particular biome; invented place roots, not political names",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Caldrith",
+      "landscape": "proper_name_country",
+      "eligibility": "no particular biome; invented place roots, not political names",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Eshvar",
+      "landscape": "proper_name_country",
+      "eligibility": "no particular biome; invented place roots, not political names",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Velmora",
+      "landscape": "proper_name_country",
+      "eligibility": "no particular biome; invented place roots, not political names",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Drauveth",
+      "landscape": "proper_name_country",
+      "eligibility": "no particular biome; invented place roots, not political names",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Kelmoran",
+      "landscape": "proper_name_country",
+      "eligibility": "no particular biome; invented place roots, not political names",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Sorvane",
+      "landscape": "proper_name_country",
+      "eligibility": "no particular biome; invented place roots, not political names",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Maeroth",
+      "landscape": "proper_name_country",
+      "eligibility": "no particular biome; invented place roots, not political names",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Nhalven",
+      "landscape": "proper_name_country",
+      "eligibility": "no particular biome; invented place roots, not political names",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    },
+    {
+      "name": "Orsath",
+      "landscape": "proper_name_country",
+      "eligibility": "no particular biome; invented place roots, not political names",
+      "status": "newly coined candidate; not checked for uniqueness",
+      "use": "review vocabulary and form; not an unconditional output table"
+    }
+  ]
+}

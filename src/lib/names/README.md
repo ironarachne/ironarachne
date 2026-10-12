@@ -20,12 +20,17 @@ generators for exactly that reason.
   `nameGeneratorSetFromPatternSources`, and `patternSourceFromNameGenerator` in
   `name_generator_patterns`.
 
-- **`generateLandscapeName(input, context, rng)`** — evocative, directional and occasional
-  cultural place names from caller-selected landscape nouns. The transient input carries eligible
-  directions and optional stored culture patterns. The returned context tracks used names and
-  recent styles without global state. Cultural generators are rebuilt with the caller's RNG;
-  live culture generators are never consumed. See the
-  [approved naming model](../../../docs/region-landscape-names.md).
+- **`generateLandscapeName(input, context, rng)`** — compounds, epithets, geographic metaphors,
+  pronounceable place roots, of-phrases, eligible directions, and occasional cultural names.
+  Caller-selected nouns ground literal terrain; exact vocabulary mappings supply compatible
+  synonyms. Optional `scope` defaults to `zone`; `region` permits bare roots and broader imagery.
+  Immutable batch context tracks exact used names, the last three styles and the last eight
+  motif/root identities. Similar roots and repeated imagery are discouraged; exhausted pools
+  use a fresh pronounceable root instead of numbered qualifiers. Cultural generators use the
+  caller's RNG without consuming live culture generators. Saved results retain their existing
+  strings; fresh generation with an old seed uses the new repertoire. See the
+  [approved evolution](../../../docs/landscape-name-evolution.md) and
+  [review sample](../../../docs/landscape-name-samples.md).
 
 ## Usage
 
