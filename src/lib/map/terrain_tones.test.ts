@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { MapNode, RegionMap } from './map_graph';
-import { buildTerrainToneLayer, REGION_WATER_FILL, terrainToneSvg } from './terrain_tones';
+import {
+  buildTerrainToneLayer,
+  REGION_WATER_FILL,
+  terrainGlyphFills,
+  terrainToneSvg,
+} from './terrain_tones';
 import { buildBaseMapGraph } from './builder';
 import { buildRegionMapSvgString } from './region_map_svg';
 import { RNG } from '@ironarachne/rng';
@@ -36,6 +41,27 @@ function map(nodes: MapNode[]): RegionMap {
 }
 
 describe('terrain tones', () => {
+  it('gives glyphs opaque biome colors blended with paper, including relief shading', () => {
+    const input = map([
+      node(0),
+      node(1, 'tundra'),
+      node(2, 'desert'),
+      node(3, 'boreal forest'),
+      node(4, 'temperate deciduous forest'),
+      node(5, 'boreal forest', 0.7),
+    ]);
+    const before = structuredClone(input);
+    expect([...terrainGlyphFills(input)]).toEqual([
+      [0, 'rgb(220,204,181)'],
+      [1, 'rgb(234,230,220)'],
+      [2, 'rgb(232,218,181)'],
+      [3, 'rgb(199,208,197)'],
+      [4, 'rgb(207,211,187)'],
+      [5, 'rgb(183,192,181)'],
+    ]);
+    expect(input).toEqual(before);
+    expect(terrainGlyphFills(map([])).size).toBe(0);
+  });
   it.each([
     [undefined, 'land'],
     ['unknown', 'land'],

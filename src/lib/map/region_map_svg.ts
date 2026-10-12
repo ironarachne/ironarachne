@@ -14,7 +14,12 @@ import {
 import { makeWaterClearanceTest } from './water_clearance';
 import { assignTerrainGlyphs } from './terrain_glyph_assignment';
 import { deriveDesertOasisSites, desertBiomeKind } from './desert_terrain';
-import { REGION_LAND_FILL, REGION_WATER_FILL, terrainToneSvg } from './terrain_tones';
+import {
+  REGION_LAND_FILL,
+  REGION_WATER_FILL,
+  terrainGlyphFills,
+  terrainToneSvg,
+} from './terrain_tones';
 import { riverEnvelope } from './river_geometry';
 import { riverNetworkError } from './river_validation';
 import { TERRAIN_GLYPHS, TERRAIN_GLYPH_VARIANTS } from './terrain_glyph_catalog';
@@ -1019,11 +1024,16 @@ function collectScatterSymbols(
 }
 
 /** One painter ordering for all terrain; each glyph is anchored at its ground contact. */
-function appendScatterSymbolsBackToFront(symbols: PlacedTerrainGlyph[], parts: string[]): void {
+function appendScatterSymbolsBackToFront(
+  map: RegionMap,
+  symbols: PlacedTerrainGlyph[],
+  parts: string[],
+): void {
+  const fills = terrainGlyphFills(map);
   const ordered = [...symbols].sort((a, b) => a.anchor.y - b.anchor.y || a.anchor.x - b.anchor.x);
   for (const symbol of ordered) {
     parts.push(
-      `<use href="#${symbol.variantId}" transform="translate(${symbol.anchor.x.toFixed(3)}, ${symbol.anchor.y.toFixed(3)}) rotate(${symbol.rotationDegrees.toFixed(1)}) scale(${symbol.scale.toFixed(3)})"/>`,
+      `<use href="#${symbol.variantId}" transform="translate(${symbol.anchor.x.toFixed(3)}, ${symbol.anchor.y.toFixed(3)}) rotate(${symbol.rotationDegrees.toFixed(1)}) scale(${symbol.scale.toFixed(3)})" fill="${fills.get(symbol.nodeId)}"/>`,
     );
   }
 }
@@ -1628,7 +1638,7 @@ function appendRegionalFeatures(
 const TERRAIN_SYMBOL_DEFS = new Map(
   TERRAIN_GLYPH_VARIANTS.map((variant) => [
     variant.id,
-    `<g id="${variant.id}"><path d="${variant.bodyPaths.join(' ')}" fill="${PARCHMENT_FILL}"/><path data-terrain-ink="true" d="${variant.strokes.map(inkStrokePath).join(' ')}" fill="${CARTOGRAPHY.palette.body.color}"/></g>`,
+    `<g id="${variant.id}"><path d="${variant.bodyPaths.join(' ')}"/><path data-terrain-ink="true" d="${variant.strokes.map(inkStrokePath).join(' ')}" fill="${CARTOGRAPHY.palette.body.color}"/></g>`,
   ]),
 );
 
@@ -1721,6 +1731,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   // Furniture reserves space in the illustration: do not hide terrain glyphs beneath its paper.
   const scatterLayer: string[] = [];
   appendScatterSymbolsBackToFront(
+    map,
     symbols.filter(
       (symbol) =>
         !icons.some((icon) => overlapArea(symbol.bounds, icon.bounds) > 0) &&

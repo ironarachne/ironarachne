@@ -1,3 +1,4 @@
+import { CARTOGRAPHY } from '$lib/cartography';
 import type { MapNode, RegionMap } from './map_graph';
 import { classifyRegionLandforms, type LandformClass } from './region_terrain';
 import type { TerrainToneColor, TerrainToneFamily, TerrainToneLayer } from './terrain_tone_types';
@@ -35,6 +36,26 @@ export function terrainToneCss(color: TerrainToneColor): string {
 
 export const REGION_WATER_FILL = terrainToneCss(PALETTE.water);
 export const REGION_LAND_FILL = terrainToneCss(PALETTE.land);
+
+/** Opaque glyph bodies match the wash over paper while hiding ink from glyphs behind them. */
+export function terrainGlyphFills(map: RegionMap): Map<number, string> {
+  const layer = buildTerrainToneLayer(map);
+  const paper = CARTOGRAPHY.ground.fill;
+  const blend = (channel: number, offset: number) =>
+    Math.round(
+      channel * layer.opacity + parseInt(paper.slice(offset, offset + 2), 16) * (1 - layer.opacity),
+    );
+  return new Map(
+    layer.tones.map(({ nodeId, color }) => [
+      nodeId,
+      terrainToneCss({
+        red: blend(color.red, 1),
+        green: blend(color.green, 3),
+        blue: blend(color.blue, 5),
+      }),
+    ]),
+  );
+}
 
 /** Derived only from map facts; no random draws or changes to the saved map. */
 export function buildTerrainToneLayer(map: RegionMap): TerrainToneLayer {
