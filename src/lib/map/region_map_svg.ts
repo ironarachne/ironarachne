@@ -11,12 +11,13 @@ import { RNG } from '@ironarachne/rng';
 import {
   CARTOGRAPHY,
   createWaterEdgeTreatment,
-  createHatching,
+  createWaterArtwork,
   INK_EDGE_MAX_OFFSET,
   STROKE_WIDTHS,
   MASK_PAINT,
   cartographyFilterDefs,
   parchmentRect,
+  type InkedPath,
 } from '$lib/cartography';
 import { makeWaterClearanceTest } from './water_clearance';
 import { assignTerrainGlyphs } from './terrain_glyph_assignment';
@@ -257,14 +258,6 @@ function connectedComponentsByNodeRule(
   return components;
 }
 
-/** Coast ink and its inner parchment rim share the water's one stored SVG path. */
-function appendOceanCoast(item: WaterPolygonItem, parts: string[]): void {
-  parts.push(
-    `<use href="#${item.id}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.heavy}" stroke-linejoin="round" stroke-linecap="round"/>`,
-    `<use href="#${item.id}" fill="none" stroke="${CARTOGRAPHY.ground.fill}" stroke-width="${STROKE_WIDTHS.medium}" stroke-linejoin="round" stroke-linecap="round" clip-path="url(#${item.id}Clip)"/>`,
-  );
-}
-
 type WaterPolygonItem = {
   id: string;
   outline: Vertex[];
@@ -325,32 +318,55 @@ function appendWaterBodiesFromItems(
   parts: string[],
   width: number,
   height: number,
+  exclusions: Vertex[][],
 ): void {
   const scale = Math.min(width, height) / 35;
   for (const item of items) {
     const ocean = item.strokeKind === 'ocean';
-    const largeLake = polygonArea(item.outline) >= 6 * scale * scale;
-    const hatching = createHatching(
-      {
-        shoreline: item.outline,
-        spacing: (ocean ? 0.45 : 0.28) * scale,
-        falloff: 1.4,
-        maxBands: ocean ? 4 : largeLake ? 2 : 0,
-      },
+    const artwork = createWaterArtwork({
+      shoreline: item.outline,
+      kind: item.strokeKind,
       width,
       height,
-    );
-    const paths = hatching.toPaths();
-    if (paths.length > 0)
-      parts.push(`<g data-water-hatching="${item.strokeKind}" clip-path="url(#${item.id}Clip)">
-${paths.map((path) => path.toSvg()).join('\n')}
+      exclusions,
+    });
+    for (const [attribute, paths] of [
+      ['water-hatching', artwork.ripples],
+      ['shore-hatching', artwork.shoreHatching],
+      ['water-waves', artwork.waves],
+    ] as const) {
+      if (paths.length === 0) continue;
+      parts.push(`<g data-${attribute}="${item.strokeKind}" clip-path="url(#${item.id}Clip)">
+${attribute === 'water-waves' ? compactWaterPaths(paths, scale).replaceAll('stroke-linejoin="round"', 'stroke-linejoin="miter" stroke-miterlimit="3"') : compactWaterPaths(paths, scale)}
 </g>`);
-    if (ocean) appendOceanCoast(item, parts);
-    else
-      parts.push(
-        `<use href="#${item.id}" fill="none" stroke="${CARTOGRAPHY.palette.secondary.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linejoin="round" stroke-linecap="round" opacity="0.42"/>`,
-      );
+    }
+    parts.push(
+      `<use data-water-coast="${item.strokeKind}" href="#${item.id}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${n((ocean ? STROKE_WIDTHS.heavy : STROKE_WIDTHS.medium) * scale)}" stroke-linejoin="round" stroke-linecap="round"/>`,
+    );
   }
+}
+
+/** Batch equal inks as SVG subpaths: broken ripples need gaps, not repeated paint attributes. */
+function compactWaterPaths(paths: InkedPath[], scale: number): string {
+  const groups = new Map<string, InkedPath[]>();
+  for (const path of paths) {
+    const key = `${path.weight}:${path.ink.color}:${path.ink.opacity}`;
+    const group = groups.get(key) ?? [];
+    group.push(path);
+    groups.set(key, group);
+  }
+  return [...groups.values()]
+    .map((group) => {
+      const commands = group.map((path) => path.toSvg().match(/ d="([^"]+)"/)![1]).join(' ');
+      return group[0]
+        .toSvg()
+        .replace(/ d="[^"]+"/, ` d="${commands}"`)
+        .replace(
+          /stroke-width="[^"]+"/,
+          `stroke-width="${n(STROKE_WIDTHS[group[0].weight] * scale)}"`,
+        );
+    })
+    .join('\n');
 }
 
 function nearestNeighborDistance(node: MapNode, map: RegionMap): number {
@@ -733,6 +749,12 @@ const REGION_EDGE_MARGIN = 0.14;
 
 // Half the heaviest coast stroke + maximum 2-axis ink displacement + SVG rounding slack.
 const WATER_EDGE_MARGIN = STROKE_WIDTHS.heavy / 2 + INK_EDGE_MAX_OFFSET + 0.01;
+
+function waterEdgeMargin(map: RegionMap): number {
+  return (
+    (STROKE_WIDTHS.heavy * Math.min(map.width, map.height)) / 35 / 2 + INK_EDGE_MAX_OFFSET + 0.01
+  );
+}
 
 /** Cells within two graph steps — the only cells a glyph anchored in `nodeId` can reach. */
 function localCellNeighborhood(byId: Map<number, MapNode>, nodeId: number): number[] {
@@ -1834,7 +1856,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   const waterPolygons = listWaterPolygonsForMap(map);
   const clearOfWater = makeWaterClearanceTest(
     waterPolygons.map((item) => item.outline),
-    WATER_EDGE_MARGIN,
+    waterEdgeMargin(map),
   );
   if (titleLayout !== null) reserved.push(titleLayout.box);
   body.push(waterGeometryDefs(waterPolygons));
@@ -1844,7 +1866,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
       waterPolygons.map((item) => item.id),
     ),
   );
-  appendWaterBodiesFromItems(waterPolygons, body, w, h);
+  const waterLayerIndex = body.length;
   const riverOutlines: Vertex[][] = [];
   appendRivers(map, body, waterPolygons, routeBoxes, riverOutlines);
   const scatterLayerIndex = body.length;
@@ -1891,6 +1913,21 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     [...reserved, ...textParts.map((part) => part.box)],
     routeBoxes,
   );
+  const waterLayer: string[] = [];
+  appendWaterBodiesFromItems(
+    waterPolygons,
+    waterLayer,
+    w,
+    h,
+    [...reserved, ...textParts.map((part) => part.box), ...(compass === null ? [] : [compass])].map(
+      (box) => [
+        { x: box.minX, y: box.minY },
+        { x: box.maxX, y: box.minY },
+        { x: box.maxX, y: box.maxY },
+        { x: box.minX, y: box.maxY },
+      ],
+    ),
+  );
   const rangeReservations = [...reserved, ...featureBoxes, ...(compass === null ? [] : [compass])];
   const symbols = collectScatterSymbols(
     map,
@@ -1913,6 +1950,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     scatterLayer,
   );
   body.splice(scatterLayerIndex, 0, ...scatterLayer);
+  body.splice(waterLayerIndex, 0, ...waterLayer);
   const textLayer =
     textParts.length === 0
       ? ''

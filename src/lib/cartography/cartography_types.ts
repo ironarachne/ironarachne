@@ -29,3 +29,17 @@ export type Hatching = {
   maxBands: number;
   toPaths: () => InkedPath[];
 };
+
+export type WaterBodyKind = 'ocean' | 'lake';
+export type WaterArtworkConfig = {
+  shoreline: Vertex[];
+  width: number;
+  height: number;
+  kind: WaterBodyKind;
+  exclusions: Vertex[][];
+};
+export type WaterArtwork = {
+  ripples: InkedPath[];
+  shoreHatching: InkedPath[];
+  waves: InkedPath[];
+};

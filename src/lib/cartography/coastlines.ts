@@ -1,4 +1,5 @@
 import type { Vertex } from '$lib/geometry';
+import { distancePointToSegmentSquared } from '$lib/geometry';
 import type { EdgeTreatment } from './cartography_types';
 import { hash01, toBipolar } from './edges';
 
@@ -13,7 +14,7 @@ function interpolate(a: Vertex, b: Vertex, t: number): Vertex {
 }
 
 /** A geometric origin and winding keep the noise independent of graph ids and traversal order. */
-function canonicalLoop(points: Vertex[]): Vertex[] {
+export function canonicalLoop(points: Vertex[]): Vertex[] {
   const distinct = points.filter((p, i) => distance(p, points[(i + 1) % points.length]) > EPSILON);
   const corners = distinct.filter((p, i) => {
     const a = distinct[(i + distinct.length - 1) % distinct.length];
@@ -95,8 +96,20 @@ function roughenLoop(points: Vertex[], scale: number, amplitude: number): Vertex
     const phase = i / points.length;
     const offset =
       amplitude *
-      (0.75 * shorelineNoise(phase, broad, salt) + 0.25 * shorelineNoise(phase, fine, salt + 1));
-    return { x: p.x - ((b.y - a.y) / length) * offset, y: p.y + ((b.x - a.x) / length) * offset };
+      (0.45 * shorelineNoise(phase, broad, salt) + 0.55 * shorelineNoise(phase, fine, salt + 1));
+    // Nearby opposing shore limits detail in narrow channels. Ignore the local arc itself.
+    const localArc = Math.ceil((0.9 * scale * points.length) / perimeter);
+    let clearance = Infinity;
+    for (let j = 0; j < points.length; j++) {
+      const separation = Math.min(Math.abs(i - j), points.length - Math.abs(i - j));
+      if (separation <= localArc) continue;
+      clearance = Math.min(
+        clearance,
+        distancePointToSegmentSquared(p, points[j], points[(j + 1) % points.length]),
+      );
+    }
+    const limited = Math.sign(offset) * Math.min(Math.abs(offset), Math.sqrt(clearance) * 0.2);
+    return { x: p.x - ((b.y - a.y) / length) * limited, y: p.y + ((b.x - a.x) / length) * limited };
   });
 }
 
@@ -129,7 +142,7 @@ export function createWaterEdgeTreatment(width: number, height: number): EdgeTre
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0)
     throw new RangeError('Water edges need positive finite map dimensions');
   const scale = Math.min(width, height) / 35;
-  const amplitude = 0.22 * scale;
+  const amplitude = 0.32 * scale;
   const depth = 3;
   return {
     method: 'chaikin',
@@ -156,7 +169,24 @@ export function createWaterEdgeTreatment(width: number, height: number): EdgeTre
       let smooth = resampleLoop(cropped, 0.85 * scale);
       for (let i = 0; i < depth; i++) smooth = chaikinPass(smooth);
       const sampled = resampleLoop(smooth, 0.15 * scale);
-      return resampleLoop(roughenLoop(sampled, scale, amplitude), 0.3 * scale);
+      const detailed = resampleLoop(roughenLoop(sampled, scale, amplitude), 0.3 * scale);
+      return loopCrossesItself(detailed) ? resampleLoop(sampled, 0.3 * scale) : detailed;
     },
   };
+}
+
+function loopCrossesItself(points: Vertex[]): boolean {
+  const side = (a: Vertex, b: Vertex, p: Vertex) =>
+    (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+  for (let i = 0; i < points.length; i++) {
+    const a = points[i],
+      b = points[(i + 1) % points.length];
+    for (let j = i + 2; j < points.length; j++) {
+      if (i === 0 && j === points.length - 1) continue;
+      const c = points[j],
+        d = points[(j + 1) % points.length];
+      if (side(a, b, c) * side(a, b, d) < 0 && side(c, d, a) * side(c, d, b) < 0) return true;
+    }
+  }
+  return false;
 }

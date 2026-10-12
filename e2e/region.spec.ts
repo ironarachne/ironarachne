@@ -361,6 +361,9 @@ test.describe('a region', () => {
 
   test('downloads a gazetteer a referee can take to the table', async ({ page }) => {
     await openGenerator(page);
+    // Regression seed includes a trading-company name with repeated spaces.
+    await page.getByLabel('Seed', { exact: true }).fill('jy9trxlpmbr8h');
+    await page.getByLabel('Lock Seed').check();
     await page.getByLabel('Affiliation', { exact: true }).selectOption('affiliated');
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
     const heading = await page.locator('section.main h2').first().innerText();
@@ -445,7 +448,9 @@ test.describe('a region', () => {
       }
     }
     for (const paragraph of await page.locator('[data-gazetteer-text]').all()) {
-      expect(contents).toContain(await paragraph.innerText());
+      // Saved prose can contain repeated spaces; innerText collapses them for display.
+      // Compare the source text, as the export preserves it verbatim.
+      expect(contents).toContain(await paragraph.textContent());
     }
     expect(contents).toContain('Hook:');
     expect(contents).not.toContain('## Supporting facts and explanations');
