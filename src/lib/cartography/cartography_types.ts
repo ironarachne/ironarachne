@@ -36,10 +36,12 @@ export type WaterArtworkConfig = {
   width: number;
   height: number;
   kind: WaterBodyKind;
+  /** Reserved footprints and other water bodies keep land-side hatches on free land. */
   exclusions: Vertex[][];
 };
 export type WaterArtwork = {
   ripples: InkedPath[];
+  /** Light cross-hatching outside the water boundary, on the land side of the shore. */
   shoreHatching: InkedPath[];
   waves: InkedPath[];
 };

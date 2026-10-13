@@ -82,21 +82,39 @@ describe('water artwork', () => {
     }
   });
 
-  it('places paired crossing hairlines in separated light patches', () => {
+  it('places paired crossing hairlines in separated light patches on land', () => {
     const { shoreHatching } = createWaterArtwork(config());
     expect(shoreHatching.length).toBeGreaterThan(10);
     for (const path of shoreHatching) {
       expect(path.points).toHaveLength(2);
       expect(path.ink.opacity).toBeLessThan(0.4);
       expect(path.weight).toBe('hairline');
-      for (const point of path.points)
+      for (const point of path.points) {
         expect(distance(point, config().shoreline)).toBeLessThanOrEqual(0.351);
+        expect(point.x < 3 || point.x > 32 || point.y < 3 || point.y > 32).toBe(true);
+        expect(distance(point, config().shoreline)).toBeGreaterThan(0.04);
+      }
     }
     const top = shoreHatching.filter((path) => path.points.every((p) => p.y < 4));
     expect(top.some((path) => path.points[1].x > path.points[0].x)).toBe(true);
     expect(top.some((path) => path.points[1].x < path.points[0].x)).toBe(true);
     const anchors = top.map((path) => path.points[0].x).sort((a, b) => a - b);
     expect(anchors.some((x, i) => i > 0 && x - anchors[i - 1] > 1)).toBe(true);
+  });
+
+  it('keeps land hatches out of nearby water and reserved footprints', () => {
+    const plain = createWaterArtwork(config());
+    const mark = plain.shoreHatching[0];
+    const [a, b] = mark.points;
+    const obstacle = box((a.x + b.x) / 2 - 0.01, (a.y + b.y) / 2 - 0.01, 0.02);
+    const filtered = createWaterArtwork(config({ exclusions: [obstacle] }));
+    expect(filtered.shoreHatching.length).toBeLessThan(plain.shoreHatching.length);
+    expect(filtered.shoreHatching.some((path) => path.toSvg() === mark.toSvg())).toBe(false);
+    const landStrip = box(0, 0, 35, 3);
+    const reserved = createWaterArtwork(config({ exclusions: [landStrip] }));
+    expect(reserved.shoreHatching.every((path) => path.points.every((p) => p.y > 3))).toBe(true);
+    expect(filtered.ripples.map((p) => p.toSvg())).toEqual(plain.ripples.map((p) => p.toSvg()));
+    expect(filtered.waves.map((p) => p.toSvg())).toEqual(plain.waves.map((p) => p.toSvg()));
   });
 
   it('uses sparse groups of curved waves only offshore in oceans', () => {
@@ -205,7 +223,7 @@ describe('water artwork', () => {
       { x: 2, y: 22 },
     ];
     const artwork = createWaterArtwork(config({ shoreline: shore }));
-    for (const paths of Object.values(artwork)) {
+    for (const paths of [artwork.ripples, artwork.waves]) {
       for (const path of paths) {
         for (const point of path.points) {
           expect(point.x < 12 || point.x > 22 || (point.y > 10 && point.y < 10.3)).toBe(true);
@@ -214,6 +232,17 @@ describe('water artwork', () => {
         }
       }
     }
+    for (const path of artwork.shoreHatching)
+      for (const point of path.points) {
+        const inWater =
+          point.x > 2 &&
+          point.x < 32 &&
+          point.y > 2 &&
+          point.y < 22 &&
+          (point.x < 12 || point.x > 22 || (point.y > 10 && point.y < 10.3));
+        expect(inWater).toBe(false);
+        expect(distance(point, shore)).toBeGreaterThan(0.04);
+      }
     expect(createWaterArtwork(config({ shoreline: box(10, 10, 0.05) }))).toEqual({
       ripples: [],
       shoreHatching: [],

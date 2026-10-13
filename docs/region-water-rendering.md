@@ -56,13 +56,18 @@ for small lakes. Opacity decreases offshore, leaving most open water empty.
 
 ### Shore cross-hatching
 
-Draw intermittent patches just inside the water along the processed shoreline.
+Draw intermittent patches on land just outside the processed shoreline. This corrects
+the water-side placement from the initial implementation, following the user's
+clarification on 2026-10-13.
 Each patch contains two sets of short oblique hairlines, forming light cross-hatching.
 Use secondary ink at low opacity, with varying stroke lengths and patch gaps rather
 than a repeating pattern. Start with patches spanning `0.8–1.8 * mapScale` and marks
-extending no more than `0.35 * mapScale` into water. Omit patches that cannot fit, and
+extending no more than `0.35 * mapScale` onto land. Omit patches that cannot fit, and
 exclude crop closing edges. Apply to ocean and lake shores when there is enough room.
-Clip artwork to the corresponding water body and paint the dark coast over it.
+Check complete hatch strokes against the outside of the water boundary, neighboring
+water bodies, and reserved furniture/label footprints. Reuse the crisp land mask
+that excludes every processed water body, and paint the dark coast over the hatches.
+Ripples and wave glyphs retain their individual water clips.
 
 ### Wave symbols
 
@@ -180,7 +185,9 @@ Wave profiles use sampled cubic troughs meeting at explicit cusped crests. SVG m
 joins retain the points with a limit of three; footprint checks include the maximum
 tip extension of `1.5 * strokeWidth`.
 
-The six before/after comparisons are in [the visual review](region-water-rendering-417/README.md).
+The initial six before/after comparisons and the subsequent
+[land-side correction](region-water-rendering-417/land-hatching-correction/README.md)
+are in [the visual review](region-water-rendering-417/README.md).
 They cover three generated regions and focused ocean, lake, and narrow-peninsula
 fixtures. At normal output size, coasts are visibly darker and thicker, the outlines
 have more fine variation, ripples have unequal breaks and curved runs, shore hatching
