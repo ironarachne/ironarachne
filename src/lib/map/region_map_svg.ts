@@ -1632,14 +1632,15 @@ function segmentBox(a: Vertex, b: Vertex, padding: number): TextBox {
 }
 
 function layoutCompass(map: RegionMap, reserved: TextBox[], routeBoxes: TextBox[]): TextBox | null {
-  const scale = Math.min(map.width, map.height) / 35;
+  const scale = Math.min(map.width, map.height) / 24;
   // Terrain, water, and routes are drawn below the compass. Only furniture and text are hard
   // obstacles; dense terrain must not make the compass disappear from an otherwise usable map.
   const obstacles = [...reserved, ...routeBoxes];
   // Search from the corners inward; shrink modestly before giving up on a crowded drawing.
   for (const size of [1, 0.8, 0.6]) {
-    const width = 3.4 * scale * size,
-      height = 4.3 * scale * size;
+    // These bounds include the artwork and north label at every permitted rotation.
+    const width = 4 * scale * size,
+      height = 5 * scale * size;
     const gap = 0.5 * scale;
     const candidates: TextBox[] = [];
     for (let y = gap; y + height <= map.height - gap; y += scale)
@@ -1659,18 +1660,40 @@ function layoutCompass(map: RegionMap, reserved: TextBox[], routeBoxes: TextBox[
   return null;
 }
 
-function compassRose(box: TextBox): string {
-  const size = (box.maxX - box.minX) / 3.4;
+/** Renderer-owned decoration stream, derived from saved geometry rather than runtime state. */
+function compassStyle(map: RegionMap) {
+  const geometry = [...map.nodes]
+    .sort((a, b) => a.id - b.id)
+    .map((node) => `${node.id}:${node.center.x}:${node.center.y}`)
+    .join(';');
+  const rng = new RNG(`region-compass:${map.width}:${map.height}:${geometry}`);
+  return {
+    variant: rng.item(['plain', 'ringed', 'eight-point']),
+    rotation: rng.float(0, 1) < 0.35 ? 0 : rng.float(-3, 3),
+    opacity: rng.float(0.32, 0.44),
+  };
+}
+
+function compassRose(box: TextBox, map: RegionMap): string {
+  const size = (box.maxX - box.minX) / 4;
   const x = (box.minX + box.maxX) / 2,
-    y = box.minY + 2.55 * size;
+    y = box.minY + 3 * size;
   const bounds = [box.minX, box.minY, box.maxX, box.maxY].map(n).join(' ');
-  return `<g id="map-compass" data-reserved-box="${bounds}" transform="translate(${n(x)} ${n(y)}) scale(${n(size)})" aria-label="North">
-<rect x="-1.65" y="-2.5" width="3.3" height="4.2" rx="1.4" fill="${PARCHMENT_FILL}"/>
-<g stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linejoin="round">
-<path d="M 0 -1.35 L 0.28 -0.28 L 1.35 0 L 0.28 0.28 L 0 1.35 L -0.28 0.28 L -1.35 0 L -0.28 -0.28 Z" fill="${PARCHMENT_FILL}"/>
-<path d="M 0 -1.35 L 0 0 L -0.28 -0.28 Z M 1.35 0 L 0 0 L 0.28 -0.28 Z M 0 1.35 L 0 0 L 0.28 0.28 Z M -1.35 0 L 0 0 L -0.28 0.28 Z" fill="${CARTOGRAPHY.palette.body.color}"/>
+  const style = compassStyle(map);
+  const ink = CARTOGRAPHY.palette.body.color;
+  const ring =
+    style.variant === 'ringed' ? '<circle r="1.1" fill="none"/><circle r="1.2" fill="none"/>' : '';
+  const diagonals =
+    style.variant === 'eight-point'
+      ? '<path d="M -0.95 -0.95 L 0 -0.18 L 0.95 -0.95 L 0.18 0 L 0.95 0.95 L 0 0.18 L -0.95 0.95 L -0.18 0 Z" fill="none"/>'
+      : '';
+  return `<g id="map-compass" data-reserved-box="${bounds}" data-compass-style="${style.variant}" opacity="${n(style.opacity)}" transform="translate(${n(x)} ${n(y)}) scale(${n(size)}) rotate(${n(style.rotation)})" aria-label="North">
+<g stroke="${ink}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linejoin="round">
+${ring}${diagonals}
+<path d="M 0 -1.6 L 0.28 -0.28 L 1.6 0 L 0.28 0.28 L 0 1.6 L -0.28 0.28 L -1.6 0 L -0.28 -0.28 Z" fill="none"/>
+<path d="M 0 -1.6 L 0 0 L -0.28 -0.28 Z M 1.6 0 L 0 0 L 0.28 -0.28 Z M 0 1.6 L 0 0 L 0.28 0.28 Z M -1.6 0 L 0 0 L -0.28 0.28 Z" fill="${ink}"/>
 </g>
-<text x="0" y="-1.7" text-anchor="middle" font-family="${MAP_TEXT_FONT_FAMILY}" font-size="0.7" fill="${MAP_TEXT_INK}">N</text>
+<text x="0" y="-1.95" text-anchor="middle" font-family="${MAP_TEXT_FONT_FAMILY}" font-size="0.7" fill="${MAP_TEXT_INK}">N</text>
 </g>`;
 }
 
@@ -2419,7 +2442,7 @@ ${textParts.map((t) => t.ink).join('\n')}
 ${body.join('\n')}
 </g>
 ${titleLayout?.panel ?? ''}
-${compass === null ? '' : compassRose(compass)}
+${compass === null ? '' : compassRose(compass, map)}
 ${textLayer}
 </g>
 ${mapFrame(map, marginX, marginY)}`;

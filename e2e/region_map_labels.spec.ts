@@ -147,6 +147,18 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
             .getAttribute('data-reserved-box')!
             .split(' ')
             .map(Number);
+          const compassBox = compass.getBBox();
+          const compassMatrix = root.getCTM()!.inverse().multiply(compass.getCTM()!);
+          for (const [x, y] of [
+            [compassBox.x, compassBox.y],
+            [compassBox.x + compassBox.width, compassBox.y],
+            [compassBox.x, compassBox.y + compassBox.height],
+            [compassBox.x + compassBox.width, compassBox.y + compassBox.height],
+          ]) {
+            const point = new DOMPoint(x, y).matrixTransform(compassMatrix);
+            if (point.x < minX || point.x > maxX || point.y < minY || point.y > maxY)
+              errors.push('Rotated compass escapes its reservation');
+          }
           const overlaps = (box: { x: number; y: number; width: number; height: number }) =>
             minX < box.x + box.width && maxX > box.x && minY < box.y + box.height && maxY > box.y;
           for (const obstacle of [...markers, panelBox, ...labels.map((label) => label.getBBox())])

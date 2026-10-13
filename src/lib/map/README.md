@@ -100,8 +100,10 @@ positions so their geometry agrees with the graph.
   Road leaves require settlements, water, or the crop; a faint continuous stroke joins their dashes.
   Rivers draw below terrain glyphs; roads draw above terrain glyphs and below markers and labels.
   A proportionally enlarged parchment sheet and two inset ruled lines frame every map. The drawing
-  is explicitly clipped inside that margin. A north-up compass searches for space clear of the final
-  label/marker reservations, terrain silhouettes, shores, and routes. No physical distance is defined,
+  is explicitly clipped inside that margin. A larger, translucent ink compass searches for space clear of the final
+  label/marker reservations and routes. Its plain, ringed, or eight-point artwork and occasional
+  tilt (within three degrees) derive deterministically from saved map geometry; its reservation
+  includes the rotated artwork. It has no paper fill. No physical distance is defined,
   so the renderer omits a scale bar; the glyphs need no legend.
   Browser tests check actual font geometry against the emitted `data-text-box` reservations.
 
