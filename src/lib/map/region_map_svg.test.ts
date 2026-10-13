@@ -59,7 +59,7 @@ type MapLabel = {
 
 /** Matches the inked copy of a label, not the parchment halo drawn underneath it. */
 const MAP_LABEL_PATTERN =
-  /<text x="(-?[\d.]+)" y="(-?[\d.]+)" font-family="&apos;Times New Roman[^"]*" font-size="([\d.]+)" text-anchor="(\w+)" data-text-box="([^"]+)" fill="(#[0-9a-f]{6})">([^<]*)<\/text>/g;
+  /<text x="(-?[\d.]+)" y="(-?[\d.]+)" font-family="&apos;Times New Roman[^"]*" font-size="([\d.]+)" text-anchor="(\w+)" data-text-box="([^"]+)" fill="(#[0-9a-f]{6})"[^>]*data-map-name="([^"]+)"[^>]*>[\s\S]*?<\/text>/g;
 
 /** Every label the text layer emits: the title plus any placed settlement names. */
 function parseMapLabels(svg: string): MapLabel[] {
@@ -89,11 +89,9 @@ function boxesOverlap(a: ReturnType<typeof labelBox>, b: ReturnType<typeof label
 }
 
 function cartoucheBox(svg: string) {
-  const match = svg.match(
-    /<rect id="title-cartouche" x="([^"]+)" y="([^"]+)" width="([^"]+)" height="([^"]+)"/,
-  )!;
-  const [x, y, width, height] = match.slice(1).map(Number);
-  return { minX: x, minY: y, maxX: x + width, maxY: y + height };
+  const match = svg.match(/id="title-cartouche" data-reserved-box="([^"]+)"/)!;
+  const [minX, minY, maxX, maxY] = match[1].split(' ').map(Number);
+  return { minX, minY, maxX, maxY };
 }
 
 function squareCellNode(id: number, minX: number, minY: number, size: number) {
@@ -795,7 +793,9 @@ describe('buildRegionMapSvgString', () => {
       // The halo copy is stroke-only and comes first, so the ink lands on top of it.
       const haloIndex = svg.indexOf(`fill="none" stroke="${CARTOGRAPHY.ground.fill}"`);
       expect(haloIndex).toBeGreaterThan(-1);
-      expect(svg.indexOf(`fill="${label.fill}">${label.text}`)).toBeGreaterThan(haloIndex);
+      expect(svg.indexOf(`data-map-name="${label.text}"`, haloIndex + 1)).toBeGreaterThan(
+        haloIndex,
+      );
     }
 
     expect(svg).not.toContain('paint-order');

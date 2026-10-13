@@ -1,4 +1,21 @@
 import {
+  mapTextStyle,
+  mapScrollLayout,
+  textClearance,
+  mapTextWidth,
+  mapInscription,
+  inscriptionBounds,
+  serializeMapInscription,
+  labelAreaNodes,
+  areaLabelSections,
+  pointInLabelArea,
+  placeArcInscription,
+  arcPoint,
+  labelPolylineSections,
+  riverLabelSections,
+} from './region_map_typography';
+import type { MapTextStyle, MapLabelReach } from './region_map_typography_types';
+import {
   denseForestCanopy,
   denseCanopyFitOutline,
   denseCanopyBrushInk,
@@ -45,7 +62,11 @@ import { TERRAIN_GLYPHS, TERRAIN_GLYPH_VARIANTS } from './terrain_glyph_catalog'
 import { inkStrokePath } from './terrain_glyph_ink';
 import { cappedTreeScale, isTreeGlyph, treeSizeCeiling } from './terrain_glyph_sizing';
 import { CAPITAL_PENNANT, SETTLEMENT_BUILDING_VARIANTS } from './settlement_icon_catalog';
-import { capitalPennantAnchor, placeSettlementIcon } from './settlement_icons';
+import {
+  capitalPennantAnchor,
+  placeSettlementIcon,
+  resolveSettlementIconCategory,
+} from './settlement_icons';
 import type { PlacedSettlementIcon } from './settlement_icon_types';
 import type {
   PlacedTerrainGlyph,
@@ -64,6 +85,7 @@ import {
 } from './river_paths';
 
 import type {
+  RegionMapSvgRiverLabel,
   RegionMapSvgDenseForest,
   RegionMapSvgMountainRange,
   RegionMapSvgSettlement,
@@ -71,6 +93,7 @@ import type {
   RegionMapSvgFeature,
 } from './region_map_svg_types';
 export type {
+  RegionMapSvgRiverLabel,
   RegionMapSvgDenseForest,
   RegionMapSvgMountainRange,
   RegionMapSvgSettlement,
@@ -473,13 +496,14 @@ function appendRivers(
   waterPolygons: WaterPolygonItem[],
   routeBoxes: TextBox[],
   riverOutlines: Vertex[][],
+  labelReaches: MapLabelReach[],
 ): void {
   if (map.rivers !== undefined) {
     const error = riverNetworkError(map, map.rivers);
     if (error) throw new Error(error);
     if (map.rivers.reaches.length === 0) return;
     {
-      appendRiverNetwork(map, parts, waterPolygons, routeBoxes, riverOutlines);
+      appendRiverNetwork(map, parts, waterPolygons, routeBoxes, riverOutlines, labelReaches);
       return;
     }
   }
@@ -529,6 +553,13 @@ function appendRivers(
     const mouth = mouthPoints.get(reach.to);
     if (mouth) knots.push(mouth);
     const points = sampleRiverCurve(knots);
+    labelReaches.push({
+      id: String(reach.edge.id),
+      edgeId: reach.edge.id,
+      from: String(reach.from),
+      to: String(reach.to),
+      points,
+    });
     const start = riverChannelWidth(reach.startFlow, scale),
       end = riverChannelWidth(reach.endFlow, scale);
     for (let i = 1; i < points.length; i++)
@@ -595,6 +626,7 @@ function appendRiverNetwork(
   waterPolygons: WaterPolygonItem[],
   routeBoxes: TextBox[],
   riverOutlines: Vertex[][],
+  labelReaches: MapLabelReach[],
 ): void {
   const network = map.rivers!;
   const scale = Math.min(map.width, map.height) / 35;
@@ -629,6 +661,13 @@ function appendRiverNetwork(
         });
       }
     }
+    labelReaches.push({
+      id: saved.id,
+      edgeId: saved.drainageEdgeId,
+      from: saved.fromJunctionId,
+      to: saved.toJunctionId,
+      points: reach.samples.map((sample) => sample.point),
+    });
     const interior = network.origin === 'legacy' || saved.sizeClass !== 'stream';
     const bank = interior ? STROKE_WIDTHS.hairline * scale : 0;
     const bankOutline = riverEnvelope(reach, bank);
@@ -1427,17 +1466,7 @@ function appendSettlements(map: RegionMap, icons: PlacedSettlementIcon[], parts:
  * Decomposed accents use their base letter's advance; unfamiliar characters get a full em.
  */
 function estimateTextWidth(text: string, fontSize: number): number {
-  let ems = 0;
-  for (const ch of text.normalize('NFD')) {
-    if (/\p{Mark}/u.test(ch)) continue;
-    if (/\s/.test(ch)) ems += 0.34;
-    else if (/[ijlIt.,;:'!|]/.test(ch)) ems += 0.4;
-    else if (/[mwMW@%]/.test(ch)) ems += 1.05;
-    else if (/[A-Z]/.test(ch)) ems += 0.8;
-    else if (/[a-z0-9]/.test(ch)) ems += 0.6;
-    else ems += 1.1;
-  }
-  return ems * fontSize;
+  return mapTextWidth(text, mapTextStyle(fontSize));
 }
 
 /** Cap height above the baseline and descender below it, as fractions of the font size. */
@@ -1452,19 +1481,13 @@ function textBox(
   baselineY: number,
   fontSize: number,
   anchor: 'middle' | 'start' | 'end',
+  style?: MapTextStyle,
 ): TextBox {
-  // Measure the font size emitted by textElement, so rounding cannot expand a long label
-  // beyond the bounds used to place it.
-  fontSize = Number(fontSize.toFixed(3));
-  const width = estimateTextWidth(text, fontSize);
-  const padding = TEXT_BOX_PADDING + (fontSize * LABEL_HALO_EMS) / 2 + 0.005;
-  const left = anchor === 'middle' ? x - width / 2 : anchor === 'start' ? x : x - width;
-  return {
-    minX: left - padding,
-    maxX: left + width + padding,
-    minY: baselineY - fontSize * TEXT_ASCENT - padding,
-    maxY: baselineY + fontSize * TEXT_DESCENT + padding,
-  };
+  return inscriptionBounds(text, style ?? mapTextStyle(fontSize), {
+    kind: 'straight',
+    origin: { x: Number(x.toFixed(3)), y: Number(baselineY.toFixed(3)) },
+    anchor,
+  });
 }
 
 function overlapArea(a: TextBox, b: TextBox): number {
@@ -1480,8 +1503,8 @@ function boxIsInsideMap(box: TextBox, map: RegionMap): boolean {
 
 /**
  * The two copies that make up one piece of map text. They are emitted in separate passes — every
- * halo on the sheet, then every ink — because a halo is an opaque parchment stroke reaching about a
- * tenth of an em beyond its glyphs, so a halo drawn after a neighbour's ink erases the bottom off
+ * halo on the sheet, then every ink — because a halo is an opaque parchment stroke reaching its
+ * halo radius beyond its glyphs, so a halo drawn after a neighbour's ink erases the bottom off
  * those letters. Interleaving the pair per label made the title, which is drawn last and is the
  * largest text on the sheet, eat into any settlement name it was placed near.
  */
@@ -1489,6 +1512,8 @@ type TextParts = {
   box: TextBox;
   halo: string;
   ink: string;
+  /** Geographic names read over their terrain mass rather than cutting a box out of it. */
+  overlaysTerrain?: boolean;
 };
 
 /**
@@ -1503,27 +1528,19 @@ function textElement(
   fontSize: number,
   anchor: 'middle' | 'start' | 'end',
   haloEms: number,
+  style?: MapTextStyle,
+  id = 'straight',
 ): TextParts {
-  const shared = `x="${x.toFixed(3)}" y="${baselineY.toFixed(3)}" font-family="${MAP_TEXT_FONT_FAMILY}" font-size="${fontSize.toFixed(3)}" text-anchor="${anchor}"`;
-  const safe = escapeXml(text);
-  const box = textBox(
-    text,
-    Number(x.toFixed(3)),
-    Number(baselineY.toFixed(3)),
-    Number(fontSize.toFixed(3)),
+  const inscription = mapInscription(id, text, style ?? mapTextStyle(fontSize, { haloEms }), {
+    kind: 'straight',
+    origin: { x: Number(x.toFixed(3)), y: Number(baselineY.toFixed(3)) },
     anchor,
-  );
-  const bounds = [box.minX, box.minY, box.maxX, box.maxY].map(n).join(' ');
-  return {
-    box,
-    halo: `<text ${shared} fill="none" stroke="${PARCHMENT_FILL}" stroke-width="${(fontSize * haloEms).toFixed(3)}" stroke-linejoin="round">${safe}</text>`,
-    ink: `<text ${shared} data-text-box="${bounds}" fill="${MAP_TEXT_INK}">${safe}</text>`,
-  };
+  });
+  return serializeMapInscription(inscription, MAP_TEXT_FONT_FAMILY, MAP_TEXT_INK, PARCHMENT_FILL);
 }
 
 /** The title sits on open parchment; settlement names have to cut through terrain symbols. */
-const TITLE_HALO_EMS = 0.1;
-const LABEL_HALO_EMS = 0.12;
+const LABEL_HALO_EMS = 0.34;
 
 type MapTitleLayout = {
   panel: string;
@@ -1544,7 +1561,7 @@ function layoutMapTitle(title: string, map: RegionMap, markers: TextBox[]): MapT
   const availableWidth = map.width - margin * 2;
   const fontSize = Math.min(
     mapTitleFontSize(map) * 0.65,
-    availableWidth / (estimateTextWidth(title, 1) + 1.6),
+    availableWidth / (estimateTextWidth(title, 1) + 4.2),
   );
   if (fontSize < 0.25) return null;
   // Leave room for a name beside a marker at the top edge, so moving the panel does not send
@@ -1555,7 +1572,7 @@ function layoutMapTitle(title: string, map: RegionMap, markers: TextBox[]): MapT
     (a, b) => a - b,
   );
   for (const minY of tops) {
-    for (const factor of [1, 0.95, 0.9, 0.85]) {
+    for (const factor of [1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7]) {
       const layout = titlePanelAt(title, map, fontSize * factor, minY);
       if (
         boxIsInsideMap(layout.box, map) &&
@@ -1573,26 +1590,19 @@ function titlePanelAt(
   fontSize: number,
   minY: number,
 ): MapTitleLayout {
-  const padding = fontSize * 0.2;
-  const label = textBox(title, map.width / 2, 0, fontSize, 'middle');
-  const width = label.maxX - label.minX + padding * 2;
-  const height = label.maxY - label.minY + padding * 2;
-  const minX = (map.width - width) / 2;
-  const box = { minX, maxX: minX + width, minY, maxY: minY + height };
+  const scroll = mapScrollLayout(title, map.width, fontSize, minY);
+  const box = scroll.bounds;
   const stroke = Math.min(STROKE_WIDTHS.fine, fontSize * 0.05);
-  // The reserved box includes the border; inset its centreline by half the stroke.
-  const panel = `<rect id="title-cartouche" x="${n(minX + stroke / 2)}" y="${n(minY + stroke / 2)}" width="${n(width - stroke)}" height="${n(height - stroke)}" rx="${n(fontSize * 0.08)}" fill="${PARCHMENT_FILL}" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${n(stroke)}"/>`;
+  const panel = `<g id="title-cartouche" data-reserved-box="${[box.minX, box.minY, box.maxX, box.maxY].map(n).join(' ')}" fill="${PARCHMENT_FILL}" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${n(stroke)}"><path data-title-scroll="true" d="${scroll.bodyPath}"/>${scroll.foldPaths.map((d) => `<path data-scroll-roll="true" d="${d}" fill="${CARTOGRAPHY.palette.body.color}" fill-opacity="0.12"/>`).join('')}</g>`;
   return {
     panel,
     fontSize,
     box,
-    parts: textElement(
-      title,
-      map.width / 2,
-      minY + padding - label.minY,
-      fontSize,
-      'middle',
-      TITLE_HALO_EMS,
+    parts: serializeMapInscription(
+      scroll.title,
+      MAP_TEXT_FONT_FAMILY,
+      MAP_TEXT_INK,
+      PARCHMENT_FILL,
     ),
   };
 }
@@ -1710,7 +1720,7 @@ function labelCandidates(
   fontSize: number,
 ): LabelCandidate[] {
   const { x, y } = anchorPoint;
-  const padding = fontSize * 0.2 + TEXT_BOX_PADDING;
+  const padding = fontSize * 0.2 + textClearance(mapTextStyle(fontSize));
   const right = markerBounds.maxX + padding;
   const left = markerBounds.minX - padding;
   const far =
@@ -1745,6 +1755,7 @@ type PlaceableLabel = {
   point: Vertex;
   markerBounds: TextBox;
   fontSize: number;
+  style?: MapTextStyle;
   /** Larger settlements are placed first, so they keep the spot directly above the marker. */
   priority: number;
 };
@@ -1763,10 +1774,27 @@ function listPlaceableLabels(
       point: placed.anchor,
       markerBounds: placed.bounds,
       fontSize: settlementLabelFontSize(s, titleFontSize),
+      style: mapTextStyle(settlementLabelFontSize(s, titleFontSize), {
+        letterCase:
+          s.isCapital ||
+          ['town', 'borough', 'city', 'metropolis'].includes(resolveSettlementIconCategory(s))
+            ? 'smallCaps'
+            : 'normal',
+        trackingEms:
+          s.isCapital ||
+          ['town', 'borough', 'city', 'metropolis'].includes(resolveSettlementIconCategory(s))
+            ? 0.04
+            : 0,
+      }),
       priority: (s.isCapital === true ? 1e9 : 0) + (s.population ?? 0),
     });
   }
-  return out.sort((a, b) => b.priority - a.priority);
+  return out.sort(
+    (a, b) =>
+      b.fontSize - a.fontSize ||
+      b.priority - a.priority ||
+      (a.id ?? a.name).localeCompare(b.id ?? b.name),
+  );
 }
 
 type LabelPlacement = {
@@ -1776,16 +1804,30 @@ type LabelPlacement = {
   collision: number;
 };
 
-/** Clamp candidates onto the sheet, reject hard obstacles, then minimize other-label overlap. */
+/** Clamp candidates onto the sheet and reject every marker, furniture, or label collision. */
 function bestLabelPlacement(
   label: PlaceableLabel,
   map: RegionMap,
   taken: TextBox[],
   forbidden: TextBox[],
 ): LabelPlacement | null {
-  let best: LabelPlacement | null = null;
-
   const candidates = labelCandidates(label.point, label.markerBounds, label.fontSize);
+  // Bounded nearby alternatives retain long area names when the first row is occupied.
+  const width = mapTextWidth(label.name, label.style ?? mapTextStyle(label.fontSize));
+  for (const ring of [1, 2, 3])
+    for (const side of [-1, 1]) {
+      candidates.push({
+        x: label.point.x + side * width * 0.25 * ring,
+        baselineY: label.markerBounds.minY - label.fontSize * (0.8 + ring),
+        anchor: 'middle',
+      });
+      candidates.push({
+        x: label.point.x + side * width * 0.25 * ring,
+        baselineY: label.markerBounds.maxY + label.fontSize * (1.5 + ring),
+        anchor: 'middle',
+      });
+    }
+
   // Names near a cartouche can move just beyond its top or bottom instead of being lost.
   for (const obstacle of forbidden) {
     candidates.push(
@@ -1809,23 +1851,32 @@ function bestLabelPlacement(
       candidate.baselineY,
       label.fontSize,
       candidate.anchor,
+      label.style,
     );
     if (box.maxX - box.minX > map.width || box.maxY - box.minY > map.height) continue;
-    const dx = Math.max(0, -box.minX) - Math.max(0, box.maxX - map.width);
-    const dy = Math.max(0, -box.minY) - Math.max(0, box.maxY - map.height);
+    const dx =
+      (box.minX < 0 ? 0.001 - box.minX : 0) -
+      (box.maxX > map.width ? box.maxX - map.width + 0.001 : 0);
+    const dy =
+      (box.minY < 0 ? 0.001 - box.minY : 0) -
+      (box.maxY > map.height ? box.maxY - map.height + 0.001 : 0);
     candidate = { ...candidate, x: candidate.x + dx, baselineY: candidate.baselineY + dy };
-    box = textBox(label.name, candidate.x, candidate.baselineY, label.fontSize, candidate.anchor);
+    box = textBox(
+      label.name,
+      candidate.x,
+      candidate.baselineY,
+      label.fontSize,
+      candidate.anchor,
+      label.style,
+    );
     if (!boxIsInsideMap(box, map) || forbidden.some((obstacle) => overlapArea(box, obstacle) > 0))
       continue;
 
     const collision = taken.reduce((sum, other) => sum + overlapArea(box, other), 0);
     if (collision === 0) return { candidate, box, collision };
-    if (best === null || collision < best.collision) {
-      best = { candidate, box, collision };
-    }
   }
 
-  return best;
+  return null;
 }
 
 /** Places settlement names largest-settlement-first, so the biggest keep the spot above the marker. */
@@ -1852,6 +1903,8 @@ function layoutSettlementLabels(
           label.fontSize,
           placement.candidate.anchor,
           LABEL_HALO_EMS,
+          label.style,
+          label.id ?? label.name,
         ),
         label.id,
         'settlement',
@@ -1860,6 +1913,83 @@ function layoutSettlementLabels(
   }
 
   return parts;
+}
+
+function boxOutline(box: TextBox): Vertex[] {
+  return [
+    { x: box.minX, y: box.minY },
+    { x: box.maxX, y: box.minY },
+    { x: box.maxX, y: box.maxY },
+    { x: box.minX, y: box.maxY },
+  ];
+}
+
+function appendRiverLabels(
+  map: RegionMap,
+  rivers: RegionMapSvgRiverLabel[],
+  reaches: MapLabelReach[],
+  occupied: TextBox[],
+  texts: TextParts[],
+  clearOfWater: (outline: Vertex[]) => boolean,
+): void {
+  const style = mapTextStyle(mapTitleFontSize(map) * 0.26, { italic: true, trackingEms: 0.04 });
+  for (const river of [...rivers].sort((a, b) => a.id.localeCompare(b.id))) {
+    if (!river.name.trim()) continue;
+    const sections = riverLabelSections(reaches, river.edgeIds);
+    if (!sections.length) continue;
+    const obstacles = [...occupied, ...texts.map((text) => text.box)];
+    const inscription = placeArcInscription(
+      'river:' + river.id,
+      river.name,
+      style,
+      sections,
+      map,
+      obstacles,
+      (_arc, bounds) => clearOfWater(boxOutline(bounds)),
+      3,
+    );
+    if (inscription)
+      texts.push(
+        identifyText(
+          serializeMapInscription(inscription, MAP_TEXT_FONT_FAMILY, MAP_TEXT_INK, PARCHMENT_FILL),
+          river.id,
+          'river',
+        ),
+      );
+    else {
+      const point = sections[0][Math.floor(sections[0].length / 2)];
+      const markerBounds = {
+        minX: point.x - 2 * style.fontSize,
+        maxX: point.x + 2 * style.fontSize,
+        minY: point.y - 2 * style.fontSize,
+        maxY: point.y + 2 * style.fontSize,
+      };
+      const placement = bestLabelPlacement(
+        { name: river.name, point, markerBounds, fontSize: style.fontSize, style, priority: 0 },
+        map,
+        [],
+        obstacles,
+      );
+      if (placement && clearOfWater(boxOutline(placement.box))) {
+        texts.push(
+          identifyText(
+            textElement(
+              river.name,
+              placement.candidate.x,
+              placement.candidate.baselineY,
+              style.fontSize,
+              placement.candidate.anchor,
+              style.haloEms,
+              style,
+              'river:' + river.id,
+            ),
+            river.id,
+            'river',
+          ),
+        );
+      }
+    }
+  }
 }
 
 function featureIdentity(id: string | undefined, kind: string): string {
@@ -1884,7 +2014,9 @@ function featurePoint(feature: RegionMapSvgFeature, map: RegionMap): Vertex | un
     ids.add(edge.d0);
     if (edge.d1 !== undefined) ids.add(edge.d1);
   }
-  const nodes = map.nodes.filter((node) => ids.has(node.id) && !isWaterNode(node));
+  const nodes = map.nodes
+    .filter((node) => ids.has(node.id) && !isWaterNode(node))
+    .sort((a, b) => a.id - b.id);
   if (nodes.length === 0) return undefined;
   const x = nodes.reduce((sum, node) => sum + node.center.x, 0) / nodes.length;
   const y = nodes.reduce((sum, node) => sum + node.center.y, 0) / nodes.length;
@@ -1904,6 +2036,8 @@ function appendRegionalFeatures(
   texts: TextParts[],
   body: string[],
   forestLandmarkIds: Set<string> = new Set(),
+  rangeSpines: Map<string, number[]> = new Map(),
+  clearOfWater: (outline: Vertex[]) => boolean = () => true,
 ): void {
   const scale = Math.min(map.width, map.height) / 35;
   const ranked = features.every((feature) => feature.kind === 'range')
@@ -1945,25 +2079,86 @@ function appendRegionalFeatures(
       markerBounds: markerBox,
       fontSize:
         mapTitleFontSize(map) *
-        (feature.kind === 'habitat' || feature.kind === 'range' || forestLabel ? 0.26 : 0.22),
+        (feature.kind === 'habitat' || feature.kind === 'range' || forestLabel
+          ? 0.26
+          : feature.kind === 'landmark'
+            ? 0.22 * 1.15
+            : 0.22),
       priority: 0,
     };
-    const placement = bestLabelPlacement(
-      label,
-      map,
-      [],
-      radius > 0 ? [...obstacles, markerBox] : obstacles,
-    );
-    if (!placement) continue;
-    const text = textElement(
-      feature.name,
-      placement.candidate.x,
-      placement.candidate.baselineY,
-      label.fontSize,
-      placement.candidate.anchor,
-      LABEL_HALO_EMS,
-    );
-    texts.push(identifyText(text, feature.id, feature.kind));
+    const areaLabel = feature.kind === 'habitat' || feature.kind === 'range' || forestLabel;
+    const style = mapTextStyle(label.fontSize, {
+      italic: feature.kind === 'landmark' && !forestLabel,
+      trackingEms: areaLabel ? 0.04 : 0,
+    });
+    const nodes = labelAreaNodes(map, feature.nodeIds);
+    const spine = rangeSpines
+      .get(feature.id)
+      ?.map((id) => map.nodes.find((node) => node.id === id)!.center);
+    const sections = spine ? labelPolylineSections(spine) : areaLabelSections(nodes);
+    const arc = areaLabel
+      ? placeArcInscription(
+          feature.id,
+          feature.name,
+          style,
+          sections,
+          map,
+          obstacles,
+          (baseline, bounds) => {
+            const outline = boxOutline(bounds);
+            if (!clearOfWater(outline)) return false;
+            if (spine) return true;
+            return (
+              outline.every((point) => pointInLabelArea(point, nodes)) &&
+              Array.from({ length: 17 }, (_, i) => arcPoint(baseline, i / 16)).every((point) =>
+                pointInLabelArea(point, nodes),
+              )
+            );
+          },
+        )
+      : null;
+    let text: TextParts;
+    if (arc)
+      text = serializeMapInscription(arc, MAP_TEXT_FONT_FAMILY, MAP_TEXT_INK, PARCHMENT_FILL);
+    else {
+      const alternatives = areaLabel
+        ? [...nodes]
+            .sort((a, b) => a.id - b.id)
+            .filter((_, index) => index % Math.max(1, Math.floor(nodes.length / 12)) === 0)
+            .slice(0, 12)
+            .map((node) => node.center)
+        : [];
+      let placement: LabelPlacement | null = null;
+      for (const candidatePoint of [point, ...alternatives]) {
+        const candidateBounds = areaLabel
+          ? {
+              minX: candidatePoint.x,
+              maxX: candidatePoint.x,
+              minY: candidatePoint.y,
+              maxY: candidatePoint.y,
+            }
+          : markerBox;
+        placement = bestLabelPlacement(
+          { ...label, style, point: candidatePoint, markerBounds: candidateBounds },
+          map,
+          [],
+          radius > 0 ? [...obstacles, markerBox] : obstacles,
+        );
+        if (placement) break;
+      }
+      if (!placement) continue;
+      text = textElement(
+        feature.name,
+        placement.candidate.x,
+        placement.candidate.baselineY,
+        label.fontSize,
+        placement.candidate.anchor,
+        LABEL_HALO_EMS,
+        style,
+        feature.id,
+      );
+    }
+    texts.push(identifyText({ ...text, overlaysTerrain: areaLabel }, feature.id, feature.kind));
     if (feature.kind === 'range') continue;
     if (feature.kind === 'habitat') {
       habitats++;
@@ -2061,12 +2256,13 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   );
   const waterLayerIndex = body.length;
   const riverOutlines: Vertex[][] = [];
-  appendRivers(map, body, waterPolygons, routeBoxes, riverOutlines);
+  const labelReaches: MapLabelReach[] = [];
+  appendRivers(map, body, waterPolygons, routeBoxes, riverOutlines, labelReaches);
   const scatterLayerIndex = body.length;
   appendRoads(map, body, settlements, routeBoxes);
   appendSettlements(map, icons, body);
 
-  // Only other-label crowding is soft. The sheet, cartouche, and marker boundaries are hard.
+  // The sheet, scroll, marker, and previously placed label boundaries are all hard obstacles.
   const textParts = layoutSettlementLabels(
     map,
     icons,
@@ -2095,6 +2291,9 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     reserved,
     textParts,
     body,
+    new Set(),
+    new Map((options?.mountainRanges ?? []).map((range) => [range.id, range.spineNodeIds])),
+    clearOfWater,
   );
   appendRegionalFeatures(
     map,
@@ -2103,6 +2302,16 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     textParts,
     body,
     forestLandmarkIds,
+    new Map(),
+    clearOfWater,
+  );
+  appendRiverLabels(
+    map,
+    options?.rivers ?? [],
+    labelReaches,
+    [...reserved, ...routeBoxes],
+    textParts,
+    clearOfWater,
   );
   const featureBoxes = reserved.slice(featureBoxStart);
   if (titleLayout !== null) {
@@ -2128,7 +2337,12 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
       ],
     ),
   );
-  const rangeReservations = [...reserved, ...featureBoxes, ...(compass === null ? [] : [compass])];
+  const rangeReservations = [
+    ...reserved,
+    ...featureBoxes,
+    ...textParts.filter((part) => !part.overlaysTerrain).map((part) => part.box),
+    ...(compass === null ? [] : [compass]),
+  ];
   const symbols = collectScatterSymbols(
     map,
     clearOfWater,
@@ -2174,10 +2388,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   appendScatterSymbolsBackToFront(
     map,
     symbols.filter(
-      (symbol) =>
-        !icons.some((icon) => overlapArea(symbol.bounds, icon.bounds) > 0) &&
-        !featureBoxes.some((box) => overlapArea(symbol.bounds, box) > 0) &&
-        (compass === null || overlapArea(symbol.bounds, compass) === 0),
+      (symbol) => !rangeReservations.some((box) => overlapArea(symbol.bounds, box) > 0),
     ),
     scatterLayer,
     (glyph, outline) =>
@@ -2218,7 +2429,7 @@ ${mapFrame(map, marginX, marginY)}`;
   const pixelH = h * scale;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="${n(-marginX)} ${n(-marginY)} ${n(sheetW)} ${n(sheetH)}" width="${n(pixelW)}" height="${n(pixelH)}">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="${n(-marginX)} ${n(-marginY)} ${n(sheetW)} ${n(sheetH)}" width="${n(pixelW)}" height="${n(pixelH)}">
 ${inner}
 </svg>`;
 }

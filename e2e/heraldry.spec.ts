@@ -99,12 +99,15 @@ test.describe('a coat of arms', () => {
     await expect(panel.locator('.heraldry-artifact__device > svg')).toBeVisible();
 
     const before = await panel.locator('.heraldry-artifact__blazon').innerText();
-    await panel.getByLabel('Division', { exact: true }).selectOption('pall');
+    const division = panel.getByLabel('Division', { exact: true });
+    // A randomly generated device may already be per pall; always make an actual edit.
+    const nextDivision = (await division.inputValue()) === 'pall' ? 'pale' : 'pall';
+    await division.selectOption(nextDivision);
     await expect(panel.getByRole('button', { name: 'Save changes' })).toBeEnabled();
 
     // The blazon is derived, so it followed the edit rather than describing arms that are gone.
     await expect(panel.locator('.heraldry-artifact__blazon')).not.toHaveText(before);
-    await expect(panel.locator('.heraldry-artifact__blazon')).toContainText('per pall');
+    await expect(panel.locator('.heraldry-artifact__blazon')).toContainText(`per ${nextDivision}`);
 
     await panel.getByRole('button', { name: 'Save changes' }).click();
     await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
@@ -112,8 +115,10 @@ test.describe('a coat of arms', () => {
     // And it survived the round trip through IndexedDB, which is the whole claim.
     await page.reload({ waitUntil: 'load' });
     const reopened = await openInWorkshop(page, 'Emberhold arms');
-    await expect(reopened.getByLabel('Division', { exact: true })).toHaveValue('pall');
-    await expect(reopened.locator('.heraldry-artifact__blazon')).toContainText('per pall');
+    await expect(reopened.getByLabel('Division', { exact: true })).toHaveValue(nextDivision);
+    await expect(reopened.locator('.heraldry-artifact__blazon')).toContainText(
+      `per ${nextDivision}`,
+    );
   });
 
   test('changes one part of the device without disturbing the rest', async ({ page }) => {

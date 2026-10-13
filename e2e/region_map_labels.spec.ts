@@ -22,7 +22,7 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
       try {
         const root = host.querySelector('svg')!;
         const view = root.viewBox.baseVal;
-        const panel = root.querySelector<SVGRectElement>('#title-cartouche')!;
+        const panel = root.querySelector<SVGGraphicsElement>('#title-cartouche')!;
         const panelBox = panel.getBBox();
         const markers = [
           ...root.querySelectorAll<SVGGraphicsElement>(
@@ -81,7 +81,7 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
             (text) =>
               text.closest('[data-feature-id]')?.getAttribute('data-feature-id') === area.id,
           );
-          if (!label || label.textContent?.trim() !== area.name)
+          if (!label || label.getAttribute('data-map-name')?.trim() !== area.name)
             errors.push(`Missing saved landscape label: ${area.name}`);
         }
         if (root.querySelector('[data-feature-id^="habitat:biome:"]'))
