@@ -229,3 +229,5 @@ The selected saved forest landmark receives an area label rather than a duplicat
 Maps without forest inputs retain scattered tree artwork. See
 [the approved design](../../../docs/region-dense-forests.md) and
 `scripts/render_dense_forests.ts` for controlled and fixed-seed previews.
+
+Dense conifer forests use pointed, swept branch tiers and crown-tip brushwork; other dense woodland retains rounded cloud lobes. Artwork follows the realized terrain glyph family without changing saved forest membership.

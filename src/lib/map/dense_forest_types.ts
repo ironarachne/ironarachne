@@ -1,3 +1,4 @@
+import type { Vertex } from '$lib/geometry';
 import type { PlacedTerrainGlyph } from './terrain_glyph_types';
 import type { CubicInkSegment } from './terrain_glyph_types';
 
@@ -13,6 +14,7 @@ export type PlacedDenseForestGlyph = PlacedTerrainGlyph & {
 
 export type DenseForestCanopy = {
   body: string;
+  footprint?: Vertex[];
   segments: CubicInkSegment[];
   radiusX: number;
   radiusY: number;
