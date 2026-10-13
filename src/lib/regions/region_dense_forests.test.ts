@@ -24,6 +24,7 @@ function subject(seed = 'dense-forest') {
 }
 
 describe('regional dense forests', () => {
+  // Full-region generation, codec validation, and SVG rendering exceed 5s on instrumented CI.
   it('shares a reproducible proper name and membership with the selected landmark and map label', () => {
     const a = subject(),
       b = subject();
@@ -36,13 +37,14 @@ describe('regional dense forests', () => {
     expect(landmark.anchor!.nodeIds).toEqual(a.facts!.denseForests[0].mapNodeIds);
     const saved = toRegionSnapshot(a);
     expect(validateRegionSnapshot(JSON.parse(JSON.stringify(saved))).ok).toBe(true);
-    expect(regionToMapSvg(saved)).toContain('data-dense-forest-id=');
-    expect(regionToMapSvg(saved)).toContain(landmark.name.replaceAll('&', '&amp;'));
+    const svg = regionToMapSvg(saved);
+    expect(svg).toContain('data-dense-forest-id=');
+    expect(svg).toContain(landmark.name.replaceAll('&', '&amp;'));
     expect(regionToMarkdown(saved)).toContain(landmark.name);
     const c = subject();
     expect(generateDenseForestLandmark(c, new RNG('another-name'))!.name).not.toBe(landmark.name);
     expect(c.facts!.denseForests[0].mapNodeIds).toEqual(a.facts!.denseForests[0].mapNodeIds);
-  });
+  }, 30000);
   it('keeps no-forest generation empty and accepts no missing facts', () => {
     const region = subject();
     region.map.nodes.forEach((node) => {
