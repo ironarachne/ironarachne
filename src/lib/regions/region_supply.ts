@@ -234,7 +234,9 @@ export function assessSettlementSupply(
       id: `supply:${encodeURIComponent(role.id)}:${need.key}`,
       needKey: need.key,
       name: need.name,
-      description: `${limitation}${importedSupport(region, role, need)} ${explanation}`,
+      description: assessment.supported
+        ? `${need.name} could be supplied locally in limited amounts. Bringing more in could supplement the local sources.`
+        : `${limitation}${importedSupport(region, role, need)} ${explanation}`,
       origin: 'generated',
       status,
       settlement: structuredClone(role.settlement),

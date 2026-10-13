@@ -102,8 +102,7 @@ function factHeading(snapshot: RegionSnapshot, section: string, fact: FactBase):
 }
 
 function factEntry(snapshot: RegionSnapshot, section: string, fact: FactBase): RegionUiEntry {
-  const warning =
-    fact.reason?.status === 'stale' ? '[Supporting explanation needs review.]' : undefined;
+  const warning = undefined;
   const body = fact.description.trim();
   const heading = factHeading(snapshot, section, fact);
   // A stored notable's explicitly labeled hook is a subheading, not part of its title.

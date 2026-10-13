@@ -78,6 +78,7 @@ export function regionFromSnapshot(snapshot: RegionSnapshot, rng: RNG): Region {
     name: snapshot.name,
     affiliation: snapshot.affiliation,
     description: snapshot.description,
+    ...(snapshot.overviewReason ? { overviewReason: snapshot.overviewReason } : {}),
     environment: snapshot.environment,
     dominantCulture:
       snapshot.dominantCulture === null ? null : cultureFromSnapshot(snapshot.dominantCulture, rng),

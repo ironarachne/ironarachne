@@ -1,117 +1,122 @@
-import { isUsableRegionResource } from './region_resources';
+import { composeNarrative, type NarrativeCandidate } from '$lib/narrative';
 import type { RNG } from '@ironarachne/rng';
-import { classifyAltitude, classifyRelief, measureRegionTerrain } from '$lib/map';
-import type Region from './region.js';
-import type { FactBase, SettlementRoleFact } from './region_fact_types.js';
+import type Region from './region';
+import type { FactBase, SettlementRoleFact } from './region_fact_types';
+import { regionContextEvidenceCurrent } from './region_context_evidence';
+import { resourceNarrativeOptions } from './region_resource_narrative';
 
-function usable(fact: FactBase): boolean {
-  return fact.reason?.status !== 'stale';
-}
-
-function geography(region: Region, rng: RNG): string {
-  const land = region.map.nodes.filter((node) => !node.isOcean && !node.isWater);
-  if (land.length === 0) return '';
-  const ranges = (region.facts?.mountainRanges ?? []).filter(
-    (fact) => usable(fact) && fact.name.trim(),
-  );
-  if (ranges.length) {
-    const range = rng.item(ranges);
-    return `${region.name} includes ${range.name}, a chain of linked mountain ridges.`;
-  }
-  const metrics = measureRegionTerrain(region.map);
-  const terrain = `${classifyRelief(metrics.reliefSpread)}, ${classifyAltitude(metrics.medianElevation)}-altitude land`;
-  const habitats = (region.facts?.habitats ?? [])
-    .filter((fact) => usable(fact) && fact.name.trim())
-    .sort((a, b) => (b.anchor?.nodeIds.length ?? 0) - (a.anchor?.nodeIds.length ?? 0));
-  const ecology = habitats
-    .slice(0, 2)
-    .map((fact) => fact.name.toLowerCase())
-    .join(' and ');
-  return rng.item([
-    `${region.name} is ${terrain}${ecology ? `, characterized by ${ecology}` : ''}.`,
-    `${region.name} stretches across ${terrain}${ecology ? `, with ${ecology} shaping its habitats` : ''}.`,
-  ]);
-}
-
-function settlementName(region: Region, role: SettlementRoleFact): string | undefined {
-  const target = role.settlement;
-  if (target.kind !== 'embedded') return undefined;
-  const index = region.settlementIds?.indexOf(target.settlementId) ?? -1;
-  return region.settlements[index]?.name.trim() || undefined;
-}
-
-/** Each clause paraphrases an existing causal site rule; it adds no economic simulation. */
-function siteClause(role: SettlementRoleFact): string | undefined {
+function siteClause(role: SettlementRoleFact): string[] {
   switch (role.reason?.ruleId) {
     case 'fantasy:region:river-crossing:v1':
-      return 'stands where a road crosses a river, bringing overland travelers to the water';
+      return ['stands where a road meets a river', 'lies at a meeting of road and river'];
     case 'fantasy:region:coastal-port-site:v1':
-      return 'adjoins the ocean, offering access for coastal trade';
+      return ['adjoins the sea', 'stands on the coast'];
     case 'fantasy:region:agricultural-site:v1':
-      return 'has low grassland with moderate warmth and moisture, supporting nearby farming';
+      return [
+        'has grassland that could support cultivation',
+        'lies beside ground suitable for cultivation',
+      ];
     case 'fantasy:region:river-settlement:v1':
-      return 'borders a river that provides local freshwater';
+      return ['borders a river that provides local freshwater', 'stands beside a freshwater river'];
     case 'fantasy:region:forest-settlement:v1':
-      return 'lies in forest, giving its inhabitants access to woodland resources';
+      return [
+        'lies in forest, giving its inhabitants access to woodland resources',
+        'has woodland on its doorstep',
+      ];
     default:
-      return undefined;
+      return [];
   }
 }
-
-function habitation(region: Region, rng: RNG): string {
-  const candidates = (region.facts?.settlementRoles ?? []).filter(
-    (role) => usable(role) && settlementName(region, role) && siteClause(role),
-  );
-  if (candidates.length === 0) return '';
-  const role = rng.item(candidates);
-  return `${settlementName(region, role)} ${siteClause(role)}.`;
-}
-
-function roadConnection(region: Region, rng: RNG): string {
-  const roads = (region.facts?.routes ?? []).filter(
-    (route) => usable(route) && route.kind === 'road',
-  );
-  const connections = roads.flatMap((road) => {
-    const names = road.endpoints.map((endpoint) => {
+/** Build supported meanings first; the composer selects and words them on the prose stream. */
+export function generateRegionOverview(region: Region, rng: RNG): string {
+  const facts = region.facts;
+  const candidates: NarrativeCandidate[] = [];
+  const usable = (fact: FactBase) =>
+    facts !== undefined && regionContextEvidenceCurrent({ ...region, facts }, fact);
+  const add = (
+    fact: FactBase,
+    topic: string,
+    options: string[],
+    importance: NarrativeCandidate['importance'] = 'distinctive',
+  ) => {
+    if (!usable(fact) || !options.length) return;
+    candidates.push({
+      id: `overview:${fact.id}`,
+      topic,
+      importance,
+      sourceIds: [fact.id],
+      templates: [{ id: `overview:${topic}`, parts: [{ id: 'sentence', options }] }],
+    });
+  };
+  for (const area of facts?.areas ?? [])
+    if (area.id === 'area:land' && area.description.trim())
+      add(area, 'geography', [area.description], 'defining');
+  for (const range of facts?.mountainRanges ?? [])
+    add(
+      range,
+      'geography',
+      [`${region.name} includes ${range.name}, a chain of linked mountain ridges.`],
+      'defining',
+    );
+  for (const role of facts?.settlementRoles ?? []) {
+    if (role.settlement.kind !== 'embedded') continue;
+    const index = region.settlementIds?.indexOf(role.settlement.settlementId) ?? -1;
+    const name = region.settlements[index]?.name.trim();
+    if (name)
+      add(
+        role,
+        'habitation',
+        siteClause(role).map((clause) => `${name} ${clause}.`),
+      );
+  }
+  for (const resource of facts?.resources ?? [])
+    add(resource, 'resource', resourceNarrativeOptions(resource));
+  for (const route of facts?.routes ?? []) {
+    if (route.kind !== 'road') continue;
+    const names = route.endpoints.map((endpoint) => {
       if (endpoint.kind !== 'settlement' || endpoint.settlement.kind !== 'embedded') return '';
       const index = region.settlementIds?.indexOf(endpoint.settlement.settlementId) ?? -1;
       return region.settlements[index]?.name.trim() ?? '';
     });
-    return names.every(Boolean) ? [`A road links ${names[0]} and ${names[1]}.`] : [];
-  });
-  return connections.length ? rng.item(connections) : '';
-}
-
-function resource(region: Region, rng: RNG): string {
-  const resources = (region.facts?.resources ?? []).filter(
-    (fact) =>
-      usable(fact) && isUsableRegionResource(fact) && fact.name.trim() && fact.description.trim(),
+    if (names.every(Boolean))
+      add(route, 'travel', [
+        `A road links ${names[0]} and ${names[1]}.`,
+        `${names[0]} and ${names[1]} are linked by a road.`,
+      ]);
+  }
+  for (const hazard of facts?.notables ?? []) {
+    // These domain rules establish a qualitative travel concern, not crossing safety.
+    if (
+      hazard.kind === 'hazard' &&
+      [
+        'fantasy:region:high-ground-obstacle:v1',
+        'fantasy:region:cold-travel:v1',
+        'fantasy:region:hot-dry-travel:v1',
+        'fantasy:region:ecology-bank-gathering:v1',
+      ].includes(hazard.reason?.ruleId ?? '')
+    )
+      add(hazard, 'hazard', [hazard.description.split(' Hook:')[0].trim()]);
+  }
+  const result = composeNarrative(
+    { id: 'region:overview', kind: 'region', candidates },
+    { maxSentences: 5, maxPerTopic: 1, repetitionWindow: 0 },
+    { recentSelections: [] },
+    rng,
   );
-  if (resources.length === 0) return '';
-  const fact = rng.item(resources);
-  if (fact.origin === 'generated' && fact.reason?.ruleId === 'fantasy:region:river-water:v1')
-    return 'A river provides a freshwater source.';
-  return `${fact.name}: ${fact.description.trim()}`;
-}
-
-function hazard(region: Region, rng: RNG): string {
-  const hazards = (region.facts?.notables ?? []).filter(
-    (fact) => usable(fact) && fact.kind === 'hazard' && fact.description.trim(),
-  );
-  if (hazards.length === 0) return '';
-  // Hooks belong in the notable section; the overview retains its location and causal explanation.
-  return rng.item(hazards).description.split(' Hook:')[0].trim();
-}
-
-/** Called only by generation, never while opening or exporting a saved artifact. */
-export function generateRegionOverview(region: Region, rng: RNG): string {
-  return [
-    geography(region, rng),
-    habitation(region, rng),
-    resource(region, rng),
-    roadConnection(region, rng),
-    hazard(region, rng),
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const selected = new Set(result.selections.map((selection) => selection.candidateId));
+  const sourceIds = [
+    ...new Set(
+      candidates
+        .filter((candidate) => selected.has(candidate.id))
+        .flatMap((candidate) => candidate.sourceIds),
+    ),
+  ].sort();
+  if (sourceIds.length)
+    region.overviewReason = {
+      ruleId: 'fantasy:region:overview:v2',
+      status: 'current',
+      sources: sourceIds.map((factId) => ({ kind: 'fact', factId })),
+    };
+  else delete region.overviewReason;
+  return result.text;
 }

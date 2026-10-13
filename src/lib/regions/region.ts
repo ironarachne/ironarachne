@@ -6,12 +6,13 @@ import type { Organization } from '$lib/organizations';
 import type { Realm } from '$lib/realms';
 import type { Settlement } from '$lib/settlements';
 import type { RegionMap } from '$lib/map';
-import type { RegionFacts } from './region_fact_types.js';
+import type { FactReason, RegionFacts } from './region_fact_types.js';
 
 export default interface Region {
   name: string;
   environment: Environment;
   description: string;
+  overviewReason?: FactReason;
   /**
    * The culture that fills this region, or `null` when it has none of its own.
    *

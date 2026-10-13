@@ -38,7 +38,7 @@ import type Region from './region.js';
 import type { RegionAffiliation } from './region_affiliation_types';
 import { removeRegionPlace } from './region_editing.js';
 import { emptyRegionFacts } from './region_facts.js';
-import type { RegionFacts, RegionSettlement } from './region_fact_types.js';
+import type { FactReason, RegionFacts, RegionSettlement } from './region_fact_types.js';
 
 /** A realm as it is stored: its arms and its ruler converted, its type named. */
 export type StoredRealm = Omit<Realm, 'heraldry' | 'authority' | 'realmType'> & {
@@ -51,6 +51,7 @@ export type StoredRealm = Omit<Realm, 'heraldry' | 'authority' | 'realmType'> & 
 export type RegionSnapshot = {
   name: string;
   description: string;
+  overviewReason?: FactReason;
   environment: Environment;
   /** `null` when a referenced culture artifact supplies it. See the header. */
   dominantCulture: CultureSnapshot | null;
@@ -99,6 +100,7 @@ export function toRegionSnapshot(
     name: region.name,
     affiliation: region.affiliation,
     description: region.description,
+    ...(region.overviewReason ? { overviewReason: region.overviewReason } : {}),
     environment: region.environment,
     dominantCulture:
       options.cultureIsReferenced === true || region.dominantCulture === null

@@ -28,9 +28,7 @@ export function describeSettlementDailyLife(
   return (Object.keys(context) as DailyLifeCategory[])
     .flatMap((category) =>
       context[category].map((fact) =>
-        dailyLifeEvidenceCurrent(facts, fact)
-          ? fact.description
-          : `${fact.name || 'Daily-life assertion'} needs review because its supporting explanation is stale.`,
+        fact.origin === 'authored' || dailyLifeEvidenceCurrent(facts, fact) ? fact.description : '',
       ),
     )
     .filter((text) => text.trim().length > 0)

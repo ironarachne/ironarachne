@@ -1,3 +1,4 @@
+import { resourceAssessments, describeResource } from './region_resource_narrative';
 import type { RNG } from '@ironarachne/rng';
 import { BiomeClassifications } from '$lib/environment';
 import { allSpecies } from '$lib/species';
@@ -445,5 +446,10 @@ export function generateResourceFacts(
         ],
       },
     });
+  }
+  // Wording happens after inventory selection, so extra prose draws cannot change resources.
+  for (const fact of facts.resources) {
+    fact.assessments = resourceAssessments(fact);
+    fact.description = describeResource(fact, rng);
   }
 }

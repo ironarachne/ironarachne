@@ -8,7 +8,7 @@ import {
 } from '$lib/map';
 
 import type { RegionSnapshot, StoredRealm } from './region_snapshot.js';
-import { regionFactsNeedingReview } from './region_editing';
+import { regionReadingSnapshot, regionOverviewCurrent } from './region_narrative_evidence';
 import type { FactBase, SettlementTarget, RouteEndpoint } from './region_fact_types';
 import { regionSemanticFactLists } from './region_resource_editing';
 import { landscapeSummaryHeading } from './region_landscape_names';
@@ -104,12 +104,10 @@ function factSections(heading: string, facts: FactBase[]): RegionSection[] {
     : [
         {
           heading,
-          lines: printable.map(
-            (fact) =>
-              (heading === 'Landscape' && fact.id === 'area:land'
-                ? fact.description.trim()
-                : [fact.name.trim(), fact.description.trim()].filter(isPrintable).join(': ')) +
-              (fact.reason?.status === 'stale' ? ' [Supporting explanation needs review.]' : ''),
+          lines: printable.map((fact) =>
+            heading === 'Landscape' && fact.id === 'area:land'
+              ? fact.description.trim()
+              : [fact.name.trim(), fact.description.trim()].filter(isPrintable).join(': '),
           ),
           factIds: printable.map((fact) => fact.id),
         },
@@ -130,11 +128,18 @@ function representativeFacts<T extends FactBase>(facts: T[], topic: (fact: T) =>
 
 /** Group saved settlement prose by identity, including referenced or missing settlements. */
 export function regionSettlementEntries(snapshot: RegionSnapshot) {
+  snapshot = regionReadingSnapshot(snapshot);
   const dailyLife = representativeFacts(snapshot.facts.dailyLife, (fact) =>
     JSON.stringify([fact.settlement, fact.category]),
   );
-  const supply = representativeFacts(snapshot.facts.supply, (fact) =>
-    JSON.stringify(fact.settlement),
+  const modern =
+    snapshot.overviewReason !== undefined ||
+    snapshot.facts.resources.some((fact) => fact.assessments !== undefined);
+  const supply = representativeFacts(
+    snapshot.facts.supply.filter(
+      (fact) => fact.origin === 'authored' || !modern || fact.status === 'limited-local',
+    ),
+    (fact) => JSON.stringify(fact.settlement),
   );
   const roles = snapshot.facts.settlementRoles.filter(
     (fact) => isPrintable(fact.name) || isPrintable(fact.description),
@@ -154,8 +159,7 @@ export function regionSettlementEntries(snapshot: RegionSnapshot) {
     craft: 'Household crafts',
   };
   const factLine = (fact: FactBase) =>
-    [fact.name.trim(), fact.description.trim()].filter(isPrintable).join(': ') +
-    (fact.reason?.status === 'stale' ? ' [Supporting explanation needs review.]' : '');
+    [fact.name.trim(), fact.description.trim()].filter(isPrintable).join(': ');
   return targets
     .map((target) => {
       const settlement =
@@ -240,10 +244,7 @@ function ecologySections(snapshot: RegionSnapshot): RegionSection[] {
   return [
     {
       heading: 'Flora and fauna',
-      lines: [
-        text +
-          (summary?.reason?.status === 'stale' ? ' [Supporting explanation needs review.]' : ''),
-      ],
+      lines: [text],
       ...(summary ? { factIds: [summary.id] } : {}),
     },
   ];
@@ -251,9 +252,14 @@ function ecologySections(snapshot: RegionSnapshot): RegionSection[] {
 
 /** Arrange a region for reading. */
 export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
+  const overview = regionOverviewCurrent(snapshot, snapshot.overviewReason)
+    ? snapshot.description
+    : '';
+  const hadEcologySummary = snapshot.facts.claims.some((fact) => fact.id === ECOLOGY_SUMMARY_ID);
+  snapshot = regionReadingSnapshot(snapshot);
   const culture = snapshot.dominantCulture;
   const paragraphs = [
-    snapshot.description,
+    overview,
     culture !== null && isPrintable(culture.name)
       ? `The dominant culture here is the ${culture.name}.`
       : '',
@@ -268,13 +274,6 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
     title: regionDisplayName(snapshot),
     paragraphs,
     sections: [
-      ...namedList(
-        'Facts needing review',
-        regionFactsNeedingReview(snapshot).map((fact) => ({
-          name: fact.name.trim() || 'Unnamed fact',
-          description: 'Supporting information changed; saved text has not been recomputed.',
-        })),
-      ),
       ...factSections('Landscape', [
         ...snapshot.facts.areas,
         ...snapshot.facts.mountainRanges,
@@ -286,7 +285,9 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
             name: fact.origin === 'authored' ? fact.name : landscapeSummaryHeading(fact.name),
           })),
       ]),
-      ...ecologySections(snapshot),
+      ...(hadEcologySummary && !snapshot.facts.claims.some((fact) => fact.id === ECOLOGY_SUMMARY_ID)
+        ? []
+        : ecologySections(snapshot)),
       ...factSections(
         'Notable places',
         snapshot.facts.notables.filter((fact) => fact.kind === 'landmark'),

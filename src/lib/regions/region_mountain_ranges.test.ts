@@ -36,6 +36,7 @@ function fixtureSnapshot() {
   generateMountainRangeFacts(region, new RNG('range'));
   return {
     ...rollRegionSnapshot('range-fixture', { affiliation: 'unaffiliated' }),
+    overviewReason: undefined,
     map: region.map,
     facts: region.facts,
     settlements: [],
@@ -151,11 +152,11 @@ describe('saved regional mountain ranges', () => {
     if (!migrated.ok) throw new Error(migrated.message);
     expect(migrated.value).toEqual({
       ...old,
-      facts: { ...facts, version: 8, denseForests: [], mountainRanges: [] },
+      facts: { ...facts, version: 9, denseForests: [], mountainRanges: [] },
     });
     expect(regionToMapSvg(migrated.value)).not.toContain('data-range-id=');
     expect(old).toEqual(before);
-    expect(REGION_PAYLOAD_VERSION).toBe(13);
+    expect(REGION_PAYLOAD_VERSION).toBe(14);
     expect(migrateRegionSnapshot(snapshot, 12).ok).toBe(false);
     expect(migrateRegionSnapshot(snapshot, 11).ok).toBe(false);
     expect(validateRegionSnapshot(snapshot).ok).toBe(true);

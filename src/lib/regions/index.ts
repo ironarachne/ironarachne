@@ -58,3 +58,6 @@ export { generateMountainRangeFacts } from './region_mountain_ranges';
 
 export type * from './region_dense_forest_types';
 export { generateDenseForestFacts, generateDenseForestLandmark } from './region_dense_forests';
+
+export type * from './region_assessment_types';
+export { regionInspectionFacts, regionOverviewCurrent } from './region_narrative_evidence';

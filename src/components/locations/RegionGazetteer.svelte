@@ -1,4 +1,5 @@
 <script lang="ts">
+  import RegionEvidenceInspector from '$components/locations/RegionEvidenceInspector.svelte';
   import { regionToUiDocument, type RegionSnapshot } from '$lib/regions';
 
   const { snapshot }: { snapshot: RegionSnapshot } = $props();
@@ -41,6 +42,7 @@
     </section>
   {/each}
 </div>
+<RegionEvidenceInspector {snapshot} />
 
 <style>
   article {

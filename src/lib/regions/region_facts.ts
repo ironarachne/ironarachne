@@ -1,3 +1,4 @@
+import { regionAssessmentsError } from './region_assessment_validation';
 import { denseForestFactsError } from './region_dense_forest_validation';
 import { mountainRangeFactsError } from './region_mountain_range_validation';
 import { supplyFactsError } from './region_supply_validation';
@@ -12,7 +13,7 @@ import type { RegionFacts, RegionSettlement } from './region_fact_types.js';
 
 export function emptyRegionFacts(state: RegionFacts['state']): RegionFacts {
   return {
-    version: 8,
+    version: 9,
     denseForests: [],
     mountainRanges: [],
     supply: [],
@@ -62,7 +63,7 @@ export function regionFactsError(
   const facts = object(value);
   if (
     facts === null ||
-    facts.version !== 8 ||
+    facts.version !== 9 ||
     !['current', 'legacy'].includes(String(facts.state))
   ) {
     return 'region facts have an unsupported version or state';
@@ -136,6 +137,16 @@ export function regionFactsError(
         return 'region facts contain an invalid or duplicate identity';
       factIds.add(fact.id);
     }
+  }
+  for (const entry of entries) {
+    const fact = entry as RecordValue;
+    const error = regionAssessmentsError(
+      fact.assessments,
+      object(fact.reason)?.status === 'stale',
+      map,
+      factIds,
+    );
+    if (error) return error;
   }
   const forestError = denseForestFactsError(facts.denseForests, map);
   if (forestError) return forestError;

@@ -340,7 +340,7 @@ describe('complete gazetteer exports', () => {
     };
     for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
       expect(prose).toContain('A saved detail with no name.');
-      expect(prose).toContain('Supporting explanation needs review.');
+      expect(prose).not.toContain('Supporting explanation needs review.');
       expect(prose).not.toContain('obsolete climate');
     }
   });
@@ -357,6 +357,7 @@ describe('complete gazetteer exports', () => {
     const edited = {
       ...snapshot,
       description: 'A whole line of saved regional history.\n'.repeat(160),
+      overviewReason: undefined,
       facts: {
         ...emptyRegionFacts('legacy'),
         habitats: [
@@ -448,10 +449,11 @@ describe('sourcebook gazetteer', () => {
     expect(regionToDocument(snapshot)).toEqual(document);
   });
 
-  it('preserves authored prose and warns beside stale assertions in every format', () => {
+  it('preserves authored prose and keeps review notices out of every reading format', () => {
     const edited = {
       ...snapshot,
       description: 'A referee wrote this overview.',
+      overviewReason: undefined,
       facts: {
         ...snapshot.facts,
         habitats: [
@@ -467,9 +469,7 @@ describe('sourcebook gazetteer', () => {
     };
     for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
       expect(prose).toContain('A referee wrote this overview.');
-      expect(prose).toContain(
-        'The copper woods: Leave these words alone. [Supporting explanation needs review.]',
-      );
+      expect(prose).toContain('The copper woods: Leave these words alone.');
       expect(prose).toContain(edited.realms[0].description);
     }
   });
@@ -617,7 +617,11 @@ describe('sourcebook gazetteer', () => {
       regionFactExplanation(snapshot, { ...fact, reason: { ...fact.reason, status: 'stale' } }),
     ).toEqual(['Supporting information changed; this explanation needs review.']);
     expect(regionFactExplanation(snapshot, { ...source, reason: undefined })).toEqual([]);
-    const edited = { ...snapshot, facts: { ...emptyRegionFacts('legacy'), habitats: [fact] } };
+    const edited = {
+      ...snapshot,
+      overviewReason: undefined,
+      facts: { ...emptyRegionFacts('legacy'), habitats: [fact] },
+    };
     for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
       expect(prose).not.toContain('Supporting explanation:');
       expect(prose).not.toMatch(/Recorded |moisture =|road =|unavailable/);

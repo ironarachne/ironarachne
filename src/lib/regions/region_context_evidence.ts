@@ -1,7 +1,9 @@
 import type { FactBase, FactSource } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
-import { regionSemanticFactLists } from './region_resource_editing';
+import { regionSemanticFactLists } from './region_fact_lists';
 import type { RegionSemanticFact } from './region_resource_types';
+
+type EvidenceContext = Pick<RegionSnapshot, 'facts' | 'map' | 'environment'>;
 
 function canonical(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonical);
@@ -14,7 +16,7 @@ function canonical(value: unknown): unknown {
 }
 
 function environmentObservationCurrent(
-  snapshot: RegionSnapshot,
+  snapshot: EvidenceContext,
   source: Extract<FactSource, { kind: 'environment' }>,
 ): boolean {
   try {
@@ -47,34 +49,60 @@ function environmentObservationCurrent(
   }
 }
 
-function observationCurrent(
-  snapshot: RegionSnapshot,
-  source: Exclude<FactSource, { kind: 'fact' }>,
-): boolean {
-  if (source.kind === 'environment') return environmentObservationCurrent(snapshot, source);
-  const entry =
-    source.kind === 'map-node'
-      ? snapshot.map.nodes.find((node) => node.id === source.nodeId)
-      : snapshot.map.edges.find((edge) => edge.id === source.edgeId);
-  return (
-    entry !== undefined &&
-    String(entry[source.property as keyof typeof entry]) === source.observedValue
+/** Check saved observations as well as flags; callers never regenerate or repair the source. */
+export function createRegionEvidenceChecker(snapshot: EvidenceContext) {
+  const entries = new Map(
+    regionSemanticFactLists
+      .flatMap<RegionSemanticFact>((key) => snapshot.facts[key])
+      .map((entry) => [entry.id, entry]),
   );
+  const nodes = new Map(snapshot.map.nodes.map((node) => [node.id, node]));
+  const edges = new Map(snapshot.map.edges.map((edge) => [edge.id, edge]));
+  const observations = new Map<string, boolean>();
+  const observationCurrent = (source: Exclude<FactSource, { kind: 'fact' }>) => {
+    const key = JSON.stringify(source);
+    const cached = observations.get(key);
+    if (cached !== undefined) return cached;
+    const entry =
+      source.kind === 'map-node'
+        ? nodes.get(source.nodeId)
+        : source.kind === 'map-edge'
+          ? edges.get(source.edgeId)
+          : undefined;
+    const current =
+      source.kind === 'environment'
+        ? environmentObservationCurrent(snapshot, source)
+        : entry !== undefined &&
+          String(entry[source.property as keyof typeof entry]) === source.observedValue;
+    observations.set(key, current);
+    return current;
+  };
+  const checked = new Map<string, boolean>();
+  const check = (entry: FactBase, path: Set<string>): boolean => {
+    if (path.has(entry.id) || entry.reason?.status === 'stale') return false;
+    const cached = checked.get(entry.id);
+    if (cached !== undefined) return cached;
+    if (!entry.reason) return entry.origin !== 'generated';
+    const next = new Set(path).add(entry.id);
+    const sources = [
+      ...entry.reason.sources,
+      ...(entry.assessments ?? []).flatMap((assessment) => assessment.sources),
+    ];
+    const current = sources.every((source) => {
+      if (source.kind !== 'fact') return observationCurrent(source);
+      const parent = entries.get(source.factId);
+      return parent !== undefined && check(parent, next);
+    });
+    checked.set(entry.id, current);
+    return current;
+  };
+  return (fact: FactBase, visiting = new Set<string>()) => check(fact, visiting);
 }
 
-/** Check saved observations as well as flags; callers never regenerate or repair the source. */
 export function regionContextEvidenceCurrent(
-  snapshot: RegionSnapshot,
+  snapshot: EvidenceContext,
   fact: FactBase,
   visiting = new Set<string>(),
 ): boolean {
-  if (visiting.has(fact.id) || fact.reason?.status === 'stale') return false;
-  if (!fact.reason) return fact.origin !== 'generated';
-  const next = new Set(visiting).add(fact.id);
-  const entries = regionSemanticFactLists.flatMap<RegionSemanticFact>((key) => snapshot.facts[key]);
-  return fact.reason.sources.every((source) => {
-    if (source.kind !== 'fact') return observationCurrent(snapshot, source);
-    const parent = entries.find((entry) => entry.id === source.factId);
-    return parent !== undefined && regionContextEvidenceCurrent(snapshot, parent, next);
-  });
+  return createRegionEvidenceChecker(snapshot)(fact, visiting);
 }

@@ -33,6 +33,7 @@ import {
   regionFactTargets,
   removeRegionFactIds,
   staleRegionFactDependents,
+  withRegionOverviewEvidence,
 } from './region_resource_editing';
 
 /** Recorded explanations needing review; prose without evidence is reviewed manually. */
@@ -156,7 +157,9 @@ export function setRegionText(
   field: RegionTextField,
   value: string,
 ): RegionSnapshot {
-  return { ...snapshot, [field]: value };
+  const result = { ...snapshot, [field]: value };
+  if (field === 'description') delete result.overviewReason;
+  return result;
 }
 
 /**
@@ -214,14 +217,14 @@ export function setRegionPlaceText(
     )
       return snapshot;
     return hasIndex(snapshot.settlements.length, index)
-      ? {
+      ? withRegionOverviewEvidence({
           ...snapshot,
           facts: staleSettlementExplanations(snapshot, index),
           settlements: replaceAt(snapshot.settlements, index, {
             ...snapshot.settlements[index],
             snapshot: { ...snapshot.settlements[index].snapshot, [field]: value },
           }),
-        }
+        })
       : snapshot;
   }
   return hasIndex(places.length, index)
@@ -246,11 +249,11 @@ export function removeRegionPlace(
   if (list === 'settlements') {
     const removedIds = settlementRemovalDependencies(snapshot, index);
     if (removedIds === null) return snapshot;
-    return {
+    return withRegionOverviewEvidence({
       ...snapshot,
       settlements: snapshot.settlements.filter((_place, position) => position !== index),
       facts: removeRegionFactIds(snapshot.facts, removedIds),
-    };
+    });
   }
   return {
     ...snapshot,

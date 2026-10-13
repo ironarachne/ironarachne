@@ -94,10 +94,12 @@ describe('grounded regional places', () => {
     (road) => {
       const places = derive(fixture([node(8)], [river(road)]));
       expect(places).toHaveLength(1);
-      expect(places[0].name).toBe(road ? 'River crossing obstacle' : 'River detour');
+      expect(places[0].name).toBe(road ? 'Road and river meeting' : 'River banks');
       expect(places[0].anchor).toEqual({ nodeIds: [8], edgeIds: [77] });
-      expect(places[0].description).toContain(
-        'Crossing safety and river navigability are unverified',
+      expect(places[0].kind).toBe('landmark');
+      expect(places[0].description).not.toMatch(/unverified|detour|impassable|unsafe|navigable/);
+      expect(places[0].assessments?.find((entry) => entry.topic === 'safe-crossing')?.status).toBe(
+        'unknown',
       );
     },
   );
@@ -208,7 +210,7 @@ describe('grounded regional places', () => {
       });
     const places = derive(structuredClone(region));
     expect(places).toHaveLength(4);
-    expect(places.filter((place) => place.kind === 'landmark')).toHaveLength(2);
+    expect(places.filter((place) => place.kind === 'landmark')).toHaveLength(3);
     expect(
       places.find((place) => place.reason!.ruleId.includes('settlement-approach'))!.reason!
         .sources[0].kind,
