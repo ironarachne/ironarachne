@@ -48,6 +48,7 @@ describe.each(['alpha', 'bravo', 'charlie'])('reference coastline: %s', (seed) =
     config.mapHeight = 35;
     region = generate(config);
   }, 30000);
+  // This integration test renders the whole region twice; coverage-instrumented CI needs headroom.
   it('has short shore segments, shared water geometry, and glyphs clear of the rendered water', () => {
     const original = structuredClone(region.map);
     const svg = buildRegionMapSvgString(region.map);
@@ -110,5 +111,5 @@ describe.each(['alpha', 'bravo', 'charlie'])('reference coastline: %s', (seed) =
     }
     expect(region.map).toEqual(original);
     expect(buildRegionMapSvgString(region.map)).toBe(svg);
-  });
+  }, 30000);
 });

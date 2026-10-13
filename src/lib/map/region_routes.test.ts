@@ -17,6 +17,7 @@ for (const seed of ['alpha', 'bravo', 'charlie']) {
       config.mapHeight = 35;
       region = generate(config);
     }, 30000);
+    // This integration test renders the whole region twice; coverage-instrumented CI needs headroom.
     it('keeps corner rivers connected downstream and draws rivers below terrain and roads above it', () => {
       const map = region.map;
       const original = structuredClone(map);
@@ -79,6 +80,6 @@ for (const seed of ['alpha', 'bravo', 'charlie']) {
       expect(svg).not.toMatch(/NaN|Infinity|rvTapG/);
       expect(buildRegionMapSvgString(map, options)).toBe(svg);
       expect(map).toEqual(original);
-    });
+    }, 30000);
   });
 }
