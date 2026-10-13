@@ -328,7 +328,11 @@ function appendWaterBodiesFromItems(
       kind: item.strokeKind,
       width,
       height,
-      exclusions,
+      // Land-side shore marks must also stay out of every neighboring water body.
+      exclusions: [
+        ...exclusions,
+        ...items.filter((other) => other !== item).map((other) => other.outline),
+      ],
     });
     for (const [attribute, paths] of [
       ['water-hatching', artwork.ripples],
@@ -336,7 +340,11 @@ function appendWaterBodiesFromItems(
       ['water-waves', artwork.waves],
     ] as const) {
       if (paths.length === 0) continue;
-      parts.push(`<g data-${attribute}="${item.strokeKind}" clip-path="url(#${item.id}Clip)">
+      const containment =
+        attribute === 'shore-hatching'
+          ? 'mask="url(#terrain-tone-land)"'
+          : `clip-path="url(#${item.id}Clip)"`;
+      parts.push(`<g data-${attribute}="${item.strokeKind}" ${containment}>
 ${attribute === 'water-waves' ? compactWaterPaths(paths, scale).replaceAll('stroke-linejoin="round"', 'stroke-linejoin="miter" stroke-miterlimit="3"') : compactWaterPaths(paths, scale)}
 </g>`);
     }

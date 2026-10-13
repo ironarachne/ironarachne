@@ -46,14 +46,16 @@ closer lake bands, and no bands for small lakes. It defines each coastline once 
 strokes, clips, and masks; no water wash remains.
 
 `createWaterArtwork({ shoreline, width, height, kind, exclusions })` composes those base
-contours into irregular broken wavy ripples, intermittent light shore cross-hatching,
+contours into irregular broken wavy ripples, intermittent light cross-hatching on land beside the shore,
 and sparse groups of wave strokes with pointed crests and curved troughs in open ocean.
 `kind` is `ocean` or `lake`; lakes have
 no wave symbols. `exclusions` contains closed footprint polygons in map coordinates,
-such as reserved labels and furniture. Entire strokes are checked against water and
-exclusions, including their width, and unsafe marks are omitted. Off-crop closing runs
+such as reserved labels and furniture; include other water bodies to keep land-side
+hatches out of neighboring water. Entire strokes are checked against their intended
+side of the shoreline and exclusions, including their width, and unsafe marks are omitted. Off-crop closing runs
 are not decorated. All output consists of transient `InkedPath` arrays, with variation
 derived from canonical geometry hashes rather than a generator RNG. The renderer scales
 their named stroke widths by `min(width, height) / 35` and batches equal inks as SVG
-subpaths. Wave strokes use miter joins with a limit of three; their clearance includes
+subpaths. Land hatches use the renderer's shared crisp land mask; ripples and waves use
+individual water clips. Wave strokes use miter joins with a limit of three; their clearance includes
 the possible tip extension. See [the approved design](../../../docs/region-water-rendering.md).

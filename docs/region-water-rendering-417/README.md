@@ -4,6 +4,10 @@ The [approved design](../region-water-rendering.md) is implemented using the exi
 vector cartography pipeline. These Chromium captures show each fixture before (left)
 and after (right), with both maps at their normal 900-pixel output width.
 
+These are the initial implementation's images. The subsequent
+[land-side hatching correction](land-hatching-correction/README.md) moves cross-hatching
+out of the water onto land, as clarified on 2026-10-13.
+
 ## Comparisons
 
 - [Open ocean](ocean-comparison.png): stronger coast, irregular broken ripples, sparse

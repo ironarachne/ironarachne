@@ -55,14 +55,14 @@ function segmentsNear(a: Vertex, b: Vertex, c: Vertex, d: Vertex, margin: number
   );
 }
 
-function artworkClearance(config: WaterArtworkConfig) {
+function artworkClearance(config: WaterArtworkConfig, side: 'water' | 'land' = 'water') {
   const shore = edgesOf(config.shoreline);
   const obstacles = config.exclusions.filter((polygon) => polygon.length >= 3);
   const obstacleEdges = obstacles.flatMap((polygon) => edgesOf(polygon));
   return (points: Vertex[], margin: number, shoreMargin = margin): boolean => {
     if (
       points.length < 2 ||
-      !inside(points[0], config.shoreline) ||
+      inside(points[0], config.shoreline) !== (side === 'water') ||
       obstacles.some((polygon) => inside(points[0], polygon))
     )
       return false;
@@ -187,12 +187,12 @@ function shoreMarks(
       for (const slope of [-1, 1]) {
         const mark = [
           {
-            x: a.x - ty * 0.07 * scale - tx * slope * 0.08 * scale,
-            y: a.y + tx * 0.07 * scale - ty * slope * 0.08 * scale,
+            x: a.x + ty * 0.07 * scale - tx * slope * 0.08 * scale,
+            y: a.y - tx * 0.07 * scale - ty * slope * 0.08 * scale,
           },
           {
-            x: a.x - ty * depth + tx * slope * 0.08 * scale,
-            y: a.y + tx * depth + ty * slope * 0.08 * scale,
+            x: a.x + ty * depth + tx * slope * 0.08 * scale,
+            y: a.y - tx * depth + ty * slope * 0.08 * scale,
           },
         ];
         if (clear(mark, (STROKE_WIDTHS.hairline * scale) / 2))
@@ -281,7 +281,7 @@ export function createWaterArtwork(config: WaterArtworkConfig): WaterArtwork {
   const clear = artworkClearance(prepared);
   return {
     ripples: brokenRipples(prepared, scale, clear),
-    shoreHatching: shoreMarks(prepared, scale, clear),
+    shoreHatching: shoreMarks(prepared, scale, artworkClearance(prepared, 'land')),
     waves: waveMarks(prepared, scale, clear),
   };
 }

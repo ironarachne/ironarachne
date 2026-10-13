@@ -1190,8 +1190,20 @@ it('leaves small lakes as bare parchment and gives larger lakes two hatch bands'
   expect(hatching).not.toContain(' Z');
   expect(hatching.match(/M /g)!.length).toBeGreaterThan(2);
   expect(large).toContain('data-shore-hatching="lake"');
+  expect(large).toContain('data-shore-hatching="lake" mask="url(#terrain-tone-land)"');
   expect(large).not.toContain('data-water-waves=');
   expect(large).toMatch(/data-water-coast="lake"[^>]+stroke-width="0.2"/);
+});
+
+it('uses the shared land mask for shoreline cross-hatching and water clips for ripples', () => {
+  const svg = buildRegionMapSvgString(WATER_REVIEW_MAPS.lake);
+  const hatching = svg.match(/<g data-shore-hatching="lake"([^>]*)>([\s\S]*?)<\/g>/)!;
+  expect(hatching[1]).toContain('mask="url(#terrain-tone-land)"');
+  expect(hatching[1]).not.toContain('clip-path');
+  expect(svg).toContain('<mask id="terrain-tone-land"');
+  expect(svg).toContain('<use href="#waterBody0" fill="black"/>');
+  expect(svg).toContain('data-water-hatching="lake" clip-path="url(#waterBody0Clip)"');
+  expect(svg.indexOf('data-shore-hatching')).toBeLessThan(svg.indexOf('data-water-coast'));
 });
 
 it('places clipped ocean waves beneath furniture and excludes their complete reserved footprints', () => {
