@@ -1,3 +1,5 @@
+export { detectDenseForests, denseForestGeometryError } from './dense_forests';
+export type { DenseForestGeometry } from './dense_forest_types';
 export * from './biome';
 export * from './builder';
 export * from './climate';

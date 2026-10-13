@@ -174,9 +174,11 @@ export function generateRegionGeographicName(region: Region, rng: RNG): string {
           }),
     },
     {
-      usedNames: [...(region.facts?.areas ?? []), ...(region.facts?.mountainRanges ?? [])].map(
-        (area) => area.name,
-      ),
+      usedNames: [
+        ...(region.facts?.areas ?? []),
+        ...(region.facts?.mountainRanges ?? []),
+        ...(region.facts?.denseForests ?? []),
+      ].map((area) => area.name),
       recentStyles: [],
     },
     rng,

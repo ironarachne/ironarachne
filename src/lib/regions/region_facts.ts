@@ -1,3 +1,4 @@
+import { denseForestFactsError } from './region_dense_forest_validation';
 import { mountainRangeFactsError } from './region_mountain_range_validation';
 import { supplyFactsError } from './region_supply_validation';
 import { processingFactsError } from './region_processing_validation';
@@ -11,7 +12,8 @@ import type { RegionFacts, RegionSettlement } from './region_fact_types.js';
 
 export function emptyRegionFacts(state: RegionFacts['state']): RegionFacts {
   return {
-    version: 7,
+    version: 8,
+    denseForests: [],
     mountainRanges: [],
     supply: [],
     dailyLife: [],
@@ -60,12 +62,13 @@ export function regionFactsError(
   const facts = object(value);
   if (
     facts === null ||
-    facts.version !== 7 ||
+    facts.version !== 8 ||
     !['current', 'legacy'].includes(String(facts.state))
   ) {
     return 'region facts have an unsupported version or state';
   }
   const keys = [
+    'denseForests',
     'mountainRanges',
     'supply',
     'dailyLife',
@@ -89,35 +92,37 @@ export function regionFactsError(
     for (const entry of facts[key] as unknown[]) {
       const fact = object(entry);
       const prefix =
-        key === 'mountainRanges'
-          ? 'range:mountain:'
-          : key === 'supply'
-            ? 'supply:'
-            : key === 'dailyLife'
-              ? 'daily-life:'
-              : key === 'products'
-                ? 'product:'
-                : key === 'geology'
-                  ? 'geology:'
-                  : key === 'resourceDeposits'
-                    ? 'deposit:'
-                    : key === 'areas'
-                      ? 'area:'
-                      : key === 'habitats'
-                        ? 'habitat:'
-                        : key === 'settlementRoles'
-                          ? 'role:'
-                          : key === 'resources'
-                            ? 'resource:'
-                            : key === 'routes'
-                              ? 'route:'
-                              : key === 'ecologyInhabitants'
-                                ? 'inhabitant:'
-                                : key === 'ecologyRelationships'
-                                  ? 'ecology:'
-                                  : key === 'claims'
-                                    ? 'claim:'
-                                    : `${fact?.kind}:`;
+        key === 'denseForests'
+          ? 'forest:dense:'
+          : key === 'mountainRanges'
+            ? 'range:mountain:'
+            : key === 'supply'
+              ? 'supply:'
+              : key === 'dailyLife'
+                ? 'daily-life:'
+                : key === 'products'
+                  ? 'product:'
+                  : key === 'geology'
+                    ? 'geology:'
+                    : key === 'resourceDeposits'
+                      ? 'deposit:'
+                      : key === 'areas'
+                        ? 'area:'
+                        : key === 'habitats'
+                          ? 'habitat:'
+                          : key === 'settlementRoles'
+                            ? 'role:'
+                            : key === 'resources'
+                              ? 'resource:'
+                              : key === 'routes'
+                                ? 'route:'
+                                : key === 'ecologyInhabitants'
+                                  ? 'inhabitant:'
+                                  : key === 'ecologyRelationships'
+                                    ? 'ecology:'
+                                    : key === 'claims'
+                                      ? 'claim:'
+                                      : `${fact?.kind}:`;
       if (
         fact === null ||
         !nonempty(fact.id) ||
@@ -132,6 +137,8 @@ export function regionFactsError(
       factIds.add(fact.id);
     }
   }
+  const forestError = denseForestFactsError(facts.denseForests, map);
+  if (forestError) return forestError;
   const rangeError = mountainRangeFactsError(facts.mountainRanges, map);
   if (rangeError) return rangeError;
   const nodeIds = graphIds(map.nodes);
