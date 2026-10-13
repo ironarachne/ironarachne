@@ -93,7 +93,7 @@ describe('generate', () => {
     const region = generate(configFor('described'));
 
     expect(region.description).not.toBe(region.environment.description);
-    expect(region.description).toContain(region.name);
+    expect(region.overviewReason?.sources.length).toBeGreaterThan(0);
     expect(region.description).toBeTruthy();
   });
 

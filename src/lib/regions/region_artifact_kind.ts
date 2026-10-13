@@ -25,6 +25,8 @@ import {
 } from '$lib/settlements/settlement_artifact_kind';
 
 import type Region from './region.js';
+import { regionOverviewReasonError } from './region_assessment_validation';
+import { regionSemanticFactLists } from './region_resource_editing';
 import type { RegionSnapshot } from './region_snapshot.js';
 import { emptyRegionFacts, regionFactsError } from './region_facts.js';
 
@@ -34,8 +36,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 13 adds saved dense forests without inferring them on historical maps. */
-export const REGION_PAYLOAD_VERSION = 13 as const;
+/** Version 14 separates factual assessments and overview provenance from stored prose. */
+export const REGION_PAYLOAD_VERSION = 14 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -192,6 +194,13 @@ export function validateRegionSnapshot(payload: unknown): PayloadResult<RegionSn
     settlements,
   );
   if (factsError !== null) return rejectedPayload('invalid-payload', factsError);
+  const facts = record.facts as RegionSnapshot['facts'];
+  const overviewError = regionOverviewReasonError(
+    record.overviewReason,
+    record.map as RegionSnapshot['map'],
+    new Set(regionSemanticFactLists.flatMap((key) => facts[key].map((fact) => fact.id))),
+  );
+  if (overviewError) return rejectedPayload('invalid-payload', overviewError);
 
   return acceptedPayload(record as unknown as RegionSnapshot);
 }
@@ -238,7 +247,7 @@ function migrateOldRegionSnapshot(payload: unknown, from: number): PayloadResult
       return rejectedPayload('unsupported-version', 'Version 7 requires region facts version 5');
     return validateRegionSnapshot({
       ...record,
-      facts: { ...facts, version: 8, denseForests: [], mountainRanges: [], supply: [] },
+      facts: { ...facts, version: 9, denseForests: [], mountainRanges: [], supply: [] },
     });
   }
 
@@ -250,7 +259,7 @@ function migrateOldRegionSnapshot(payload: unknown, from: number): PayloadResult
       ...record,
       facts: {
         ...facts,
-        version: 8,
+        version: 9,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -267,7 +276,7 @@ function migrateOldRegionSnapshot(payload: unknown, from: number): PayloadResult
       ...record,
       facts: {
         ...facts,
-        version: 8,
+        version: 9,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -305,7 +314,7 @@ function migrateOldRegionSnapshot(payload: unknown, from: number): PayloadResult
       ...record,
       facts: {
         ...facts,
-        version: 8,
+        version: 9,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -368,7 +377,7 @@ function withEmptyMountainRanges(payload: unknown): unknown {
   const record = asRecord(payload);
   const facts = asRecord(record?.facts);
   if (!record || !facts || facts.version !== 6) return payload;
-  return { ...record, facts: { ...facts, version: 8, denseForests: [], mountainRanges: [] } };
+  return { ...record, facts: { ...facts, version: 9, denseForests: [], mountainRanges: [] } };
 }
 
 /** Version 12 keeps its saved places and receives no newly inferred forest patches. */
@@ -376,7 +385,7 @@ function withEmptyDenseForests(payload: unknown): unknown {
   const record = asRecord(payload);
   const facts = asRecord(record?.facts);
   if (!record || !facts || facts.version !== 7) return payload;
-  return { ...record, facts: { ...facts, version: 8, denseForests: [] } };
+  return { ...record, facts: { ...facts, version: 9, denseForests: [] } };
 }
 
 /** Older payload migrations finish first; river adoption neither rerolls nor invents geography. */
@@ -384,7 +393,7 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (!Number.isInteger(from) || from < 1 || from > 12)
+  if (!Number.isInteger(from) || from < 1 || from > 13)
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,
@@ -396,10 +405,17 @@ export function migrateRegionSnapshot(
     return rejectedPayload('unsupported-version', 'Version 12 requires region facts version 7');
   if (from === 11 && asRecord(record?.facts)?.version !== 6)
     return rejectedPayload('unsupported-version', 'Version 11 requires region facts version 6');
+  if (from === 13 && asRecord(record?.facts)?.version !== 8)
+    return rejectedPayload('unsupported-version', 'Version 13 requires region facts version 8');
+  const upgraded = withEmptyDenseForests(withEmptyMountainRanges(adopted));
+  const upgradedRecord = asRecord(upgraded);
+  const upgradedFacts = asRecord(upgradedRecord?.facts);
+  const current =
+    upgradedRecord && upgradedFacts?.version === 8
+      ? { ...upgradedRecord, facts: { ...upgradedFacts, version: 9 } }
+      : upgraded;
   const result =
-    from >= 9
-      ? validateRegionSnapshot(withEmptyDenseForests(withEmptyMountainRanges(adopted)))
-      : migrateOldRegionSnapshot(adopted, from);
+    from >= 9 ? validateRegionSnapshot(current) : migrateOldRegionSnapshot(adopted, from);
   if (!result.ok || from >= 11 || result.value.map.rivers !== undefined) return result;
   const rivers = legacyRiverNetwork(result.value.map);
   return rivers === undefined

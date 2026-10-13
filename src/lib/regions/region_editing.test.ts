@@ -123,8 +123,9 @@ describe('editing the settlements and organizations', () => {
     expect(claim.origin).toBe('authored');
     expect(claim.reason?.status).toBe('stale');
     expect(regionFactsNeedingReview(edited)).toContain(claim);
-    expect(regionToMarkdown(edited)).toContain('## Facts needing review');
-    expect(regionToText(edited)).toContain('Hand-written claim');
+    expect(regionToMarkdown(edited)).not.toContain('## Facts needing review');
+    expect(regionFactsNeedingReview(edited)).toContain(claim);
+    expect(regionToText(edited)).not.toContain('Supporting explanation needs review');
     expect(
       regionToMapSvg(setRegionPlaceText(saved, 'settlements', 0, 'name', 'Coldwater')),
     ).toContain('Coldwater');
@@ -334,6 +335,7 @@ describe('editing the settlements and organizations', () => {
 describe('settlement removal with ecological uses', () => {
   it('removes generated uses and their claims while preserving inhabitants, and protects authored uses', () => {
     const saved = structuredClone(snapshot);
+    delete saved.overviewReason;
     saved.facts.products = [];
     saved.facts.dailyLife = [];
     saved.facts.supply = [];

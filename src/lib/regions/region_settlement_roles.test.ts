@@ -97,7 +97,7 @@ describe('geographic settlement roles', () => {
   });
 
   it.each([
-    ['Agricultural center', { biomeId: 'temperate grassland' }],
+    ['Cultivation ground', { biomeId: 'temperate grassland' }],
     ['Forest settlement', { biomeId: 'temperate forest' }],
     ['Land settlement', { biomeId: 'desert' }],
   ] as const)('derives %s from the saved site', (name, overrides) => {
@@ -113,7 +113,7 @@ describe('geographic settlement roles', () => {
       node(99, { isWater: true, isOcean: true }),
     ]);
     const role = derive(region).settlementRoles[0];
-    expect(role.name).toBe('Coastal port site');
+    expect(role.name).toBe('Coastal settlement');
     expect(role.reason!.sources).toContainEqual({
       kind: 'map-node',
       nodeId: 99,
@@ -132,7 +132,7 @@ describe('geographic settlement roles', () => {
   it('requires road and river on the same edge with dry land on both sides for a crossing', () => {
     const region = fixture([node(5), node(9)], [edge(70, 9, 5, 2, 1)]);
     const role = derive(region).settlementRoles[0];
-    expect(role.name).toBe('River crossing');
+    expect(role.name).toBe('Road and river meeting');
     expect(role.anchor.edgeIds).toEqual([70]);
     expect(role.reason!.sources).toContainEqual({
       kind: 'map-edge',

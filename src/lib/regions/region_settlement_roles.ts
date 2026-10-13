@@ -38,14 +38,14 @@ const edgeObservation = (edge: MapEdge, property: 'river' | 'road'): FactSource 
 /** Narrative variants describe only the role established by the site's saved evidence. */
 const roleNarratives: Record<string, string[]> = {
   'river-crossing': [
-    'The road meets the river here, making this settlement a natural stopping place for those crossing between its banks.',
-    'Travel through the surrounding country converges here, where a road carries the journey across the river.',
-    'This settlement stands where road and river meet, tying the country on either bank together.',
+    'The road meets the river here, placing the settlement beside both water and an overland route.',
+    'This settlement stands beside a river, where an overland road meets the water.',
+    'This settlement stands where road and river meet, with the banks close at hand.',
   ],
   'coastal-port-site': [
-    'The sea opens the settlement toward a wider world, offering opportunities for trade along the coast.',
-    'Open water lies beside this settlement, putting the coastal routes within reach of its inhabitants.',
-    'Life here has an outward-looking prospect: the neighboring sea offers a way along the coast and beyond.',
+    'The settlement stands beside the sea, with the coast shaping its surroundings.',
+    'Open water lies beside this settlement, which looks out over the sea.',
+    'The sea is a close neighbor here, forming an edge to the settled country.',
   ],
   'agricultural-site': [
     'Gentle grasslands surround the settlement, offering room for fields and the promise of a farming livelihood.',
@@ -95,7 +95,7 @@ function siteRole(node: MapNode, map: RegionMap) {
   if (crossing)
     return {
       rule: 'river-crossing',
-      name: 'River crossing',
+      name: 'Road and river meeting',
       description: roleNarratives['river-crossing'][0],
       nodes: [node],
       edges: [crossing],
@@ -114,7 +114,7 @@ function siteRole(node: MapNode, map: RegionMap) {
   if (node.isCoast && ocean)
     return {
       rule: 'coastal-port-site',
-      name: 'Coastal port site',
+      name: 'Coastal settlement',
       description: roleNarratives['coastal-port-site'][0],
       nodes: [node],
       edges: [],
@@ -132,7 +132,7 @@ function siteRole(node: MapNode, map: RegionMap) {
   )
     return {
       rule: 'agricultural-site',
-      name: 'Agricultural center',
+      name: 'Cultivation ground',
       description: roleNarratives['agricultural-site'][0],
       nodes: [node],
       edges: [],

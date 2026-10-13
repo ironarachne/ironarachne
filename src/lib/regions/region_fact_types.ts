@@ -1,3 +1,4 @@
+import type { RegionFactAssessment } from './region_assessment_types';
 import type { DenseForestFact } from './region_dense_forest_types';
 import type { MountainRangeFact } from './region_mountain_range_types';
 import type { SettlementSupplyFact } from './region_supply_types';
@@ -49,6 +50,7 @@ export type FactBase = {
   description: string;
   origin: FactOrigin;
   reason?: FactReason;
+  assessments?: RegionFactAssessment[];
 };
 export type RegionArea = FactBase & { mapNodeIds: number[] };
 export type HabitatFact = FactBase & { areaIds: string[]; anchor?: SpatialAnchor };
@@ -102,7 +104,7 @@ export type RouteFact = FactBase & {
 export type CausalFact = FactBase & { subjectId: string; relatedIds: string[] };
 
 export type RegionFacts = {
-  version: 8;
+  version: 9;
   denseForests: DenseForestFact[];
   mountainRanges: MountainRangeFact[];
   supply: SettlementSupplyFact[];

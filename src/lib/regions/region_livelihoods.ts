@@ -63,7 +63,7 @@ function candidatesFor(
     results.push({
       id: `daily-life:${id}`,
       name,
-      description: `${text}${limited ? ' The recorded local supply is limited.' : ''}`,
+      description: `${text}${limited ? ' Local sources are limited.' : ''}`,
       origin: 'generated',
       category,
       activityKey,
@@ -106,14 +106,14 @@ function candidatesFor(
         'livelihood',
         fishing ? 'fishing' : 'hunting',
         fishing ? 'Shore fishing' : 'Game hunting',
-        `${fishing ? 'Shore fishing' : 'Hunting represented game'} offers ${label} as a local food source; no year-round yield is established.`,
+        `${fishing ? 'Shore fishing' : 'Hunting local game'} could provide ${label} as a local food source.`,
         inputs,
       );
       add(
         'staple',
         fishing ? 'fish-food' : 'game-food',
         label,
-        `${label} is a representative locally supported food choice, part of an incomplete food picture rather than a complete diet.`,
+        `${label} could be obtained locally for food.`,
         inputs,
       );
     }
@@ -122,14 +122,14 @@ function candidatesFor(
         'livelihood',
         'timber-gathering',
         'Timber gathering',
-        `Gathering ${label} is a supported way of obtaining local wood, with coarse overland access.`,
+        `Nearby woodland could provide ${label} for gathering.`,
         inputs,
       );
       add(
         'building-material',
         'timber-building',
         label,
-        `${label} provides a raw construction material; finished joinery needs its own processing chain.`,
+        `${label} could provide raw construction material.`,
         inputs,
       );
       add('fuel', 'wood-fuel', `${label} fuel`, `${label} can provide gathered wood fuel.`, inputs);
@@ -139,7 +139,7 @@ function candidatesFor(
         'livelihood',
         'fiber-gathering',
         'Fiber gathering',
-        `Gathering ${label} supports local material work; cultivated acreage is not established.`,
+        `${label} could be gathered for local material work.`,
         inputs,
       );
       if (['reed', 'papyrus'].includes(resource.minor_type))
@@ -147,7 +147,7 @@ function candidatesFor(
           'building-material',
           'stem-thatch',
           `${label} thatch`,
-          `${label} can supply bundled roofing thatch; cloth is not implied.`,
+          `${label} could supply bundled roofing thatch.`,
           inputs,
         );
     }
@@ -159,7 +159,7 @@ function candidatesFor(
         'livelihood',
         'raw-extraction',
         `${label} extraction`,
-        `The recorded accessible surface or shallow deposits support obtaining raw ${label}; no permanent mine or commercial scale is established.`,
+        `Nearby deposits could provide raw ${label}.`,
         inputs,
       );
       if (fact.kind === 'stone' && resource.major_type === 'stone')
@@ -167,7 +167,7 @@ function candidatesFor(
           'building-material',
           'quarry-stone',
           label,
-          `Workable raw ${label} can supply building stone; dressed masonry requires its own processing chain.`,
+          `Workable raw ${label} could supply building stone.`,
           inputs,
         );
     }
@@ -180,7 +180,7 @@ function candidatesFor(
         'livelihood',
         'cultivation-opportunity',
         'Possible cultivation',
-        'Recorded cultivation ground and freshwater support a farming opportunity; no named crop, harvest or drinking-water purity is established.',
+        'Suitable ground and freshwater offer a possibility for cultivation.',
         [
           resourceInput(ground, {
             nodeIds: ground.anchor!.nodeIds.filter((id) => reached.has(id)).sort((a, b) => a - b),
@@ -213,7 +213,7 @@ function candidatesFor(
       const assumptions = product.requirements.length
         ? `, assuming ${product.requirements.join(', ')}`
         : '';
-      const text = `${craft} is plausible household work through the saved ${product.technique} chain${assumptions}; no established industry is implied.`;
+      const text = `${craft} is plausible household work using ${product.technique}${assumptions}.`;
       add('craft', `craft-${product.productKey}`, craft, text, inputs);
       add('livelihood', `processing-${product.productKey}`, craft, text, inputs);
     }
@@ -222,7 +222,7 @@ function candidatesFor(
         'building-material',
         `building-${product.productKey}`,
         product.name,
-        `${product.name} is a possible building material through its complete saved local processing chain.`,
+        `${product.name} is a possible building material through local processing.`,
         inputs,
       );
     if (product.productKey === 'charcoal')
@@ -230,7 +230,7 @@ function candidatesFor(
         'fuel',
         'charcoal-fuel',
         product.name,
-        `${product.name} is a possible fuel through its saved wood-dependent processing chain.`,
+        `${product.name} is a possible fuel through wood processing.`,
         inputs,
       );
     if (['smoked-provisions', 'dried-provisions'].includes(product.productKey))
@@ -238,7 +238,7 @@ function candidatesFor(
         'staple',
         `food-${product.productKey}`,
         product.name,
-        `${product.name} is a possible preserved food through its saved local chain, part of an incomplete food picture rather than a complete diet.`,
+        `${product.name} is a possible preserved food through local processing.`,
         inputs,
       );
   }

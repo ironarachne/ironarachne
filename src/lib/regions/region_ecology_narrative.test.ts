@@ -347,7 +347,7 @@ describe('regional ecology narrative', () => {
     const claim = edited.facts.claims.find((fact) => fact.id === ECOLOGY_SUMMARY_ID)!;
     expect(claim.description).toBe(saved.facts.claims[0].description);
     expect(claim.reason?.status).toBe('stale');
-    expect(regionToMarkdown(edited)).toContain('[Supporting explanation needs review.]');
+    expect(regionToMarkdown(edited)).not.toContain('[Supporting explanation needs review.]');
     const removed = removeRegionPlace(saved, 'settlements', 0);
     expect(removed.facts.claims.some((fact) => fact.id === ECOLOGY_SUMMARY_ID)).toBe(false);
     expect(
@@ -357,6 +357,7 @@ describe('regional ecology narrative', () => {
 
   it('uses a deterministic, bounded legacy paragraph without rewriting saved text', () => {
     const saved = toRegionSnapshot(fixture());
+    delete saved.overviewReason;
     const before = structuredClone(saved);
     const text = legacyEcologyParagraph(saved);
     expect(text).toBe(saved.facts.ecologyRelationships[0].description);

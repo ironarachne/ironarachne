@@ -1,3 +1,4 @@
+import { riverAssessments } from './region_resource_narrative';
 import { isUsableRegionResource } from './region_resources';
 import { ecologyHarvestRisks } from './region_ecology_relationships';
 import type { RNG } from '@ironarachne/rng';
@@ -73,7 +74,7 @@ function naturalPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
         'landmark',
         'habitat-study',
         `${habitat.name} study site`,
-        `this site lies within the recorded ${habitat.name} habitat. Hook: guide a survey of this habitat and compare it with nearby terrain.`,
+        `this site lies within the ${habitat.name} habitat. Hook: guide a survey of this habitat and compare it with nearby terrain.`,
         [{ kind: 'fact', factId: habitat.id }],
       ),
     ];
@@ -102,7 +103,7 @@ function inhabitedPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
     });
 }
 
-function riverObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
+function riverPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
   return [...region.map.edges]
     .sort((a, b) => a.id - b.id)
     .filter((edge) => edge.river > 0)
@@ -114,10 +115,10 @@ function riverObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
         notable(
           region,
           node,
-          'hazard',
-          'river-obstacle',
-          road ? 'River crossing obstacle' : 'River detour',
-          `a river interrupts overland travel${road ? ' where a mapped road meets the water' : '; no road is mapped across this edge'}. Crossing safety and river navigability are unverified. Hook: scout a safe crossing before bringing supplies through.`,
+          'landmark',
+          'river-meeting',
+          road ? 'Road and river meeting' : 'River banks',
+          `${road ? 'a road meets the river here' : 'a river runs through this country'}. Hook: explore the banks and look for a crossing.`,
           [
             {
               kind: 'map-edge',
@@ -161,7 +162,7 @@ function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
           'hazard',
           'cold-travel',
           'Cold travel country',
-          'mapped temperatures are at or below freezing, making exposure a travel concern. Hook: arrange shelter and supplies for a journey through the cold country.',
+          'freezing temperatures, making exposure a travel concern. Hook: arrange shelter and supplies for a journey through the cold country.',
           [observation(node, 'temperature')],
         ),
       );
@@ -173,7 +174,7 @@ function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
           'hazard',
           'hot-dry-travel',
           'Hot dry traverse',
-          'high mapped temperatures and low moisture make water planning a travel concern. Hook: survey water access before attempting this traverse.',
+          'heat and dry conditions make water planning a travel concern. Hook: survey water access before attempting this traverse.',
           [observation(node, 'temperature'), observation(node, 'moisture')],
         ),
       );
@@ -203,11 +204,29 @@ export function generateNotableFacts(region: Region, rng: RNG, forestLandmark?: 
   const groups = [
     forestLandmark ? [forestLandmark] : naturalPlaces(region, nodes),
     inhabitedPlaces(region, nodes),
-    riverObstacles(region, nodes),
+    riverPlaces(region, nodes),
     [...terrainObstacles(region, nodes), ...ecologyGatheringHazards(region)],
   ];
   for (const candidates of groups) {
     candidates.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
     if (candidates.length > 0) region.facts!.notables.push(rng.item(candidates));
+  }
+  for (const fact of region.facts!.notables) {
+    if (fact.reason?.ruleId === 'fantasy:region:river-meeting:v1') {
+      const edge = region.map.edges.find((entry) => fact.anchor?.edgeIds.includes(entry.id));
+      fact.assessments = riverAssessments(fact.reason.sources, (edge?.road ?? 0) > 0);
+    }
+    if (fact.reason?.ruleId === 'fantasy:region:resource-reach:v1') {
+      const source = fact.reason.sources[0];
+      const resource =
+        source?.kind === 'fact'
+          ? region.facts!.resources.find((entry) => entry.id === source.factId)
+          : undefined;
+      if (resource?.assessments)
+        fact.assessments = resource.assessments.map((entry) => ({
+          ...entry,
+          sources: [{ kind: 'fact', factId: resource.id }],
+        }));
+    }
   }
 }

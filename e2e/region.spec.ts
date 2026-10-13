@@ -426,7 +426,9 @@ test.describe('a region', () => {
       await expect(ecology.locator('h4')).toHaveCount(0);
       await expect(ecology.locator('[data-gazetteer-text]').first()).not.toBeEmpty();
     }
-    expect(gazetteerText).not.toMatch(/Recorded map|Recorded climate|isWater =|moisture =|road =/);
+    expect(gazetteerText).not.toMatch(
+      /Recorded map|Recorded climate|isWater =|moisture =|road =|Potential raw|unverified|no cultivated|no established industry|Facts needing review/,
+    );
     const settlementCharacter = page.getByRole('region', {
       name: 'Settlements',
       exact: true,
@@ -484,6 +486,16 @@ test.describe('a region', () => {
     expect(contents).not.toContain('## Supporting facts and explanations');
     expect(contents).not.toContain('Supporting explanation:');
     await expect(page.locator('.gazetteer details')).toHaveCount(0);
+    const evidence = page.locator('details.inspection');
+    await expect(evidence).not.toHaveAttribute('open');
+    await evidence.locator(':scope > summary').focus();
+    await page.keyboard.press('Enter');
+    await expect(evidence).toHaveAttribute('open');
+    await expect(evidence).toContainText('resource-exploitation: unknown');
+    await expect(evidence).toContainText('ruleId');
+    await expectNoHorizontalOverflow(page);
+    await evidence.locator(':scope > summary').click();
+    await expect(evidence).not.toHaveAttribute('open');
     await expect(
       page.getByRole('link', { name: 'Supporting explanation', exact: true }),
     ).toHaveCount(0);

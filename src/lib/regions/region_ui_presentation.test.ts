@@ -24,6 +24,7 @@ describe('region entry headings', () => {
       const saved = rollRegionSnapshot(seed);
       const before = structuredClone(saved);
       const document = regionToUiDocument(saved);
+      const markdown = regionToMarkdown(saved);
       const headings = [
         document.title,
         ...document.sections.map((section) => section.heading),
@@ -44,10 +45,10 @@ describe('region entry headings', () => {
           else if (section.heading !== 'Landscape')
             expect(entry.heading).toMatch(/^(The |A Review |An Adventure )/);
           else expect(entry.heading).not.toContain('The Landscape of');
-          if (entry.body) expect(regionToMarkdown(saved)).toContain(entry.body);
+          if (entry.body) expect(markdown).toContain(entry.body);
           for (const paragraph of [...(entry.paragraphs ?? []), ...(entry.character ?? [])])
-            expect(regionToMarkdown(saved)).toContain(paragraph);
-          if (entry.hook) expect(regionToMarkdown(saved)).toContain(entry.hook);
+            expect(markdown).toContain(paragraph);
+          if (entry.hook) expect(markdown).toContain(entry.hook);
         }
       }
       expect(saved).toEqual(before);
@@ -60,26 +61,25 @@ describe('region entry headings', () => {
     land.name = 'Renamed regional land';
     land.description = 'The region stretches across open uplands.';
     land.reason = { ruleId: 'saved', status: 'stale', sources: [] };
+    land.origin = 'authored';
     const landscape = regionToUiDocument(edited).sections.find(
       (section) => section.heading === 'Landscape',
     )!;
     const entry = landscape.entries.find((entry) => entry.factId === land.id)!;
     expect(entry.heading).toBe('');
     expect(entry.body).toBe(land.description);
-    expect(entry.warning).toBe('[Supporting explanation needs review.]');
+    expect(entry.warning).toBeUndefined();
     expect(
       landscape.entries.filter((entry) => entry.factId !== land.id).every((entry) => entry.heading),
     ).toBe(true);
     const markdown = regionToMarkdown(edited);
-    expect(markdown).toContain(
-      `## Landscape\n\n${land.description} [Supporting explanation needs review.]`,
-    );
+    expect(markdown).toContain(`## Landscape\n\n${land.description}`);
     expect(markdown).not.toContain(`Renamed regional land: ${land.description}`);
     land.description = ' ';
     expect(
       regionToUiDocument(edited)
-        .sections.find((section) => section.heading === 'Landscape')!
-        .entries.some((entry) => entry.factId === land.id),
+        .sections.find((section) => section.heading === 'Landscape')
+        ?.entries.some((entry) => entry.factId === land.id) ?? false,
     ).toBe(false);
   });
 
@@ -138,9 +138,7 @@ describe('region entry headings', () => {
       expect(entry.character).toHaveLength(roles.length);
       for (const role of roles) expect(entry.character?.join(' ')).toContain(role.description);
       if (life.settlement.kind === 'embedded' && life.settlement.settlementId === settlement.id) {
-        expect(entry.paragraphs?.join(' ')).toContain(
-          'Saved local work. [Supporting explanation needs review.]',
-        );
+        expect(entry.paragraphs?.join(' ')).toContain('Saved local work.');
       } else expect(entry.paragraphs?.join(' ')).not.toContain('Saved local work.');
       if (supply.settlement.kind === 'embedded' && supply.settlement.settlementId === settlement.id)
         expect(entry.paragraphs?.join(' ')).toContain(
@@ -203,23 +201,22 @@ describe('region entry headings', () => {
     expect(entries.every((entry) => entry.body === original.snapshot.description)).toBe(true);
   });
 
-  it('preserves blank-name descriptions and review notices without exposing IDs', () => {
+  it('preserves authored blank-name descriptions without exposing IDs', () => {
     const edited = structuredClone(snapshot);
     const habitat = edited.facts.habitats[0];
     habitat.name = ' ';
     habitat.reason!.status = 'stale';
+    habitat.origin = 'authored';
     const document = regionToUiDocument(edited);
     const entry = document.sections
       .find((section) => section.heading === 'Landscape')!
       .entries.find((entry) => entry.factId === habitat.id)!;
-    expect(entry.heading).toBe('Habitats across the region');
+    expect(entry.heading).toBe('an Unnamed Feature');
     expect(entry.body).toBe(habitat.description);
-    expect(entry.warning).toBe('[Supporting explanation needs review.]');
-    expect(
-      document.sections
-        .find((section) => section.heading === 'Facts needing review')!
-        .entries.some((entry) => entry.heading === 'A Review of an Unnamed Fact'),
-    ).toBe(true);
+    expect(entry.warning).toBeUndefined();
+    expect(document.sections.some((section) => section.heading === 'Facts needing review')).toBe(
+      false,
+    );
     expect(entry.heading).not.toContain(habitat.id);
   });
 

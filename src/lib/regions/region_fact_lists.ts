@@ -1,0 +1,18 @@
+export const regionSemanticFactLists = [
+  'denseForests',
+  'mountainRanges',
+  'supply',
+  'dailyLife',
+  'products',
+  'areas',
+  'habitats',
+  'settlementRoles',
+  'notables',
+  'resources',
+  'routes',
+  'claims',
+  'ecologyInhabitants',
+  'ecologyRelationships',
+  'geology',
+  'resourceDeposits',
+] as const;

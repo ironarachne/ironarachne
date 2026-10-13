@@ -113,7 +113,7 @@ export function generateProcessingFacts(
       const fact: RegionalProductFact = {
         id: `product:${encodeURIComponent(id!)}:${encodeURIComponent(recipe.outputKey)}`,
         name: recipe.outputName,
-        description: `${settlement.name} could produce ${recipe.outputName.toLowerCase()} by ${recipe.technique}, assuming ${recipe.requirements.join(', ') || 'the declared craft capability'}. This is a possible chain, not an existing industry.`,
+        description: `${settlement.name} could produce ${recipe.outputName.toLowerCase()} by ${recipe.technique}, assuming ${recipe.requirements.join(', ') || 'the declared craft capability'}.`,
         origin: 'generated',
         productKey: recipe.outputKey,
         recipeId: recipe.id,

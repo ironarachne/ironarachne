@@ -179,7 +179,7 @@ describe('saved scarcity and conditional imports', () => {
     for (const fact of facts) {
       expect(fact.status).toBe('limited-local');
       expect(fact.missingInputKeys).toEqual([]);
-      expect(fact.description).toContain('can be supplied locally');
+      expect(fact.description).toContain('could be supplied locally');
       expect(fact.importSuggestion?.explanation).toContain('could supplement');
     }
     const generated = generate(region);
@@ -355,6 +355,9 @@ describe('saved scarcity and conditional imports', () => {
     );
     expect(settlementSupplyContext(edited.facts, target)[0].description).toBe('My material story');
     expect(describeSettlementSupply({ ...region, facts: edited.facts }, target)).toContain(
+      'My material story',
+    );
+    expect(describeSettlementSupply({ ...region, facts: edited.facts }, target)).not.toContain(
       'needs review',
     );
     expect(
@@ -373,11 +376,11 @@ describe('saved scarcity and conditional imports', () => {
       'Changed source',
     );
     expect(edited.facts.supply.every((fact) => fact.reason!.status === 'stale')).toBe(true);
-    expect(describeSettlementSupply({ ...region, facts: edited.facts }, target)).toContain(
+    expect(describeSettlementSupply({ ...region, facts: edited.facts }, target)).not.toContain(
       'needs review',
     );
     region.facts.resources.push(raw('new-timber', 'timber'));
-    expect(describeSettlementSupply(region, target)).toContain('needs review');
+    expect(describeSettlementSupply(region, target)).not.toContain('needs review');
     expect(validate(region)).toContain('incomplete or stale');
   });
 
@@ -387,10 +390,10 @@ describe('saved scarcity and conditional imports', () => {
     region.facts.supply = assessments(region);
     const before = structuredClone(region.facts.supply);
     region.facts.resources.find((entry) => entry.kind === 'timber')!.availability = 'available';
-    expect(describeSettlementSupply(region, target)).toContain('needs review');
+    expect(describeSettlementSupply(region, target)).not.toContain('needs review');
     expect(region.facts.supply).toEqual(before);
     region.map.nodes.find((entry) => entry.id === 1)!.neighbors = [];
-    expect(describeSettlementSupply(region, target)).toContain('needs review');
+    expect(describeSettlementSupply(region, target)).not.toContain('needs review');
     expect(describeSettlementSupply({ ...region, facts: undefined }, target)).toBe('');
   });
 
@@ -442,7 +445,7 @@ describe('saved scarcity and conditional imports', () => {
     delete fact.importSuggestion;
     expect(validate(region)).toBeNull();
     expect(settlementSupplyContext(region.facts, target)[0].needKey).toBe('future-need');
-    expect(describeSettlementSupply(region, target)).toContain('needs review');
+    expect(describeSettlementSupply(region, target)).not.toContain('needs review');
   });
 });
 

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import { classifyAltitude, classifyRelief, measureRegionTerrain } from '$lib/map';
+import { classifyRelief, measureRegionTerrain } from '$lib/map';
 import { getGeologicalResources, supportsGeologicalResource } from '$lib/resources';
 import type { RegionSemanticFact } from './region_resource_types';
 import { REGION_SEED_BANK } from '../../../test_fixtures/region_seeds';
@@ -95,9 +95,8 @@ describe('release coherence across page-default regions', () => {
         );
       const terrain = measureRegionTerrain(saved.map);
       if (contrast === 'mountain') expect(classifyRelief(terrain.reliefSpread)).toBe('mountainous');
-      expect(saved.description).toContain(classifyAltitude(terrain.medianElevation));
-      expect(saved.description).toContain(classifyRelief(terrain.reliefSpread));
-      expect(saved.description).toContain(saved.facts.habitats[0].name.toLowerCase());
+      expect(saved.overviewReason?.sources.length).toBeGreaterThan(0);
+      expect(saved.description).not.toMatch(/implied|unverified|low-altitude|mid-altitude/);
       expect(saved.facts.products.length).toBeGreaterThan(0);
       expect(saved.facts.dailyLife.length).toBeGreaterThan(0);
       expect(saved.facts.supply.length).toBeGreaterThan(0);
@@ -125,7 +124,7 @@ describe('release coherence across page-default regions', () => {
     '$seed preserves edited prose, identities and stale warnings in all presentations',
     ({ saved }) => {
       const edited = setRegionPlaceText(
-        { ...saved, description: 'Authored overview.' },
+        { ...saved, description: 'Authored overview.', overviewReason: undefined },
         'settlements',
         0,
         'name',
@@ -144,8 +143,8 @@ describe('release coherence across page-default regions', () => {
       for (const text of [regionToMarkdown(reopened), regionToText(reopened)]) {
         expect(text).toContain('Authored overview.');
         expect(text).toContain('Reviewtown');
-        expect(text).toMatch(/facts needing review/i);
-        for (const fact of review) expect(text).toContain(fact.name);
+        expect(text).not.toMatch(/facts needing review|explanation needs review/i);
+        expect(regionFactsNeedingReview(reopened)).toEqual(review);
       }
       expect(regionToMapSvg(reopened)).toContain('Reviewtown');
     },
@@ -158,7 +157,7 @@ describe('release coherence across page-default regions', () => {
         affiliation: 'affiliated',
         generateNeighbors: true,
       });
-      const { facts: _facts, ...legacy } = historical;
+      const { facts: _facts, overviewReason: _overview, ...legacy } = historical;
       const old = {
         ...legacy,
         settlements: historical.settlements.map((entry) => entry.snapshot),

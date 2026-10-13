@@ -195,12 +195,14 @@ describe('supported settlement daily life', () => {
     for (const category of Object.keys(context) as DailyLifeCategory[])
       expect(context[category].length).toBeLessThanOrEqual(DAILY_LIFE_LIMITS[category]);
     for (const fact of region.facts.dailyLife) {
-      expect(fact.description).toContain('supply is limited');
+      expect(fact.description).toContain('sources are limited');
       expect(fact.reason!.sources).toContainEqual({ kind: 'fact', factId: 'role:site:home' });
       for (const input of fact.inputs)
         expect(dailyLifeInputCurrent(region.facts, region.map, 1, target, input)).toBe(true);
     }
-    expect(describeSettlementDailyLife(region.facts, target)).toContain('incomplete food picture');
+    expect(describeSettlementDailyLife(region.facts, target)).not.toContain(
+      'incomplete food picture',
+    );
   });
 
   it('contrasts forest, cultivation and quarry sites without inventing grain or manufactured goods', () => {
@@ -227,7 +229,7 @@ describe('supported settlement daily life', () => {
       'cultivation-opportunity',
     ]);
     expect(farm.facts.dailyLife[0].inputs).toHaveLength(2);
-    expect(farm.facts.dailyLife[0].description).toContain('no named crop');
+    expect(farm.facts.dailyLife[0].description).toContain('possibility for cultivation');
     expect(settlementDailyLifeContext(farm.facts, target).staple).toEqual([]);
     farm.facts.dailyLife = [];
     farm.facts.resources = farm.facts.resources.filter((fact) => fact.kind !== 'freshwater');
@@ -296,7 +298,7 @@ describe('supported settlement daily life', () => {
       ),
     ).toContain('resource:water');
     expect(linen.description).toContain('loom');
-    expect(linen.description).toContain('supply is limited');
+    expect(linen.description).toContain('sources are limited');
     region.facts.resources.find((fact) => fact.kind === 'freshwater')!.availability = 'unknown';
     region.facts.dailyLife = [];
     derive(region);
@@ -320,7 +322,10 @@ describe('supported settlement daily life', () => {
       for (const fact of region.facts.dailyLife.filter(
         (entry) => entry.inputs[0].kind === 'product',
       ))
-        expect(fact.description).toContain('saved');
+        expect(fact.description).not.toMatch(
+          /saved|no established industry|incomplete food picture/,
+        );
+      expect(region.facts.products.every((product) => product.inputs.length > 0)).toBe(true);
     }
   });
 
@@ -523,7 +528,7 @@ describe('saved daily-life edits and dependency safety', () => {
         .filter((entry) => entry.activityKey.includes('timber') || entry.category === 'craft')
         .every((entry) => entry.reason!.status === 'stale'),
     ).toBe(true);
-    expect(describeSettlementDailyLife(sourceEdit.facts, target)).toContain('needs review');
+    expect(describeSettlementDailyLife(sourceEdit.facts, target)).not.toContain('needs review');
     expect(describeSettlementDailyLife(sourceEdit.facts, target)).not.toContain(
       'Woodworking is plausible',
     );

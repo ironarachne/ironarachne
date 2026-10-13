@@ -114,7 +114,7 @@ it.each(
 
 it('exports migrated version 2 regions without adding new regional facts', async () => {
   const snapshot = rollRegionSnapshot('legacy-export');
-  const { facts: _facts, ...legacy } = snapshot;
+  const { facts: _facts, overviewReason: _overview, ...legacy } = snapshot;
   const migrated = migrateRegionSnapshot(
     { ...legacy, settlements: snapshot.settlements.map((entry) => entry.snapshot) },
     2,

@@ -1,28 +1,15 @@
+import { regionContextEvidenceCurrent } from './region_context_evidence';
 import type { FactBase, RegionFacts } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
 import type { RegionResourceFactList, RegionSemanticFact } from './region_resource_types';
-export const regionSemanticFactLists = [
-  'denseForests',
-  'mountainRanges',
-  'supply',
-  'dailyLife',
-  'products',
-  'areas',
-  'habitats',
-  'settlementRoles',
-  'notables',
-  'resources',
-  'routes',
-  'claims',
-  'ecologyInhabitants',
-  'ecologyRelationships',
-  'geology',
-  'resourceDeposits',
-] as const;
+import { regionSemanticFactLists } from './region_fact_lists';
+export { regionSemanticFactLists } from './region_fact_lists';
 const lists = regionSemanticFactLists;
 
 export function regionFactTargets(fact: RegionSemanticFact): string[] {
-  const direct: string[] = [];
+  const direct: string[] = (fact.assessments ?? []).flatMap((entry) =>
+    entry.sources.flatMap((source) => (source.kind === 'fact' ? [source.factId] : [])),
+  );
   if ('areaIds' in fact) direct.push(...fact.areaIds);
   if ('habitatIds' in fact) direct.push(...fact.habitatIds);
   if ('endpoints' in fact)
@@ -106,7 +93,10 @@ export function setRegionResourceFactText(
       fact.id === id ? { ...fact, [field]: value, origin: 'authored' } : fact,
     ),
   } as RegionFacts;
-  return { ...snapshot, facts: staleRegionFactDependents(facts, new Set([id])) };
+  return withRegionOverviewEvidence({
+    ...snapshot,
+    facts: staleRegionFactDependents(facts, new Set([id])),
+  });
 }
 
 /** Direct generated links are removed; reason-only dependents remain with stale explanations. */
@@ -133,5 +123,24 @@ export function removeRegionResourceFact(
       }
     }
   }
-  return { ...snapshot, facts: removeRegionFactIds(snapshot.facts, removed) };
+  return withRegionOverviewEvidence({
+    ...snapshot,
+    facts: removeRegionFactIds(snapshot.facts, removed),
+  });
+}
+
+export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnapshot {
+  const reason = snapshot.overviewReason;
+  if (
+    !reason ||
+    regionContextEvidenceCurrent(snapshot, {
+      id: 'overview',
+      name: '',
+      description: '',
+      origin: 'generated',
+      reason,
+    })
+  )
+    return snapshot;
+  return { ...snapshot, overviewReason: { ...reason, status: 'stale' } };
 }

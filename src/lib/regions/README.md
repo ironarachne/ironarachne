@@ -373,7 +373,7 @@ production data. There is no numerical economy or established commercial industr
 
 `settlementDailyLifeContext(facts, target)` groups saved facts by category with their inputs and
 reasons intact. `describeSettlementDailyLife(facts, target)` composes their stored descriptions,
-marking stale support as needing review and leaving empty categories empty. These APIs supply
+omitting stale generated support while preserving authored text and leaving empty categories empty. These APIs supply
 settlement consumers; the gazetteer selects concise examples and preserves authored text. Text edits, source removals
 and settlement removal preserve authored dependencies and stale downstream explanations. Old saves
 gain an empty daily-life list without rerolling. See the
@@ -390,7 +390,7 @@ supplementation or necessities if the goods are used, with no invented suppliers
 
 `settlementSupplyContext(facts, target)` returns saved evidence and authored descriptions.
 `describeSettlementSupply({ facts, map }, target)` rechecks support without regenerating saved
-facts and replaces stale claims with review notices. Source edits stale supply assessments;
+facts and omits stale generated claims from narrative; qualifications remain inspectable. Source edits stale supply assessments;
 additions change their inventory membership and require stale reasons before persistence.
 Existing dependency removal protects authored work. Payload version 8 / facts version 6 adds
 `supply: []` to older payloads without inventing scarcity or imports. Gazetteer assembly remains
@@ -463,3 +463,21 @@ Forests participate in fact validation, dependency review, text editing, and del
 Historical snapshots migrate with an empty forest list and preserve saved geography and prose.
 Artwork remains derived from saved memberships. See
 [the approved design](../../../docs/region-dense-forests.md).
+
+## Gazetteer evidence and qualifications (#421)
+
+Payload version 14 / facts version 9 adds optional `FactBase.assessments` and `overviewReason`.
+Assessments distinguish confirmed propositions, inferred possibilities and unknowns, retaining
+sources and technical explanations separately from stored narrative. Resource availability never
+establishes exploitation, and absent mapped roads never establish river impassability. River
+meetings are landmarks unless independent evidence supports a hazard.
+
+The resource and overview adapters use the shared narrative composer with caller-owned stage RNGs.
+Resource prose is composed after inventory selection. The overview records only selected fact
+references. Reading adapters omit unsupported or stale generated assertions without adding review
+warnings; authored prose remains intact. An expandable evidence inspector and raw artifact export
+retain qualifications, omitted facts and provenance. Editing an overview clears its generated
+reason; changing a selected dependency invalidates the reason without rewriting the saved words.
+
+Migrations only advance version markers. Old optional fields remain absent, and historical prose
+loads verbatim without inference or composition. See [the design](../../../docs/region-narrative-evidence.md).

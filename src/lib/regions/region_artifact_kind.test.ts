@@ -17,6 +17,8 @@ const snapshot = rollRegionSnapshot('kind-seed', {
   generateNeighbors: true,
 });
 
+delete snapshot.overviewReason;
+
 // Historical migration fixtures cannot contain references to newly introduced forest facts.
 snapshot.facts.denseForests = [];
 snapshot.facts.notables = snapshot.facts.notables.filter(
@@ -643,7 +645,7 @@ describe('ecology save compatibility', () => {
       ...legacy,
       facts: {
         ...legacy.facts,
-        version: 8,
+        version: 9,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -779,7 +781,7 @@ describe('processing save migration', () => {
       ...input,
       facts: {
         ...input.facts,
-        version: 8,
+        version: 9,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -812,7 +814,7 @@ describe('daily-life save migration', () => {
       ...input,
       facts: {
         ...input.facts,
-        version: 8,
+        version: 9,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -902,7 +904,7 @@ describe('supply save migration', () => {
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...input,
-      facts: { ...input.facts, version: 8, denseForests: [], mountainRanges: [], supply: [] },
+      facts: { ...input.facts, version: 9, denseForests: [], mountainRanges: [], supply: [] },
     });
     expect(input).toEqual(before);
     expect(validateRegionSnapshot(result.value).ok).toBe(true);

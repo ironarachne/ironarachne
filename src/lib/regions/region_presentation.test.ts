@@ -1,6 +1,6 @@
 import { typographyRiverFixture } from '../../../test_fixtures/region_typography';
 import type { RegionSnapshot } from './region_snapshot';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { buildTextPdf } from '$lib/pdf';
 
 import { removeRegionPlace, setRegionPlaceText, setRegionText } from './region_editing';
@@ -28,6 +28,12 @@ const snapshot = rollRegionSnapshot('presentation-seed', {
   affiliation: 'affiliated',
   generateNeighbors: true,
 });
+
+// All baseline comparisons use the same unedited snapshot. Render it once under coverage.
+let snapshotSvg: string;
+beforeAll(() => {
+  snapshotSvg = regionToMapSvg(snapshot);
+}, 30_000);
 
 function capitalMarkers(svg: string): string[] {
   return [
@@ -197,7 +203,7 @@ describe('exporting a region (6.3)', () => {
   });
 
   it('draws the map, which is what a region is', () => {
-    const svg = regionToMapSvg(snapshot);
+    const svg = snapshotSvg;
     // A standalone document, XML declaration and all, because it is a file someone saves.
     expect(svg.startsWith('<?xml')).toBe(true);
     expect(svg).toContain('<svg');
@@ -207,9 +213,7 @@ describe('exporting a region (6.3)', () => {
 
   it('keeps the capital marker on its saved site after settlement reordering', () => {
     const reordered = { ...snapshot, settlements: [...snapshot.settlements].reverse() };
-    expect(capitalMarkers(regionToMapSvg(reordered))).toEqual(
-      capitalMarkers(regionToMapSvg(snapshot)),
-    );
+    expect(capitalMarkers(regionToMapSvg(reordered))).toEqual(capitalMarkers(snapshotSvg));
   });
 
   it('removes the capital marker when its settlement is removed', () => {
@@ -219,10 +223,8 @@ describe('exporting a region (6.3)', () => {
 
   it('retains the legacy capital marker without settlement role facts', () => {
     const legacy = { ...snapshot, facts: { ...snapshot.facts, settlementRoles: [] } };
-    expect(capitalMarkers(regionToMapSvg(legacy))).toEqual(
-      capitalMarkers(regionToMapSvg(snapshot)),
-    );
-  });
+    expect(capitalMarkers(regionToMapSvg(legacy))).toEqual(capitalMarkers(snapshotSvg));
+  }, 30_000);
 
   it('offers the map as a data URL for the page to show', () => {
     // An image rather than inline markup: the map's paths extend past the viewBox that clips them,
@@ -233,7 +235,7 @@ describe('exporting a region (6.3)', () => {
   });
 
   it('labels the map with the region and its towns', () => {
-    const svg = regionToMapSvg(snapshot);
+    const svg = snapshotSvg;
     expect(svg).toContain(snapshot.name);
   });
 
@@ -340,7 +342,7 @@ describe('complete gazetteer exports', () => {
     };
     for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
       expect(prose).toContain('A saved detail with no name.');
-      expect(prose).toContain('Supporting explanation needs review.');
+      expect(prose).not.toContain('Supporting explanation needs review.');
       expect(prose).not.toContain('obsolete climate');
     }
   });
@@ -357,6 +359,7 @@ describe('complete gazetteer exports', () => {
     const edited = {
       ...snapshot,
       description: 'A whole line of saved regional history.\n'.repeat(160),
+      overviewReason: undefined,
       facts: {
         ...emptyRegionFacts('legacy'),
         habitats: [
@@ -448,10 +451,11 @@ describe('sourcebook gazetteer', () => {
     expect(regionToDocument(snapshot)).toEqual(document);
   });
 
-  it('preserves authored prose and warns beside stale assertions in every format', () => {
+  it('preserves authored prose and keeps review notices out of every reading format', () => {
     const edited = {
       ...snapshot,
       description: 'A referee wrote this overview.',
+      overviewReason: undefined,
       facts: {
         ...snapshot.facts,
         habitats: [
@@ -467,9 +471,7 @@ describe('sourcebook gazetteer', () => {
     };
     for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
       expect(prose).toContain('A referee wrote this overview.');
-      expect(prose).toContain(
-        'The copper woods: Leave these words alone. [Supporting explanation needs review.]',
-      );
+      expect(prose).toContain('The copper woods: Leave these words alone.');
       expect(prose).toContain(edited.realms[0].description);
     }
   });
@@ -617,7 +619,11 @@ describe('sourcebook gazetteer', () => {
       regionFactExplanation(snapshot, { ...fact, reason: { ...fact.reason, status: 'stale' } }),
     ).toEqual(['Supporting information changed; this explanation needs review.']);
     expect(regionFactExplanation(snapshot, { ...source, reason: undefined })).toEqual([]);
-    const edited = { ...snapshot, facts: { ...emptyRegionFacts('legacy'), habitats: [fact] } };
+    const edited = {
+      ...snapshot,
+      overviewReason: undefined,
+      facts: { ...emptyRegionFacts('legacy'), habitats: [fact] },
+    };
     for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
       expect(prose).not.toContain('Supporting explanation:');
       expect(prose).not.toMatch(/Recorded |moisture =|road =|unavailable/);

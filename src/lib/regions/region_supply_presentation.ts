@@ -26,13 +26,15 @@ export function describeSettlementSupply(
   );
   return settlementSupplyContext(facts, settlement)
     .map((fact) => {
+      if (fact.origin === 'authored') return fact.description;
+      if (fact.status !== 'limited-local') return '';
       const current = assessments.get(fact.id);
       return supplyEvidenceCurrent(facts, fact) &&
         current?.needKey === fact.needKey &&
         current.status === fact.status &&
         JSON.stringify(current.missingInputKeys) === JSON.stringify(fact.missingInputKeys)
         ? fact.description
-        : `${fact.name || 'Supply assertion'} needs review because its supporting assessment is stale.`;
+        : '';
     })
     .filter((text) => text.trim().length > 0)
     .join(' ');
