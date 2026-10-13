@@ -8,6 +8,7 @@ import { buildBaseMapGraph } from './builder.js';
 import { buildRegionMapSvgString } from './region_map_svg.js';
 import type { RegionMap } from './map_graph.js';
 import { TERRAIN_GLYPH_VARIANTS } from './terrain_glyph_catalog';
+import { WATER_REVIEW_MAPS } from '../../../test_fixtures/region_water_maps';
 const variants = new Map(TERRAIN_GLYPH_VARIANTS.map((v) => [v.id, v]));
 
 type PlacedSymbol = {
@@ -1186,4 +1187,38 @@ it('leaves small lakes as bare parchment and gives larger lakes two hatch bands'
   const hatching = large.match(/<g data-water-hatching="lake"[^>]*>([\s\S]*?)<\/g>/)![1];
   expect(hatching.match(/<path /g)).toHaveLength(2);
   expect(hatching.match(/fill="none"/g)).toHaveLength(2);
+  expect(hatching).not.toContain(' Z');
+  expect(hatching.match(/M /g)!.length).toBeGreaterThan(2);
+  expect(large).toContain('data-shore-hatching="lake"');
+  expect(large).not.toContain('data-water-waves=');
+  expect(large).toMatch(/data-water-coast="lake"[^>]+stroke-width="0.2"/);
+});
+
+it('places clipped ocean waves beneath furniture and excludes their complete reserved footprints', () => {
+  const svg = buildRegionMapSvgString(WATER_REVIEW_MAPS.ocean, { title: 'The open sea' });
+  const group = svg.match(
+    /<g data-water-waves="ocean" clip-path="url\(#waterBody0Clip\)">([\s\S]*?)<\/g>/,
+  )![1];
+  expect(group).toBeDefined();
+  expect(group).not.toContain(' Z');
+  expect(group).toContain('stroke-linejoin="miter" stroke-miterlimit="3"');
+  expect(svg.indexOf('data-water-waves')).toBeLessThan(svg.indexOf('data-water-coast'));
+  expect(svg.indexOf('data-water-waves')).toBeLessThan(svg.indexOf('id="title-cartouche"'));
+  expect(svg.indexOf('data-water-waves')).toBeLessThan(svg.indexOf('id="map-compass"'));
+  const [minX, minY, maxX, maxY] = svg
+    .match(/id="map-compass" data-reserved-box="([^"]+)"/)![1]
+    .split(' ')
+    .map(Number);
+  const furniture = [cartoucheBox(svg), { minX, minY, maxX, maxY }];
+  const commands = [...group.matchAll(/[ML] (-?[\d.]+) (-?[\d.]+)/g)];
+  expect(commands.length).toBeGreaterThan(25);
+  for (const [, x, y] of commands) {
+    for (const box of furniture)
+      expect(
+        Number(x) >= box.minX - 0.04 &&
+          Number(x) <= box.maxX + 0.04 &&
+          Number(y) >= box.minY - 0.04 &&
+          Number(y) <= box.maxY + 0.04,
+      ).toBe(false);
+  }
 });

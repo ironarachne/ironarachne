@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { generate, getDefaultConfig } from '$lib/regions';
-import { INK_WASH } from '$lib/cartography';
+import { INK_WASH, CARTOGRAPHY, INK_EDGE_MAX_OFFSET, STROKE_WIDTHS } from '$lib/cartography';
 import type { Vertex } from '$lib/geometry';
 import { buildRegionMapSvgString } from './region_map_svg';
 import { makeWaterClearanceTest } from './water_clearance';
@@ -60,6 +60,16 @@ describe.each(['alpha', 'bravo', 'charlie'])('reference coastline: %s', (seed) =
     expect(svg).not.toContain(`fill="${INK_WASH}"`);
     expect(svg).toContain('data-terrain-tones="true"');
     expect(svg).toContain('data-water-hatching="ocean"');
+    expect(svg).toContain('data-shore-hatching="ocean"');
+    expect(svg).toMatch(
+      new RegExp(
+        `data-water-coast="ocean"[^>]+stroke="${CARTOGRAPHY.palette.body.color}"[^>]+stroke-width="0.36"`,
+      ),
+    );
+    for (const match of svg.matchAll(/<g data-water-hatching="[^"]+"[^>]*>([\s\S]*?)<\/g>/g)) {
+      expect(match[1]).not.toContain(' Z');
+      expect(match[1].match(/M /g)!.length).toBeGreaterThan(2);
+    }
     expect(svg).not.toContain('<line ');
     const previousSizes: Record<string, number> = { alpha: 285558, bravo: 229217, charlie: 308770 };
     // One colored polygon per cell, plus fixed filter/mask definitions and water references.
@@ -79,7 +89,10 @@ describe.each(['alpha', 'bravo', 'charlie'])('reference coastline: %s', (seed) =
       expect(svg.split(`d="${water[i][1]}"`).length - 1).toBe(1);
       expect(svg.split(`href="#${water[i][2]}"`).length - 1).toBeGreaterThanOrEqual(3);
     }
-    const clear = makeWaterClearanceTest(loops, 0.18);
+    const clear = makeWaterClearanceTest(
+      loops,
+      STROKE_WIDTHS.heavy / 2 + INK_EDGE_MAX_OFFSET + 0.01,
+    );
     const glyphs = [
       ...svg.matchAll(
         /<use href="#([^"]+)" transform="translate\((-?[\d.]+), (-?[\d.]+)\) rotate\((-?[\d.]+)\) scale\(([\d.]+)\)"/g,
@@ -96,5 +109,6 @@ describe.each(['alpha', 'bravo', 'charlie'])('reference coastline: %s', (seed) =
       expect(clear(outline), `${seed}: ${id} at ${x},${y}`).toBe(true);
     }
     expect(region.map).toEqual(original);
+    expect(buildRegionMapSvgString(region.map)).toBe(svg);
   });
 });

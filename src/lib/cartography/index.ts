@@ -4,3 +4,4 @@ export { hash01, toBipolar } from './edges';
 export { createWaterEdgeTreatment } from './coastlines';
 export { createInkedPath } from './inked_paths';
 export { createHatching } from './hatching';
+export { createWaterArtwork } from './water_artwork';

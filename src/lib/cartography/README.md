@@ -27,7 +27,9 @@ until terrain fills are removed in #233.
 Water uses `createWaterEdgeTreatment(width, height)` instead. This is a separate `EdgeTreatment`
 with method `chaikin`: uniformly resample, round with three Chaikin passes, add smooth periodic
 noise, and resample to a maximum segment length of `0.3 * min(width, height) / 35`. Noise amplitude
-is bounded by `0.22 * min(width, height) / 35`. Equivalent loops have identical output regardless
+is bounded by `0.32 * min(width, height) / 35`, with more short-wavelength detail.
+Nearby opposing boundaries limit displacement in narrow channels; intersecting detail falls
+back to the rounded outline. Equivalent loops have identical output regardless
 of graph ids, winding, starting vertex, and collinear subdivisions. Neither strategy mutates input.
 
 Water boundaries are clipped to a padded crop before smoothing, including vertices far outside
@@ -42,3 +44,16 @@ Each contour is an `InkedPath` with points, ink, weight, a closed flag, and `toS
 emits one unfilled path per connected contour. The region renderer chooses four ocean bands, two
 closer lake bands, and no bands for small lakes. It defines each coastline once for reuse by SVG
 strokes, clips, and masks; no water wash remains.
+
+`createWaterArtwork({ shoreline, width, height, kind, exclusions })` composes those base
+contours into irregular broken wavy ripples, intermittent light shore cross-hatching,
+and sparse groups of wave strokes with pointed crests and curved troughs in open ocean.
+`kind` is `ocean` or `lake`; lakes have
+no wave symbols. `exclusions` contains closed footprint polygons in map coordinates,
+such as reserved labels and furniture. Entire strokes are checked against water and
+exclusions, including their width, and unsafe marks are omitted. Off-crop closing runs
+are not decorated. All output consists of transient `InkedPath` arrays, with variation
+derived from canonical geometry hashes rather than a generator RNG. The renderer scales
+their named stroke widths by `min(width, height) / 35` and batches equal inks as SVG
+subpaths. Wave strokes use miter joins with a limit of three; their clearance includes
+the possible tip extension. See [the approved design](../../../docs/region-water-rendering.md).
