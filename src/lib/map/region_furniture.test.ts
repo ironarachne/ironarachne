@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
+import { CARTOGRAPHY } from '$lib/cartography';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { generate, getDefaultConfig } from '$lib/regions';
 import { buildRegionMapSvgString } from './region_map_svg';
@@ -77,6 +78,39 @@ describe('region furniture', () => {
       expect(region.map).toEqual(original);
     },
   );
+
+  it('renders larger transparent ink roses with reproducible style and gentle tilt', () => {
+    const styles = new Set<string>();
+    const rotations = new Set<number>();
+    for (let width = 20; width <= 40; width++) {
+      const map: RegionMap = { width, height: 35, nodes: [], edges: [], corners: [] };
+      const svg = buildRegionMapSvgString(map);
+      const compass = svg.slice(
+        svg.indexOf('<g id="map-compass"'),
+        svg.indexOf('<g id="map-frame"'),
+      );
+      expect(compass).not.toContain('<rect');
+      expect(compass).not.toContain(`fill="${CARTOGRAPHY.ground.fill}"`);
+      expect(compass).toContain('fill="none"');
+      const opacity = Number(compass.match(/opacity="([^"]+)"/)![1]);
+      expect(opacity).toBeGreaterThanOrEqual(0.32);
+      expect(opacity).toBeLessThanOrEqual(0.44);
+      const rotation = Number(compass.match(/rotate\(([^)]+)\)/)![1]);
+      expect(Math.abs(rotation)).toBeLessThanOrEqual(3);
+      rotations.add(rotation);
+      styles.add(compass.match(/data-compass-style="([^"]+)"/)![1]);
+      const [left, , right] = compass
+        .match(/data-reserved-box="([^"]+)"/)![1]
+        .split(' ')
+        .map(Number);
+      expect(right - left).toBeGreaterThan((Math.min(width, 35) * 3.4) / 35);
+      expect(buildRegionMapSvgString(structuredClone(map))).toBe(svg);
+    }
+    expect(styles).toEqual(new Set(['plain', 'ringed', 'eight-point']));
+    expect(rotations.has(0)).toBe(true);
+    expect([...rotations].some((rotation) => rotation < 0)).toBe(true);
+    expect([...rotations].some((rotation) => rotation > 0)).toBe(true);
+  });
 
   it.each([
     [20, 20],
