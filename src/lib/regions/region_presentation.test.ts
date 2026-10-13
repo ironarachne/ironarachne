@@ -1,6 +1,6 @@
 import { typographyRiverFixture } from '../../../test_fixtures/region_typography';
 import type { RegionSnapshot } from './region_snapshot';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { buildTextPdf } from '$lib/pdf';
 
 import { removeRegionPlace, setRegionPlaceText, setRegionText } from './region_editing';
@@ -28,6 +28,12 @@ const snapshot = rollRegionSnapshot('presentation-seed', {
   affiliation: 'affiliated',
   generateNeighbors: true,
 });
+
+// All baseline comparisons use the same unedited snapshot. Render it once under coverage.
+let snapshotSvg: string;
+beforeAll(() => {
+  snapshotSvg = regionToMapSvg(snapshot);
+}, 30_000);
 
 function capitalMarkers(svg: string): string[] {
   return [
@@ -197,7 +203,7 @@ describe('exporting a region (6.3)', () => {
   });
 
   it('draws the map, which is what a region is', () => {
-    const svg = regionToMapSvg(snapshot);
+    const svg = snapshotSvg;
     // A standalone document, XML declaration and all, because it is a file someone saves.
     expect(svg.startsWith('<?xml')).toBe(true);
     expect(svg).toContain('<svg');
@@ -207,9 +213,7 @@ describe('exporting a region (6.3)', () => {
 
   it('keeps the capital marker on its saved site after settlement reordering', () => {
     const reordered = { ...snapshot, settlements: [...snapshot.settlements].reverse() };
-    expect(capitalMarkers(regionToMapSvg(reordered))).toEqual(
-      capitalMarkers(regionToMapSvg(snapshot)),
-    );
+    expect(capitalMarkers(regionToMapSvg(reordered))).toEqual(capitalMarkers(snapshotSvg));
   });
 
   it('removes the capital marker when its settlement is removed', () => {
@@ -219,10 +223,8 @@ describe('exporting a region (6.3)', () => {
 
   it('retains the legacy capital marker without settlement role facts', () => {
     const legacy = { ...snapshot, facts: { ...snapshot.facts, settlementRoles: [] } };
-    expect(capitalMarkers(regionToMapSvg(legacy))).toEqual(
-      capitalMarkers(regionToMapSvg(snapshot)),
-    );
-  });
+    expect(capitalMarkers(regionToMapSvg(legacy))).toEqual(capitalMarkers(snapshotSvg));
+  }, 30_000);
 
   it('offers the map as a data URL for the page to show', () => {
     // An image rather than inline markup: the map's paths extend past the viewBox that clips them,
@@ -233,7 +235,7 @@ describe('exporting a region (6.3)', () => {
   });
 
   it('labels the map with the region and its towns', () => {
-    const svg = regionToMapSvg(snapshot);
+    const svg = snapshotSvg;
     expect(svg).toContain(snapshot.name);
   });
 

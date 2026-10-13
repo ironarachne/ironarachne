@@ -35,7 +35,9 @@ function checkFrame(svg: string, width: number, height: number) {
 
 describe('region furniture', () => {
   const regions = new Map<string, ReturnType<typeof generate>>();
-  // Full-region generation is fixture preparation; each renderer assertion keeps its default timeout.
+  const originalMaps = new Map<string, RegionMap>();
+  const baselineSvgs = new Map<string, string>();
+  // Prepare each full-map baseline once; retain the pre-render map for mutation assertions.
   beforeAll(() => {
     for (const seed of ['alpha', 'bravo', 'charlie']) {
       const config = getDefaultConfig(new RNG(seed));
@@ -43,14 +45,27 @@ describe('region furniture', () => {
       config.nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(seed));
       config.mapWidth = 60;
       config.mapHeight = 35;
-      regions.set(seed, generate(config));
+      const region = generate(config);
+      regions.set(seed, region);
+      originalMaps.set(seed, structuredClone(region.map));
+      baselineSvgs.set(
+        seed,
+        buildRegionMapSvgString(region.map, {
+          title: region.name,
+          settlements: region.settlements.map((settlement, index) => ({
+            ...settlement,
+            category: normalizeSettlementIconCategory(settlement.category.name),
+            isCapital: index === 0,
+          })),
+        }),
+      );
     }
   }, 30000);
   it.each(['alpha', 'bravo', 'charlie'])(
     'frames %s with a compass clear of its text and markers',
     (seed) => {
       const region = regions.get(seed)!,
-        original = structuredClone(region.map);
+        original = originalMaps.get(seed)!;
       const options = {
         title: region.name,
         settlements: region.settlements.map((s, i) => ({
@@ -59,7 +74,7 @@ describe('region furniture', () => {
           isCapital: i === 0,
         })),
       };
-      const svg = buildRegionMapSvgString(region.map, options);
+      const svg = baselineSvgs.get(seed)!;
       checkFrame(svg, 60, 35);
       const compass = svg.match(/id="map-compass" data-reserved-box="([^"]+)"/);
       expect(compass).not.toBeNull();
@@ -77,6 +92,8 @@ describe('region furniture', () => {
       expect(buildRegionMapSvgString(region.map, options)).toBe(svg);
       expect(region.map).toEqual(original);
     },
+    // This exercises full-map typography and SVG rendering under coverage, not a speed budget.
+    30_000,
   );
 
   it('renders larger transparent ink roses with reproducible style and gentle tilt', () => {
