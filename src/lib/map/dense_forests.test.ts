@@ -14,6 +14,20 @@ const biomes = [
 ];
 
 describe('dense forest geography', () => {
+  it.each([
+    ['boreal forest', 12],
+    ['temperate coniferous forest', 12],
+    ['temperate deciduous forest', 8],
+  ])('renders dense %s with the correct crown silhouette', (biome, segments) => {
+    const map = denseForestFixture(biome);
+    const denseForests = detectDenseForests(map).map((patch) => ({ ...patch, id: 'forest' }));
+    const svg = buildRegionMapSvgString(map, { denseForests });
+    const bodies = [...svg.matchAll(/<path data-forest-canopy="true"[^>]* d="([^"]+)"/g)];
+    expect(bodies.length).toBeGreaterThan(3);
+    for (const body of bodies) expect(body[1].match(/C /g)).toHaveLength(segments);
+    expect(buildRegionMapSvgString(map, { denseForests })).toBe(svg);
+  });
+
   it.each(biomes)('recognizes a compact portion of %s without changing the graph', (biome) => {
     const map = denseForestFixture(biome),
       before = structuredClone(map);

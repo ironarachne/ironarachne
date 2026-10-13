@@ -1226,7 +1226,7 @@ function collectScatterSymbols(
           const node = nodeAt(anchor);
           if (!node || forestByNode.get(node.id) !== forest.id) continue;
           const styleRng = new RNG(`${key}:cloud`);
-          const canopy = denseForestCanopy(styleRng);
+          const canopy = denseForestCanopy(styleRng, assignments.get(node.id)!.family);
           const outline = denseCanopyFitOutline(canopy);
           const rotation = Number(styleRng.float(-8, 8).toFixed(1));
           const desiredScale = mapScale * styleRng.float(0.75, 1.05);

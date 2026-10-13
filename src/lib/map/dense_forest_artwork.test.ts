@@ -42,6 +42,32 @@ describe('forest cloud artwork', () => {
     }
     expect(outline[2].y - canopy.radiusY).toBeGreaterThan(0.48);
   });
+  it('gives conifers tall pointed branch tiers with reproducible artwork and correct occlusion', () => {
+    const canopy = denseForestCanopy(new RNG('pine'), 'treeConifer');
+    expect(denseForestCanopy(new RNG('pine'), 'treeConifer')).toEqual(canopy);
+    expect(denseForestCanopy(new RNG('other'), 'treeConifer')).not.toEqual(canopy);
+    expect(canopy.radiusY).toBeGreaterThan(canopy.radiusX);
+    expect(canopy.segments[0].start).toEqual({ x: 0, y: -canopy.radiusY });
+    expect(canopy.segments).toHaveLength(12);
+    const tree = { ...glyph(4, 5), canopy, rotationDegrees: 7, scale: 0.8, interiorInk: true };
+    const contains = (x: number, y: number, padding = 0) =>
+      denseCanopyContainsPoint(tree, denseCanopyPoint(tree, { x, y }), padding);
+    expect(contains(0, -canopy.radiusY * 0.9)).toBe(true);
+    expect(contains(canopy.radiusX * 0.5, -canopy.radiusY * 0.8)).toBe(false);
+    expect(contains(canopy.radiusX * 1.1, canopy.radiusY * 0.85)).toBe(false);
+    expect(contains(canopy.radiusX * 1.1, canopy.radiusY * 0.85, 0.4)).toBe(true);
+    expect(denseCanopyBrushInk(tree, [tree])).toMatch(/M .* Z/);
+    const outline = denseCanopyFitOutline(canopy);
+    for (const point of canopy.segments.flatMap((s) => [s.start, s.control1, s.control2, s.end])) {
+      expect(point.x).toBeGreaterThan(outline[0].x);
+      expect(point.x).toBeLessThan(outline[1].x);
+      expect(point.y).toBeGreaterThan(outline[0].y);
+      expect(point.y).toBeLessThan(outline[2].y);
+    }
+    expect(denseForestCanopy(new RNG('cloud'), 'treePalm')).toEqual(
+      denseForestCanopy(new RNG('cloud')),
+    );
+  });
   it('resolves rotated canopy membership and padded scatter clearance in world coordinates', () => {
     const tree = { ...glyph(4, 5), rotationDegrees: 65, scale: 0.7 };
     expect(

@@ -2,12 +2,18 @@ import type { RNG } from '@ironarachne/rng';
 import type { Vertex } from '$lib/geometry';
 import type { CubicInkSegment, GlyphInkStroke } from './terrain_glyph_types';
 import type { DenseForestCanopy, PlacedDenseForestGlyph } from './dense_forest_types';
+import { pointInRiverPolygon } from './river_geometry';
+import type { TerrainGlyphFamily } from './terrain_glyph_types';
 import { inkStrokePath } from './terrain_glyph_ink';
 
 const coordinate = (p: Vertex) => `${p.x.toFixed(3)} ${p.y.toFixed(3)}`;
 
 /** Wide, rounded lobes overlap into a cloud bank; no cell boundary is part of this artwork. */
-export function denseForestCanopy(rng: RNG): DenseForestCanopy {
+export function denseForestCanopy(
+  rng: RNG,
+  family: TerrainGlyphFamily = 'treeDeciduous',
+): DenseForestCanopy {
+  if (family === 'treeConifer') return coniferCanopy(rng);
   const radiusX = rng.float(0.9, 1.1),
     radiusY = rng.float(0.65, 0.82);
   const count = 8,
@@ -34,6 +40,61 @@ export function denseForestCanopy(rng: RNG): DenseForestCanopy {
     radiusX,
     radiusY,
     segments,
+    body: `M ${coordinate(points[0])} ${segments.map((s) => `C ${coordinate(s.control1)} ${coordinate(s.control2)} ${coordinate(s.end)}`).join(' ')} Z`,
+  };
+}
+
+/** Swept branch tiers keep a pointed evergreen silhouette without hard polygon edges. */
+function coniferCanopy(rng: RNG): DenseForestCanopy {
+  const radiusX = rng.float(0.72, 0.88),
+    radiusY = rng.float(1.0, 1.2);
+  const points = [
+    { x: 0, y: -radiusY },
+    { x: radiusX * 0.5, y: -radiusY * 0.18 },
+    { x: radiusX * 0.27, y: -radiusY * 0.24 },
+    { x: radiusX * 0.77, y: radiusY * 0.38 },
+    { x: radiusX * 0.48, y: radiusY * 0.3 },
+    { x: radiusX, y: radiusY * 0.88 },
+    { x: 0, y: radiusY },
+    { x: -radiusX, y: radiusY * 0.88 },
+    { x: -radiusX * 0.48, y: radiusY * 0.3 },
+    { x: -radiusX * 0.77, y: radiusY * 0.38 },
+    { x: -radiusX * 0.27, y: -radiusY * 0.24 },
+    { x: -radiusX * 0.5, y: -radiusY * 0.18 },
+  ];
+  const segments = points.map((start, i): CubicInkSegment => {
+    const end = points[(i + 1) % points.length];
+    return {
+      start,
+      end,
+      control1: { x: start.x * 0.75 + end.x * 0.25, y: start.y * 0.55 + end.y * 0.45 },
+      control2: { x: start.x * 0.25 + end.x * 0.75, y: start.y * 0.15 + end.y * 0.85 },
+    };
+  });
+  // Sample the curved silhouette for occlusion; an ellipse would hide neighboring tree tips.
+  const footprint = segments.flatMap((s) =>
+    Array.from({ length: 8 }, (_, i) => {
+      const t = i / 8,
+        u = 1 - t;
+      return {
+        x:
+          u ** 3 * s.start.x +
+          3 * u ** 2 * t * s.control1.x +
+          3 * u * t ** 2 * s.control2.x +
+          t ** 3 * s.end.x,
+        y:
+          u ** 3 * s.start.y +
+          3 * u ** 2 * t * s.control1.y +
+          3 * u * t ** 2 * s.control2.y +
+          t ** 3 * s.end.y,
+      };
+    }),
+  );
+  return {
+    radiusX,
+    radiusY,
+    segments,
+    footprint,
     body: `M ${coordinate(points[0])} ${segments.map((s) => `C ${coordinate(s.control1)} ${coordinate(s.control2)} ${coordinate(s.end)}`).join(' ')} Z`,
   };
 }
@@ -80,6 +141,15 @@ export function denseCanopyContainsPoint(
     dy = (point.y - glyph.anchor.y) / glyph.scale;
   const x = dx * Math.cos(angle) - dy * Math.sin(angle),
     y = dx * Math.sin(angle) + dy * Math.cos(angle);
+  if (glyph.canopy.footprint) {
+    const local = {
+      x: x / (1 + padding / glyph.scale / glyph.canopy.radiusX),
+      y: y / (1 + padding / glyph.scale / glyph.canopy.radiusY),
+    };
+    if (Math.abs(local.x) > glyph.canopy.radiusX || Math.abs(local.y) > glyph.canopy.radiusY)
+      return false;
+    return pointInRiverPolygon(local, glyph.canopy.footprint);
+  }
   return (
     (x / (glyph.canopy.radiusX + padding / glyph.scale)) ** 2 +
       (y / (glyph.canopy.radiusY + padding / glyph.scale)) ** 2 <
@@ -140,7 +210,13 @@ export function denseCanopyBrushInk(
   }
   if (glyph.interiorInk)
     parts.push(
-      inkStrokePath({ segments: segments.slice(4, 7), peakWidth: 0.045, taperPower: 0.8 }),
+      inkStrokePath({
+        segments: glyph.canopy.footprint
+          ? [segments[segments.length - 1], segments[0]]
+          : segments.slice(4, 7),
+        peakWidth: 0.045,
+        taperPower: 0.8,
+      }),
     );
   return parts.join(' ');
 }
