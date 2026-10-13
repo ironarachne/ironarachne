@@ -231,3 +231,15 @@ Maps without forest inputs retain scattered tree artwork. See
 `scripts/render_dense_forests.ts` for controlled and fixed-seed previews.
 
 Dense conifer forests use pointed, swept branch tiers and crown-tip brushwork; other dense woodland retains rounded cloud lobes. Artwork follows the realized terrain glyph family without changing saved forest membership.
+
+## Typography (#418)
+
+Map inscriptions reserve their complete glyph, halo, and clearance bounds before drawing.
+The title uses a waved, nicked parchment scroll with projecting rolls; towns and larger settlements and all capitals use explicit
+small caps with visible word spaces. Point landmarks are larger and italic. Area and range labels try a single shallow
+quadratic arc derived from saved geography before falling back to a straight inscription.
+Geographic labels overlay their forest and mountain masses with thicker parchment outlines;
+their label bounds do not remove canopy or ridge artwork.
+Optional `rivers` drawing inputs carry saved route names and edge IDs; only rendered connected
+river sections can receive their labels. Typography consumes no RNG and changes no saved data.
+See [the approved design](../../../docs/region-map-typography.md).

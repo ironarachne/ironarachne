@@ -386,6 +386,11 @@ export function regionToMapSvg(snapshot: RegionSnapshot): string {
 
   return buildRegionMapSvgString(snapshot.map, {
     title: regionDisplayName(snapshot),
+    rivers: snapshot.facts.routes
+      .filter(
+        (fact) => fact.kind === 'river' && fact.name.trim() && fact.reason?.status !== 'stale',
+      )
+      .map((fact) => ({ id: fact.id, name: fact.name, edgeIds: fact.anchor.edgeIds })),
     settlements,
     mountainRanges: snapshot.facts.mountainRanges,
     denseForests: snapshot.facts.denseForests.filter(

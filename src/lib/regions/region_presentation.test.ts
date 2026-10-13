@@ -1,3 +1,5 @@
+import { typographyRiverFixture } from '../../../test_fixtures/region_typography';
+import type { RegionSnapshot } from './region_snapshot';
 import { describe, expect, it } from 'vitest';
 import { buildTextPdf } from '$lib/pdf';
 
@@ -628,4 +630,37 @@ describe('sourcebook gazetteer', () => {
       expect(prose).not.toContain('Supporting explanation:');
     }
   });
+});
+
+it('passes saved river names and anchors to the map but omits stale and road facts', () => {
+  const fixture = typographyRiverFixture();
+  const edited: RegionSnapshot = {
+    ...snapshot,
+    map: fixture.map,
+    settlements: [],
+    facts: emptyRegionFacts('current'),
+  };
+  edited.facts.routes = [
+    {
+      id: 'route:river:review',
+      name: 'Aster River',
+      description: 'Saved route',
+      origin: 'authored',
+      kind: 'river',
+      areaIds: [],
+      anchor: { nodeIds: [], edgeIds: fixture.options.rivers![0].edgeIds },
+      endpoints: [
+        { kind: 'boundary', edgeId: 0 },
+        { kind: 'boundary', edgeId: 1 },
+      ],
+    },
+  ];
+  expect(regionToMapSvg(edited)).toContain('data-map-name="Aster River"');
+  edited.facts.routes[0].name = 'Renamed <& River';
+  expect(regionToMapSvg(edited)).toContain('data-map-name="Renamed &lt;&amp; River"');
+  edited.facts.routes[0].reason = { ruleId: 'review', status: 'stale', sources: [] };
+  expect(regionToMapSvg(edited)).not.toContain('data-feature-kind="river"');
+  delete edited.facts.routes[0].reason;
+  edited.facts.routes[0].kind = 'road';
+  expect(regionToMapSvg(edited)).not.toContain('data-feature-kind="river"');
 });
