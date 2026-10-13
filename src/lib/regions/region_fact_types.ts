@@ -1,3 +1,4 @@
+import type { DenseForestFact } from './region_dense_forest_types';
 import type { MountainRangeFact } from './region_mountain_range_types';
 import type { SettlementSupplyFact } from './region_supply_types';
 import type { RegionalProductFact } from './region_processing_types';
@@ -101,7 +102,8 @@ export type RouteFact = FactBase & {
 export type CausalFact = FactBase & { subjectId: string; relatedIds: string[] };
 
 export type RegionFacts = {
-  version: 7;
+  version: 8;
+  denseForests: DenseForestFact[];
   mountainRanges: MountainRangeFact[];
   supply: SettlementSupplyFact[];
   dailyLife: SettlementDailyLifeFact[];

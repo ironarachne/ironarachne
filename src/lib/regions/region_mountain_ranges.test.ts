@@ -149,10 +149,13 @@ describe('saved regional mountain ranges', () => {
     const migrated = migrateRegionSnapshot(old, 11);
     expect(migrated.ok).toBe(true);
     if (!migrated.ok) throw new Error(migrated.message);
-    expect(migrated.value).toEqual({ ...old, facts: { ...facts, version: 7, mountainRanges: [] } });
+    expect(migrated.value).toEqual({
+      ...old,
+      facts: { ...facts, version: 8, denseForests: [], mountainRanges: [] },
+    });
     expect(regionToMapSvg(migrated.value)).not.toContain('data-range-id=');
     expect(old).toEqual(before);
-    expect(REGION_PAYLOAD_VERSION).toBe(12);
+    expect(REGION_PAYLOAD_VERSION).toBe(13);
     expect(migrateRegionSnapshot(snapshot, 12).ok).toBe(false);
     expect(migrateRegionSnapshot(snapshot, 11).ok).toBe(false);
     expect(validateRegionSnapshot(snapshot).ok).toBe(true);

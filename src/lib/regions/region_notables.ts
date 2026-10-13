@@ -196,12 +196,12 @@ function ecologyGatheringHazards(region: Region): NotableFact[] {
 }
 
 /** Select at most four supported places using only the notable-places stream. */
-export function generateNotableFacts(region: Region, rng: RNG): void {
+export function generateNotableFacts(region: Region, rng: RNG, forestLandmark?: NotableFact): void {
   const nodes = region.map.nodes
     .filter((node) => !node.isWater && !node.isOcean)
     .sort((a, b) => a.id - b.id);
   const groups = [
-    naturalPlaces(region, nodes),
+    forestLandmark ? [forestLandmark] : naturalPlaces(region, nodes),
     inhabitedPlaces(region, nodes),
     riverObstacles(region, nodes),
     [...terrainObstacles(region, nodes), ...ecologyGatheringHazards(region)],

@@ -17,6 +17,12 @@ const snapshot = rollRegionSnapshot('kind-seed', {
   generateNeighbors: true,
 });
 
+// Historical migration fixtures cannot contain references to newly introduced forest facts.
+snapshot.facts.denseForests = [];
+snapshot.facts.notables = snapshot.facts.notables.filter(
+  (fact) => fact.reason?.ruleId !== 'fantasy:region:dense-forest-landmark:v1',
+);
+
 describe('river payload version 10', () => {
   it('saves and rehydrates the complete network without consuming a new generation seed', async () => {
     const codec = await regionArtifactKind.loadCodec();
@@ -637,7 +643,8 @@ describe('ecology save compatibility', () => {
       ...legacy,
       facts: {
         ...legacy.facts,
-        version: 7,
+        version: 8,
+        denseForests: [],
         mountainRanges: [],
         supply: [],
         dailyLife: [],
@@ -772,7 +779,8 @@ describe('processing save migration', () => {
       ...input,
       facts: {
         ...input.facts,
-        version: 7,
+        version: 8,
+        denseForests: [],
         mountainRanges: [],
         supply: [],
         products: [],
@@ -802,7 +810,14 @@ describe('daily-life save migration', () => {
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...input,
-      facts: { ...input.facts, version: 7, mountainRanges: [], supply: [], dailyLife: [] },
+      facts: {
+        ...input.facts,
+        version: 8,
+        denseForests: [],
+        mountainRanges: [],
+        supply: [],
+        dailyLife: [],
+      },
     });
     expect(input).toEqual(original);
     expect(validateRegionSnapshot(result.value).ok).toBe(true);
@@ -887,7 +902,7 @@ describe('supply save migration', () => {
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...input,
-      facts: { ...input.facts, version: 7, mountainRanges: [], supply: [] },
+      facts: { ...input.facts, version: 8, denseForests: [], mountainRanges: [], supply: [] },
     });
     expect(input).toEqual(before);
     expect(validateRegionSnapshot(result.value).ok).toBe(true);

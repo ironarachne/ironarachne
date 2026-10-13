@@ -133,6 +133,34 @@ test.describe('a region', () => {
     await expectNoHorizontalOverflow(page);
   });
 
+  test('keeps dense forest artwork through text edits, saving, and reopening', async ({ page }) => {
+    await openGenerator(page);
+    await page.getByLabel('Seed', { exact: true }).fill('alpha');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    await expect(page.locator('img.region-map')).toHaveAttribute('src', /data-dense-forest-id/);
+    await saveAs(page, 'Forest Country');
+    const panel = await openInWorkshop(page, 'Forest Country');
+    await panel.getByLabel('Dense forest 1 name', { exact: true }).fill('The Copper Wood');
+    await panel
+      .getByLabel('Dense forest 1 description', { exact: true })
+      .fill('A dense canopy named by the referee.');
+    await expect(panel.locator('img.region-map')).toHaveAttribute('src', /data-dense-forest-id/);
+    await expect(panel).toContainText('These saved facts need review');
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+    await page.reload({ waitUntil: 'load' });
+    const reopened = await openInWorkshop(page, 'Forest Country');
+    await expect(reopened.getByLabel('Dense forest 1 name', { exact: true })).toHaveValue(
+      'The Copper Wood',
+    );
+    await expect(reopened.getByLabel('Dense forest 1 description', { exact: true })).toHaveValue(
+      'A dense canopy named by the referee.',
+    );
+    await expect(reopened.locator('img.region-map')).toHaveAttribute('src', /data-dense-forest-id/);
+    await expectNoHorizontalOverflow(page);
+  });
+
   test('saves and reopens an unaffiliated region with optional political neighbors', async ({
     page,
   }) => {

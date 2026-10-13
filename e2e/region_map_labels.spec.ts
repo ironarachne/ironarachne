@@ -58,6 +58,23 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
           id: entry.getAttribute('data-fact-id')!,
           name: entry.querySelector('h4')!.textContent!.trim(),
         }));
+        const forests = [...root.querySelectorAll('[data-dense-forest-id]')];
+        if (seed === 'alpha' && !forests.length)
+          errors.push('Expected dense forest canopy artwork');
+        const forestNotables = [
+          ...document.querySelectorAll('.gazetteer [data-notable-id^="landmark:forest:dense:"]'),
+        ];
+        for (const entry of forestNotables) {
+          const id = entry.getAttribute('data-notable-id')!;
+          const name = entry.querySelector('h4')!.textContent!.trim();
+          const label = labels.find(
+            (text) => text.closest('[data-feature-id]')?.getAttribute('data-feature-id') === id,
+          );
+          if (!label || !name.includes(label.textContent!.trim()))
+            errors.push('Forest landmark label disagrees with the saved gazetteer');
+          if (root.querySelector(`[data-feature-id="${id}"][data-feature-marker]`))
+            errors.push('Forest landmark has a duplicate point marker');
+        }
         if (!areaLabels.length) errors.push('Expected named landscape areas');
         for (const area of areaLabels) {
           const label = labels.find(

@@ -212,3 +212,20 @@ shared spacing, and the existing clearance and label reservations. Bare graphs r
 individual mountains. Drawings and labels are derived; rendering never detects new facts.
 See [the design](../../../docs/region-mountain-ranges.md) and
 [visual review](../../../docs/region-mountain-ranges-416/README.md).
+
+## Dense forests (#419)
+
+`detectDenseForests(map)` selects up to three compact, non-overlapping patches from connected
+forest tree cells. It requires shared edges and compatible tree families, leaves small woods
+scattered, and preserves water and relief precedence. Each selected patch occupies at most
+one-third of its component. Detection consumes no RNG and never changes the physical graph.
+
+`buildRegionMapSvgString` accepts optional saved `denseForests` memberships. Within those
+patches it draws overlapping rounded cloud lobes, a shared shaded silhouette, tapered brush
+arcs, and independent trunk strokes below exposed lower edges. The complete envelope is fitted
+to membership rather than clipped to raw cell edges; isolated trial lobes stay ordinary woodland. Roads, rivers, settlements, and map furniture
+retain openings. Artwork uses independent deterministic streams, cubic canopy lobes, and tapered ink ribbons.
+The selected saved forest landmark receives an area label rather than a duplicate diamond.
+Maps without forest inputs retain scattered tree artwork. See
+[the approved design](../../../docs/region-dense-forests.md) and
+`scripts/render_dense_forests.ts` for controlled and fixed-seed previews.

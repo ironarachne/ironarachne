@@ -450,3 +450,16 @@ requires a whole-region reroll. Range deletion respects authored dependents and 
 individual mountain rendering. Historical payloads migrate with an empty range list and
 keep their map, text, and affiliation. No range is detected or named on read or export.
 See [the approved design](../../../docs/region-mountain-ranges.md).
+
+## Dense forests (#419)
+
+Payload version 13 / facts version 8 adds `denseForests`. A pure geography pass recognizes
+compact forest patches after mountain ranges. The independent `forest-landmark` stream gives
+one selected patch a culturally grounded name; its saved landmark occupies the natural-place
+slot in the existing four-notable budget. Map labels and the regional gazetteer share that
+identity and name. No new resource or ecological claim follows from canopy density.
+
+Forests participate in fact validation, dependency review, text editing, and deletion guards.
+Historical snapshots migrate with an empty forest list and preserve saved geography and prose.
+Artwork remains derived from saved memberships. See
+[the approved design](../../../docs/region-dense-forests.md).

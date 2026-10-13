@@ -55,3 +55,6 @@ export { generateLandscapeNames } from './region_landscape_names';
 
 export type * from './region_mountain_range_types';
 export { generateMountainRangeFacts } from './region_mountain_ranges';
+
+export type * from './region_dense_forest_types';
+export { generateDenseForestFacts, generateDenseForestLandmark } from './region_dense_forests';

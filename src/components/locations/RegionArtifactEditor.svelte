@@ -223,6 +223,52 @@
       </fieldset>
     {/each}
 
+    {#each region.facts.denseForests as forest, index (forest.id)}
+      <fieldset>
+        <legend>Dense forest {index + 1}</legend>
+        {@render textRow(
+          `${uid}-forest-${index}-name`,
+          `Dense forest ${index + 1} name`,
+          forest.name,
+          (next) =>
+            edit((current) =>
+              setRegionResourceFactText(current, 'denseForests', forest.id, 'name', next),
+            ),
+        )}
+        <div class="input-group">
+          <label for="{uid}-forest-{index}-description">Dense forest {index + 1} description</label>
+          <textarea
+            id="{uid}-forest-{index}-description"
+            rows="3"
+            value={forest.description}
+            oninput={(event) =>
+              edit((current) =>
+                setRegionResourceFactText(
+                  current,
+                  'denseForests',
+                  forest.id,
+                  'description',
+                  event.currentTarget.value,
+                ),
+              )}
+          ></textarea>
+        </div>
+        <BaseButton
+          aria-label="Remove dense forest {index + 1} from this region"
+          disabled={removeRegionResourceFact(region, 'denseForests', forest.id) === region}
+          onclick={() =>
+            edit((current) => removeRegionResourceFact(current, 'denseForests', forest.id))}
+        >
+          Remove dense forest {index + 1}
+        </BaseButton>
+        {#if removeRegionResourceFact(region, 'denseForests', forest.id) === region}
+          <p class="region-editor__note">
+            Authored regional facts refer to this forest, so it cannot be removed here.
+          </p>
+        {/if}
+      </fieldset>
+    {/each}
+
     <RegionExports snapshot={region} />
     <RegionMapInspection snapshot={region} />
 

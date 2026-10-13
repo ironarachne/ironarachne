@@ -1,3 +1,14 @@
+import {
+  denseForestCanopy,
+  denseCanopyFitOutline,
+  denseCanopyBrushInk,
+  denseCanopyTrunks,
+  denseCanopyPoint,
+  denseCanopyContainsPoint,
+  connectedDenseCanopies,
+} from './dense_forest_artwork';
+import type { PlacedDenseForestGlyph } from './dense_forest_types';
+import { denseForestGeometryError } from './dense_forests';
 import { mountainSaddle } from './mountain_range_artwork';
 import {
   mountainSpineLength,
@@ -53,12 +64,14 @@ import {
 } from './river_paths';
 
 import type {
+  RegionMapSvgDenseForest,
   RegionMapSvgMountainRange,
   RegionMapSvgSettlement,
   RegionMapSvgOptions,
   RegionMapSvgFeature,
 } from './region_map_svg_types';
 export type {
+  RegionMapSvgDenseForest,
   RegionMapSvgMountainRange,
   RegionMapSvgSettlement,
   RegionMapSvgOptions,
@@ -1036,7 +1049,8 @@ function collectScatterSymbols(
   riverOutlines: Vertex[][],
   ranges: RegionMapSvgMountainRange[],
   reserved: TextBox[],
-): (PlacedTerrainGlyph | PlacedMountainRangeGlyph)[] {
+  forests: RegionMapSvgDenseForest[],
+): (PlacedTerrainGlyph | PlacedMountainRangeGlyph | PlacedDenseForestGlyph)[] {
   if (map.width <= 0 || map.height <= 0) return [];
   const assignments = assignTerrainGlyphs(map);
   if (assignments.size === 0) return [];
@@ -1065,9 +1079,38 @@ function collectScatterSymbols(
       ),
     ]),
   );
+  const forestByNode = new Map(
+    forests.flatMap((forest) => forest.mapNodeIds.map((id) => [id, forest.id] as const)),
+  );
+  const forestContainment = new Map(
+    forests.map((forest) => {
+      const ids = new Set(forest.mapNodeIds);
+      return [forest.id, makeRegionContainmentTest(map, (node) => ids.has(node.id))];
+    }),
+  );
+  // Match road cell-centre segments by ID, including graphs with non-index node IDs.
+  const byId = new Map(map.nodes.map((node) => [node.id, node]));
+  const roadOutlines = map.edges.flatMap((edge) => {
+    const a = byId.get(edge.d0)?.center,
+      b = edge.d1 === undefined ? undefined : byId.get(edge.d1)?.center;
+    if (!(edge.road && edge.road > 0) || !a || !b) return [];
+    const length = Math.hypot(b.x - a.x, b.y - a.y);
+    if (length === 0) return [];
+    const dx = ((b.y - a.y) / length) * 0.12 * mapScale,
+      dy = ((a.x - b.x) / length) * 0.12 * mapScale;
+    return [
+      [
+        { x: a.x + dx, y: a.y + dy },
+        { x: b.x + dx, y: b.y + dy },
+        { x: b.x - dx, y: b.y - dy },
+        { x: a.x - dx, y: a.y - dy },
+      ],
+    ];
+  });
+  const clearOfRoads = makeWaterClearanceTest(roadOutlines, 0.08 * mapScale);
   const acceptSpacing = makeGlyphSpacingTest(mapScale);
   const clearOfRivers = makeWaterClearanceTest(riverOutlines, WATER_EDGE_MARGIN);
-  const out: (PlacedTerrainGlyph | PlacedMountainRangeGlyph)[] = [];
+  const out: (PlacedTerrainGlyph | PlacedMountainRangeGlyph | PlacedDenseForestGlyph)[] = [];
   const rangeClear = (outline: Vertex[]) => clearOfWater(outline) && clearOfRivers(outline);
   collectRangeSymbols(map, ranges, rangeClear, acceptSpacing, reserved, nodeAt).forEach((symbol) =>
     out.push(symbol),
@@ -1121,6 +1164,7 @@ function collectScatterSymbols(
     );
     if (scale === null) return false;
     const halfWidth = Math.max(...variant.footprint.map((point) => Math.abs(point.x))) * scale;
+    const bounds = glyphBox(anchor, outline, scale, rotation);
     if (!acceptSpacing(anchor, halfWidth * 0.55)) return false;
     out.push({
       nodeId: node.id,
@@ -1128,7 +1172,7 @@ function collectScatterSymbols(
       anchor,
       scale,
       rotationDegrees: rotation,
-      bounds: glyphBox(anchor, outline, scale, rotation),
+      bounds,
     });
     return true;
   };
@@ -1158,6 +1202,65 @@ function collectScatterSymbols(
     if (new RNG(`${key}:density`).float(0, 1) >= TERRAIN_GLYPHS[family].densityRatio) continue;
     place(anchor, family, key);
   }
+  // A close staggered lattice produces overlapping bodies. Its independent jitter stream
+  // preserves every ordinary scatter candidate and style draw outside the saved patches.
+  if (forests.length) {
+    const step = 0.55 * mapScale;
+    for (const forest of forests) {
+      const members = map.nodes.filter((node) => forest.mapNodeIds.includes(node.id));
+      const points = members.flatMap((node) => node.polygon.vertices);
+      const minX = Math.min(...points.map((p) => p.x)),
+        maxX = Math.max(...points.map((p) => p.x));
+      const minY = Math.min(...points.map((p) => p.y)),
+        maxY = Math.max(...points.map((p) => p.y));
+      let attempts = 0;
+      for (let row = Math.floor(minY / step); row * step <= maxY && attempts < 12000; row++)
+        for (let col = Math.floor(minX / step); col * step <= maxX && attempts < 12000; col++) {
+          attempts++;
+          const key = `${seedKey}:dense:${forest.id}:${row}:${col}`;
+          const jitter = new RNG(`${key}:position`);
+          const anchor = {
+            x: (col + (row % 2 ? 0.5 : 0)) * step + jitter.float(-0.4, 0.4) * step,
+            y: row * step + jitter.float(-0.4, 0.4) * step,
+          };
+          const node = nodeAt(anchor);
+          if (!node || forestByNode.get(node.id) !== forest.id) continue;
+          const styleRng = new RNG(`${key}:cloud`);
+          const canopy = denseForestCanopy(styleRng);
+          const outline = denseCanopyFitOutline(canopy);
+          const rotation = Number(styleRng.float(-8, 8).toFixed(1));
+          const desiredScale = mapScale * styleRng.float(0.75, 1.05);
+          const scale = largestFittingScale(
+            anchor,
+            outline,
+            desiredScale,
+            desiredScale * 0.42,
+            rotation,
+            node.id,
+            forestContainment.get(forest.id)!,
+            (outline) => clearOfWater(outline) && clearOfRivers(outline) && clearOfRoads(outline),
+          );
+          if (scale === null) continue;
+          const bounds = glyphBox(anchor, outline, scale, rotation);
+          if (reserved.some((box) => overlapArea(bounds, box) > 0)) continue;
+          out.push({
+            nodeId: node.id,
+            variantId: TERRAIN_GLYPHS[assignments.get(node.id)!.family].variants[0].id,
+            anchor,
+            scale,
+            rotationDegrees: rotation,
+            bounds,
+            forestId: forest.id,
+            canopy,
+            interiorInk: new RNG(`${key}:detail`).float(0, 1) < 0.3,
+          });
+        }
+    }
+  }
+  const trials = out.filter((glyph): glyph is PlacedDenseForestGlyph => 'forestId' in glyph);
+  const canopies = connectedDenseCanopies(trials);
+  const accepted = new Set(canopies);
+  const discarded = new Set(trials.filter((glyph) => !accepted.has(glyph)));
   if ([...assignments.values()].some(({ family }) => isTreeGlyph(family))) {
     const trees = generatePoissonDisk(
       map.width,
@@ -1176,23 +1279,91 @@ function collectScatterSymbols(
     for (const [index, anchor] of trees.entries()) {
       const node = nodeAt(anchor)!;
       const family = assignments.get(node.id)!.family;
+      if (canopies.some((glyph) => denseCanopyContainsPoint(glyph, anchor, 0.12 * mapScale)))
+        continue;
       const key = `${seedKey}:trees:${node.id}:${index}`;
       if (new RNG(`${key}:density`).float(0, 1) >= TERRAIN_GLYPHS[family].densityRatio) continue;
       place(anchor, family, key);
     }
   }
-  return out;
+  return out.filter((glyph) => !('forestId' in glyph) || !discarded.has(glyph));
+}
+
+/** A dense canopy has more shaded foliage than the surrounding scattered woodland. */
+function darkForestFill(fill: string): string {
+  return fill.replace(/\d+/g, (channel) => String(Math.round(Number(channel) * 0.94)));
 }
 
 /** One painter ordering for all terrain; each glyph is anchored at its ground contact. */
 function appendScatterSymbolsBackToFront(
   map: RegionMap,
-  symbols: (PlacedTerrainGlyph | PlacedMountainRangeGlyph)[],
+  symbols: (PlacedTerrainGlyph | PlacedMountainRangeGlyph | PlacedDenseForestGlyph)[],
   parts: string[],
+  forestTrunkClear: (glyph: PlacedDenseForestGlyph, outline: Vertex[]) => boolean,
 ): void {
   const fills = terrainGlyphFills(map);
   const ordered = [...symbols].sort((a, b) => a.anchor.y - b.anchor.y || a.anchor.x - b.anchor.x);
+  const paintedForests = new Set<string>();
   for (const symbol of ordered) {
+    if ('forestId' in symbol) {
+      if (paintedForests.has(symbol.forestId)) continue;
+      paintedForests.add(symbol.forestId);
+      const trees = ordered.filter(
+        (placed): placed is PlacedDenseForestGlyph =>
+          'forestId' in placed && placed.forestId === symbol.forestId,
+      );
+      const transform = (tree: PlacedDenseForestGlyph) =>
+        `translate(${tree.anchor.x.toFixed(3)} ${tree.anchor.y.toFixed(3)}) rotate(${tree.rotationDegrees.toFixed(1)}) scale(${tree.scale.toFixed(3)})`;
+      const trunks = trees.flatMap((tree, index) => {
+        const strokes = denseCanopyTrunks(
+          tree,
+          trees,
+          new RNG(`forest-trunks:${symbol.forestId}:${index}`),
+        );
+        if (!strokes.length) return [];
+        const points = strokes
+          .flatMap((stroke) =>
+            stroke.segments.flatMap((segment) => [
+              segment.start,
+              segment.control1,
+              segment.control2,
+              segment.end,
+            ]),
+          )
+          .map((point) => denseCanopyPoint(tree, point));
+        const x0 = Math.min(...points.map((p) => p.x)) - 0.04 * tree.scale,
+          x1 = Math.max(...points.map((p) => p.x)) + 0.04 * tree.scale;
+        const y0 = Math.min(...points.map((p) => p.y)) - 0.04 * tree.scale,
+          y1 = Math.max(...points.map((p) => p.y)) + 0.04 * tree.scale;
+        const outline = [
+          { x: x0, y: y0 },
+          { x: x1, y: y0 },
+          { x: x1, y: y1 },
+          { x: x0, y: y1 },
+        ];
+        if (!forestTrunkClear(tree, outline)) return [];
+        return [
+          `<path data-forest-trunk="true" transform="${transform(tree)}" d="${strokes.map(inkStrokePath).join(' ')}" fill="${CARTOGRAPHY.palette.body.color}"/>`,
+        ];
+      });
+      const bodies = trees.map(
+        (tree) =>
+          `<path data-forest-canopy="true" data-canopy-outline="${denseCanopyFitOutline(tree.canopy)
+            .map((point) => denseCanopyPoint(tree, point))
+            .map((point) => `${n(point.x)},${n(point.y)}`)
+            .join(
+              ' ',
+            )}" data-canopy-bounds="${n(tree.bounds.minX)} ${n(tree.bounds.minY)} ${n(tree.bounds.maxX)} ${n(tree.bounds.maxY)}" transform="${transform(tree)}" d="${tree.canopy.body}" fill="${darkForestFill(fills.get(tree.nodeId)!)}"/>`,
+      );
+      const brush = trees.map(
+        (tree) =>
+          `<path transform="${transform(tree)}" d="${denseCanopyBrushInk(tree, trees)}" fill="${CARTOGRAPHY.palette.body.color}"/>`,
+      );
+      parts.push(
+        `<g data-dense-forest-id="${escapeXml(symbol.forestId)}"><g data-forest-trunks="true">${trunks.join('')}</g><g filter="url(#dense-forest-outline)">${bodies.join('')}</g><g data-forest-interior-ink="true">${brush.join('')}</g></g>`,
+      );
+      continue;
+    }
     if ('rangeId' in symbol && symbol.saddle) {
       parts.push(
         `<g data-range-saddle="${escapeXml(symbol.rangeId)}"><path d="${symbol.saddle.body}" fill="${fills.get(symbol.nodeId)}"/><path d="${symbol.saddle.ink}" fill="${CARTOGRAPHY.palette.body.color}"/></g>`,
@@ -1732,6 +1903,7 @@ function appendRegionalFeatures(
   occupied: TextBox[],
   texts: TextParts[],
   body: string[],
+  forestLandmarkIds: Set<string> = new Set(),
 ): void {
   const scale = Math.min(map.width, map.height) / 35;
   const ranked = features.every((feature) => feature.kind === 'range')
@@ -1752,7 +1924,9 @@ function appendRegionalFeatures(
       continue;
     const point = featurePoint(feature, map);
     if (!point) continue;
-    const radius = feature.kind === 'habitat' || feature.kind === 'range' ? 0 : 0.3 * scale;
+    const forestLabel = forestLandmarkIds.has(feature.id);
+    const radius =
+      feature.kind === 'habitat' || feature.kind === 'range' || forestLabel ? 0 : 0.3 * scale;
     const markerBox = {
       minX: point.x - radius - 0.08 * scale,
       maxX: point.x + radius + 0.08 * scale,
@@ -1771,7 +1945,7 @@ function appendRegionalFeatures(
       markerBounds: markerBox,
       fontSize:
         mapTitleFontSize(map) *
-        (feature.kind === 'habitat' || feature.kind === 'range' ? 0.26 : 0.22),
+        (feature.kind === 'habitat' || feature.kind === 'range' || forestLabel ? 0.26 : 0.22),
       priority: 0,
     };
     const placement = bestLabelPlacement(
@@ -1796,6 +1970,7 @@ function appendRegionalFeatures(
       continue;
     }
     notables++;
+    if (forestLabel) continue;
     occupied.push(markerBox);
     const { x, y } = point;
     const d =
@@ -1830,9 +2005,15 @@ function svgDefs(
   symbols: PlacedTerrainGlyph[],
   icons: PlacedSettlementIcon[],
 ): string {
-  const used = [...new Set(symbols.map((symbol) => symbol.variantId))].sort();
+  const used = [
+    ...new Set(
+      symbols.filter((symbol) => !('forestId' in symbol)).map((symbol) => symbol.variantId),
+    ),
+  ].sort();
   return `<defs>${cartographyFilterDefs(map.width, map.height)}
+<filter id="dense-forest-outline" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB"><feMorphology in="SourceGraphic" operator="dilate" radius="${n((Math.min(map.width, map.height) / 35) * 0.015)}" result="canopy"/><feMorphology in="canopy" operator="dilate" radius="${n((Math.min(map.width, map.height) / 35) * 0.025)}" result="edge"/><feFlood flood-color="${CARTOGRAPHY.palette.body.color}"/><feComposite in2="edge" operator="in"/><feMerge><feMergeNode/><feMergeNode in="canopy"/></feMerge></filter>
 ${used.map((id) => TERRAIN_SYMBOL_DEFS.get(id)).join('\n')}
+
 ${[
   ...new Set(
     icons.flatMap((placed) => [
@@ -1855,6 +2036,10 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   const h = map.height;
   const title = options?.title ?? '';
   const settlements = options?.settlements ?? [];
+  const forests = (options?.denseForests ?? []).filter(
+    (forest) => denseForestGeometryError(map, forest) === null,
+  );
+  const forestLandmarkIds = new Set(forests.map((forest) => `landmark:${forest.id}`));
   const icons = placeSettlementIcons(map, settlements);
   const reserved = icons.map((icon) => icon.bounds);
   const titleLayout = layoutMapTitle(title, map, reserved);
@@ -1911,7 +2096,14 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     textParts,
     body,
   );
-  appendRegionalFeatures(map, options?.features ?? [], reserved, textParts, body);
+  appendRegionalFeatures(
+    map,
+    options?.features ?? [],
+    reserved,
+    textParts,
+    body,
+    forestLandmarkIds,
+  );
   const featureBoxes = reserved.slice(featureBoxStart);
   if (titleLayout !== null) {
     textParts.push(titleLayout.parts);
@@ -1944,9 +2136,41 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     riverOutlines,
     options?.mountainRanges ?? [],
     rangeReservations,
+    forests,
   );
   // Furniture reserves space in the illustration: do not hide terrain glyphs beneath its paper.
   const scatterLayer: string[] = [];
+  const forestMembers = new Map(forests.map((forest) => [forest.id, new Set(forest.mapNodeIds)]));
+  const trunkContains = new Map(
+    forests.map((forest) => [
+      forest.id,
+      makeRegionContainmentTest(map, (node) => forestMembers.get(forest.id)!.has(node.id)),
+    ]),
+  );
+  const trunkRoads = map.edges
+    .filter((edge) => (edge.road ?? 0) > 0)
+    .flatMap((edge) => {
+      const a = map.nodes.find((node) => node.id === edge.d0)?.center;
+      const b = map.nodes.find((node) => node.id === edge.d1)?.center;
+      if (!a || !b) return [];
+      const margin = (Math.min(w, h) / 35) * 0.2;
+      const length = Math.hypot(b.x - a.x, b.y - a.y);
+      if (!length) return [];
+      const dx = ((b.y - a.y) / length) * margin,
+        dy = ((a.x - b.x) / length) * margin;
+      return [
+        [
+          { x: a.x + dx, y: a.y + dy },
+          { x: b.x + dx, y: b.y + dy },
+          { x: b.x - dx, y: b.y - dy },
+          { x: a.x - dx, y: a.y - dy },
+        ],
+      ];
+    });
+  const clearTrunkRoutes = makeWaterClearanceTest(
+    [...riverOutlines, ...trunkRoads],
+    WATER_EDGE_MARGIN,
+  );
   appendScatterSymbolsBackToFront(
     map,
     symbols.filter(
@@ -1956,6 +2180,11 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
         (compass === null || overlapArea(symbol.bounds, compass) === 0),
     ),
     scatterLayer,
+    (glyph, outline) =>
+      clearOfWater(outline) &&
+      clearTrunkRoutes(outline) &&
+      outline.every((point) => trunkContains.get(glyph.forestId)!(point, glyph.nodeId)) &&
+      !rangeReservations.some((box) => overlapArea(getPolygonBoundingBox(outline), box) > 0),
   );
   body.splice(scatterLayerIndex, 0, ...scatterLayer);
   body.splice(waterLayerIndex, 0, ...waterLayer);

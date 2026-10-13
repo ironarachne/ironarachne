@@ -1,3 +1,4 @@
+import { generateDenseForestFacts, generateDenseForestLandmark } from './region_dense_forests';
 import { generateMountainRangeFacts } from './region_mountain_ranges';
 import type { Environment } from '$lib/environment';
 import { Environments } from '$lib/environment';
@@ -289,6 +290,11 @@ export function generate(config: RegionGeneratorConfig): Region {
   generateHabitatFacts(region, createRegionStageRng(seed, 'habitats'));
   generateLandscapeNames(region, createRegionStageRng(seed, 'landscape-names'));
   generateMountainRangeFacts(region, createRegionStageRng(seed, 'mountain-ranges'));
+  generateDenseForestFacts(region);
+  const forestLandmark = generateDenseForestLandmark(
+    region,
+    createRegionStageRng(seed, 'forest-landmark'),
+  );
   generateEcologyInhabitants(region, createRegionStageRng(seed, 'ecology-inhabitants'));
   generateResourceFacts(region, createRegionStageRng(seed, 'resources'));
 
@@ -306,7 +312,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   generateProcessingFacts(region, createRegionStageRng(seed, 'processing'));
   generateLivelihoodFacts(region, createRegionStageRng(seed, 'livelihoods'));
   generateSupplyFacts(region, createRegionStageRng(seed, 'supply'));
-  generateNotableFacts(region, createRegionStageRng(seed, 'notable-places'));
+  generateNotableFacts(region, createRegionStageRng(seed, 'notable-places'), forestLandmark);
   generateEcologyNarrative(region, createRegionStageRng(seed, 'ecology-narrative'));
   presentRegion(region, createRegionStageRng(seed, 'presentation'));
   addNeighborsToRegion(region, stageConfig('neighbors'));

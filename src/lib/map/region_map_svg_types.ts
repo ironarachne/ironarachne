@@ -26,7 +26,10 @@ export type RegionMapSvgFeature = {
   edgeIds: number[];
 };
 
+export type RegionMapSvgDenseForest = { id: string; mapNodeIds: number[] };
+
 export type RegionMapSvgOptions = {
+  denseForests?: RegionMapSvgDenseForest[];
   mountainRanges?: RegionMapSvgMountainRange[];
   title?: string;
   settlements?: RegionMapSvgSettlement[];
