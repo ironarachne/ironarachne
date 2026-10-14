@@ -53,7 +53,7 @@ describe('spatial regional habitats', () => {
     const facts = derive(region);
     expect(facts.habitats.map((habitat) => habitat.name)).toEqual(['forest', 'desert']);
     expect(facts.habitats[0].description).toMatch(/prevailing|most widespread|much of the region/);
-    expect(facts.habitats[1].description).toMatch(/Pockets|broken by|different character/);
+    expect(facts.habitats[1].description).toMatch(/Stretches|broken by|different character/);
     expect(facts.habitats[0].anchor!.nodeIds).toEqual([1, 2, 3]);
     expect(facts.areas.slice(1).map((area) => area.mapNodeIds)).toEqual([[1, 2], [20], [3]]);
     expect(facts.habitats[0].areaIds).toEqual([

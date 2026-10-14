@@ -75,6 +75,30 @@ describe('evidence-based regional overview', () => {
         reason: { ruleId: `fantasy:region:${rule}:v1`, status: 'current', sources: [] },
       },
     ];
+    const node = region.map.nodes.find((entry) => entry.id === region.settlements[0].mapNodeId)!;
+    const neighbor = region.map.nodes.find((entry) => entry.id !== node.id)!;
+    node.isWater = false;
+    node.isOcean = false;
+    node.isCoast = true;
+    node.neighbors = [neighbor.id];
+    neighbor.isOcean = rule === 'coastal-port-site';
+    neighbor.isWater = false;
+    node.elevation = 0.2;
+    node.temperature = 15;
+    node.moisture = 0.5;
+    node.biomeId =
+      rule === 'agricultural-site' ? 'temperate grassland' : 'temperate deciduous forest';
+    region.map.edges.push({
+      id: 100000,
+      d0: node.id,
+      d1: neighbor.id,
+      v0: 0,
+      v1: 1,
+      river: 1,
+      road: 1,
+      midpoint: node.center,
+    });
+    region.facts.settlementRoles[0].anchor = { nodeIds: [node.id], edgeIds: [100000] };
     region.settlements[0].name = 'Named Town';
     expect(overview(region)).toMatch(wording);
     expect(overview(region)).toContain('Named Town');

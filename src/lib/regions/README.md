@@ -417,6 +417,22 @@ The gazetteer offers up to three expandable examples drawn from stored settlemen
 habitats and resources; all supporting facts remain available below the sourcebook text.
 Saved region fields remain editable, with existing stale-evidence notices and reroll confirmation.
 
+## Geography prose (#422)
+
+`region_narrative.ts` translates biome and elevation categories into compatible landscape
+phrases without adding species, settlement importance, land use, bridges, or navigability.
+`region_geography_narrative.ts` builds overview meanings from current habitat footprints,
+settlement site roles, and continuous saved road paths. The introduction describes terrain and
+vegetation before connecting a settlement's surroundings to its road journey. A river edge can
+support a local statement about bordering country or running between stretches of vegetation;
+it does not establish that a river divides the whole region or blocks travel. Missing, wet,
+stale, or contradictory anchors supply no spatial claim.
+
+The existing narrative composer chooses wording on the presentation stage RNG. The saved
+`overviewReason` retains all selected fact references and the direct map observations used for
+new spatial relationships. Wording changes never reroll geography, and reopening, display, and
+exports reuse saved prose, including authored text and historical descriptions.
+
 ## Optional context consumers
 
 `buildRegionCreatureContext(snapshot, habitatId, catalog, regionTargetId?)` projects supported
