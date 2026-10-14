@@ -203,8 +203,12 @@ export function rawSourceFactsError(
     return 'resource source has no inventory summary';
   const all = Object.values(facts).filter(Array.isArray).flat() as RegionSemanticFact[];
   const byId = new Map(all.map((entry) => [entry.id, entry]));
+  // Shared support is a DAG: rechecking every path makes persistence cost grow exponentially.
+  // Only completed subgraphs are reusable; an active path must still reject cycles.
+  const checked = new Set<string>();
   const visit = (id: string, path: Set<string>): boolean => {
     if (path.has(id)) return false;
+    if (checked.has(id)) return true;
     const entry = byId.get(id);
     if (!entry) return false;
     const next = new Set(path);
@@ -215,7 +219,9 @@ export function rawSourceFactsError(
         source.kind === 'fact' ? [source.factId] : [],
       ),
     ];
-    return links.every((link) => visit(link, next));
+    if (![...new Set(links)].every((link) => visit(link, next))) return false;
+    checked.add(id);
+    return true;
   };
   return [...facts.managedProduction, ...facts.resourceSources].every((entry) =>
     visit(entry.id, new Set()),

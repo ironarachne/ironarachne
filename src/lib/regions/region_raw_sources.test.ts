@@ -243,6 +243,50 @@ describe('source-qualified regional raw supply', () => {
     region.facts.resourceSources[0].source = { kind: 'managed', productionId: 'missing' };
     expect(check()).toMatch(/production/);
   });
+  it('checks shared evidence with bounded work and still rejects a later cycle', () => {
+    const region = generated('access');
+    let reads = 0;
+    for (let index = 0; index < 20; index++) {
+      const parents =
+        index > 1 ? [`claim:shared:${index - 1}`, `claim:shared:${index - 2}`] : ['area:land'];
+      const reason = {
+        ruleId: 'test:shared-evidence',
+        status: 'current' as const,
+        sources: parents.map((factId) => ({ kind: 'fact' as const, factId })),
+      };
+      const claim = {
+        id: `claim:shared:${index}`,
+        name: 'Shared evidence',
+        description: '',
+        origin: 'authored' as const,
+        subjectId: parents[0],
+        relatedIds: parents.slice(1),
+        reason,
+      };
+      // Count observable evidence reads rather than asserting a machine-dependent duration.
+      Object.defineProperty(claim, 'reason', {
+        get: () => {
+          reads++;
+          return reason;
+        },
+        enumerable: true,
+      });
+      region.facts.claims.push(claim);
+    }
+    for (const source of region.facts.resourceSources)
+      source.reason!.sources.push({ kind: 'fact', factId: 'claim:shared:19' });
+    const check = () =>
+      rawSourceFactsError(
+        region.facts as never,
+        region.map,
+        new Set(region.facts.areas.map((entry) => entry.id)),
+        () => true,
+      );
+    expect(check()).toBeNull();
+    expect(reads).toBeLessThanOrEqual(40);
+    region.facts.claims[0].relatedIds.push('claim:shared:19');
+    expect(check()).toMatch(/cyclic/);
+  });
   it('is reproducible and invariant under equivalent graph ordering', () => {
     expect(generated('repeat')).toEqual(generated('repeat'));
     const region = fixture();
