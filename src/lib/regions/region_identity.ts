@@ -65,7 +65,13 @@ function identityCandidates(region: Region): RegionIdentityCandidate[] {
   const current = createRegionEvidenceChecker({ ...region, facts });
   const dry = (id: number) =>
     region.map.nodes.some((node) => node.id === id && !node.isWater && !node.isOcean);
-  const forests = facts.denseForests.filter((fact) => current(fact) && fact.name.trim());
+  // Only the selected landmark has a proper name; other generated patches retain this label.
+  const forests = facts.denseForests.filter(
+    (fact) =>
+      current(fact) &&
+      fact.name.trim() &&
+      !(fact.origin === 'generated' && fact.name.trim().toLowerCase() === 'dense forest'),
+  );
   const ranges = facts.mountainRanges.filter((fact) => current(fact) && fact.name.trim());
   const sites = facts.settlementRoles
     .filter((fact) => current(fact))

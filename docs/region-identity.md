@@ -40,6 +40,8 @@ settlements, upstream facts or their names.
 
 Reuse the existing road/site checks in `region_geography_narrative.ts` and the memoized current
 evidence checker. Validate actual footprints; matching a display name is never spatial proof.
+The generated fallback label `Dense forest` is not a proper name and cannot support a named
+identity detail. Explicitly authored names remain eligible, including that same text.
 Resource wording names a recorded material only when its supporting deposit establishes that
 identity. Trace/unknown/not-observed availability, missing anchors and stale evidence omit the
 candidate. Deep deposits may establish occurrence, never accessibility or extraction.

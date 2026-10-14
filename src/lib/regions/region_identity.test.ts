@@ -14,6 +14,7 @@ import { removeRegionResourceFact, setRegionResourceFactText } from './region_re
 import { createRegionStageRng } from './region_generation_passes';
 import type Region from './region';
 import type { FactBase, RegionFacts } from './region_fact_types';
+import { rollRegionSnapshot } from './region_roll';
 
 const rng = new RNG('identity-fixture');
 const base = generate({
@@ -131,6 +132,32 @@ function enrich(region = fixture(), seed = 'identity') {
 }
 
 describe('grounded regional identity', () => {
+  it('keeps unnamed forest labels out of introductions for the reported seed', () => {
+    const region = rollRegionSnapshot('5wyedz5q272fz');
+    expect(region.name).toBe('the Woods of Belvorn');
+    expect(region.facts.denseForests.some((forest) => forest.name === 'Dense forest')).toBe(true);
+    expect(region.description).not.toContain('Dense forest');
+    expect(region.description).not.toMatch(/Stretches of.*lie alongside|in a mild climate/);
+    expect(region.description).toMatch(
+      /Seasonal woodland and rain-soaked woodland meet along a river|A river runs between patches of seasonal woodland and rain-soaked woodland/,
+    );
+    expect(rollRegionSnapshot('5wyedz5q272fz')).toEqual(region);
+    expect(region.description).toMatchInlineSnapshot(
+      `"The region takes in level low-lying country. A river runs between patches of seasonal woodland and rain-soaked woodland. Revilun stands beside a freshwater river, with a road leading through the surrounding country to Pelirgir. Local sources could provide deer hide. In the southern part of the region: freezing temperatures, making exposure a travel concern."`,
+    );
+  });
+  it.each(['Dense forest', ' dense forest '])(
+    'omits the generated placeholder %j but respects an authored name',
+    (name) => {
+      const region = fixture();
+      region.facts.resources = [];
+      region.facts.denseForests[0].name = name;
+      expect(enrich(region).facts.claims).toEqual([]);
+      region.facts.denseForests[0].origin = 'authored';
+      expect(enrich(region).facts.claims).toHaveLength(1);
+      expect(region.description).toContain(name.trim());
+    },
+  );
   it('keeps full generated payloads valid without a schema migration', () => {
     const saved = toRegionSnapshot(base);
     expect(regionFactsError(saved.facts, saved.map, saved.settlements)).toBeNull();

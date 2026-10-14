@@ -52,6 +52,7 @@ export function overviewLandscape(region: Region, usable: (fact: FactBase) => bo
   const phrase = (name: string) =>
     biomePhrase(name)
       .replace('woodland that sheds its leaves with the seasons', 'seasonal woodland')
+      .replace('rain-soaked woodland in a mild climate', 'rain-soaked woodland')
       .replace('open grassland in a seasonal climate', 'open grassland');
   const firstPhrase = phrase(first.fact.name);
   const firstCapital = firstPhrase.charAt(0).toUpperCase() + firstPhrase.slice(1);
@@ -118,9 +119,14 @@ export function overviewLandscape(region: Region, usable: (fact: FactBase) => bo
     facts.push(second.fact);
     const secondPhrase = phrase(second.fact.name);
     options = [
-      `${firstCapital} and ${secondPhrase} share this country${water}.`,
-      `Stretches of ${firstPhrase} lie alongside ${secondPhrase}${water}.`,
+      `${firstCapital} and ${secondPhrase} cover parts of this country${water}.`,
+      `The landscape includes both ${firstPhrase} and ${secondPhrase}${water}.`,
     ];
+    if (dividing)
+      options = [
+        `${firstCapital} and ${secondPhrase} meet along a river.`,
+        `A river runs between patches of ${firstPhrase} and ${secondPhrase}.`,
+      ];
   }
   return { candidate: geographyCandidate('landscape', 'landscape', options, facts), sources };
 }

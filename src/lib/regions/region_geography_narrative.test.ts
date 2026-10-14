@@ -159,13 +159,13 @@ describe('grounded geography in regional introductions', () => {
     const region = fixture();
     const text = prose(region);
     expect(text).toMatchInlineSnapshot(
-      `"The region takes in rolling upland country. Seasonal woodland and open grassland share this country, with a river running between stretches of the two. Sezail borders a river that provides local freshwater, with a road leading through the surrounding country to Tar Morgul, meeting a river along the way."`,
+      `"The region takes in rolling upland country. Seasonal woodland and open grassland meet along a river. Sezail borders a river that provides local freshwater, with a road leading through the surrounding country to Tar Morgul, meeting a river along the way."`,
     );
     expect(text).toMatch(/hilly|rolling/);
     expect(text).toMatch(/upland/);
     expect(text).toMatch(/seasonal woodland/i);
     expect(text).toContain('open grassland');
-    expect(text).toContain('river running between stretches of the two');
+    expect(text).toContain('meet along a river');
     expect(text).toMatch(/Sezail.*freshwater.*road.*Tar Morgul/);
     expect(text).toContain('meeting a river along the way');
     expect(text.indexOf('upland')).toBeLessThan(text.toLowerCase().indexOf('woodland'));
@@ -215,6 +215,9 @@ describe('grounded geography in regional introductions', () => {
     expect(prose(region, '4')).toBe(results[4]);
     expect({ map: region.map, facts: region.facts }).toEqual(before);
     expect(results.every((text) => /Sezail.*road.*Tar Morgul/.test(text))).toBe(true);
+    expect(
+      results.every((text) => /meet along a river|A river runs between patches/.test(text)),
+    ).toBe(true);
   });
 
   it('does not describe a river between biomes from unrelated, boundary, or interior river edges', () => {
@@ -227,8 +230,8 @@ describe('grounded geography in regional introductions', () => {
       const region = fixture();
       region.map.edges = [{ ...region.map.edges[1], d0: ends[0]!, d1: ends[1] }];
       const landscape = overviewLandscape(region, () => true)!;
-      expect(landscape.candidate.templates[0].parts[0].options.join(' ')).not.toContain(
-        'between stretches of the two',
+      expect(landscape.candidate.templates[0].parts[0].options.join(' ')).not.toMatch(
+        /meet along a river|A river runs between patches/,
       );
       expect(
         landscape.sources.some(
