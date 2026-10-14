@@ -133,6 +133,34 @@ test.describe('a region', () => {
     await expectNoHorizontalOverflow(page);
   });
 
+  test('keeps grounded identity prose through export, saving, and reopening', async ({ page }) => {
+    await openGenerator(page);
+    await page.getByLabel('Seed', { exact: true }).fill('alpha');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    const identity = page.getByRole('region', { name: 'Regional identity', exact: true });
+    await expect(identity).toBeVisible();
+    const details = await identity.locator('[data-gazetteer-text]').allTextContents();
+    expect(details.length).toBeGreaterThan(0);
+    expect(details.length).toBeLessThanOrEqual(3);
+    expect(await identity.textContent()).not.toContain('undefined');
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download Markdown' }).click();
+    const contents = await new Response(await (await download).createReadStream()).text();
+    for (const detail of details) expect(contents).toContain(detail);
+    await saveAs(page, 'Identity Country');
+    const panel = await openInWorkshop(page, 'Identity Country');
+    const saved = panel.getByRole('region', { name: 'Regional identity', exact: true });
+    for (const detail of details) await expect(saved).toContainText(detail);
+    await page.reload({ waitUntil: 'load' });
+    const reopened = await openInWorkshop(page, 'Identity Country');
+    for (const detail of details)
+      await expect(
+        reopened.getByRole('region', { name: 'Regional identity', exact: true }),
+      ).toContainText(detail);
+    await expectNoHorizontalOverflow(page);
+  });
+
   test('keeps dense forest artwork through text edits, saving, and reopening', async ({ page }) => {
     await openGenerator(page);
     await page.getByLabel('Seed', { exact: true }).fill('alpha');

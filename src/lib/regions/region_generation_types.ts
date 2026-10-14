@@ -22,5 +22,6 @@ export type RegionGenerationStage =
   | 'habitation'
   | 'river-geometry'
   | 'notable-places'
+  | 'regional-identity'
   | 'presentation';
 export type RegionTerrainProfile = { altitude: AltitudeBand; relief: ReliefClass };

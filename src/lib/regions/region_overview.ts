@@ -3,6 +3,7 @@ import type { RNG } from '@ironarachne/rng';
 import type Region from './region';
 import type { FactBase, FactSource, SettlementRoleFact } from './region_fact_types';
 import { createRegionEvidenceChecker } from './region_context_evidence';
+import { isRegionIdentityFact } from './region_identity';
 import { resourceNarrativeOptions } from './region_resource_narrative';
 import {
   geographyCandidate,
@@ -40,6 +41,7 @@ export function generateRegionOverview(region: Region, rng: RNG): string {
   const checkEvidence = facts ? createRegionEvidenceChecker({ ...region, facts }) : () => false;
   const usable = (fact: FactBase) => checkEvidence(fact);
   const extraSources = new Map<string, FactSource[]>();
+  const identities = (facts?.claims ?? []).filter(isRegionIdentityFact);
   const add = (
     fact: FactBase,
     topic: string,
@@ -85,6 +87,8 @@ export function generateRegionOverview(region: Region, rng: RNG): string {
     );
   for (const resource of facts?.resources ?? [])
     add(resource, 'resource', resourceNarrativeOptions(resource));
+  for (const identity of identities)
+    if (identity.description.trim()) add(identity, 'identity', [identity.description]);
   for (const route of facts?.routes ?? []) {
     if (route.kind !== 'road' || !usable(route)) continue;
     const road = overviewRoad(region, route);
@@ -127,27 +131,46 @@ export function generateRegionOverview(region: Region, rng: RNG): string {
   }
   // Compose in reading order, so terrain introduces the country before its inhabited places.
   const results: NarrativeResult[] = [];
+  const suppressed = new Set<string>();
   for (const topics of [
     ['terrain'],
     ['landscape'],
+    ['identity'],
     ['geography'],
     ['place'],
     ['resource', 'hazard'],
   ]) {
     const remaining = 5 - results.reduce((sum, result) => sum + result.selections.length, 0);
     if (!remaining) break;
-    results.push(
-      composeNarrative(
-        {
-          id: 'region:overview',
-          kind: 'region',
-          candidates: candidates.filter((candidate) => topics.includes(candidate.topic)),
-        },
-        { maxSentences: topics.length === 1 ? 1 : remaining, maxPerTopic: 1, repetitionWindow: 0 },
-        { recentSelections: [] },
-        rng,
-      ),
+    const identityTopic = topics[0] === 'identity';
+    const composed = composeNarrative(
+      {
+        id: 'region:overview',
+        kind: 'region',
+        candidates: candidates.filter(
+          (candidate) =>
+            topics.includes(candidate.topic) &&
+            !candidate.sourceIds.some((id) => suppressed.has(id)),
+        ),
+      },
+      {
+        maxSentences: identityTopic ? Math.min(2, remaining) : topics.length === 1 ? 1 : remaining,
+        maxPerTopic: identityTopic ? 2 : 1,
+        repetitionWindow: 0,
+      },
+      { recentSelections: [] },
+      rng,
     );
+    results.push(composed);
+    if (identityTopic) {
+      for (const selection of composed.selections) {
+        const identity = identities.find(
+          (fact) => `overview:${fact.id}` === selection.candidateId,
+        )!;
+        suppressed.add(identity.subjectId);
+        identity.relatedIds.forEach((id) => suppressed.add(id));
+      }
+    }
   }
   const result = {
     text: results
@@ -166,7 +189,7 @@ export function generateRegionOverview(region: Region, rng: RNG): string {
   ].sort();
   if (sourceIds.length)
     region.overviewReason = {
-      ruleId: 'fantasy:region:overview:v3',
+      ruleId: 'fantasy:region:overview:v4',
       status: 'current',
       sources: [
         ...sourceIds.map((factId): FactSource => ({ kind: 'fact', factId })),

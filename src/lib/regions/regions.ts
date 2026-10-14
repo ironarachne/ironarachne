@@ -27,6 +27,7 @@ import {
   generateSupplyFacts,
   generateHabitationFacts,
   generateNotableFacts,
+  generateRegionIdentity,
   presentRegion,
   recordPhysicalFacts,
 } from './region_generation_passes.js';
@@ -314,6 +315,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   generateSupplyFacts(region, createRegionStageRng(seed, 'supply'));
   generateNotableFacts(region, createRegionStageRng(seed, 'notable-places'), forestLandmark);
   generateEcologyNarrative(region, createRegionStageRng(seed, 'ecology-narrative'));
+  generateRegionIdentity(region, createRegionStageRng(seed, 'regional-identity'));
   presentRegion(region, createRegionStageRng(seed, 'presentation'));
   addNeighborsToRegion(region, stageConfig('neighbors'));
   return region;

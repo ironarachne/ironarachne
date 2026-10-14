@@ -54,6 +54,7 @@ describe('dependent generation passes', () => {
     'generateResourceFacts',
     'generateHabitationFacts',
     'generateNotableFacts',
+    'generateRegionIdentity',
     'presentRegion',
   ] as const)('isolates extra draws in %s from every other pass', (name) => {
     const original = Passes[name];
@@ -127,6 +128,12 @@ describe('dependent generation passes', () => {
     if (name === 'generateEcologyNarrative') {
       expect(after.description).toEqual(before.description);
       expect({ ...after.facts, claims: [] }).toEqual({ ...before.facts, claims: [] });
+    }
+    if (name === 'generateRegionIdentity') {
+      expect({ ...after.facts, claims: [] }).toEqual({ ...before.facts, claims: [] });
+      expect(after.facts.claims.filter((fact) => !fact.id.startsWith('claim:identity:'))).toEqual(
+        before.facts.claims.filter((fact) => !fact.id.startsWith('claim:identity:')),
+      );
     }
     expect(after.name).toEqual(before.name);
   });

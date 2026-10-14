@@ -14,6 +14,7 @@ import { regionSemanticFactLists } from './region_resource_editing';
 import { landscapeSummaryHeading } from './region_landscape_names';
 import { sameSettlement } from './region_livelihood_evidence';
 import { ECOLOGY_SUMMARY_ID, legacyEcologyParagraph } from './region_ecology_narrative';
+import { isRegionIdentityFact } from './region_identity';
 import type { DailyLifeCategory } from './region_livelihood_types';
 
 /** A titled list of lines; dropped entirely when it has no lines. */
@@ -285,6 +286,16 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
     title: regionDisplayName(snapshot),
     paragraphs,
     sections: [
+      ...factSections(
+        'Regional identity',
+        snapshot.facts.claims.filter(isRegionIdentityFact).map((fact) => ({
+          ...fact,
+          description:
+            fact.reason?.status === 'stale'
+              ? `${fact.description} (Needs review.)`
+              : fact.description,
+        })),
+      ),
       ...factSections('Landscape', [
         ...snapshot.facts.areas,
         ...snapshot.facts.mountainRanges,
