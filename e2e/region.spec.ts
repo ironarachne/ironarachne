@@ -161,6 +161,24 @@ test.describe('a region', () => {
     await expectNoHorizontalOverflow(page);
   });
 
+  test('uses fluent woodland prose and excludes unnamed forest identities for the reported seed', async ({
+    page,
+  }) => {
+    await openGenerator(page);
+    await page.getByLabel('Seed', { exact: true }).fill('5wyedz5q272fz');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByLabel('Affiliation', { exact: true }).selectOption('random');
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    const introduction = page.locator('.gazetteer > p').last();
+    await expect(introduction).toContainText('seasonal woodland', { ignoreCase: true });
+    await expect(introduction).toContainText('rain-soaked woodland');
+    await expect(introduction).not.toContainText('Dense forest');
+    await expect(introduction).not.toContainText('lie alongside');
+    await expect(introduction).not.toContainText('in a mild climate');
+    await expect(introduction).toContainText(/meet along a river|A river runs between patches/);
+    await expectNoHorizontalOverflow(page);
+  });
+
   test('keeps dense forest artwork through text edits, saving, and reopening', async ({ page }) => {
     await openGenerator(page);
     await page.getByLabel('Seed', { exact: true }).fill('alpha');
