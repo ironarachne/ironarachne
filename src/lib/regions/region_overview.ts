@@ -1,9 +1,15 @@
-import { composeNarrative, type NarrativeCandidate } from '$lib/narrative';
+import { composeNarrative, type NarrativeCandidate, type NarrativeResult } from '$lib/narrative';
 import type { RNG } from '@ironarachne/rng';
 import type Region from './region';
-import type { FactBase, SettlementRoleFact } from './region_fact_types';
-import { regionContextEvidenceCurrent } from './region_context_evidence';
+import type { FactBase, FactSource, SettlementRoleFact } from './region_fact_types';
+import { createRegionEvidenceChecker } from './region_context_evidence';
 import { resourceNarrativeOptions } from './region_resource_narrative';
+import {
+  geographyCandidate,
+  overviewLandscape,
+  overviewRoad,
+  overviewSettlement,
+} from './region_geography_narrative';
 
 function siteClause(role: SettlementRoleFact): string[] {
   switch (role.reason?.ruleId) {
@@ -31,8 +37,9 @@ function siteClause(role: SettlementRoleFact): string[] {
 export function generateRegionOverview(region: Region, rng: RNG): string {
   const facts = region.facts;
   const candidates: NarrativeCandidate[] = [];
-  const usable = (fact: FactBase) =>
-    facts !== undefined && regionContextEvidenceCurrent({ ...region, facts }, fact);
+  const checkEvidence = facts ? createRegionEvidenceChecker({ ...region, facts }) : () => false;
+  const usable = (fact: FactBase) => checkEvidence(fact);
+  const extraSources = new Map<string, FactSource[]>();
   const add = (
     fact: FactBase,
     topic: string,
@@ -50,7 +57,7 @@ export function generateRegionOverview(region: Region, rng: RNG): string {
   };
   for (const area of facts?.areas ?? [])
     if (area.id === 'area:land' && area.description.trim())
-      add(area, 'geography', [area.description], 'defining');
+      add(area, 'terrain', [area.description], 'defining');
   for (const range of facts?.mountainRanges ?? [])
     add(
       range,
@@ -58,31 +65,50 @@ export function generateRegionOverview(region: Region, rng: RNG): string {
       [`${region.name} includes ${range.name}, a chain of linked mountain ridges.`],
       'defining',
     );
-  for (const role of facts?.settlementRoles ?? []) {
-    if (role.settlement.kind !== 'embedded') continue;
-    const index = region.settlementIds?.indexOf(role.settlement.settlementId) ?? -1;
-    const name = region.settlements[index]?.name.trim();
-    if (name)
-      add(
-        role,
-        'habitation',
-        siteClause(role).map((clause) => `${name} ${clause}.`),
-      );
+  const landscape = overviewLandscape(region, usable);
+  if (landscape) {
+    candidates.push(landscape.candidate);
+    extraSources.set(landscape.candidate.id, landscape.sources);
   }
+  const sites = (facts?.settlementRoles ?? []).filter(usable).flatMap((role) => {
+    const settlement = overviewSettlement(region, role);
+    const clauses = siteClause(role);
+    return settlement && clauses.length ? [{ role, settlement, clauses }] : [];
+  });
+  for (const { role, settlement, clauses } of sites)
+    add(
+      role,
+      'place',
+      clauses.map((clause) => `${settlement.name.trim()} ${clause}.`),
+    );
   for (const resource of facts?.resources ?? [])
     add(resource, 'resource', resourceNarrativeOptions(resource));
   for (const route of facts?.routes ?? []) {
-    if (route.kind !== 'road') continue;
-    const names = route.endpoints.map((endpoint) => {
-      if (endpoint.kind !== 'settlement' || endpoint.settlement.kind !== 'embedded') return '';
-      const index = region.settlementIds?.indexOf(endpoint.settlement.settlementId) ?? -1;
-      return region.settlements[index]?.name.trim() ?? '';
-    });
-    if (names.every(Boolean))
-      add(route, 'travel', [
-        `A road links ${names[0]} and ${names[1]}.`,
-        `${names[0]} and ${names[1]} are linked by a road.`,
-      ]);
+    if (route.kind !== 'road' || !usable(route)) continue;
+    const road = overviewRoad(region, route);
+    if (!road) continue;
+    const site = sites.find(({ settlement }) => road.settlements.includes(settlement));
+    let options = road.options;
+    if (site) {
+      const other = road.settlements.find((entry) => entry !== site.settlement)!;
+      // A crossing at the settlement is already expressed by its site clause.
+      const crossing =
+        road.crossing && site.role.reason?.ruleId !== 'fantasy:region:river-crossing:v1'
+          ? ', meeting a river along the way'
+          : '';
+      options = site.clauses.map(
+        (clause) =>
+          `${site.settlement.name.trim()} ${clause}, with a road leading through the surrounding country to ${other.name.trim()}${crossing}.`,
+      );
+    }
+    const candidate = geographyCandidate(
+      route.id,
+      'place',
+      options,
+      site ? [route, site.role] : [route],
+    );
+    candidates.push(candidate);
+    extraSources.set(candidate.id, road.sources);
   }
   for (const hazard of facts?.notables ?? []) {
     // These domain rules establish a qualitative travel concern, not crossing safety.
@@ -97,12 +123,37 @@ export function generateRegionOverview(region: Region, rng: RNG): string {
     )
       add(hazard, 'hazard', [hazard.description.split(' Hook:')[0].trim()]);
   }
-  const result = composeNarrative(
-    { id: 'region:overview', kind: 'region', candidates },
-    { maxSentences: 5, maxPerTopic: 1, repetitionWindow: 0 },
-    { recentSelections: [] },
-    rng,
-  );
+  // Compose in reading order, so terrain introduces the country before its inhabited places.
+  const results: NarrativeResult[] = [];
+  for (const topics of [
+    ['terrain'],
+    ['landscape'],
+    ['geography'],
+    ['place'],
+    ['resource', 'hazard'],
+  ]) {
+    const remaining = 5 - results.reduce((sum, result) => sum + result.selections.length, 0);
+    if (!remaining) break;
+    results.push(
+      composeNarrative(
+        {
+          id: 'region:overview',
+          kind: 'region',
+          candidates: candidates.filter((candidate) => topics.includes(candidate.topic)),
+        },
+        { maxSentences: topics.length === 1 ? 1 : remaining, maxPerTopic: 1, repetitionWindow: 0 },
+        { recentSelections: [] },
+        rng,
+      ),
+    );
+  }
+  const result = {
+    text: results
+      .map((entry) => entry.text)
+      .filter(Boolean)
+      .join(' '),
+    selections: results.flatMap((entry) => entry.selections),
+  };
   const selected = new Set(result.selections.map((selection) => selection.candidateId));
   const sourceIds = [
     ...new Set(
@@ -113,9 +164,12 @@ export function generateRegionOverview(region: Region, rng: RNG): string {
   ].sort();
   if (sourceIds.length)
     region.overviewReason = {
-      ruleId: 'fantasy:region:overview:v2',
+      ruleId: 'fantasy:region:overview:v3',
       status: 'current',
-      sources: sourceIds.map((factId) => ({ kind: 'fact', factId })),
+      sources: [
+        ...sourceIds.map((factId): FactSource => ({ kind: 'fact', factId })),
+        ...[...selected].sort().flatMap((id) => extraSources.get(id) ?? []),
+      ],
     };
   else delete region.overviewReason;
   return result.text;
