@@ -49,7 +49,11 @@ export function overviewLandscape(region: Region, usable: (fact: FactBase) => bo
   const first = habitats[0];
   if (!first) return undefined;
   const second = habitats.find((entry) => entry.fact.name !== first.fact.name);
-  const firstPhrase = biomePhrase(first.fact.name);
+  const phrase = (name: string) =>
+    biomePhrase(name)
+      .replace('woodland that sheds its leaves with the seasons', 'seasonal woodland')
+      .replace('open grassland in a seasonal climate', 'open grassland');
+  const firstPhrase = phrase(first.fact.name);
   const firstCapital = firstPhrase.charAt(0).toUpperCase() + firstPhrase.slice(1);
   const sources: FactSource[] = [];
   const observedNodes = [...first.nodes, ...(second?.nodes ?? [])];
@@ -107,15 +111,15 @@ export function overviewLandscape(region: Region, usable: (fact: FactBase) => bo
     });
   const facts = [first.fact];
   let options = [
-    `${firstCapital} occupies part of this country${water}.`,
-    `The landscape includes stretches of ${firstPhrase}${water}.`,
+    `${firstCapital} spreads across parts of this country${water}.`,
+    `Here the country opens into stretches of ${firstPhrase}${water}.`,
   ];
   if (second) {
     facts.push(second.fact);
-    const secondPhrase = biomePhrase(second.fact.name);
+    const secondPhrase = phrase(second.fact.name);
     options = [
-      `${firstCapital} and ${secondPhrase} occupy parts of the region${water}.`,
-      `The landscape takes in stretches of ${firstPhrase} alongside ${secondPhrase}${water}.`,
+      `${firstCapital} and ${secondPhrase} share this country${water}.`,
+      `Stretches of ${firstPhrase} lie alongside ${secondPhrase}${water}.`,
     ];
   }
   return { candidate: geographyCandidate('landscape', 'landscape', options, facts), sources };
@@ -257,7 +261,7 @@ export function overviewRoad(region: Region, route: RouteFact) {
     sources,
     options: [
       `A road leads through the surrounding country from ${start.name.trim()} to ${end.name.trim()}${detail}.`,
-      `Through the surrounding country, ${start.name.trim()} and ${end.name.trim()} are connected by a road${detail}.`,
+      `From ${start.name.trim()}, a road runs through the surrounding country to ${end.name.trim()}${detail}.`,
     ],
   };
 }

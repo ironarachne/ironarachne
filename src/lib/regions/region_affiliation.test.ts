@@ -52,7 +52,7 @@ describe('region affiliation', () => {
       saved.settlements.some((town) => town.snapshot.description.includes('capital of the region')),
     ).toBe(false);
     expect(saved.facts.settlementRoles.some((role) => role.id === 'role:capital')).toBe(false);
-    expect(regionToText(saved)).toContain('This region is unaffiliated.');
+    expect(regionToText(saved)).toContain('No single ruler holds sway over');
     expect(regionToMapSvg(saved)).not.toContain('data-capital-pennant="true"');
     expect(JSON.stringify(regionToUiDocument(saved))).not.toContain('Capital ');
     const legacyFacts = { ...saved, facts: { ...saved.facts, settlementRoles: [] } };

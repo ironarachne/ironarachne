@@ -70,8 +70,8 @@ describe('arranging a region for reading', () => {
   );
 
   it('is headed by the region and says who rules it', () => {
-    expect(document.title).toEqual(snapshot.name);
-    expect(document.paragraphs.at(-1)).toContain(snapshot.authority!.firstName);
+    expect(document.title).toEqual(regionDisplayName(snapshot));
+    expect(document.paragraphs[0]).toContain(snapshot.authority!.firstName);
   });
 
   it.each(REGION_SEED_BANK)(
@@ -159,17 +159,18 @@ describe('dropping what is empty (6.4)', () => {
 });
 
 describe('describing a ruler', () => {
-  it('gives an honorific, a name and a species', () => {
+  it('gives an honorific and name, with species only on request', () => {
     const line = describeRuler(snapshot.authority!);
     expect(line).toContain(snapshot.authority!.firstName);
-    expect(line).toContain(snapshot.authority!.speciesName);
+    expect(line).not.toContain(`, ${snapshot.authority!.speciesName}`);
+    expect(describeRuler(snapshot.authority!, true)).toContain(snapshot.authority!.speciesName);
   });
 });
 
 describe('exporting a region (6.3)', () => {
   it('writes a Markdown gazetteer', () => {
     const markdown = regionToMarkdown(snapshot);
-    expect(markdown).toContain(`# ${snapshot.name}`);
+    expect(markdown).toContain(`# ${regionDisplayName(snapshot)}`);
     expect(markdown).toContain('## Realms');
     expect(markdown.endsWith('\n')).toBe(true);
   });
@@ -192,7 +193,8 @@ describe('exporting a region (6.3)', () => {
   it('writes the same document as plain text, without repeating the title', () => {
     const text = regionToText(snapshot);
     expect(text).toContain('REALMS');
-    expect(text.startsWith(snapshot.description)).toBe(true);
+    expect(text.startsWith(regionToDocument(snapshot).paragraphs[0])).toBe(true);
+    expect(text).toContain(snapshot.description);
     expect(text.split('\n\n')).not.toContain(snapshot.name);
   });
 
@@ -236,7 +238,7 @@ describe('exporting a region (6.3)', () => {
 
   it('labels the map with the region and its towns', () => {
     const svg = snapshotSvg;
-    expect(svg).toContain(snapshot.name);
+    expect(svg.includes(regionDisplayName(snapshot))).toBe(true);
   });
 
   it('carries an edit straight into the exports', () => {
@@ -248,7 +250,7 @@ describe('exporting a region (6.3)', () => {
 
 describe('naming a region for a file', () => {
   it('uses the region name', () => {
-    expect(regionDisplayName(snapshot)).toEqual(snapshot.name);
+    expect(regionDisplayName(snapshot)).toEqual('The County of Vrona');
     expect(regionFileStem({ name: 'The Cold Marches' })).toEqual('region-the-cold-marches');
   });
 
@@ -669,4 +671,84 @@ it('passes saved river names and anchors to the map but omits stale and road fac
   delete edited.facts.routes[0].reason;
   edited.facts.routes[0].kind = 'road';
   expect(regionToMapSvg(edited)).not.toContain('data-feature-kind="river"');
+});
+
+describe('editorial introduction goldens (#423)', () => {
+  const bare: RegionSnapshot = {
+    ...snapshot,
+    name: 'the Barony of Virun',
+    description: '',
+    overviewReason: undefined,
+    dominantCulture: null,
+    authority: {
+      ...snapshot.authority!,
+      firstName: 'Wolfraec',
+      lastName: 'Farsier',
+      titles: [],
+      speciesName: 'human',
+    },
+    facts: emptyRegionFacts('legacy'),
+    settlements: [],
+    realms: [],
+    organizations: [],
+  };
+
+  it.each([
+    {
+      label: 'short ruled region',
+      region: bare,
+      expected: ['The Barony of Virun is the domain of Wolfraec Farsier.'],
+    },
+    {
+      label: 'sparse unaffiliated country',
+      region: {
+        ...bare,
+        name: 'The Cold Marches',
+        authority: null,
+        affiliation: 'unaffiliated' as const,
+      },
+      expected: ['No single ruler holds sway over the Cold Marches.'],
+    },
+    {
+      label: 'information-rich country',
+      region: {
+        ...bare,
+        description:
+          'Rolling upland country stretches between wooded slopes. Tar Morgul stands beside a river, with a road leading to Sezail. Copper deposits lie in the hills.',
+      },
+      expected: [
+        'The Barony of Virun is the domain of Wolfraec Farsier.',
+        'Rolling upland country stretches between wooded slopes. Tar Morgul stands beside a river, with a road leading to Sezail. Copper deposits lie in the hills.',
+      ],
+    },
+  ])('shares the $label introduction across reading and exports', ({ region, expected }) => {
+    const before = structuredClone(region);
+    expect(regionToDocument(region).paragraphs).toEqual(expected);
+    expect(regionToUiDocument(region).paragraphs).toEqual(expected);
+    expect(regionToText(region).startsWith(expected.join('\n\n'))).toBe(true);
+    expect(regionToMarkdown(region)).toContain(expected.join('\n\n'));
+    expect(region).toEqual(before);
+  });
+
+  it('preserves authored typography and does not invent a missing ruler', () => {
+    const authored = {
+      ...bare,
+      name: 'i Virun',
+      authority: null,
+      description: 'beyond Tar Morgul — here be dragons!',
+    };
+    expect(regionToDocument(authored).paragraphs).toEqual(['i Virun.', authored.description]);
+    expect(regionDisplayName({ name: '  ' })).toBe('Region');
+  });
+
+  it('keeps authored descriptions verbatim and leaves stale generated prose out', () => {
+    const authored = setRegionText(snapshot, 'description', 'Here be dragons!');
+    expect(regionToDocument(authored).paragraphs[1]).toBe('Here be dragons!');
+    expect(
+      regionToDocument({
+        ...snapshot,
+        overviewReason: { ...snapshot.overviewReason!, status: 'stale' },
+      }).paragraphs,
+    ).toHaveLength(1);
+  });
 });
