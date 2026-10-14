@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import { BiomeClassifications, type Environment } from '$lib/environment';
+import { getPlantDefinitions, BiomeClassifications, type Environment } from '$lib/environment';
 import { allSpecies } from '$lib/species';
 import type { MapNode, RegionMap } from '$lib/map';
 import { emptyRegionFacts, regionFactsError } from './region_facts';
@@ -137,6 +137,8 @@ describe('regional inhabitants', () => {
       node(9, 'alpine tundra', { temperature: 5, moisture: 0.3, elevation: 0.9 }),
     ]);
     const catalog = {
+      plants: getPlantDefinitions().reverse(),
+      reviewedSources: true,
       species: allSpecies.filter((entry) => ['ibex', 'fennec fox'].includes(entry.name)),
       biomes: [
         {
@@ -281,6 +283,8 @@ describe('regional inhabitants', () => {
     const shuffled = fixture([node(2), node(1)]);
     shuffled.facts.habitats.reverse();
     const catalog = {
+      plants: getPlantDefinitions().reverse(),
+      reviewedSources: true,
       species: [...allSpecies].reverse(),
       biomes: [...BiomeClassifications.getAll()].reverse().map((entry) => ({
         ...entry,

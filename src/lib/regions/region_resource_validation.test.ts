@@ -72,7 +72,7 @@ describe('geological payload invariants', () => {
     const value = facts();
     expect(regionFactsError(value, map, [])).toBeNull();
     value.resourceDeposits[0].resourceName = 'future gas';
-    value.resources[0].catalogSource!.resourceName = 'future gas';
+    value.resources[0].catalogSource = { kind: 'geological-resource', resourceName: 'future gas' };
     expect(regionFactsError(value, map, [])).toBeNull();
     value.geology[0].setting.petroleum = undefined;
     value.geology[0].setting.processes = [];
@@ -206,7 +206,7 @@ describe('geological payload invariants', () => {
     [
       'catalog mismatch',
       (value: RegionFacts) => {
-        value.resources[0].catalogSource!.resourceName = 'oil';
+        value.resources[0].catalogSource = { kind: 'geological-resource', resourceName: 'oil' };
       },
     ],
     [

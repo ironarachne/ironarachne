@@ -1,7 +1,11 @@
 import type { RegionMap } from '$lib/map';
 import type { RegionFacts, SettlementTarget } from './region_fact_types';
 import type { DailyLifeInput, SettlementDailyLifeFact } from './region_livelihood_types';
-import { processingEvidenceCurrent, reachableProcessingNodes } from './region_evidence';
+import {
+  processingEvidenceCurrent,
+  reachableProcessingNodes,
+  selectedResourceCurrent,
+} from './region_evidence';
 import { resolveProcessingChain } from './region_processing_chain';
 
 export function sameSettlement(a: SettlementTarget, b: SettlementTarget): boolean {
@@ -31,7 +35,24 @@ export function dailyLifeInputCurrent(
       site.isOcean ||
       !resource?.anchor ||
       !['available', 'limited'].includes(resource.availability) ||
-      !processingEvidenceCurrent(resource, facts)
+      !selectedResourceCurrent(facts, raw.resourceId, raw.sourceId)
+    )
+      return false;
+    const source = raw.sourceId
+      ? facts.resourceSources.find((entry) => entry.id === raw.sourceId)
+      : undefined;
+    if (source?.source.kind === 'managed') {
+      const production = facts.managedProduction.find(
+        (entry) => source.source.kind === 'managed' && entry.id === source.source.productionId,
+      );
+      if (!production || !sameSettlement(production.settlement, settlement)) return false;
+    }
+    if (
+      source &&
+      (!raw.anchor.nodeIds.every((id) => source.anchor.nodeIds.includes(id)) ||
+        !raw.anchor.edgeIds.every((id) => source.anchor.edgeIds.includes(id)) ||
+        JSON.stringify([...raw.depositIds].sort()) !==
+          JSON.stringify(source.source.kind === 'deposit' ? [source.source.depositId] : []))
     )
       return false;
     const accessible = (id: number) =>
@@ -98,7 +119,7 @@ export function dailyLifeEvidenceCurrent(
       return (
         resource !== undefined &&
         ['available', 'limited'].includes(resource.availability) &&
-        processingEvidenceCurrent(resource, facts) &&
+        selectedResourceCurrent(facts, input.resourceId, input.sourceId) &&
         input.depositIds.every((id) => {
           const deposit = facts.resourceDeposits.find((entry) => entry.id === id);
           return deposit !== undefined && processingEvidenceCurrent(deposit, facts);

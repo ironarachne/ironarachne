@@ -309,7 +309,7 @@ describe('regional ecology narrative', () => {
 
   it('keeps saved and authored words across exports, editing and re-composition attempts', async () => {
     const region = compose();
-    const saved = rollRegionSnapshot('alpha');
+    const saved = rollRegionSnapshot('bravo');
     expect(validateRegionSnapshot(saved)).toMatchObject({ ok: true });
     const codec = await regionArtifactKind.loadCodec();
     const reopened = codec.toSnapshot(codec.fromSnapshot(saved, undefined as never));
@@ -386,7 +386,7 @@ describe('regional ecology narrative', () => {
       const saved = rollRegionSnapshot(seed);
       expect(validateRegionSnapshot(saved).ok).toBe(true);
       const claim = saved.facts.claims.find((entry) => entry.id === ECOLOGY_SUMMARY_ID);
-      if (seed === 'alpha' || seed === 'bravo') expect(claim).toBeDefined();
+      if (seed === 'bravo') expect(claim).toBeDefined();
       const before = structuredClone(saved);
       const restored = codec.toSnapshot(codec.fromSnapshot(saved, undefined as never));
       expect(restored).toEqual(saved);

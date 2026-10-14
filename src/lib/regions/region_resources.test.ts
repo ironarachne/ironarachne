@@ -94,12 +94,12 @@ describe('regional geology and raw inventory', () => {
     const stones = new Set<string>();
     let trace = false;
     let rich = false;
-    for (let i = 0; i < 600; i++) {
+    for (let i = 0; i < 1800; i++) {
       const region = prepared(`geo:${i}`);
-      generateResourceFacts(region, new RNG(`resources:${i}`));
+      generateResourceFacts(region, new RNG(`resources:${i}`), catalog);
       expect(regionFactsError(region.facts, region.map, [])).toBeNull();
       expect(region.facts!.resourceDeposits.length).toBeLessThanOrEqual(12);
-      expect(region.facts!.resources.length).toBeLessThanOrEqual(39);
+      expect(region.facts!.resources.length).toBeLessThanOrEqual(42);
       for (const fact of region.facts!.resources.filter((entry) =>
         ['available', 'limited'].includes(entry.availability),
       )) {
@@ -277,13 +277,13 @@ describe('regional geology and raw inventory', () => {
         .map((other) => other.id);
     });
     generateHabitatFacts(region, new RNG('habitats'));
-    generateEcologyInhabitants(region, new RNG('inhabitants'));
+    generateEcologyInhabitants(region, new RNG('inhabitants'), catalog.ecology);
     const before = structuredClone(region.facts!.ecologyInhabitants);
     expect(before.length).toBeGreaterThan(0);
     region.facts!.ecologyInhabitants.forEach((entry) => {
       entry.name = 'Edited name';
     });
-    generateResourceFacts(region, new RNG('organic'));
+    generateResourceFacts(region, new RNG('organic'), catalog);
     const sources = region.facts!.resources.filter(
       (entry) => entry.catalogSource?.kind === 'species-product',
     );

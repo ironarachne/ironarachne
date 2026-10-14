@@ -1,4 +1,6 @@
 export const regionSemanticFactLists = [
+  'managedProduction',
+  'resourceSources',
   'denseForests',
   'mountainRanges',
   'supply',

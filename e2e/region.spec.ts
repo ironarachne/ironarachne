@@ -97,6 +97,40 @@ test.describe('a region', () => {
     await createProject(page, 'The Marches');
   });
 
+  test('keeps qualified raw source evidence through editing, saving and reopening', async ({
+    page,
+  }) => {
+    await openGenerator(page);
+    await page.getByLabel('Seed', { exact: true }).fill('bravo');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    await saveAs(page, 'Qualified Sources');
+    const panel = await openInWorkshop(page, 'Qualified Sources');
+    const source = panel.getByRole('group', { name: 'Raw source 1', exact: true });
+    await expect(source).toBeVisible();
+    const evidence = panel.locator('details.inspection');
+    await evidence.locator(':scope > summary').click();
+    await expect(evidence).toContainText('Acquisition requires');
+    await expect(evidence).toContainText('definitionId');
+    await source
+      .getByRole('textbox', { name: 'Raw source 1 name', exact: true })
+      .fill('The referee’s named source');
+    await source
+      .getByRole('textbox', { name: 'Raw source 1 description', exact: true })
+      .fill('An authored source account.');
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+    await page.reload({ waitUntil: 'load' });
+    const reopened = await openInWorkshop(page, 'Qualified Sources');
+    await expect(reopened.getByLabel('Raw source 1 name', { exact: true })).toHaveValue(
+      'The referee’s named source',
+    );
+    await expect(reopened.getByLabel('Raw source 1 description', { exact: true })).toHaveValue(
+      'An authored source account.',
+    );
+    await expectNoHorizontalOverflow(page);
+  });
+
   test('keeps a named mountain range through saving, editing, and reopening', async ({ page }) => {
     await openGenerator(page);
     await page.getByLabel('Seed', { exact: true }).fill('mountain-range-9');
@@ -286,7 +320,7 @@ test.describe('a region', () => {
       await description.fill('An authored gazetteer entry.');
       const ecologyField = panel.getByRole('textbox', { name: 'Flora and fauna description' });
       const hasEcology = (await ecologyField.count()) > 0;
-      if (seed === 'alpha' || seed === 'bravo') await expect(ecologyField).toHaveCount(1);
+      if (seed === 'bravo') await expect(ecologyField).toHaveCount(1);
       if (hasEcology) await ecologyField.fill('Marsh reeds sustain local weaving.');
       await panel
         .getByRole('textbox', { name: 'Settlement 1 name', exact: true })

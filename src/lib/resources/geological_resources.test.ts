@@ -12,7 +12,7 @@ describe('geological resource catalog', () => {
     expect(catalog.find((entry) => entry.resource.name === 'iron ore')!.resource).toBe(
       getAllMetalOres().find((entry) => entry.name === 'iron ore'),
     );
-    expect(catalog.filter((entry) => entry.category === 'stone')).toHaveLength(8);
+    expect(catalog.filter((entry) => entry.category === 'stone')).toHaveLength(9);
     expect(catalog.some((entry) => /ashlar|brick|tile|thatch/.test(entry.resource.name))).toBe(
       false,
     );

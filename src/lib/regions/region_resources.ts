@@ -1,6 +1,6 @@
 import { resourceAssessments, describeResource } from './region_resource_narrative';
 import type { RNG } from '@ironarachne/rng';
-import { BiomeClassifications } from '$lib/environment';
+import { BiomeClassifications, getPlantDefinitions } from '$lib/environment';
 import { allSpecies } from '$lib/species';
 import {
   deriveResourcesFromSpecies,
@@ -15,6 +15,8 @@ import type { FactBase, FactSource, ResourceFact, ResourceKind } from './region_
 import type { RegionResourceCatalog, ResourceCandidate } from './region_resource_rule_types';
 import { ecologyCandidatesFor } from './region_ecology';
 import { depositKinds, resourceKinds } from './region_resource_constants';
+
+import { biologicalSourceCandidates, geologicalSourceCandidates } from './region_raw_sources';
 
 const current = (fact: FactBase) => fact.reason?.status !== 'stale';
 const lexical = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
@@ -279,13 +281,16 @@ function organicCandidates(
             known ? { kind: 'building-material', resourceName: known.name } : undefined,
           );
         }
-        for (const plantProduct of getPlantProducts(support.name))
+        for (const plantProduct of catalog.ecology.reviewedSources
+          ? []
+          : getPlantProducts(support.name))
           add('fiber', plantProduct.name, habitat.id, nodeIds, sources, {
             kind: 'plant-product',
             plantName: support.name,
             resourceName: plantProduct.name,
           });
       }
+      if (catalog.ecology.reviewedSources) continue;
       if (inhabitant.category !== 'fauna' || inhabitant.source.kind !== 'species') continue;
       const speciesName = inhabitant.source.speciesName;
       const species = catalog.ecology.species.find((entry) => entry.name === speciesName);
@@ -347,7 +352,12 @@ export function generateResourceFacts(
   rng: RNG,
   catalog: RegionResourceCatalog = {
     geology: getGeologicalResources(),
-    ecology: { species: allSpecies, biomes: BiomeClassifications.getAll() },
+    ecology: {
+      species: allSpecies,
+      biomes: BiomeClassifications.getAll(),
+      plants: getPlantDefinitions(),
+      reviewedSources: true,
+    },
     buildingMaterials: getBuildingMaterialResources(),
   },
 ): void {
@@ -356,7 +366,10 @@ export function generateResourceFacts(
   generateDeposits(region, rng, catalog);
   const candidates = [
     ...waterCandidates(region),
-    ...geologicalCandidates(region),
+    ...(catalog.ecology.reviewedSources
+      ? geologicalSourceCandidates(region)
+      : geologicalCandidates(region)),
+    ...(catalog.ecology.reviewedSources ? biologicalSourceCandidates(region) : []),
     ...organicCandidates(region, catalog),
   ];
   for (const kind of resourceKinds) {
@@ -376,7 +389,7 @@ export function generateResourceFacts(
         selected.push(entry);
         eligible.splice(eligible.indexOf(entry), 1);
       }
-      for (const { fact, sources, supportIds } of selected) {
+      for (const { fact, sources, supportIds, sourceFacts } of selected) {
         if (supportIds.size > 1) fact.availability = 'available';
         fact.areaIds = [...new Set(fact.areaIds)].sort();
         fact.habitatIds = [...new Set(fact.habitatIds)].sort();
@@ -392,6 +405,7 @@ export function generateResourceFacts(
           status: 'current',
           sources: uniqueSources,
         };
+        if (sourceFacts) facts.resourceSources.push(...sourceFacts);
         facts.resources.push(fact);
       }
       continue;

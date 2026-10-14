@@ -348,6 +348,8 @@ describe('settlement removal with ecological uses', () => {
           (source) => source.kind !== 'fact' || !source.factId.startsWith('resource:'),
         );
     });
+    saved.facts.managedProduction = [];
+    saved.facts.resourceSources = [];
     saved.facts.ecologyInhabitants = [
       {
         id: 'inhabitant:reed',

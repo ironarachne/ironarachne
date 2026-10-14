@@ -132,15 +132,23 @@ export function resourceFactsError(
           'species-product',
           'geological-resource',
           'plant-product',
+          'raw-resource',
         ]) ||
-        !text(source.resourceName) ||
+        (source.kind === 'raw-resource' ? !text(source.resourceId) : !text(source.resourceName)) ||
         (source.kind === 'species-product' && !text(source.speciesName)) ||
         (source.kind === 'plant-product' && !text(source.plantName))
       )
         return 'region resource has an invalid catalog source';
-      if (deposits.length && source.kind !== 'geological-resource')
+      if (
+        deposits.length &&
+        source.kind !== 'geological-resource' &&
+        source.kind !== 'raw-resource'
+      )
         return 'geological resource has a non-geological catalog source';
-      if (deposits.some((entry) => entry.resourceName !== source.resourceName))
+      if (
+        source.kind !== 'raw-resource' &&
+        deposits.some((entry) => entry.resourceName !== source.resourceName)
+      )
         return 'region resource catalog disagrees with its deposit';
     }
     if (

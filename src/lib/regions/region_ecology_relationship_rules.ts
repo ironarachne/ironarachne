@@ -40,7 +40,7 @@ export const ECOLOGY_FEEDING_RULES: readonly EcologyFeedingRule[] = [
 export const ECOLOGY_USE_RULES: readonly EcologyUseRule[] = [
   {
     id: 'reed-material',
-    sources: ['reeds', 'papyrus'],
+    sources: ['reeds', 'common-reed', 'papyrus'],
     use: 'material',
     purpose: 'woven mats and basketry',
   },

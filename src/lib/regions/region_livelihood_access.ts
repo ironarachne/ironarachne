@@ -8,10 +8,15 @@ import {
 export { dailyLifeInputCurrent, sameSettlement } from './region_livelihood_evidence';
 
 /** Fish access is at the actual shore site, never every water cell beside connected land. */
-export function accessibleDailyLifeResources(region: Pick<Region, 'facts' | 'map'>, start: number) {
+export function accessibleDailyLifeResources(
+  region: Pick<Region, 'facts' | 'map'>,
+  start: number,
+  settlementId?: string,
+) {
   const land = accessibleProcessingResources(
     region,
     reachableProcessingNodes(region, start),
+    settlementId,
   ).filter((entry) => entry.fact.kind !== 'fish');
   const site = region.map.nodes.find((node) => node.id === start);
   const shore = new Set(
@@ -24,7 +29,7 @@ export function accessibleDailyLifeResources(region: Pick<Region, 'facts' | 'map
       )
       .map((node) => node.id),
   );
-  const fish = accessibleProcessingResources(region, shore).filter(
+  const fish = accessibleProcessingResources(region, shore, settlementId).filter(
     (entry) => entry.fact.kind === 'fish',
   );
   return [...land, ...fish].sort((a, b) =>

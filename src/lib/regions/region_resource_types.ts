@@ -22,12 +22,15 @@ export type ResourceDepositFact = FactBase & {
 };
 export type ResourceAvailability = 'available' | 'limited' | 'not-observed' | 'unknown';
 export type ResourceCatalogSource =
+  | { kind: 'raw-resource'; resourceId: string }
   | { kind: 'building-material'; resourceName: string }
   | { kind: 'species-product'; speciesName: string; resourceName: string }
   | { kind: 'geological-resource'; resourceName: string }
   | { kind: 'plant-product'; plantName: string; resourceName: string };
 
 export type RegionResourceFactList =
+  | 'managedProduction'
+  | 'resourceSources'
   | 'denseForests'
   | 'mountainRanges'
   | 'claims'

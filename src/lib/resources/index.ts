@@ -12,3 +12,7 @@ export * from './geological_resources';
 export type * from './processing_types';
 export * from './processing';
 export * from './plant_products';
+export type * from './raw_source_types';
+export * from './raw_biological_catalog';
+export * from './raw_geological_catalog';
+export * from './food_validation';

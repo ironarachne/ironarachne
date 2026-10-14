@@ -1,4 +1,5 @@
 import type { FactBase, SettlementTarget } from './region_fact_types';
+import type { BiologicalOccurrenceForm } from '$lib/environment';
 
 export type EcologyCategory = 'flora' | 'fauna' | 'fantastical';
 export type EcologicalRole =
@@ -11,10 +12,12 @@ export type EcologicalRole =
   | 'habitat-engineer'
   | 'other';
 export type InhabitantSource =
+  | { kind: 'plant'; plantId: string }
   | { kind: 'species'; speciesName: string }
   | { kind: 'described'; label: string }
   | { kind: 'creature-artifact'; targetId: string; speciesName: string };
 export type EcologyInhabitantFact = FactBase & {
+  occurrenceForm?: BiologicalOccurrenceForm;
   category: EcologyCategory;
   roles: EcologicalRole[];
   source: InhabitantSource;

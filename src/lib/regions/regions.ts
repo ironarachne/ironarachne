@@ -1,3 +1,4 @@
+import { generateManagedProduction, finalizeResourceInventory } from './region_managed_production';
 import { generateDenseForestFacts, generateDenseForestLandmark } from './region_dense_forests';
 import { generateMountainRangeFacts } from './region_mountain_ranges';
 import type { Environment } from '$lib/environment';
@@ -310,6 +311,8 @@ export function generate(config: RegionGeneratorConfig): Region {
   region.settlementIds = region.settlements.map((_, index) => `settlement:${index + 1}`);
   generateHabitationFacts(region, habitationConfig.rng);
   generateEcologyRelationships(region, createRegionStageRng(seed, 'ecology-relationships'));
+  generateManagedProduction(region, createRegionStageRng(seed, 'managed-production'));
+  finalizeResourceInventory(region, createRegionStageRng(seed, 'resource-inventory'));
   generateProcessingFacts(region, createRegionStageRng(seed, 'processing'));
   generateLivelihoodFacts(region, createRegionStageRng(seed, 'livelihoods'));
   generateSupplyFacts(region, createRegionStageRng(seed, 'supply'));

@@ -1,5 +1,8 @@
 export type * from './region_affiliation_types';
 export type { default as Region } from './region';
+export type * from './region_raw_source_types';
+export type * from './region_food_types';
+export * from './region_food';
 export {
   buildRegionCreatureContext,
   describeRegionCreatureContext,
@@ -62,3 +65,7 @@ export { generateDenseForestFacts, generateDenseForestLandmark } from './region_
 
 export type * from './region_assessment_types';
 export { regionInspectionFacts, regionOverviewCurrent } from './region_narrative_evidence';
+
+export { regionSourceQualifications } from './region_source_presentation';
+
+export { generateManagedProduction, finalizeResourceInventory } from './region_managed_production';

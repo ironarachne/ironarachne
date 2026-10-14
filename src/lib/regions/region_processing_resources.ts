@@ -1,13 +1,15 @@
 import { allSpecies } from '$lib/species';
 import {
   deriveResourcesFromSpecies,
+  getBiologicalSourceDefinitions,
+  getGeologicalSourceDefinitions,
   getBuildingMaterialResources,
   getGeologicalResources,
   getPlantProducts,
   type Resource,
 } from '$lib/resources';
 import type Region from './region';
-import type { RegionFacts, ResourceFact } from './region_fact_types';
+import type { RegionFacts, ResourceFact, SettlementTarget } from './region_fact_types';
 import type { AccessibleProcessingResource } from './region_processing_types';
 import { processingEvidenceCurrent } from './region_evidence';
 export { processingEvidenceCurrent, reachableProcessingNodes } from './region_evidence';
@@ -58,12 +60,85 @@ function descriptor(fact: ResourceFact, facts: RegionFacts): Resource | undefine
 export function accessibleProcessingResources(
   region: Pick<Region, 'facts' | 'map'>,
   reached: Set<number>,
+  owner?: string | SettlementTarget,
 ): AccessibleProcessingResource[] {
   const facts = region.facts!;
   const results: AccessibleProcessingResource[] = [];
+  const reviewed = new Set(
+    [...getBiologicalSourceDefinitions(), ...getGeologicalSourceDefinitions()].map(
+      (entry) => entry.id,
+    ),
+  );
   for (const fact of [...facts.resources].sort((a, b) =>
     a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
   )) {
+    if (fact.sourceIds) {
+      if (!['available', 'limited'].includes(fact.availability)) continue;
+      for (const id of [...fact.sourceIds].sort()) {
+        const source = facts.resourceSources.find((entry) => entry.id === id);
+        if (
+          !source ||
+          !['available', 'limited'].includes(source.availability) ||
+          !processingEvidenceCurrent(source, facts)
+        )
+          continue;
+        // New generation must recognize the rule; historical saved reads use their snapshots.
+        if (!reviewed.has(source.definitionId)) continue;
+        if (source.source.kind === 'managed') {
+          const production = facts.managedProduction.find(
+            (entry) => source.source.kind === 'managed' && entry.id === source.source.productionId,
+          );
+          const target =
+            typeof owner === 'string' ? { kind: 'embedded' as const, settlementId: owner } : owner;
+          if (
+            !production ||
+            (target &&
+              (target.kind !== production.settlement.kind ||
+                (target.kind === 'embedded'
+                  ? production.settlement.kind !== 'embedded' ||
+                    target.settlementId !== production.settlement.settlementId
+                  : production.settlement.kind !== 'artifact' ||
+                    target.targetId !== production.settlement.targetId)))
+          )
+            continue;
+        }
+        const deposit =
+          source.source.kind === 'deposit'
+            ? facts.resourceDeposits.find(
+                (entry) => source.source.kind === 'deposit' && entry.id === source.source.depositId,
+              )
+            : undefined;
+        if (
+          deposit &&
+          (deposit.concentration === 'trace' ||
+            deposit.exposure === 'deep' ||
+            deposit.extraction === 'drilling')
+        )
+          continue;
+        const nodeIds = source.anchor.nodeIds.filter((id) => reached.has(id));
+        if (!nodeIds.length) continue;
+        const raw = source.resource;
+        results.push({
+          fact,
+          sourceId: source.id,
+          food: structuredClone(source.resource.food),
+          sourceAvailability: source.availability,
+          acquisitionRequirements: [...source.requirements],
+          resource: {
+            name: raw.name,
+            description: source.description,
+            major_type: raw.majorType,
+            minor_type: raw.minorType,
+            commonality: 1,
+            is_refineable: true,
+            properties: [],
+          },
+          depositIds: deposit ? [deposit.id] : [],
+          anchor: { nodeIds, edgeIds: [...source.anchor.edgeIds] },
+        });
+      }
+      continue;
+    }
     if (
       !['available', 'limited'].includes(fact.availability) ||
       !processingEvidenceCurrent(fact, facts)

@@ -1,4 +1,8 @@
-import type { BiomeClassification } from '$lib/environment';
+import type {
+  BiomeClassification,
+  PlantDefinition,
+  BiologicalOccurrenceForm,
+} from '$lib/environment';
 import type { Species } from '$lib/species';
 import type { LandformClass, MapNode } from '$lib/map';
 import type { FactSource } from './region_fact_types';
@@ -8,6 +12,8 @@ import type { EcologyCategory, EcologicalRole, InhabitantSource } from './region
 export type RegionEcologyCatalog = {
   species: readonly Species[];
   biomes: readonly BiomeClassification[];
+  plants?: readonly PlantDefinition[];
+  reviewedSources?: boolean;
 };
 export type EcologyRule = {
   label: string;
@@ -22,6 +28,7 @@ export type EcologyRule = {
 };
 export type EcologyCandidate = {
   key: string;
+  occurrenceForm?: BiologicalOccurrenceForm;
   name: string;
   source: InhabitantSource;
   category: EcologyCategory;

@@ -12,11 +12,14 @@ export function processingEvidenceCurrent(
   const next = new Set(visiting);
   next.add(fact.id);
   const entries = Object.values(facts).filter(Array.isArray).flat() as RegionSemanticFact[];
-  return (fact.reason?.sources ?? []).every((source) => {
-    if (source.kind !== 'fact') return true;
-    const parent = entries.find((entry) => entry.id === source.factId);
-    return parent !== undefined && processingEvidenceCurrent(parent, facts, next);
-  });
+  const selected = sourceSpecificSummaryIds(fact);
+  return (fact.reason?.sources ?? [])
+    .filter((source) => source.kind !== 'fact' || !selected.has(source.factId))
+    .every((source) => {
+      if (source.kind !== 'fact') return true;
+      const parent = entries.find((entry) => entry.id === source.factId);
+      return parent !== undefined && processingEvidenceCurrent(parent, facts, next);
+    });
 }
 export function reachableProcessingNodes(region: Pick<Region, 'map'>, start: number): Set<number> {
   const land = new Map(
@@ -34,4 +37,33 @@ export function reachableProcessingNodes(region: Pick<Region, 'map'>, start: num
       if (land.has(neighbor) && !reached.has(neighbor)) queue.push(neighbor);
   }
   return reached;
+}
+
+/** A chosen supply carries its own evidence; another source in its summary cannot poison it. */
+export function sourceSpecificSummaryIds(fact: FactBase): Set<string> {
+  const inputs =
+    'inputs' in fact && Array.isArray(fact.inputs)
+      ? (fact.inputs as { kind: string; resourceId?: string; sourceId?: string }[])
+      : [];
+  return new Set(
+    inputs
+      .filter((input) => input.kind === 'resource' && input.sourceId)
+      .map((input) => input.resourceId!),
+  );
+}
+export function selectedResourceCurrent(
+  facts: RegionFacts,
+  resourceId: string,
+  sourceId?: string,
+): boolean {
+  const resource = facts.resources.find((entry) => entry.id === resourceId);
+  if (!resource || !['available', 'limited'].includes(resource.availability)) return false;
+  if (!sourceId) return !resource.sourceIds && processingEvidenceCurrent(resource, facts);
+  const source = facts.resourceSources.find((entry) => entry.id === sourceId);
+  return (
+    !!source &&
+    !!resource.sourceIds?.includes(sourceId) &&
+    ['available', 'limited'].includes(source.availability) &&
+    processingEvidenceCurrent(source, facts)
+  );
 }

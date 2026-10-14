@@ -157,6 +157,22 @@ describe('regional evidence and prose', () => {
     delete old.overviewReason;
     for (const fact of regionInspectionFacts(old)) delete fact.assessments;
     old.description = 'Old technical prose: unverified.';
+    old.facts.managedProduction = [];
+    old.facts.resourceSources = [];
+    old.facts.resources = old.facts.resources.filter((entry) => !entry.sourceIds);
+    old.facts.products = [];
+    old.facts.dailyLife = [];
+    old.facts.supply = [];
+    const removed = new Set(
+      regionInspectionFacts(saved)
+        .filter((entry) => !regionInspectionFacts(old).some((other) => other.id === entry.id))
+        .map((entry) => entry.id),
+    );
+    for (const fact of regionInspectionFacts(old))
+      if (fact.reason)
+        fact.reason.sources = fact.reason.sources.filter(
+          (source) => source.kind !== 'fact' || !removed.has(source.factId),
+        );
     const input = { ...old, facts: { ...old.facts, version: 8 } };
     const result = migrateRegionSnapshot(input, 13);
     expect(result.ok).toBe(true);

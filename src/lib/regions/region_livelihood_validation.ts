@@ -81,10 +81,21 @@ export function dailyLifeFactsError(
           return 'daily-life fact has an invalid resource input';
         const resource = facts.resources.find((entry) => entry.id === input.resourceId);
         if (!resource?.anchor) return 'daily-life fact cites an unknown or unlocated resource';
+        const selected =
+          input.sourceId === undefined
+            ? undefined
+            : facts.resourceSources.find((entry) => entry.id === input.sourceId);
+        if (
+          input.sourceId !== undefined &&
+          (!text(input.sourceId) || !selected || !resource.sourceIds?.includes(input.sourceId))
+        )
+          return 'daily-life input has an invalid selected source';
         const anchor = input.anchor as { nodeIds: number[]; edgeIds: number[] };
         if (
-          !anchor.nodeIds.every((id) => resource.anchor!.nodeIds.includes(id)) ||
-          !anchor.edgeIds.every((id) => resource.anchor!.edgeIds.includes(id))
+          !anchor.nodeIds.every((id) =>
+            (selected?.anchor ?? resource.anchor!).nodeIds.includes(id),
+          ) ||
+          !anchor.edgeIds.every((id) => (selected?.anchor ?? resource.anchor!).edgeIds.includes(id))
         )
           return 'daily-life input lies outside its source';
         if (
