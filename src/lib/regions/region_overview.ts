@@ -62,7 +62,9 @@ export function generateRegionOverview(region: Region, rng: RNG): string {
     add(
       range,
       'geography',
-      [`${region.name} includes ${range.name}, a chain of linked mountain ridges.`],
+      [
+        `${region.name.trim().replace(/^the\s+/, 'The ')} takes in ${range.name}, where mountain ridges run in a linked chain.`,
+      ],
       'defining',
     );
   const landscape = overviewLandscape(region, usable);

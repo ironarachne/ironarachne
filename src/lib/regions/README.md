@@ -497,3 +497,14 @@ reason; changing a selected dependency invalidates the reason without rewriting 
 
 Migrations only advance version markers. Old optional fields remain absent, and historical prose
 loads verbatim without inference or composition. See [the design](../../../docs/region-narrative-evidence.md).
+
+### Gazetteer introductions
+
+The shared reading document opens with the region and its ruler (honorific and name), then
+follows the saved overview through landscape, notable settlements and connections, and relevant
+resources. Culture, when supplied, belongs with the opening identity rather than a trailing
+metadata paragraph. Ruler species is omitted by default; `describeRuler(ruler, true)` requests it.
+Opening `the` is capitalized for display without title-casing authored names or rewriting saved
+prose. Sparse entries stop at what is known, and stale generated overviews remain suppressed.
+Page, Markdown and PDF text share these paragraphs. Editorial golden examples live in
+`region_presentation.test.ts` and `region_geography_narrative.test.ts`.

@@ -158,10 +158,13 @@ describe('grounded geography in regional introductions', () => {
   it('connects elevation, mixed vegetation, a local river boundary, and settlement travel', () => {
     const region = fixture();
     const text = prose(region);
+    expect(text).toMatchInlineSnapshot(
+      `"The region takes in rolling upland country. Seasonal woodland and open grassland share this country, with a river running between stretches of the two. Sezail borders a river that provides local freshwater, with a road leading through the surrounding country to Tar Morgul, meeting a river along the way."`,
+    );
     expect(text).toMatch(/hilly|rolling/);
     expect(text).toMatch(/upland/);
-    expect(text).toMatch(/woodland that sheds its leaves with the seasons/i);
-    expect(text).toContain('open grassland in a seasonal climate');
+    expect(text).toMatch(/seasonal woodland/i);
+    expect(text).toContain('open grassland');
     expect(text).toContain('river running between stretches of the two');
     expect(text).toMatch(/Sezail.*freshwater.*road.*Tar Morgul/);
     expect(text).toContain('meeting a river along the way');
@@ -241,9 +244,9 @@ describe('grounded geography in regional introductions', () => {
     region.facts.settlementRoles = [];
     region.facts.routes = [];
     region.map.edges = [edge(10, 1, 2, 0, 1)];
-    expect(prose(region)).toContain('river running between stretches of woodland');
+    expect(prose(region)).toContain('river running between stretches of seasonal woodland');
     region.map.edges[0].d1 = undefined;
-    expect(prose(region)).toContain('river bordering part of the woodland');
+    expect(prose(region)).toContain('river bordering part of the seasonal woodland');
     expect(prose(region)).not.toMatch(/impassable|divides|bridge|crossing|navigab/);
     region.map.edges[0].river = 0;
     expect(prose(region)).not.toContain('river');
@@ -252,7 +255,7 @@ describe('grounded geography in regional introductions', () => {
   it('omits stale, missing, wet, and contradictory habitat footprints', () => {
     const region = fixture();
     region.facts.habitats[0].reason!.status = 'stale';
-    expect(prose(region)).not.toContain('sheds its leaves');
+    expect(prose(region)).not.toContain('seasonal woodland');
     const habitat = region.facts.habitats[1];
     for (const ids of [[], [999], [1], [3, 3]]) {
       habitat.anchor!.nodeIds = ids;

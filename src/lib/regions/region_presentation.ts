@@ -38,19 +38,21 @@ function isPrintable(value: string): boolean {
 /** What to head the document with: the region's name, or the kind when it has none. */
 export function regionDisplayName(region: { name: string }): string {
   const name = region.name.trim();
-  return name === '' ? 'Region' : name;
+  return name === '' ? 'Region' : name.replace(/^the\s+/, 'The ');
 }
 
-/** Who someone is, as a gazetteer names them: their honorific, their name, and their species. */
-export function describeRuler(ruler: StoredCharacter): string {
+/** Name the ruler naturally; species is opt-in rather than routine introductory metadata. */
+export function describeRuler(ruler: StoredCharacter, includeSpecies = false): string {
   const honorific = getHonorific(
     ruler.gender.name,
     ruler.titles?.[0] ?? null,
     ruler.gender.pronouns,
   );
-  const name = [ruler.firstName, ruler.lastName].filter(isPrintable).join(' ');
+  const name = [ruler.firstName.trim(), ruler.lastName.trim()].filter(isPrintable).join(' ');
   const who = [honorific, name].filter(isPrintable).join(' ');
-  return isPrintable(ruler.speciesName) ? `${who}, ${ruler.speciesName}` : who;
+  return includeSpecies && isPrintable(ruler.speciesName)
+    ? `${who}, ${/^[aeiou]/i.test(ruler.speciesName.trim()) ? 'an' : 'a'} ${ruler.speciesName.trim()}`
+    : who;
 }
 
 /** One realm, as a line: what it is called, what kind of thing it is, and who holds it. */
@@ -258,15 +260,24 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
   const hadEcologySummary = snapshot.facts.claims.some((fact) => fact.id === ECOLOGY_SUMMARY_ID);
   snapshot = regionReadingSnapshot(snapshot);
   const culture = snapshot.dominantCulture;
-  const paragraphs = [
-    overview,
+  const name = regionDisplayName(snapshot);
+  const ruler = snapshot.authority === null ? '' : describeRuler(snapshot.authority);
+  const identity = isPrintable(ruler)
+    ? `${name} is the domain of ${ruler}.`
+    : snapshot.affiliation === 'unaffiliated'
+      ? `No single ruler holds sway over ${name.replace(/^The /, 'the ')}.`
+      : name === 'Region'
+        ? ''
+        : `${name}.`;
+  const culturalCharacter =
     culture !== null && isPrintable(culture.name)
-      ? `The dominant culture here is the ${culture.name}.`
-      : '',
-    snapshot.authority === null
-      ? 'This region is unaffiliated.'
-      : `It is ruled by ${describeRuler(snapshot.authority)}.`,
-  ].filter(isPrintable);
+      ? `The ${culture.name.trim()} culture shapes life here.`
+      : '';
+  // Identity comes first; the saved overview leads through landscape, places and resources.
+  // Keep authored and legacy overview text verbatim, and never pad a sparse entry.
+  const paragraphs = [[identity, culturalCharacter].filter(isPrintable).join(' '), overview].filter(
+    isPrintable,
+  );
 
   const realmLines = snapshot.realms.map((realm, index) => realmLine(realm, snapshot, index));
 
