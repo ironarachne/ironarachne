@@ -83,6 +83,7 @@ function factHeading(snapshot: RegionSnapshot, section: string, fact: FactBase):
   if (section === 'Flora and fauna') return '';
   if (section === 'Landscape' && fact.id === 'area:land') return '';
   const name = displayName(fact.name, 'an Unnamed Feature');
+  if (section === 'Regional identity') return `The ${title(name)}`;
   if (section === 'Landscape')
     return fact.origin !== 'authored' &&
       snapshot.facts.habitats.some((habitat) => habitat.id === fact.id)
@@ -102,7 +103,10 @@ function factHeading(snapshot: RegionSnapshot, section: string, fact: FactBase):
 }
 
 function factEntry(snapshot: RegionSnapshot, section: string, fact: FactBase): RegionUiEntry {
-  const warning = undefined;
+  const warning =
+    section === 'Regional identity' && fact.reason?.status === 'stale'
+      ? 'Needs review: supporting information changed; saved text has not been recomputed.'
+      : undefined;
   const body = fact.description.trim();
   const heading = factHeading(snapshot, section, fact);
   // A stored notable's explicitly labeled hook is a subheading, not part of its title.

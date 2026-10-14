@@ -13,6 +13,7 @@ export { generateLandscapeNames } from './region_landscape_names';
 export { generateHabitatFacts } from './region_habitats.js';
 export { generateHabitationFacts } from './region_settlement_roles.js';
 export { generateNotableFacts } from './region_notables.js';
+export { generateRegionIdentity } from './region_identity';
 import type { RegionGenerationStage, RegionTerrainProfile } from './region_generation_types.js';
 import type { FactReason, FactSource } from './region_fact_types.js';
 import { generateRegionOverview } from './region_overview.js';

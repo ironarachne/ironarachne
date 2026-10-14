@@ -508,3 +508,17 @@ Opening `the` is capitalized for display without title-casing authored names or 
 prose. Sparse entries stop at what is known, and stale generated overviews remain suppressed.
 Page, Markdown and PDF text share these paragraphs. Editorial golden examples live in
 `region_presentation.test.ts` and `region_geography_narrative.test.ts`.
+
+## Grounded regional identity
+
+The optional `generateRegionIdentity(region, rng)` pass stores at most one claim per family:
+roads through named landscapes, settlements inside named dense forests, and located mineral
+occurrences in named mountain ranges. Claims use `claim:identity:` identities, saved map
+observations and transitive fact evidence. The generator runs it on the `regional-identity`
+named stream before presentation. It never rewrites existing identity claims or upstream data.
+
+Introductions choose at most two current identity details within the five-sentence budget and
+omit repeated generic meanings. The gazetteer, Markdown and PDF reuse saved text in a Regional
+identity section. Missing or stale support omits generated details; authored text remains readable
+with a review note. Legacy regions gain no fabricated facts on load. See
+[the approved design](../../../docs/region-identity.md).

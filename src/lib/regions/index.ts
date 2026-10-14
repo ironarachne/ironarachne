@@ -33,6 +33,7 @@ export { generateResourceFacts, isUsableRegionResource } from './region_resource
 export type { RegionResourceCatalog } from './region_resource_rule_types';
 export * from './region_resource_editing';
 export { ECOLOGY_SUMMARY_ID } from './region_ecology_narrative';
+export { generateRegionIdentity, isRegionIdentityFact } from './region_identity';
 
 export type * from './region_processing_types';
 export { generateProcessingFacts } from './region_processing';
