@@ -12,6 +12,8 @@ export type RegionGenerationStage =
   | 'ecology-inhabitants'
   | 'ecology-relationships'
   | 'ecology-narrative'
+  | 'managed-production'
+  | 'resource-inventory'
   | 'processing'
   | 'livelihoods'
   | 'supply'

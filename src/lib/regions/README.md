@@ -522,3 +522,25 @@ omit repeated generic meanings. The gazetteer, Markdown and PDF reuse saved text
 identity section. Missing or stale support omits generated details; authored text remains readable
 with a review note. Legacy regions gain no fabricated facts on load. See
 [the approved design](../../../docs/region-identity.md).
+
+## Qualified raw supply and managed production (#364)
+
+Payload version 15 / facts version 10 saves `resourceSources` and `managedProduction`. Historical
+migrations add empty lists and preserve missing food metadata. New summaries retain at most four
+sources per commodity, with at most three positive summaries per resource kind. Wild sources
+require a saved exact producer occurrence; managed sources require owned production, supported
+habitats and unmanaged ground, water or forage. No yield or processing capability is implied.
+
+The `managed-production` and `resource-inventory` named streams run after habitation. Early
+unmanaged support remains pinned. Outputs that cannot fit are omitted with their unused production
+record. Processing and daily-life leaves save the selected `sourceId`, its location and acquisition
+assumptions. An independent current occurrence remains usable when another one becomes stale.
+Removing the last source removes its generated summary and consumers; authored dependents are
+protected. Settlement removal includes its managed operations.
+
+`assessRawSourceFood` and `assessRegionProductFood` evaluate saved policies without consulting live
+catalogs or mutating preparation state. Pending permissions survive ingredients and branches until
+a reviewed provision explicitly satisfies them. Legacy qualification stays unknown. New food
+claims require both qualification and current local access; imports cannot establish local-only
+livelihoods. Gazettes and exports show source and production qualifications alongside potential
+supply, while the inspector retains full saved evidence.

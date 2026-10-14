@@ -1,4 +1,5 @@
 import type { RegionFactAssessment } from './region_assessment_types';
+import type { ManagedProductionFact, ResourceSourceFact } from './region_raw_source_types';
 import type { DenseForestFact } from './region_dense_forest_types';
 import type { MountainRangeFact } from './region_mountain_range_types';
 import type { SettlementSupplyFact } from './region_supply_types';
@@ -77,11 +78,13 @@ export type ResourceKind =
   | 'gemstone'
   | 'fiber'
   | 'animal-material'
+  | 'plant-material'
   | 'food'
   | 'geological-material'
   | 'oil'
   | 'gas';
 export type ResourceFact = FactBase & {
+  sourceIds?: string[];
   kind: ResourceKind;
   availability: ResourceAvailability;
   depositIds: string[];
@@ -104,7 +107,9 @@ export type RouteFact = FactBase & {
 export type CausalFact = FactBase & { subjectId: string; relatedIds: string[] };
 
 export type RegionFacts = {
-  version: 9;
+  version: 10;
+  managedProduction: ManagedProductionFact[];
+  resourceSources: ResourceSourceFact[];
   denseForests: DenseForestFact[];
   mountainRanges: MountainRangeFact[];
   supply: SettlementSupplyFact[];

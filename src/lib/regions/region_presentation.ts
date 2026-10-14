@@ -1,3 +1,4 @@
+import { regionSourceQualifications } from './region_source_presentation';
 /** Shared sourcebook presentation for the page, Markdown and PDF. Saved prose is never rerolled. */
 
 import { getHonorific, type StoredCharacter } from '$lib/characters';
@@ -310,6 +311,26 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
       ...(hadEcologySummary && !snapshot.facts.claims.some((fact) => fact.id === ECOLOGY_SUMMARY_ID)
         ? []
         : ecologySections(snapshot)),
+      ...factSections(
+        'Raw source opportunities',
+        representativeFacts(snapshot.facts.resourceSources, (fact) => fact.resource.id).map(
+          (fact) => ({
+            ...fact,
+            description: [fact.description, ...regionSourceQualifications(snapshot, fact)]
+              .filter(Boolean)
+              .join(' '),
+          }),
+        ),
+      ),
+      ...factSections(
+        'Managed production',
+        snapshot.facts.managedProduction.map((fact) => ({
+          ...fact,
+          description: [fact.description, ...regionSourceQualifications(snapshot, fact)]
+            .filter(Boolean)
+            .join(' '),
+        })),
+      ),
       ...factSections(
         'Notable places',
         snapshot.facts.notables.filter((fact) => fact.kind === 'landmark'),

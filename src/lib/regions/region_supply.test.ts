@@ -123,6 +123,51 @@ function fixture(): Pick<Region, 'facts' | 'map' | 'settlements' | 'settlementId
     }),
     raw('meat', 'food', { kind: 'species-product', speciesName: 'goat', resourceName: 'chevon' }),
   );
+  facts.habitats.push({
+    id: 'habitat:test',
+    name: 'Habitat',
+    description: '',
+    origin: 'authored',
+    areaIds: ['area:land'],
+    anchor: { nodeIds: [1, 2], edgeIds: [] },
+  });
+  facts.ecologyInhabitants.push({
+    id: 'inhabitant:test-deer',
+    name: 'deer',
+    description: '',
+    origin: 'authored',
+    category: 'fauna',
+    source: { kind: 'species', speciesName: 'deer' },
+    roles: ['grazer'],
+    occurrenceForm: 'population',
+    habitatIds: ['habitat:test'],
+  });
+  facts.resourceSources.push({
+    id: 'resource-source:test-meat',
+    name: 'deer meat source',
+    description: '',
+    origin: 'authored',
+    definitionId: 'fantasy:source:deer-meat:deer:wild:v1',
+    resource: {
+      id: 'deer-meat',
+      name: 'deer meat',
+      majorType: 'organic',
+      minorType: 'red_meat',
+      uses: ['food'],
+      food: { kind: 'food', preparation: 'ordinary', productKeys: [] },
+    },
+    source: { kind: 'wild', inhabitantId: 'inhabitant:test-deer' },
+    method: 'hunting',
+    requirements: ['hunting and butchery tools'],
+    availability: 'available',
+    areaIds: ['area:land'],
+    habitatIds: ['habitat:test'],
+    anchor: { nodeIds: [2], edgeIds: [] },
+    waterSources: [],
+  });
+  const meat = facts.resources.find((entry) => entry.id === 'resource:meat')!;
+  meat.catalogSource = { kind: 'raw-resource', resourceId: 'deer-meat' };
+  meat.sourceIds = ['resource-source:test-meat'];
   return {
     facts,
     map: {
@@ -138,6 +183,9 @@ function fixture(): Pick<Region, 'facts' | 'map' | 'settlements' | 'settlementId
 }
 
 function assessments(region = fixture()) {
+  region.facts.resourceSources = region.facts.resourceSources.filter((source) =>
+    region.facts.resources.some((entry) => entry.sourceIds?.includes(source.id)),
+  );
   return assessSettlementSupply(region, region.facts.settlementRoles[0]);
 }
 function generate(region = fixture(), seed = 'supply') {
@@ -159,6 +207,7 @@ function validate(region: ReturnType<typeof fixture>) {
 function sparse() {
   const region = fixture();
   region.facts.resources = region.facts.resources.filter((entry) => entry.kind === 'freshwater');
+  region.facts.resourceSources = [];
   return region;
 }
 
@@ -171,9 +220,42 @@ describe('saved scarcity and conditional imports', () => {
     expect(generate(region).facts.supply).toEqual([]);
   });
 
+  it('does not treat another settlement’s managed meat as local food supply', () => {
+    const region = fixture();
+    region.facts.managedProduction.push({
+      id: 'managed-production:other',
+      name: 'Another settlement’s herd',
+      description: '',
+      origin: 'authored',
+      producer: { kind: 'species', speciesName: 'cow' },
+      mode: 'husbandry',
+      productionRuleId: 'fantasy:production:cow:husbandry:v1',
+      settlement: { kind: 'artifact', targetId: 'other-owner' },
+      areaIds: ['area:land'],
+      habitatIds: ['habitat:test'],
+      anchor: { nodeIds: [2], edgeIds: [] },
+      supportingResourceIds: ['resource:water'],
+      supportingInhabitantIds: [],
+    });
+    const source = region.facts.resourceSources[0];
+    source.source = { kind: 'managed', productionId: 'managed-production:other' };
+    source.definitionId = 'fantasy:source:cow-meat:cow:husbandry:v1';
+    source.method = 'slaughtering';
+    source.resource.id = 'cow-meat';
+    source.resource.name = 'beef';
+    region.facts.resources.find((entry) => entry.id === 'resource:meat')!.catalogSource = {
+      kind: 'raw-resource',
+      resourceId: 'cow-meat',
+    };
+    expect(
+      assessments(region).find((entry) => entry.needKey === 'preserved-provisions')?.status,
+    ).toBe('local-not-supported');
+  });
+
   it('qualifies limited local production and offers supplementary imports', () => {
     const region = fixture();
     region.facts.resources.forEach((entry) => (entry.availability = 'limited'));
+    region.facts.resourceSources.forEach((entry) => (entry.availability = 'limited'));
     const facts = assessments(region);
     expect(facts).toHaveLength(6);
     for (const fact of facts) {

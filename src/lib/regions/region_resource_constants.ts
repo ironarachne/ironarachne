@@ -9,6 +9,7 @@ export const resourceKinds: ResourceKind[] = [
   'gemstone',
   'fiber',
   'animal-material',
+  'plant-material',
   'food',
   'geological-material',
   'oil',

@@ -112,6 +112,52 @@ function fixture(): Pick<Region, 'facts' | 'map' | 'settlements' | 'settlementId
       'deposit:stone',
     ]),
   );
+
+  facts.habitats.push({
+    id: 'habitat:test',
+    name: 'Habitat',
+    description: '',
+    origin: 'authored',
+    areaIds: ['area:land'],
+    anchor: { nodeIds: [1, 2], edgeIds: [] },
+  });
+  facts.ecologyInhabitants.push({
+    id: 'inhabitant:test-deer',
+    name: 'deer',
+    description: '',
+    origin: 'authored',
+    category: 'fauna',
+    source: { kind: 'species', speciesName: 'deer' },
+    roles: ['grazer'],
+    occurrenceForm: 'population',
+    habitatIds: ['habitat:test'],
+  });
+  facts.resourceSources.push({
+    id: 'resource-source:test-meat',
+    name: 'deer meat source',
+    description: '',
+    origin: 'authored',
+    definitionId: 'fantasy:source:deer-meat:deer:wild:v1',
+    resource: {
+      id: 'deer-meat',
+      name: 'deer meat',
+      majorType: 'organic',
+      minorType: 'red_meat',
+      uses: ['food'],
+      food: { kind: 'food', preparation: 'ordinary', productKeys: [] },
+    },
+    source: { kind: 'wild', inhabitantId: 'inhabitant:test-deer' },
+    method: 'hunting',
+    requirements: ['hunting and butchery tools'],
+    availability: 'limited',
+    areaIds: ['area:land'],
+    habitatIds: ['habitat:test'],
+    anchor: { nodeIds: [2], edgeIds: [] },
+    waterSources: [],
+  });
+  const meat = facts.resources.find((entry) => entry.id === 'resource:meat')!;
+  meat.catalogSource = { kind: 'raw-resource', resourceId: 'deer-meat' };
+  meat.sourceIds = ['resource-source:test-meat'];
   return {
     facts,
     map: {

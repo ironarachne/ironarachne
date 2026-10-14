@@ -75,3 +75,16 @@ validation and migration. Shared catalogs must not import regional types or pres
 See the [accepted Regions contract](../../../docs/regions-release-contract.md),
 [processing design](../../../docs/region-processing.md) and
 [resource-chain extension guide](../../../docs/region-authoring.md#add-a-resource-chain).
+
+## Qualified raw sources (#364)
+
+`getBiologicalRawResources`, `getBiologicalSourceDefinitions`, `getManagedProductionRules`, and
+`getGeologicalSourceDefinitions` separate commodities, producers, harvesting and occurrence rules.
+`snapshotRawResource` saves identity, uses and food qualification. Catalog arrays are independent
+copies. Generic species anatomy remains a compatibility API, and never grants regional food use
+to the new reviewed species.
+
+Recipes now carry explicit saved food policies and input uses. Material ingredients propagate
+preparation restrictions; fuel supports a process without becoming an ingredient. Finished-goods
+recipe expansion, consumed water, food-grade salts and processing aids remain #365. The reviewed
+coverage and exclusions are recorded in `docs/fantasy-raw-resource-ledger.md`.

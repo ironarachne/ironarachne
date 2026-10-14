@@ -25,12 +25,61 @@ snapshot.facts.notables = snapshot.facts.notables.filter(
   (fact) => fact.reason?.ruleId !== 'fantasy:region:dense-forest-landmark:v1',
 );
 
+const sourceSummaries = new Map(
+  snapshot.facts.resourceSources.flatMap((source) => {
+    const summary = snapshot.facts.resources.find((entry) => entry.sourceIds?.includes(source.id));
+    return summary ? [[source.id, summary.id] as const] : [];
+  }),
+);
+const sourceEvidence = new Map(
+  snapshot.facts.resourceSources.map((source) => [
+    source.id,
+    source.source.kind === 'deposit'
+      ? [source.source.depositId]
+      : source.source.kind === 'wild'
+        ? [source.source.inhabitantId, ...source.habitatIds]
+        : source.habitatIds,
+  ]),
+);
+for (const fact of [
+  ...snapshot.facts.resources,
+  ...snapshot.facts.products,
+  ...snapshot.facts.dailyLife,
+]) {
+  if ('sourceIds' in fact) {
+    delete fact.sourceIds;
+    delete fact.catalogSource;
+  }
+  if ('inputs' in fact)
+    for (const input of fact.inputs) if (input.kind === 'resource') delete input.sourceId;
+  if (fact.reason)
+    fact.reason.sources = fact.reason.sources.flatMap((source) => {
+      if (source.kind !== 'fact' || !sourceSummaries.has(source.factId)) return [source];
+      return (
+        'inputs' in fact
+          ? [sourceSummaries.get(source.factId)!]
+          : sourceEvidence.get(source.factId)!
+      ).map((factId) => ({ kind: 'fact' as const, factId }));
+    });
+  for (const assessment of fact.assessments ?? [])
+    assessment.sources = assessment.sources.flatMap((source) =>
+      source.kind === 'fact' && sourceEvidence.has(source.factId)
+        ? sourceEvidence.get(source.factId)!.map((factId) => ({ kind: 'fact' as const, factId }))
+        : [source],
+    );
+}
+snapshot.facts.managedProduction = [];
+snapshot.facts.resourceSources = [];
+
 describe('river payload version 10', () => {
   it('saves and rehydrates the complete network without consuming a new generation seed', async () => {
     const codec = await regionArtifactKind.loadCodec();
     const restored = codec.toSnapshot(codec.fromSnapshot(snapshot, undefined as never));
     expect(restored.map.rivers).toEqual(snapshot.map.rivers);
-    expect(validateRegionSnapshot(restored).ok).toBe(true);
+    expect(
+      validateRegionSnapshot(restored).ok,
+      JSON.stringify(validateRegionSnapshot(restored)),
+    ).toBe(true);
   });
 
   it('migrates version 9 without changing material links or inventing islands and deltas', () => {
@@ -38,7 +87,7 @@ describe('river payload version 10', () => {
     delete old.map.rivers;
     const before = structuredClone(old);
     const result = migrateRegionSnapshot(old, 9);
-    expect(result.ok).toBe(true);
+    expect(result.ok, result.ok ? '' : result.message).toBe(true);
     if (!result.ok) throw new Error('migration failed');
     expect(result.value.settlements).toEqual(old.settlements);
     expect(result.value.map.nodes).toEqual(old.map.nodes);
@@ -556,7 +605,7 @@ describe('migrating a stored region (7.3)', () => {
     };
     const result = migrateRegionSnapshot(withoutMechanics(legacy), 1);
 
-    expect(result.ok).toBe(true);
+    expect(result.ok, result.ok ? '' : result.message).toBe(true);
     if (result.ok) {
       expect(result.value.description).toBe(snapshot.description);
       expect(result.value.facts.state).toBe('legacy');
@@ -584,7 +633,7 @@ describe('migrating a stored region (7.3)', () => {
       settlements: snapshot.settlements.map((entry) => entry.snapshot),
     };
     const result = migrateRegionSnapshot(legacy, 2);
-    expect(result.ok).toBe(true);
+    expect(result.ok, result.ok ? '' : result.message).toBe(true);
     if (result.ok) {
       expect(result.value.map).toEqual(snapshot.map);
       expect(result.value.facts).toMatchObject({
@@ -639,13 +688,13 @@ describe('ecology save compatibility', () => {
     };
     const original = structuredClone(legacy);
     const result = migrateRegionSnapshot(legacy, 3);
-    expect(result.ok).toBe(true);
+    expect(result.ok, result.ok ? '' : result.message).toBe(true);
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...legacy,
       facts: {
         ...legacy.facts,
-        version: 9,
+        version: 10,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -734,7 +783,7 @@ describe('geology save migration', () => {
     const input = { ...structuredClone(snapshot), facts: old };
     const original = structuredClone(input);
     const result = migrateRegionSnapshot(input, 4);
-    expect(result.ok).toBe(true);
+    expect(result.ok, result.ok ? '' : result.message).toBe(true);
     if (!result.ok) throw new Error(result.message);
     expect(result.value.facts.geology).toEqual([]);
     expect(result.value.facts.resourceDeposits).toEqual([]);
@@ -775,13 +824,13 @@ describe('processing save migration', () => {
     });
     const original = structuredClone(input);
     const result = migrateRegionSnapshot(input, 5);
-    expect(result.ok).toBe(true);
+    expect(result.ok, result.ok ? '' : result.message).toBe(true);
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...input,
       facts: {
         ...input.facts,
-        version: 9,
+        version: 10,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -808,13 +857,13 @@ describe('daily-life save migration', () => {
     };
     const original = structuredClone(input);
     const result = migrateRegionSnapshot(input, 6);
-    expect(result.ok).toBe(true);
+    expect(result.ok, result.ok ? '' : result.message).toBe(true);
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...input,
       facts: {
         ...input.facts,
-        version: 9,
+        version: 10,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -900,11 +949,11 @@ describe('supply save migration', () => {
     };
     const before = structuredClone(input);
     const result = migrateRegionSnapshot(input, 7);
-    expect(result.ok).toBe(true);
+    expect(result.ok, result.ok ? '' : result.message).toBe(true);
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...input,
-      facts: { ...input.facts, version: 9, denseForests: [], mountainRanges: [], supply: [] },
+      facts: { ...input.facts, version: 10, denseForests: [], mountainRanges: [], supply: [] },
     });
     expect(input).toEqual(before);
     expect(validateRegionSnapshot(result.value).ok).toBe(true);
@@ -925,5 +974,44 @@ describe('supply save migration', () => {
     const back = codec.toSnapshot(codec.fromSnapshot(json, undefined as never));
     expect(back.facts.supply).toEqual(saved.facts.supply);
     expect(back.facts.products).toEqual(saved.facts.products);
+  });
+});
+
+describe('raw source save migration', () => {
+  it('adds empty v15 source collections and preserves old names, links and absent food policies', () => {
+    const {
+      managedProduction: _managed,
+      resourceSources: _sources,
+      ...facts
+    } = structuredClone(snapshot.facts);
+    for (const product of facts.products) {
+      delete product.food;
+      for (const input of product.inputs) {
+        delete input.foodUse;
+        if (input.kind === 'import') delete input.foodDescriptor;
+      }
+    }
+    const old = {
+      ...structuredClone(snapshot),
+      description: 'My saved region',
+      facts: { ...facts, version: 9 },
+    };
+    const before = structuredClone(old);
+    const result = migrateRegionSnapshot(old, 14);
+    expect(result.ok, result.ok ? '' : result.message).toBe(true);
+    if (!result.ok) throw new Error(result.message);
+    expect(result.value).toEqual({
+      ...old,
+      facts: { ...old.facts, version: 10, managedProduction: [], resourceSources: [] },
+    });
+    expect(
+      result.value.facts.products.every(
+        (product) =>
+          product.food === undefined &&
+          product.inputs.every((input) => input.foodUse === undefined),
+      ),
+    ).toBe(true);
+    expect(old).toEqual(before);
+    expect(migrateRegionSnapshot(snapshot, 14).ok).toBe(false);
   });
 });

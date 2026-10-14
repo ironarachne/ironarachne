@@ -1,3 +1,4 @@
+import { assessRawSourceFood, assessRegionProductFood } from './region_food';
 import type { RNG } from '@ironarachne/rng';
 import type Region from './region';
 import type { FactSource, ResourceFact, SettlementRoleFact } from './region_fact_types';
@@ -27,9 +28,11 @@ const resourceInput = (
   fact: ResourceFact,
   anchor = fact.anchor!,
   depositIds = fact.depositIds,
+  sourceId?: string,
 ): DailyLifeInput => ({
   kind: 'resource',
   resourceId: fact.id,
+  ...(sourceId ? { sourceId } : {}),
   anchor,
   depositIds,
 });
@@ -49,12 +52,17 @@ function candidatesFor(
     inputs: DailyLifeInput[],
   ) => {
     const sourceIds = inputs.flatMap((input) =>
-      input.kind === 'product' ? [input.productId] : [input.resourceId, ...input.depositIds],
+      input.kind === 'product'
+        ? [input.productId]
+        : [input.sourceId ?? input.resourceId, ...input.depositIds],
     );
     const limited = inputs.some((input) => {
       if (input.kind === 'resource')
         return (
-          facts.resources.find((entry) => entry.id === input.resourceId)?.availability === 'limited'
+          (input.sourceId
+            ? facts.resourceSources.find((entry) => entry.id === input.sourceId)?.availability
+            : facts.resources.find((entry) => entry.id === input.resourceId)?.availability) ===
+          'limited'
         );
       // Every raw leaf in a product is checked below; its limited availability is retained in prose.
       return productLimited(input.productId, new Set());
@@ -87,33 +95,50 @@ function candidatesFor(
         .find((entry) => entry.id === id)
         ?.inputs.some((input) =>
           input.kind === 'resource'
-            ? facts.resources.find((entry) => entry.id === input.resourceId)?.availability ===
+            ? (input.sourceId
+                ? facts.resourceSources.find((entry) => entry.id === input.sourceId)?.availability
+                : facts.resources.find((entry) => entry.id === input.resourceId)?.availability) ===
               'limited'
             : input.kind === 'product' && productLimited(input.productId, seen),
         ) ?? false
     );
   };
-  const resources = accessibleDailyLifeResources(region, start);
-  for (const { fact, resource, anchor, depositIds } of resources) {
-    const inputs = [resourceInput(fact, anchor, depositIds)];
+  const resources = accessibleDailyLifeResources(
+    region,
+    start,
+    role.settlement.kind === 'embedded' ? role.settlement.settlementId : undefined,
+  );
+  for (const {
+    fact,
+    resource,
+    anchor,
+    depositIds,
+    sourceId,
+    acquisitionRequirements,
+  } of resources) {
+    const inputs = [resourceInput(fact, anchor, depositIds, sourceId)];
     const label = resource.name;
+    const source = facts.resourceSources.find((entry) => entry.id === sourceId);
     if (
-      resource.major_type === 'organic' &&
-      ['red_meat', 'reptile_meat', 'poultry', 'insect_meat', 'fish'].includes(resource.minor_type)
+      source &&
+      assessRawSourceFood(source, (entry) => processingEvidenceCurrent(entry, facts)).status ===
+        'eligible'
     ) {
-      const fishing = resource.minor_type === 'fish';
+      const assumption = acquisitionRequirements?.length
+        ? ` Acquisition requires ${acquisitionRequirements.join(', ')}.`
+        : '';
       add(
         'livelihood',
-        fishing ? 'fishing' : 'hunting',
-        fishing ? 'Shore fishing' : 'Game hunting',
-        `${fishing ? 'Shore fishing' : 'Hunting local game'} could provide ${label} as a local food source.`,
+        source.method,
+        `${source.method} opportunity`,
+        `Local ${label} could be obtained by ${source.method}.${assumption}`,
         inputs,
       );
       add(
         'staple',
-        fishing ? 'fish-food' : 'game-food',
+        `raw-food-${source.resource.id}`,
         label,
-        `${label} could be obtained locally for food.`,
+        `${label} is a qualified raw food opportunity; handling and preparation remain necessary.${assumption}`,
         inputs,
       );
     }
@@ -209,7 +234,13 @@ function candidatesFor(
     const craft = Object.hasOwn(capabilities, product.productKey)
       ? capabilities[product.productKey]
       : undefined;
-    if (craft) {
+    if (
+      craft &&
+      (!['smoked-provisions', 'dried-provisions'].includes(product.productKey) ||
+        assessRegionProductFood(facts, product.id, (entry) =>
+          processingEvidenceCurrent(entry, facts),
+        ).status === 'eligible')
+    ) {
       const assumptions = product.requirements.length
         ? `, assuming ${product.requirements.join(', ')}`
         : '';
@@ -233,7 +264,10 @@ function candidatesFor(
         `${product.name} is a possible fuel through wood processing.`,
         inputs,
       );
-    if (['smoked-provisions', 'dried-provisions'].includes(product.productKey))
+    if (
+      assessRegionProductFood(facts, product.id, (entry) => processingEvidenceCurrent(entry, facts))
+        .status === 'eligible'
+    )
       add(
         'staple',
         `food-${product.productKey}`,

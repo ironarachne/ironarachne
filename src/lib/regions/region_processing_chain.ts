@@ -1,6 +1,6 @@
 import type { RegionFacts } from './region_fact_types';
 import type { ResolvedProcessingChain } from './region_processing_types';
-import { processingEvidenceCurrent } from './region_evidence';
+import { processingEvidenceCurrent, selectedResourceCurrent } from './region_evidence';
 
 /** Resolve saved data only; never replace stale/unknown products with a fresh recipe. */
 export function resolveProcessingChain(
@@ -38,7 +38,7 @@ export function resolveProcessingChain(
         if (
           !resource ||
           !['available', 'limited'].includes(resource.availability) ||
-          !processingEvidenceCurrent(resource, facts)
+          !selectedResourceCurrent(facts, input.resourceId, input.sourceId)
         )
           result.issues.push(`Unavailable local input: ${input.resourceId}`);
       }

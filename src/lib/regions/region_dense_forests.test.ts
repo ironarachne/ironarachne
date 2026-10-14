@@ -65,7 +65,7 @@ describe('regional dense forests', () => {
     const migrated = migrateRegionSnapshot(old, 12);
     expect(migrated.ok).toBe(true);
     if (!migrated.ok) throw new Error(migrated.message);
-    expect(migrated.value).toEqual({ ...old, facts: { ...facts, version: 9, denseForests: [] } });
+    expect(migrated.value).toEqual({ ...old, facts: { ...facts, version: 10, denseForests: [] } });
     expect(regionToMapSvg(migrated.value)).not.toContain('data-dense-forest-id=');
     expect(old).toEqual(before);
     expect(migrateRegionSnapshot(saved, 12).ok).toBe(false);

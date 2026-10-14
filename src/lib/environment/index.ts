@@ -26,3 +26,6 @@ export type * from './biomes/biome_types';
 
 export type * from './geology_types';
 export * from './geology';
+export type * from './biological_source_types';
+export * from './biological_habitats';
+export * from './plants';

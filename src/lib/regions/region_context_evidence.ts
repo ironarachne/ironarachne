@@ -1,3 +1,4 @@
+import { sourceSpecificSummaryIds } from './region_evidence';
 import type { FactBase, FactSource } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
 import { regionSemanticFactLists } from './region_fact_lists';
@@ -88,11 +89,14 @@ export function createRegionEvidenceChecker(snapshot: EvidenceContext) {
       ...entry.reason.sources,
       ...(entry.assessments ?? []).flatMap((assessment) => assessment.sources),
     ];
-    const current = sources.every((source) => {
-      if (source.kind !== 'fact') return observationCurrent(source);
-      const parent = entries.get(source.factId);
-      return parent !== undefined && check(parent, next);
-    });
+    const selected = sourceSpecificSummaryIds(entry);
+    const current = sources
+      .filter((source) => source.kind !== 'fact' || !selected.has(source.factId))
+      .every((source) => {
+        if (source.kind !== 'fact') return observationCurrent(source);
+        const parent = entries.get(source.factId);
+        return parent !== undefined && check(parent, next);
+      });
     checked.set(entry.id, current);
     return current;
   };

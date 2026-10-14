@@ -44,6 +44,7 @@ export function ecologyFactsError(
       source === null ||
       !(
         (source.kind === 'species' && nonempty(source.speciesName)) ||
+        (source.kind === 'plant' && nonempty(source.plantId) && entry.category === 'flora') ||
         (source.kind === 'described' && nonempty(source.label)) ||
         (source.kind === 'creature-artifact' &&
           nonempty(source.targetId) &&
@@ -51,6 +52,11 @@ export function ecologyFactsError(
       )
     )
       return 'region inhabitant has an invalid source';
+    if (
+      entry.occurrenceForm !== undefined &&
+      !['population', 'colony'].includes(String(entry.occurrenceForm))
+    )
+      return 'region inhabitant has an invalid occurrence form';
   }
   const relationKeys = new Set<string>();
   for (const entry of facts.ecologyRelationships as RecordValue[]) {

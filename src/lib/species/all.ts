@@ -104,6 +104,14 @@ import {
   giant_dragonfly,
   giant_scorpion,
   giant_spider,
+  wool_sheep,
+  honeybee,
+  european_perch,
+  european_flounder,
+  noble_crayfish,
+  dungeness_crab,
+  blue_mussel,
+  eastern_oyster,
 } from '$lib/species_animals';
 import {
   dretch,
@@ -245,6 +253,15 @@ import {
 } from '$lib/species_sentients';
 
 export default [
+  wool_sheep,
+  honeybee,
+  european_perch,
+  european_flounder,
+  noble_crayfish,
+  dungeness_crab,
+  blue_mussel,
+  eastern_oyster,
+
   ape,
   axe_beak,
   baboon,

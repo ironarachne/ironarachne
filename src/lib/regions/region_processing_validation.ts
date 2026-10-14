@@ -1,3 +1,4 @@
+import { isProductFoodPolicy, isImportedFoodDescriptor } from '$lib/resources';
 import type { RegionMap } from '$lib/map';
 import type { RegionFacts } from './region_fact_types';
 
@@ -36,6 +37,7 @@ export function processingFactsError(
   };
   for (const raw of value.products as Record<string, unknown>[]) {
     if (
+      (raw.food !== undefined && !isProductFoodPolicy(raw.food)) ||
       !text(raw.productKey) ||
       !text(raw.recipeId) ||
       !text(raw.technique) ||
@@ -51,7 +53,18 @@ export function processingFactsError(
       const input = object(inputValue);
       if (!input || !['material', 'fuel', 'water'].includes(String(input.role)))
         return 'regional product has an invalid input role';
+      if (
+        input.foodUse !== undefined &&
+        (!['ingredient', 'process-water', 'support'].includes(String(input.foodUse)) ||
+          (input.role === 'fuel' && input.foodUse !== 'support') ||
+          (input.role === 'material' && input.foodUse === 'process-water'))
+      )
+        return 'regional product has an invalid food input use';
       if (input.kind === 'import') {
+        if (input.foodDescriptor !== undefined && !isImportedFoodDescriptor(input.foodDescriptor))
+          return 'regional product has an invalid imported food descriptor';
+        if (input.foodUse === 'process-water')
+          return 'process-water requires a local freshwater source';
         if (!text(input.resourceName) || !text(input.explanation))
           return 'regional product import needs a resource and explanation';
         continue;
@@ -83,12 +96,34 @@ export function processingFactsError(
       const resource = facts.resources.find((entry) => entry.id === input.resourceId);
       if (!resource || !resource.anchor)
         return 'regional product cites an unknown or unlocated resource';
+      const selected =
+        input.sourceId === undefined
+          ? undefined
+          : facts.resourceSources.find((entry) => entry.id === input.sourceId);
+      if (
+        input.sourceId !== undefined &&
+        (!text(input.sourceId) || !selected || !resource.sourceIds?.includes(input.sourceId))
+      )
+        return 'regional product cites a source outside its resource summary';
+      if (
+        input.foodUse === 'process-water' &&
+        (resource.kind !== 'freshwater' || input.sourceId !== undefined)
+      )
+        return 'process-water requires a local freshwater source';
       const anchor = input.anchor as { nodeIds: number[]; edgeIds: number[] };
       if (
-        !anchor.nodeIds.every((id) => resource.anchor!.nodeIds.includes(id)) ||
-        !anchor.edgeIds.every((id) => resource.anchor!.edgeIds.includes(id))
+        !anchor.nodeIds.every((id) =>
+          (selected?.anchor ?? resource.anchor!).nodeIds.includes(id),
+        ) ||
+        !anchor.edgeIds.every((id) => (selected?.anchor ?? resource.anchor!).edgeIds.includes(id))
       )
         return 'regional product input lies outside its source';
+      if (
+        selected &&
+        JSON.stringify([...(input.depositIds as string[])].sort()) !==
+          JSON.stringify(selected.source.kind === 'deposit' ? [selected.source.depositId] : [])
+      )
+        return 'regional product deposit differs from selected source';
       if (
         !input.depositIds.every((id) => resource.depositIds.includes(id)) ||
         (resource.depositIds.length > 0 && input.depositIds.length === 0)
@@ -108,7 +143,10 @@ export function processingFactsError(
       if (
         !stale(raw) &&
         (!['available', 'limited'].includes(resource.availability) ||
-          resource.reason?.status === 'stale' ||
+          (selected
+            ? selected.reason?.status === 'stale' ||
+              !['available', 'limited'].includes(selected.availability)
+            : resource.reason?.status === 'stale') ||
           deposits.some((entry) => entry.reason?.status === 'stale'))
       )
         return 'current product uses unavailable or stale supply';

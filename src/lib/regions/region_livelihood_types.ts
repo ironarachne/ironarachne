@@ -2,7 +2,13 @@ import type { FactBase, SettlementTarget, SpatialAnchor } from './region_fact_ty
 
 export type DailyLifeCategory = 'livelihood' | 'staple' | 'building-material' | 'fuel' | 'craft';
 export type DailyLifeInput =
-  | { kind: 'resource'; resourceId: string; anchor: SpatialAnchor; depositIds: string[] }
+  | {
+      kind: 'resource';
+      resourceId: string;
+      sourceId?: string;
+      anchor: SpatialAnchor;
+      depositIds: string[];
+    }
   | { kind: 'product'; productId: string };
 export type SettlementDailyLifeFact = FactBase & {
   category: DailyLifeCategory;

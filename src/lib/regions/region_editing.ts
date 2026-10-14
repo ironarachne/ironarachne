@@ -116,20 +116,36 @@ function settlementRemovalDependencies(
     (entry) =>
       entry.settlement.kind === 'embedded' && entry.settlement.settlementId === settlementId,
   );
+  const production = snapshot.facts.managedProduction.filter(
+    (entry) =>
+      entry.settlement.kind === 'embedded' && entry.settlement.settlementId === settlementId,
+  );
   if (
-    [...roles, ...routes, ...uses, ...products, ...dailyLife, ...supply].some(
+    [...roles, ...routes, ...uses, ...products, ...dailyLife, ...supply, ...production].some(
       (fact) => fact.origin === 'authored',
     )
   )
     return null;
   const removedIds = new Set(
-    [...roles, ...routes, ...uses, ...products, ...dailyLife, ...supply].map((fact) => fact.id),
+    [...roles, ...routes, ...uses, ...products, ...dailyLife, ...supply, ...production].map(
+      (fact) => fact.id,
+    ),
   );
   const all = regionSemanticFactLists.flatMap<RegionSemanticFact>((key) => snapshot.facts[key]);
   while (true) {
     const dependents = all.filter(
       (fact) =>
-        !removedIds.has(fact.id) && regionFactTargets(fact).some((id) => removedIds.has(id)),
+        !removedIds.has(fact.id) &&
+        regionFactTargets(fact).some(
+          (id) =>
+            removedIds.has(id) &&
+            !(
+              fact.origin === 'generated' &&
+              'sourceIds' in fact &&
+              fact.sourceIds?.includes(id) &&
+              fact.sourceIds.some((sourceId) => !removedIds.has(sourceId))
+            ),
+        ),
     );
     const authoredInbound = all.some(
       (fact) =>

@@ -38,7 +38,9 @@ export function assessRawCapability(
 ): ProcessingCapability {
   const matches = matchingProcessingResources(resources, selector);
   // An available alternative prevents limited supply being inferred from a randomly chosen leaf.
-  const available = matches.filter((entry) => entry.fact.availability === 'available');
+  const available = matches.filter(
+    (entry) => (entry.sourceAvailability ?? entry.fact.availability) === 'available',
+  );
   const chosen = available.length ? available : matches;
   return {
     supported: chosen.length > 0,
@@ -67,9 +69,21 @@ export function assessProcessingCapability(
   const recipe = processingRecipes(recipes).find((entry) => entry.outputKey === outputKey);
   if (!recipe?.inputs.length) return unsupported(`recipe:${outputKey}`);
   const next = new Set(visiting).add(outputKey);
-  const inputs = recipe.inputs.map(({ selector }) =>
+  const inputs = recipe.inputs.map(({ selector, foodUse }) =>
     selector.kind === 'raw'
-      ? assessRawCapability(resources, selector)
+      ? assessRawCapability(
+          foodUse === 'ingredient' && recipe.food?.kind === 'food'
+            ? resources.filter(
+                (entry) =>
+                  entry.food?.kind === 'food' &&
+                  (entry.food.preparation === 'ordinary' ||
+                    (recipe.food?.kind === 'food' &&
+                      recipe.food.use === 'provision' &&
+                      entry.food.productKeys.includes(outputKey))),
+              )
+            : resources,
+          selector,
+        )
       : assessProcessingCapability(recipes, resources, selector.productKey, next),
   );
   const depth = 1 + Math.max(...inputs.map((input) => input.depth));

@@ -1,5 +1,11 @@
 import type { RNG } from '@ironarachne/rng';
-import { BiomeClassifications } from '$lib/environment';
+import {
+  BiomeClassifications,
+  getPlantDefinitions,
+  supportsBiologicalHabitat,
+} from '$lib/environment';
+import { getBiologicalSourceDefinitions } from '$lib/resources';
+import { biologicalPatch } from './region_biological_patches';
 import { allSpecies } from '$lib/species';
 import { classifyRegionLandforms, type MapNode } from '$lib/map';
 import type Region from './region';
@@ -71,7 +77,7 @@ function supportsRule(patch: EcologyPatch, rule: EcologyRule): boolean {
 }
 
 /** Use actual biome IDs, never an editable habitat name or regional climate summary. */
-function patchesFor(
+export function patchesFor(
   region: Pick<Region, 'map'>,
   habitat: HabitatFact,
   catalog: RegionEcologyCatalog,
@@ -169,7 +175,74 @@ export function ecologyCandidatesFor(
       nodeSources: new Map([[patch.node.id, [...sources]]]),
     });
   };
+  const reviewed = catalog.reviewedSources
+    ? getBiologicalSourceDefinitions().filter((entry) => entry.mode === 'wild')
+    : [];
+  const producers = [
+    ...(catalog.plants ?? [])
+      .filter(
+        (plant) =>
+          plant.forage.length ||
+          reviewed.some(
+            (entry) => entry.producer.kind === 'plant' && entry.producer.plantId === plant.id,
+          ),
+      )
+      .map((plant) => ({
+        source: { kind: 'plant' as const, plantId: plant.id },
+        name: plant.label,
+        category: 'flora' as const,
+        roles: ['producer' as const],
+        habitats: plant.habitats,
+        form: 'population' as const,
+      })),
+    ...reviewed
+      .filter(
+        (entry) => entry.producer.kind === 'species' && species.has(entry.producer.speciesName),
+      )
+      .map((entry) => ({
+        source: {
+          kind: 'species' as const,
+          speciesName: entry.producer.kind === 'species' ? entry.producer.speciesName : '',
+        },
+        name: entry.producer.kind === 'species' ? entry.producer.speciesName : '',
+        category: 'fauna' as const,
+        roles: ECOLOGY_RULES.find(
+          (rule) =>
+            rule.label === (entry.producer.kind === 'species' ? entry.producer.speciesName : ''),
+        )?.roles ?? ['other' as const],
+        habitats: entry.habitats,
+        form: entry.wildOccurrenceForm!,
+      })),
+  ];
   for (const patch of patchesFor(region, habitat, catalog)) {
+    const observed = biologicalPatch(region, patch);
+    for (const producer of producers) {
+      if (!producer.habitats.some((rule) => supportsBiologicalHabitat(observed, rule))) continue;
+      const key = JSON.stringify([producer.category, producer.source, producer.roles]);
+      const sources: FactSource[] = [
+        { kind: 'fact', factId: habitat.id },
+        ...observations(patch.node),
+        ...patch.waterSources,
+        ...waterSources(region, patch.node, true),
+      ];
+      const existing = candidates.get(key);
+      if (existing) {
+        existing.nodeSources.set(patch.node.id, sources);
+        existing.occurrenceForm = producer.form;
+      } else
+        candidates.set(key, {
+          key,
+          name: producer.name,
+          source: producer.source,
+          category: producer.category,
+          roles: producer.roles,
+          occurrenceForm: producer.form,
+          description: `A supported ${producer.form} of ${producer.name}. Presence does not imply domestication or harvest.`,
+          ruleId: 'fantasy:region:reviewed-occurrence:v1',
+          sources,
+          nodeSources: new Map([[patch.node.id, sources]]),
+        });
+    }
     for (const rule of ECOLOGY_RULES) {
       const floraLabels = [
         ...patch.biome.vegetationTypes,
@@ -226,7 +299,12 @@ export function ecologyCandidatesFor(
 export function generateEcologyInhabitants(
   region: Pick<Region, 'map' | 'facts' | 'environment'>,
   rng: RNG,
-  catalog: RegionEcologyCatalog = { species: allSpecies, biomes: BiomeClassifications.getAll() },
+  catalog: RegionEcologyCatalog = {
+    species: allSpecies,
+    biomes: BiomeClassifications.getAll(),
+    plants: getPlantDefinitions(),
+    reviewedSources: true,
+  },
 ): void {
   const facts = region.facts!;
   const zones = new Set(
@@ -264,11 +342,12 @@ export function generateEcologyInhabitants(
         existing.reason!.sources.push(...candidate.sources);
       } else
         selected.set(candidate.key, {
-          id: `inhabitant:${candidate.category}:${encodeURIComponent(candidate.name)}`,
+          id: `inhabitant:${candidate.category}:${candidate.source.kind === 'plant' ? 'plant:' : ''}${encodeURIComponent(candidate.name)}`,
           name: candidate.name,
           description: candidate.description,
           origin: 'generated',
           source: candidate.source,
+          ...(candidate.occurrenceForm ? { occurrenceForm: candidate.occurrenceForm } : {}),
           category: candidate.category,
           roles: candidate.roles,
           habitatIds: [habitat.id],

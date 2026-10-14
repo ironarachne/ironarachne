@@ -1,3 +1,4 @@
+import { sourceSpecificSummaryIds } from './region_evidence';
 import { regionContextEvidenceCurrent } from './region_context_evidence';
 import type { FactBase, RegionFacts } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
@@ -19,12 +20,30 @@ export function regionFactTargets(fact: RegionSemanticFact): string[] {
   if ('siteRoleId' in fact) direct.push(fact.siteRoleId, ...fact.areaIds);
   if ('inputs' in fact)
     for (const input of fact.inputs) {
-      if (input.kind === 'resource') direct.push(input.resourceId, ...input.depositIds);
+      if (input.kind === 'resource')
+        direct.push(
+          input.resourceId,
+          ...('sourceId' in input && input.sourceId ? [input.sourceId] : []),
+          ...input.depositIds,
+        );
       if (input.kind === 'product') direct.push(input.productId);
     }
   if ('resourceIds' in fact) direct.push(...fact.resourceIds, ...fact.productIds);
   if ('geologyId' in fact) direct.push(fact.geologyId);
   if ('depositIds' in fact) direct.push(...fact.depositIds);
+  if ('sourceIds' in fact) direct.push(...(fact.sourceIds ?? []));
+  if ('supportingResourceIds' in fact)
+    direct.push(...fact.supportingResourceIds, ...fact.supportingInhabitantIds);
+  if ('source' in fact && 'resource' in fact) {
+    const origin = fact.source;
+    direct.push(
+      origin.kind === 'wild'
+        ? origin.inhabitantId
+        : origin.kind === 'managed'
+          ? origin.productionId
+          : origin.depositId,
+    );
+  }
   if ('subjectId' in fact) direct.push(fact.subjectId);
   if ('relatedIds' in fact) direct.push(...fact.relatedIds);
   return direct;
@@ -33,17 +52,18 @@ export function staleRegionFactDependents(facts: RegionFacts, changed: Set<strin
   // Negative assessments depend on inventory membership, including newly added sources.
   const inventoryChanged = [...changed].some((id) => !id.startsWith('supply:'));
   if (inventoryChanged) for (const fact of facts.supply) changed.add(fact.id);
+  const explicit = new Set(changed);
   const all = lists.flatMap<RegionSemanticFact>((list) => facts[list]);
   let grew = true;
   while (grew) {
     grew = false;
     for (const fact of all) {
+      const aggregate = sourceSpecificSummaryIds(fact);
+      const affected = (id: string) => changed.has(id) && (!aggregate.has(id) || explicit.has(id));
       if (
         !changed.has(fact.id) &&
-        (regionFactTargets(fact).some((id) => changed.has(id)) ||
-          fact.reason?.sources.some(
-            (source) => source.kind === 'fact' && changed.has(source.factId),
-          ))
+        (regionFactTargets(fact).some(affected) ||
+          fact.reason?.sources.some((source) => source.kind === 'fact' && affected(source.factId)))
       ) {
         changed.add(fact.id);
         grew = true;
@@ -67,12 +87,49 @@ export function staleRegionFactDependents(facts: RegionFacts, changed: Set<strin
 
 /** Apply an already checked removal closure and stale all transitive reason dependents. */
 export function removeRegionFactIds(facts: RegionFacts, removed: Set<string>): RegionFacts {
+  const retainedSources = facts.resourceSources.filter((entry) => !removed.has(entry.id));
   return staleRegionFactDependents(
     {
       ...facts,
       ...Object.fromEntries(
         lists.map((key) => [key, facts[key].filter((fact) => !removed.has(fact.id))]),
       ),
+      resources: facts.resources
+        .filter((entry) => !removed.has(entry.id))
+        .map((entry) => {
+          if (!entry.sourceIds) return entry;
+          const sourceIds = entry.sourceIds.filter((sourceId) => !removed.has(sourceId));
+          const sources = retainedSources.filter((source) => sourceIds.includes(source.id));
+          return {
+            ...entry,
+            sourceIds,
+            depositIds: [
+              ...new Set(
+                sources.flatMap((source) =>
+                  source.source.kind === 'deposit' ? [source.source.depositId] : [],
+                ),
+              ),
+            ].sort(),
+            areaIds: [...new Set(sources.flatMap((source) => source.areaIds))].sort(),
+            habitatIds: [...new Set(sources.flatMap((source) => source.habitatIds))].sort(),
+            anchor: {
+              nodeIds: [...new Set(sources.flatMap((source) => source.anchor.nodeIds))].sort(
+                (a, b) => a - b,
+              ),
+              edgeIds: [...new Set(sources.flatMap((source) => source.anchor.edgeIds))].sort(
+                (a, b) => a - b,
+              ),
+            },
+            reason: entry.reason
+              ? {
+                  ...entry.reason,
+                  sources: entry.reason.sources.filter(
+                    (source) => source.kind !== 'fact' || !removed.has(source.factId),
+                  ),
+                }
+              : undefined,
+          };
+        }),
     } as RegionFacts,
     removed,
   );
@@ -112,7 +169,17 @@ export function removeRegionResourceFact(
   while (grew) {
     grew = false;
     for (const fact of all) {
-      const linked = regionFactTargets(fact).some((target) => removed.has(target));
+      const aggregate = sourceSpecificSummaryIds(fact);
+      const partialSummary =
+        fact.origin === 'generated' &&
+        'sourceIds' in fact &&
+        fact.sourceIds?.some((sourceId) => !removed.has(sourceId));
+      const linked = regionFactTargets(fact).some(
+        (target) =>
+          removed.has(target) &&
+          (!partialSummary || !fact.sourceIds?.includes(target)) &&
+          (!aggregate.has(target) || target === id),
+      );
       const reasonLinked = fact.reason?.sources.some(
         (source) => source.kind === 'fact' && removed.has(source.factId),
       );

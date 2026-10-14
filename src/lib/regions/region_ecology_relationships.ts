@@ -1,5 +1,5 @@
 import type { RNG } from '@ironarachne/rng';
-import { BiomeClassifications } from '$lib/environment';
+import { BiomeClassifications, getPlantDefinitions } from '$lib/environment';
 import { allSpecies } from '$lib/species';
 import type { MapNode } from '$lib/map';
 import { ecologyCandidatesFor } from './region_ecology';
@@ -24,13 +24,19 @@ const factSource = (factId: string): FactSource => ({ kind: 'fact', factId });
 const current = (fact: EcologyInhabitantFact | SettlementRoleFact) =>
   fact.reason?.status !== 'stale';
 const sourceName = (entry: EcologyInhabitantFact) =>
-  entry.source.kind === 'described' ? entry.source.label : entry.source.speciesName;
+  entry.source.kind === 'described'
+    ? entry.source.label
+    : entry.source.kind === 'plant'
+      ? entry.source.plantId
+      : entry.source.speciesName;
 const uniqueSources = (sources: FactSource[]) => [
   ...new Map(sources.map((source) => [JSON.stringify(source), source])).values(),
 ];
 const defaultCatalog = (): RegionEcologyCatalog => ({
   species: allSpecies,
   biomes: BiomeClassifications.getAll(),
+  plants: getPlantDefinitions(),
+  reviewedSources: true,
 });
 
 /** Recheck supported cells without rolling or rewriting the saved inhabitants. */
@@ -54,7 +60,7 @@ function occurrencesFor(
         (candidate) =>
           candidate.category === inhabitant.category &&
           candidate.source.kind === inhabitant.source.kind &&
-          candidate.name === sourceName(inhabitant) &&
+          JSON.stringify(candidate.source) === JSON.stringify(inhabitant.source) &&
           JSON.stringify([...candidate.roles].sort()) ===
             JSON.stringify([...inhabitant.roles].sort()),
       );

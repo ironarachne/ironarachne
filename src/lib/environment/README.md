@@ -137,3 +137,10 @@ terrain to justify a later regional claim.
 See the accepted [Regions contract](../../../docs/regions-release-contract.md) and
 [data-flow and authoring guide](../../../docs/region-authoring.md) for stage ownership, source
 semantics and adding a supported habitat or inhabitant.
+
+## Reviewed biological habitats
+
+`getPlantDefinitions` provides exact producer identities and explicit aliases. Habitat rules match
+observed land patches, temperature, moisture, landform and distinct bank, lake-shore and coastal
+water witnesses. `supportsBiologicalHabitat` is pure; regional occurrence and production remain
+in `$lib/regions`. Forage capabilities describe reviewed support without claiming a complete diet.

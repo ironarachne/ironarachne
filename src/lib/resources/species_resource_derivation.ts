@@ -62,6 +62,9 @@ function isHumanoidOnly(species: Species): boolean {
  * Humanoid-only species are excluded unless tagged `resource_derivable`.
  */
 export function speciesYieldsCarcassResources(species: Species): boolean {
+  // Explicit reviewed producer catalogs define these products; anatomy guesses would call
+  // fish reptile meat and bivalves insect meat. Existing species retain their public behavior.
+  if (species.tags.includes('reviewed-source-only')) return false;
   if (species.creatureTypes.some((t) => EXCLUDED_CREATURE_TYPES.has(t))) {
     return false;
   }

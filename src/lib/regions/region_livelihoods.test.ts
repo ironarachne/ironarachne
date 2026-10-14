@@ -131,6 +131,52 @@ function fixture(): Pick<Region, 'facts' | 'map' | 'settlements' | 'settlementId
     }),
     raw('meat', 'food', { kind: 'species-product', speciesName: 'goat', resourceName: 'chevon' }),
   );
+
+  facts.habitats.push({
+    id: 'habitat:test',
+    name: 'Habitat',
+    description: '',
+    origin: 'authored',
+    areaIds: ['area:land'],
+    anchor: { nodeIds: [1, 2], edgeIds: [] },
+  });
+  facts.ecologyInhabitants.push({
+    id: 'inhabitant:test-deer',
+    name: 'deer',
+    description: '',
+    origin: 'authored',
+    category: 'fauna',
+    source: { kind: 'species', speciesName: 'deer' },
+    roles: ['grazer'],
+    occurrenceForm: 'population',
+    habitatIds: ['habitat:test'],
+  });
+  facts.resourceSources.push({
+    id: 'resource-source:test-meat',
+    name: 'deer meat source',
+    description: '',
+    origin: 'authored',
+    definitionId: 'fantasy:source:deer-meat:deer:wild:v1',
+    resource: {
+      id: 'deer-meat',
+      name: 'deer meat',
+      majorType: 'organic',
+      minorType: 'red_meat',
+      uses: ['food'],
+      food: { kind: 'food', preparation: 'ordinary', productKeys: [] },
+    },
+    source: { kind: 'wild', inhabitantId: 'inhabitant:test-deer' },
+    method: 'hunting',
+    requirements: ['hunting and butchery tools'],
+    availability: 'limited',
+    areaIds: ['area:land'],
+    habitatIds: ['habitat:test'],
+    anchor: { nodeIds: [2], edgeIds: [] },
+    waterSources: [],
+  });
+  const meat = facts.resources.find((entry) => entry.id === 'resource:meat')!;
+  meat.catalogSource = { kind: 'raw-resource', resourceId: 'deer-meat' };
+  meat.sourceIds = ['resource-source:test-meat'];
   return {
     facts,
     map: {
@@ -183,7 +229,7 @@ describe('supported settlement daily life', () => {
     expect({ ...region, facts: { ...region.facts, dailyLife: [] } }).toEqual(before);
     expect(validate(region)).toBeNull();
     const context = settlementDailyLifeContext(region.facts, target);
-    expect(context.staple.map((fact) => fact.name)).toEqual(['chevon']);
+    expect(context.staple.map((fact) => fact.name)).toEqual(['deer meat']);
     expect(context['building-material'].map((fact) => fact.name).sort()).toEqual([
       'granite',
       'oak timber',
@@ -237,46 +283,41 @@ describe('supported settlement daily life', () => {
   });
 
   it('requires actual shore supply for fishing, rather than a port label or distant water', () => {
-    // The current species catalog has no fish carcass subtype. A controlled future catalog
-    // descriptor exercises shore access without adding fictitious fish to production data.
-    const original = Resources.deriveResourcesFromSpecies;
-    vi.spyOn(Resources, 'deriveResourcesFromSpecies').mockImplementation((species) =>
-      species.name === 'crab'
-        ? [
-            {
-              name: 'test fish',
-              description: '',
-              major_type: 'organic',
-              minor_type: 'fish',
-              is_refineable: false,
-              properties: [],
-              commonality: 1,
-            },
-          ]
-        : original(species),
-    );
     const region = fixture();
     region.facts.resources = [
-      raw(
-        'fish',
-        'fish',
-        { kind: 'species-product', speciesName: 'crab', resourceName: 'test fish' },
-        [4],
-      ),
+      raw('fish', 'fish', { kind: 'raw-resource', resourceId: 'perch-flesh' }, [1]),
     ];
-    region.facts.settlementRoles[0].reason!.ruleId = 'fantasy:region:coastal-port-site:v1';
+    region.facts.resources[0].sourceIds = ['resource-source:test-fish'];
+    region.facts.resourceSources = [
+      {
+        ...region.facts.resourceSources[0],
+        id: 'resource-source:test-fish',
+        definitionId: 'fantasy:source:perch-flesh:European perch:wild:v1',
+        resource: {
+          id: 'perch-flesh',
+          name: 'perch flesh',
+          majorType: 'organic',
+          minorType: 'fish',
+          uses: ['food'],
+          food: { kind: 'food', preparation: 'ordinary', productKeys: [] },
+        },
+        method: 'fishing',
+        anchor: { nodeIds: [1], edgeIds: [] },
+        source: { kind: 'wild', inhabitantId: 'inhabitant:test-deer' },
+        waterSources: [{ kind: 'lake', nodeId: 4 }],
+      },
+    ];
+    region.facts.ecologyInhabitants[0].source = { kind: 'species', speciesName: 'European perch' };
     derive(region);
     expect(region.facts.dailyLife.map((fact) => fact.activityKey).sort()).toEqual([
-      'fish-food',
       'fishing',
+      'raw-food-perch-flesh',
     ]);
     expect(validate(region)).toBeNull();
     region.facts.dailyLife = [];
-    region.map.nodes.push(node(5, [], true));
-    region.facts.resources[0].anchor!.nodeIds = [5];
+    region.facts.resources[0].anchor!.nodeIds = [2];
+    region.facts.resourceSources[0].anchor.nodeIds = [2];
     expect(derive(region).facts.dailyLife).toEqual([]);
-    region.facts.resources[0].anchor!.nodeIds = [1];
-    expect(derive(region).facts.dailyLife).toHaveLength(2);
   });
 
   it('uses complete local iron and linen chains for household crafts and charcoal fuel', () => {

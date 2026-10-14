@@ -1,3 +1,4 @@
+import type { RegionSemanticFact } from './region_resource_types';
 import type { FactBase, FactReason } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
 import {
@@ -33,8 +34,8 @@ export function regionOverviewCurrent(context: Context, reason?: FactReason): bo
     })
   );
 }
-export function regionInspectionFacts(snapshot: RegionSnapshot): FactBase[] {
-  return regionSemanticFactLists.flatMap<FactBase>((key) => snapshot.facts[key]);
+export function regionInspectionFacts(snapshot: RegionSnapshot): RegionSemanticFact[] {
+  return regionSemanticFactLists.flatMap<RegionSemanticFact>((key) => snapshot.facts[key]);
 }
 
 /** One memoized evidence traversal per reading pass; never cache mutable snapshots globally. */

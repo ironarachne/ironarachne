@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { regionInspectionFacts, regionOverviewCurrent, type RegionSnapshot } from '$lib/regions';
+  import {
+    regionInspectionFacts,
+    regionOverviewCurrent,
+    regionSourceQualifications,
+    type RegionSnapshot,
+  } from '$lib/regions';
   const { snapshot }: { snapshot: RegionSnapshot } = $props();
   let expanded = $state(false);
   const facts = $derived(regionInspectionFacts(snapshot));
@@ -33,6 +38,9 @@
         {#each fact.assessments ?? [] as assessment (assessment.topic)}
           <p><strong>{assessment.topic}: {assessment.status}</strong> — {assessment.explanation}</p>
         {/each}
+        {#each regionSourceQualifications(snapshot, fact) as qualification}<p>
+            {qualification}
+          </p>{/each}
         <pre>{JSON.stringify(fact, null, 2)}</pre>
       </details>
     {/each}

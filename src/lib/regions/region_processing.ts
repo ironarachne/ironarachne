@@ -13,6 +13,7 @@ import {
   processingEvidenceCurrent,
 } from './region_processing_resources';
 
+import { assessRegionProductFood } from './region_food';
 import { processingRecipes, matchingProcessingResources } from './region_processing_capability';
 
 const lexical = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
@@ -56,6 +57,7 @@ export function generateProcessingFacts(
     const resources = accessibleProcessingResources(
       region,
       reachableProcessingNodes(region, node.id),
+      id,
     );
     const cache = new Map<string, RegionalProductFact | null>();
     const heights = new Map<string, number>();
@@ -87,11 +89,13 @@ export function generateProcessingFacts(
             kind: 'resource',
             role: requirement.role,
             resourceId: chosen.fact.id,
+            ...(chosen.sourceId ? { sourceId: chosen.sourceId } : {}),
+            ...(requirement.foodUse ? { foodUse: requirement.foodUse } : {}),
             anchor: chosen.anchor,
             depositIds: chosen.depositIds,
           });
           sources.push(
-            { kind: 'fact', factId: chosen.fact.id },
+            { kind: 'fact', factId: chosen.sourceId ?? chosen.fact.id },
             ...chosen.depositIds.map((factId) => ({ kind: 'fact' as const, factId })),
           );
         } else {
@@ -101,7 +105,12 @@ export function generateProcessingFacts(
             cache.set(recipe.outputKey, null);
             return null;
           }
-          inputs.push({ kind: 'product', role: requirement.role, productId: parent.id });
+          inputs.push({
+            kind: 'product',
+            role: requirement.role,
+            productId: parent.id,
+            ...(requirement.foodUse ? { foodUse: requirement.foodUse } : {}),
+          });
           height = Math.max(height, 1 + heights.get(parent.productKey)!);
           sources.push({ kind: 'fact', factId: parent.id });
         }
@@ -118,7 +127,18 @@ export function generateProcessingFacts(
         productKey: recipe.outputKey,
         recipeId: recipe.id,
         technique: recipe.technique,
-        requirements: [...recipe.requirements],
+        requirements: [
+          ...new Set([
+            ...recipe.requirements,
+            ...inputs.flatMap((input) =>
+              input.kind === 'resource'
+                ? (facts.resourceSources.find((source) => source.id === input.sourceId)
+                    ?.requirements ?? [])
+                : [],
+            ),
+          ]),
+        ],
+        ...(recipe.food ? { food: structuredClone(recipe.food) } : {}),
         inputs,
         settlement: { kind: 'embedded', settlementId: id! },
         areaIds: facts.areas
@@ -132,6 +152,19 @@ export function generateProcessingFacts(
           sources: [...new Map(sources.map((source) => [JSON.stringify(source), source])).values()],
         },
       };
+      if (
+        fact.food?.kind === 'food' &&
+        fact.food.use === 'provision' &&
+        assessRegionProductFood(
+          { ...facts, products: [...built.values(), fact] },
+          fact.id,
+          (entry) =>
+            processingEvidenceCurrent(entry, { ...facts, products: [...built.values(), fact] }),
+        ).status !== 'eligible'
+      ) {
+        cache.set(recipe.outputKey, null);
+        return null;
+      }
       cache.set(recipe.outputKey, fact);
       heights.set(recipe.outputKey, height);
       built.set(fact.id, fact);

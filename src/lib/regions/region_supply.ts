@@ -1,3 +1,4 @@
+import { assessRegionProductFood } from './region_food';
 import type { RNG } from '@ironarachne/rng';
 import {
   getProcessingRecipes,
@@ -102,6 +103,10 @@ function assessNeed(
   // Saved authored local chains remain evidence even if their recipe is no longer in the catalog.
   for (const product of [...facts.products].sort((a, b) => lexical(a.id, b.id))) {
     if (
+      (need.key === 'preserved-provisions' &&
+        assessRegionProductFood(facts, product.id, (entry) =>
+          processingEvidenceCurrent(entry, facts),
+        ).status !== 'eligible') ||
       !need.outputs.includes(product.productKey) ||
       !sameSettlement(product.settlement, role.settlement) ||
       !dailyLifeInputCurrent(facts, region.map, start, role.settlement, {
@@ -114,8 +119,12 @@ function assessNeed(
     const ids = chain.localInputs.map((input) => input.resourceId);
     options.push({
       supported: true,
-      limited: ids.some(
-        (id) => facts.resources.find((entry) => entry.id === id)?.availability === 'limited',
+      limited: chain.localInputs.some(
+        (input) =>
+          (input.sourceId
+            ? facts.resourceSources.find((entry) => entry.id === input.sourceId)?.availability
+            : facts.resources.find((entry) => entry.id === input.resourceId)?.availability) ===
+          'limited',
       ),
       resourceIds: ids,
       missingInputKeys: [],
@@ -195,7 +204,11 @@ export function assessSettlementSupply(
     !region.map.nodes.some((node) => node.id === start && !node.isWater && !node.isOcean)
   )
     return [];
-  const resources = accessibleProcessingResources(region, reachableProcessingNodes(region, start));
+  const resources = accessibleProcessingResources(
+    region,
+    reachableProcessingNodes(region, start),
+    role.settlement,
+  );
   const regional = accessibleProcessingResources(
     region,
     new Set(region.map.nodes.map((node) => node.id)),

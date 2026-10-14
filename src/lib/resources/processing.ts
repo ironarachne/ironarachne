@@ -31,7 +31,19 @@ function recipe(
     outputName,
     technique,
     requirements,
-    inputs,
+    inputs: inputs.map((input) => ({
+      ...input,
+      foodUse: family === 'food' && input.role === 'material' ? 'ingredient' : 'support',
+    })),
+    food:
+      family === 'food'
+        ? {
+            kind: 'food',
+            use: 'provision',
+            reviewRuleId: `fantasy:processing:${outputKey}:food:v1`,
+            requirements: [...requirements],
+          }
+        : { kind: 'not-food' },
   };
 }
 /** Qualitative recipes: no invented time, yield, temperature or numeric technology level. */
