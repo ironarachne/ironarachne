@@ -215,7 +215,9 @@ function validate(region: ReturnType<typeof fixture>) {
 }
 function process(region: ReturnType<typeof fixture>, families: string[]) {
   generateProcessingFacts(region, new RNG('processing'), {
-    recipes: Resources.getProcessingRecipes().filter((recipe) => families.includes(recipe.family)),
+    recipes: Resources.getProcessingRecipes()
+      .slice(0, 12)
+      .filter((recipe) => families.includes(recipe.family)),
   });
   return region;
 }
@@ -337,16 +339,20 @@ describe('supported settlement daily life', () => {
       resolveProcessingChain(region.facts, input.productId).localInputs.map(
         (leaf) => leaf.resourceId,
       ),
-    ).toContain('resource:water');
+    ).toContain('resource:flax');
+    expect(
+      resolveProcessingChain(region.facts, input.productId).settlementWaterInputs,
+    ).toHaveLength(1);
     expect(linen.description).toContain('loom');
     expect(linen.description).toContain('sources are limited');
     region.facts.resources.find((fact) => fact.kind === 'freshwater')!.availability = 'unknown';
     region.facts.dailyLife = [];
     derive(region);
     expect(settlementDailyLifeContext(region.facts, target).craft.map((fact) => fact.name)).toEqual(
-      ['Basic iron toolmaking'],
+      ['Basic iron toolmaking', 'Linen weaving'],
     );
     region.facts.resources.find((fact) => fact.kind === 'timber')!.availability = 'unknown';
+    region.facts.resources.find((fact) => fact.kind === 'fiber')!.availability = 'unknown';
     region.facts.dailyLife = [];
     expect(
       derive(region).facts.dailyLife.some(
@@ -445,6 +451,7 @@ describe('supported settlement daily life', () => {
     region.facts.dailyLife = [];
     expect(settlementDailyLifeContext(derive(region).facts, target).craft).toEqual([]);
     linen.productKey = 'toString';
+    delete linen.context;
     linen.inputs = [
       {
         kind: 'resource',
@@ -529,6 +536,7 @@ describe('supported settlement daily life', () => {
     expect(settlementDailyLifeContext(derive(region).facts, target).craft).toEqual([]);
     linen.settlement = target;
     region.facts.resources.find((fact) => fact.kind === 'freshwater')!.anchor!.nodeIds = [3];
+    region.facts.resources.find((fact) => fact.kind === 'fiber')!.anchor!.nodeIds = [3];
     region.facts.dailyLife = [];
     expect(settlementDailyLifeContext(derive(region).facts, target).craft).toEqual([]);
     expect(

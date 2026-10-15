@@ -172,7 +172,9 @@ function fixture(): Pick<Region, 'facts' | 'map' | 'settlements' | 'settlementId
   };
 }
 const recipes = (...families: string[]) => ({
-  recipes: getProcessingRecipes().filter((recipe) => families.includes(recipe.family)),
+  recipes: getProcessingRecipes()
+    .slice(0, 12)
+    .filter((recipe) => families.includes(recipe.family)),
 });
 function processed(...families: string[]) {
   const region = fixture();
@@ -214,7 +216,7 @@ describe('saved local processing chains', () => {
     generateProcessingFacts(region, new RNG('missing'), recipes('iron'));
     expect(region.facts!.products).toEqual([]);
   });
-  it('does not substitute reed fiber for cloth, or assume a missing retting water supply', () => {
+  it('does not substitute reed fiber for cloth and uses settlement water without a mapped supply', () => {
     const reeds = fixture();
     reeds.facts!.resources.find((entry) => entry.id === 'resource:flax')!.catalogSource = {
       kind: 'plant-product',
@@ -226,7 +228,10 @@ describe('saved local processing chains', () => {
     const dry = fixture();
     dry.facts!.resources = dry.facts!.resources.filter((entry) => entry.kind !== 'freshwater');
     generateProcessingFacts(dry, new RNG('dry'), recipes('textile'));
-    expect(dry.facts!.products).toEqual([]);
+    expect(dry.facts!.products.some((entry) => entry.productKey === 'linen')).toBe(true);
+    expect(
+      resolveProcessingChain(dry.facts!, dry.facts!.products.at(-1)!.id).settlementWaterInputs,
+    ).toHaveLength(1);
   });
   it.each([
     'absent',
@@ -275,7 +280,7 @@ describe('saved local processing chains', () => {
     for (let i = 0; i < 15; i++) {
       const all = fixture();
       generateProcessingFacts(all, new RNG(`all:${i}`));
-      expect(all.facts!.products.length).toBeLessThanOrEqual(12);
+      expect(all.facts!.products.length).toBeLessThanOrEqual(24);
       for (const product of all.facts!.products)
         expect(resolveProcessingChain(all.facts!, product.id).issues).toEqual([]);
     }
@@ -345,7 +350,9 @@ describe('saved local processing chains', () => {
       },
     ];
     const region = fixture();
-    generateProcessingFacts(region, new RNG('cycles'), { recipes: custom });
+    expect(() => generateProcessingFacts(region, new RNG('cycles'), { recipes: custom })).toThrow(
+      /Cyclic recipe/,
+    );
     expect(region.facts!.products).toEqual([]);
   });
   it('reports missing/stale/cyclic saved links and keeps authored imported inputs explicit', () => {
@@ -468,7 +475,7 @@ describe('saved local processing chains', () => {
   });
   it('enforces the depth cap even when intermediate outputs are shared and cached', () => {
     const template = getProcessingRecipes()[0];
-    const custom: ProcessingRecipe[] = Array.from({ length: 5 }, (_, index) => ({
+    const custom: ProcessingRecipe[] = Array.from({ length: 9 }, (_, index) => ({
       ...template,
       id: `step:${index}`,
       outputKey: `step:${index}`,

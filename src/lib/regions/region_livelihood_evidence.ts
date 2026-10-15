@@ -2,7 +2,7 @@ import type { RegionMap } from '$lib/map';
 import type { RegionFacts, SettlementTarget } from './region_fact_types';
 import type { DailyLifeInput, SettlementDailyLifeFact } from './region_livelihood_types';
 import {
-  processingEvidenceCurrent,
+  createProcessingEvidenceChecker,
   reachableProcessingNodes,
   selectedResourceCurrent,
 } from './region_evidence';
@@ -24,6 +24,7 @@ export function dailyLifeInputCurrent(
   start: number,
   settlement: SettlementTarget,
   input: DailyLifeInput,
+  current = createProcessingEvidenceChecker(facts),
 ): boolean {
   const reached = reachableProcessingNodes({ map }, start);
   const site = map.nodes.find((node) => node.id === start);
@@ -35,7 +36,7 @@ export function dailyLifeInputCurrent(
       site.isOcean ||
       !resource?.anchor ||
       !['available', 'limited'].includes(resource.availability) ||
-      !selectedResourceCurrent(facts, raw.resourceId, raw.sourceId)
+      !selectedResourceCurrent(facts, raw.resourceId, raw.sourceId, current)
     )
       return false;
     const source = raw.sourceId
@@ -83,7 +84,7 @@ export function dailyLifeInputCurrent(
           deposit.concentration !== 'trace' &&
           deposit.exposure !== 'deep' &&
           deposit.extraction !== 'drilling' &&
-          processingEvidenceCurrent(deposit, facts),
+          current(deposit),
       ) &&
       (!deposits.length ||
         raw.anchor.nodeIds.every((id) =>
@@ -92,7 +93,7 @@ export function dailyLifeInputCurrent(
     );
   };
   if (input.kind === 'resource') return rawCurrent(input);
-  const chain = resolveProcessingChain(facts, input.productId);
+  const chain = resolveProcessingChain(facts, input.productId, current);
   return (
     chain.issues.length === 0 &&
     chain.imports.length === 0 &&
@@ -107,22 +108,23 @@ export function dailyLifeEvidenceCurrent(
   facts: RegionFacts,
   fact: SettlementDailyLifeFact,
 ): boolean {
+  const current = createProcessingEvidenceChecker(facts);
   const role = facts.settlementRoles.find((entry) => entry.id === fact.siteRoleId);
   return (
     role !== undefined &&
-    processingEvidenceCurrent(role, facts) &&
-    processingEvidenceCurrent(fact, facts) &&
+    current(role) &&
+    current(fact) &&
     fact.inputs.every((input) => {
       if (input.kind === 'product')
-        return resolveProcessingChain(facts, input.productId).issues.length === 0;
+        return resolveProcessingChain(facts, input.productId, current).issues.length === 0;
       const resource = facts.resources.find((entry) => entry.id === input.resourceId);
       return (
         resource !== undefined &&
         ['available', 'limited'].includes(resource.availability) &&
-        selectedResourceCurrent(facts, input.resourceId, input.sourceId) &&
+        selectedResourceCurrent(facts, input.resourceId, input.sourceId, current) &&
         input.depositIds.every((id) => {
           const deposit = facts.resourceDeposits.find((entry) => entry.id === id);
-          return deposit !== undefined && processingEvidenceCurrent(deposit, facts);
+          return deposit !== undefined && current(deposit);
         })
       );
     })

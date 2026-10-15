@@ -1,10 +1,10 @@
 import type { RNG } from '@ironarachne/rng';
-import { getProcessingRecipes, type ProcessingRecipe } from '$lib/resources';
+import { getProcessingRecipes } from '$lib/resources';
 import type Region from './region';
 import type { FactSource } from './region_fact_types';
 import type {
   ProcessingInput,
-  RegionalProductFact,
+  PlannedProduct,
   RegionProcessingCatalog,
 } from './region_processing_types';
 import {
@@ -12,12 +12,15 @@ import {
   reachableProcessingNodes,
   processingEvidenceCurrent,
 } from './region_processing_resources';
-
-import { assessRegionProductFood } from './region_food';
-import { processingRecipes, matchingProcessingResources } from './region_processing_capability';
+import { processingRecipes } from './region_processing_capability';
+import {
+  createProcessingPlanner,
+  PROCESSING_MAX_PRODUCTS,
+  SETTLEMENT_WATER_EXPLANATION,
+} from './region_processing_plan';
 
 const lexical = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
-/** Save complete possible chains, never instantiate a workshop or rescue a missing input with imports. */
+/** Select complete plans before recording any facts. Neither planning nor selection invents imports. */
 export function generateProcessingFacts(
   region: Pick<Region, 'facts' | 'map' | 'settlements' | 'settlementIds'>,
   rng: RNG,
@@ -26,16 +29,23 @@ export function generateProcessingFacts(
   const facts = region.facts;
   if (!facts) return;
   const recipes = processingRecipes(catalog.recipes);
-  const byOutput = new Map(recipes.map((recipe) => [recipe.outputKey, recipe]));
+  const byOutput = new Map(recipes.map((entry) => [entry.outputKey, entry]));
   const consumed = new Set(
     recipes.flatMap((recipe) =>
-      recipe.inputs.flatMap((input) =>
-        input.selector.kind === 'product' ? [input.selector.productKey] : [],
+      recipe.inputs.flatMap(({ selector }) =>
+        selector.kind === 'product' ? [selector.productKey] : [],
       ),
     ),
   );
-  const terminals = new Map<string, RegionalProductFact[]>();
-  const built = new Map<string, RegionalProductFact>();
+  type Candidate = {
+    id: string;
+    name: string;
+    nodeId: number;
+    roleId: string;
+    products: PlannedProduct[];
+    key: string;
+  };
+  const families = new Map<string, Candidate[]>();
   const settlements = region.settlements
     .map((settlement, index) => ({ settlement, id: region.settlementIds?.[index] }))
     .filter((entry) => entry.id !== undefined)
@@ -59,151 +69,127 @@ export function generateProcessingFacts(
       reachableProcessingNodes(region, node.id),
       id,
     );
-    const cache = new Map<string, RegionalProductFact | null>();
-    const heights = new Map<string, number>();
-    const build = (recipe: ProcessingRecipe, visiting: Set<string>): RegionalProductFact | null => {
-      if (visiting.has(recipe.outputKey) || !recipe.inputs.length) return null;
-      if (cache.has(recipe.outputKey)) return cache.get(recipe.outputKey)!;
-      const next = new Set(visiting);
-      next.add(recipe.outputKey);
-      const inputs: ProcessingInput[] = [];
-      let height = 1;
-      const sources: FactSource[] = [
-        { kind: 'fact', factId: role.id },
-        {
-          kind: 'map-node',
-          nodeId: node.id,
-          property: 'isWater',
-          observedValue: String(node.isWater),
-        },
-      ];
-      for (const requirement of recipe.inputs) {
-        if (requirement.selector.kind === 'raw') {
-          const eligible = matchingProcessingResources(resources, requirement.selector);
-          if (!eligible.length) {
-            cache.set(recipe.outputKey, null);
-            return null;
-          }
-          const chosen = rng.item(eligible);
-          inputs.push({
-            kind: 'resource',
-            role: requirement.role,
-            resourceId: chosen.fact.id,
-            ...(chosen.sourceId ? { sourceId: chosen.sourceId } : {}),
-            ...(requirement.foodUse ? { foodUse: requirement.foodUse } : {}),
-            anchor: chosen.anchor,
-            depositIds: chosen.depositIds,
-          });
-          sources.push(
-            { kind: 'fact', factId: chosen.sourceId ?? chosen.fact.id },
-            ...chosen.depositIds.map((factId) => ({ kind: 'fact' as const, factId })),
-          );
-        } else {
-          const parentRecipe = byOutput.get(requirement.selector.productKey);
-          const parent = parentRecipe ? build(parentRecipe, next) : null;
-          if (!parent) {
-            cache.set(recipe.outputKey, null);
-            return null;
-          }
-          inputs.push({
-            kind: 'product',
-            role: requirement.role,
-            productId: parent.id,
-            ...(requirement.foodUse ? { foodUse: requirement.foodUse } : {}),
-          });
-          height = Math.max(height, 1 + heights.get(parent.productKey)!);
-          sources.push({ kind: 'fact', factId: parent.id });
-        }
-      }
-      if (height > 4) {
-        cache.set(recipe.outputKey, null);
-        return null;
-      }
-      const fact: RegionalProductFact = {
-        id: `product:${encodeURIComponent(id!)}:${encodeURIComponent(recipe.outputKey)}`,
-        name: recipe.outputName,
-        description: `${settlement.name} could produce ${recipe.outputName.toLowerCase()} by ${recipe.technique}, assuming ${recipe.requirements.join(', ') || 'the declared craft capability'}.`,
-        origin: 'generated',
-        productKey: recipe.outputKey,
-        recipeId: recipe.id,
-        technique: recipe.technique,
-        requirements: [
-          ...new Set([
-            ...recipe.requirements,
-            ...inputs.flatMap((input) =>
-              input.kind === 'resource'
-                ? (facts.resourceSources.find((source) => source.id === input.sourceId)
-                    ?.requirements ?? [])
-                : [],
-            ),
-          ]),
-        ],
-        ...(recipe.food ? { food: structuredClone(recipe.food) } : {}),
-        inputs,
-        settlement: { kind: 'embedded', settlementId: id! },
-        areaIds: facts.areas
-          .filter((area) => area.mapNodeIds.includes(node.id))
-          .map((area) => area.id)
-          .sort(),
-        anchor: { nodeIds: [node.id], edgeIds: [] },
-        reason: {
-          ruleId: recipe.id,
-          status: 'current',
-          sources: [...new Map(sources.map((source) => [JSON.stringify(source), source])).values()],
-        },
-      };
+    const planOutput = createProcessingPlanner(recipes, resources);
+    for (const recipe of recipes) {
+      const baselineTerminal = [
+        'construction-components',
+        'woven-mats',
+        'linen',
+        'iron-tools',
+        'smoked-provisions',
+        'dried-provisions',
+        'dressed-stone',
+      ].includes(recipe.outputKey);
       if (
-        fact.food?.kind === 'food' &&
-        fact.food.use === 'provision' &&
-        assessRegionProductFood(
-          { ...facts, products: [...built.values(), fact] },
-          fact.id,
-          (entry) =>
-            processingEvidenceCurrent(entry, { ...facts, products: [...built.values(), fact] }),
-        ).status !== 'eligible'
-      ) {
-        cache.set(recipe.outputKey, null);
-        return null;
-      }
-      cache.set(recipe.outputKey, fact);
-      heights.set(recipe.outputKey, height);
-      built.set(fact.id, fact);
-      return fact;
-    };
-    for (const recipe of recipes.filter((entry) => !consumed.has(entry.outputKey))) {
-      const product = build(recipe, new Set());
-      if (!product) continue;
-      const family = terminals.get(recipe.family) ?? [];
-      family.push(product);
-      terminals.set(recipe.family, family);
+        consumed.has(recipe.outputKey) &&
+        !baselineTerminal &&
+        !(recipe.reviewRefs?.length && recipe.context?.uses.length)
+      )
+        continue;
+      const plan = planOutput(recipe.outputKey);
+      if (plan.status !== 'supported') continue;
+      const choices = families.get(recipe.family) ?? [];
+      choices.push({
+        id: id!,
+        name: settlement.name,
+        nodeId: node.id,
+        roleId: role.id,
+        products: plan.products,
+        key: recipe.outputKey,
+      });
+      families.set(recipe.family, choices);
     }
   }
-  const selected = new Map<string, RegionalProductFact>();
-  const closure = (
-    product: RegionalProductFact,
-    seen = new Set<string>(),
-  ): RegionalProductFact[] => {
-    if (seen.has(product.id)) return [];
-    seen.add(product.id);
-    return [
-      ...product.inputs.flatMap((input) =>
-        input.kind === 'product' && built.has(input.productId)
-          ? closure(built.get(input.productId)!, seen)
-          : [],
-      ),
-      product,
-    ];
-  };
-  const families = [...terminals.keys()].sort(lexical);
+  const productId = (settlementId: string, key: string) =>
+    `product:${encodeURIComponent(settlementId)}:${encodeURIComponent(key)}`;
+  const selected = new Map<string, { candidate: Candidate; product: PlannedProduct }>();
+  const remaining = [...families.keys()].sort(lexical);
   let count = 0;
-  while (families.length && count < 3) {
-    const family = rng.item(families);
-    families.splice(families.indexOf(family), 1);
-    const choices = terminals.get(family)!.sort((a, b) => lexical(a.id, b.id));
-    const chain = closure(rng.item(choices));
-    if (new Set([...selected.keys(), ...chain.map((entry) => entry.id)]).size > 12) continue;
-    for (const product of chain) selected.set(product.id, product);
+  while (remaining.length && count < 3) {
+    const family = rng.item(remaining);
+    remaining.splice(remaining.indexOf(family), 1);
+    const choices = families
+      .get(family)!
+      .filter((candidate) => {
+        if (
+          new Set([
+            ...selected.keys(),
+            ...candidate.products.map((entry) => productId(candidate.id, entry.productKey)),
+          ]).size > PROCESSING_MAX_PRODUCTS
+        )
+          return false;
+        return candidate.products.every((product) => {
+          const previous = selected.get(productId(candidate.id, product.productKey));
+          return !previous || JSON.stringify(previous.product) === JSON.stringify(product);
+        });
+      })
+      .sort((a, b) => lexical(`${a.id}:${a.key}`, `${b.id}:${b.key}`));
+    if (!choices.length) continue;
+    const candidate = rng.item(choices);
+    for (const product of candidate.products)
+      selected.set(productId(candidate.id, product.productKey), { candidate, product });
     count++;
   }
-  facts.products.push(...selected.values());
+  for (const [id, { candidate, product }] of selected) {
+    const recipe = byOutput.get(product.productKey)!;
+    const inputs: ProcessingInput[] = product.inputs.map((input) =>
+      input.kind === 'product'
+        ? {
+            kind: 'product',
+            role: input.role,
+            foodUse: input.foodUse,
+            productId: productId(candidate.id, input.productKey),
+          }
+        : structuredClone(input),
+    );
+    const sources: FactSource[] = [
+      { kind: 'fact', factId: candidate.roleId },
+      { kind: 'map-node', nodeId: candidate.nodeId, property: 'isWater', observedValue: 'false' },
+    ];
+    for (const input of inputs) {
+      if (input.kind === 'product') sources.push({ kind: 'fact', factId: input.productId });
+      if (input.kind === 'resource')
+        sources.push(
+          { kind: 'fact', factId: input.sourceId ?? input.resourceId },
+          ...input.depositIds.map((factId) => ({ kind: 'fact' as const, factId })),
+        );
+    }
+    const requirements = [
+      ...new Set([
+        ...recipe.requirements,
+        ...inputs.flatMap((input) =>
+          input.kind === 'resource'
+            ? (facts.resourceSources.find((source) => source.id === input.sourceId)?.requirements ??
+              [])
+            : input.kind === 'settlement-water'
+              ? [SETTLEMENT_WATER_EXPLANATION]
+              : [],
+        ),
+      ]),
+    ];
+    facts.products.push({
+      id,
+      productKey: product.productKey,
+      recipeId: recipe.id,
+      name: recipe.outputName,
+      description: `${candidate.name} could produce ${recipe.outputName.toLowerCase()} by ${recipe.technique}, assuming ${requirements.join(', ') || 'the declared craft capability'}.`,
+      origin: 'generated',
+      technique: recipe.technique,
+      requirements,
+      ...(recipe.food ? { food: structuredClone(recipe.food) } : {}),
+      ...(recipe.context ? { context: structuredClone(recipe.context) } : {}),
+      inputs,
+      settlement: { kind: 'embedded', settlementId: candidate.id },
+      areaIds: facts.areas
+        .filter((area) => area.mapNodeIds.includes(candidate.nodeId))
+        .map((area) => area.id)
+        .sort(),
+      anchor: { nodeIds: [candidate.nodeId], edgeIds: [] },
+      reason: {
+        ruleId: recipe.id,
+        status: 'current',
+        sources: [...new Map(sources.map((source) => [JSON.stringify(source), source])).values()],
+      },
+    });
+  }
 }

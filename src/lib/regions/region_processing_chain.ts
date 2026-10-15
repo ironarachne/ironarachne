@@ -1,16 +1,18 @@
 import type { RegionFacts } from './region_fact_types';
 import type { ResolvedProcessingChain } from './region_processing_types';
-import { processingEvidenceCurrent, selectedResourceCurrent } from './region_evidence';
+import { createProcessingEvidenceChecker, selectedResourceCurrent } from './region_evidence';
 
 /** Resolve saved data only; never replace stale/unknown products with a fresh recipe. */
 export function resolveProcessingChain(
   facts: RegionFacts,
   productId: string,
+  current = createProcessingEvidenceChecker(facts),
 ): ResolvedProcessingChain {
   const result: ResolvedProcessingChain = {
     products: [],
     localInputs: [],
     imports: [],
+    settlementWaterInputs: [],
     issues: [],
   };
   const visiting = new Set<string>();
@@ -27,18 +29,21 @@ export function resolveProcessingChain(
       return;
     }
     visiting.add(id);
-    if (!processingEvidenceCurrent(product, facts))
-      result.issues.push(`Stale or missing product evidence: ${id}`);
+    if (!current(product)) result.issues.push(`Stale or missing product evidence: ${id}`);
     for (const input of product.inputs) {
       if (input.kind === 'product') visit(input.productId);
       else if (input.kind === 'import') result.imports.push(input);
-      else {
+      else if (input.kind === 'settlement-water') {
+        result.settlementWaterInputs.push(input);
+        if (input.role !== 'water' || !input.explanation.trim())
+          result.issues.push(`Invalid settlement water: ${id}`);
+      } else {
         result.localInputs.push(input);
         const resource = facts.resources.find((entry) => entry.id === input.resourceId);
         if (
           !resource ||
           !['available', 'limited'].includes(resource.availability) ||
-          !selectedResourceCurrent(facts, input.resourceId, input.sourceId)
+          !selectedResourceCurrent(facts, input.resourceId, input.sourceId, current)
         )
           result.issues.push(`Unavailable local input: ${input.resourceId}`);
       }

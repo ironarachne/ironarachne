@@ -81,6 +81,10 @@ export function assessRegionProductFood(
   ): FoodAssessment => {
     if (input.kind === 'product') return visit(input.productId);
     if (input.kind === 'resource') return localInput(input);
+    if (input.kind === 'settlement-water')
+      return input.role === 'water' && input.explanation.trim()
+        ? { ...result('eligible'), requirements: [input.explanation] }
+        : result('invalid', 'Invalid settlement water baseline.');
     if (!input.explanation.trim())
       return result('invalid', 'An imported input needs an explanation.');
     const descriptor = input.foodDescriptor;
@@ -102,6 +106,8 @@ export function assessRegionProductFood(
   };
 
   const processWater = (input: ProcessingInput): boolean => {
+    if (input.kind === 'settlement-water')
+      return input.role === 'water' && !!input.explanation.trim();
     if (input.kind !== 'resource' || input.role !== 'water') return false;
     const summary = graph.resources.find((entry) => entry.id === input.resourceId);
     return summary?.kind === 'freshwater' && positive(summary.availability) && evidence(summary);
@@ -139,7 +145,11 @@ export function assessRegionProductFood(
       } else if (input.foodUse === 'ingredient' && input.role !== 'fuel') {
         ingredients.push(assessment);
       } else if (input.foodUse === 'process-water' && processWater(input)) {
-        requirements.push('Appropriate handling of process water; purity is not established.');
+        requirements.push(
+          input.kind === 'settlement-water'
+            ? input.explanation
+            : 'Appropriate handling of process water; purity is not established.',
+        );
       } else if (input.foodUse !== 'support' || input.role !== 'fuel') {
         status = 'invalid';
         issues.push(`Invalid food input role: ${id}:${index}`);

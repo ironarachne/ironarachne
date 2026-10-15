@@ -330,25 +330,22 @@ describe('saved scarcity and conditional imports', () => {
     expect(missing[0].description).toContain('unsupported extraction');
   });
 
-  it.each(['wood', 'water', 'flax', 'ore', 'meat'])(
-    'requires complete chains after removing %s',
-    (key) => {
-      const region = fixture();
-      region.facts.resources = region.facts.resources.filter(
-        (entry) => entry.id !== `resource:${key}`,
-      );
-      const missing = assessments(region).map((fact) => fact.needKey);
-      const expected: Record<string, string> = {
-        wood: 'iron-tools',
-        water: 'woven-cloth',
-        flax: 'woven-cloth',
-        ore: 'iron-tools',
-        meat: 'preserved-provisions',
-      };
-      expect(missing).toContain(expected[key]);
-      if (key === 'wood') expect(missing).not.toContain('preserved-provisions'); // Drying needs no fuel.
-    },
-  );
+  it.each(['wood', 'flax', 'ore', 'meat'])('requires complete chains after removing %s', (key) => {
+    const region = fixture();
+    region.facts.resources = region.facts.resources.filter(
+      (entry) => entry.id !== `resource:${key}`,
+    );
+    const missing = assessments(region).map((fact) => fact.needKey);
+    const expected: Record<string, string> = {
+      wood: 'iron-tools',
+      water: 'woven-cloth',
+      flax: 'woven-cloth',
+      ore: 'iron-tools',
+      meat: 'preserved-provisions',
+    };
+    expect(missing).toContain(expected[key]);
+    if (key === 'wood') expect(missing).not.toContain('preserved-provisions'); // Drying needs no fuel.
+  });
 
   it.each(['unknown', 'stale', 'legacy', 'empty', 'invalid-site', 'missing-role'])(
     'omits claims for %s evidence',
@@ -575,7 +572,11 @@ describe('pure complete processing capability', () => {
       recipe('b', 'c'),
       recipe('c', 'd'),
       recipe('d', 'e'),
-      { ...recipe('e', ''), inputs: getProcessingRecipes()[0].inputs },
+      recipe('e', 'f'),
+      recipe('f', 'g'),
+      recipe('g', 'h'),
+      recipe('h', 'i'),
+      { ...recipe('i', ''), inputs: getProcessingRecipes()[0].inputs },
     ];
     const region = fixture();
     const result = assessProcessingCapability(

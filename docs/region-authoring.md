@@ -179,19 +179,21 @@ coastline or label-placement logic in a rule.
    `species_resource_derivation.ts` or `geological_resources.ts` under `src/lib/resources`.
    If needed, extend `region_resources.ts` to save a supported occurrence, catalog identity,
    availability and deposit links. A catalog entry alone does not establish regional supply.
-2. Add a qualitative `ProcessingRecipe` in `src/lib/resources/processing.ts`. Give the output a
+2. Add a qualitative `ProcessingRecipe` in `src/lib/resources/processing_finished_goods.ts` (baseline chains remain in `processing.ts`). Give the output a
    stable key, a versioned recipe ID, a family, technique, requirements and every material, fuel
    and water selector. For a small extension, follow `construction-components` after `sawn-timber`:
    a new woodwork output can consume the existing product key rather than repeat the raw-input rule.
    Shared resource catalogs must not import region types.
 3. Use an existing supported technique or explicitly extend the fantasy policy in
-   `region_processing_capability.ts`. The generator and supply assessor share that policy and input
+   `resources/processing_techniques.ts`. The generator and supply assessor share `region_processing_plan.ts` and input
    matching. `region_processing_resources.ts` supplies current reachable sources and eligible
    surface/shallow deposits. Do not substitute imports, deep oil extraction or name matching for
-   missing support. Save all required intermediate steps within the depth-four, three-family and
-   twelve-product bounds; the generator omits a chain that cannot fit.
+   missing support. Save all required intermediate steps within the depth-eight, three-family and
+   twenty-four-product bounds; the generator omits a chain that cannot fit.
 4. Check `resolveProcessingChain` returns ordered saved products and explicit raw/imported leaves.
-   Extend livelihood or supply need tables only if the new good should participate in those rules;
+   Declare explicit food policy, source review references and product-context uses for the new good;
+   use `settlement-water` for ordinary clean water and raw identity selectors for other new inputs.
+   Check that livelihood and supply classification follows the saved context;
    representative product selection is not proof that unselected products cannot be made.
 5. Add compatibility tests in `resources/processing.test.ts` and controlled chain tests in
    `regions/region_processing.test.ts`. Remove each required input in turn and expect omission;

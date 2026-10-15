@@ -161,7 +161,7 @@ describe('grounded regional identity', () => {
   it('keeps full generated payloads valid without a schema migration', () => {
     const saved = toRegionSnapshot(base);
     expect(regionFactsError(saved.facts, saved.map, saved.settlements)).toBeNull();
-    expect(saved.facts.version).toBe(10);
+    expect(saved.facts.version).toBe(11);
   });
   it('stores located relationships and reuses them in the introduction and every text export', () => {
     const region = enrich();

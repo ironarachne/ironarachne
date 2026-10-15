@@ -2,7 +2,7 @@ import type { RegionMap } from '$lib/map';
 import type { RegionFacts, RegionSettlement } from './region_fact_types';
 import type { SettlementDailyLifeFact } from './region_livelihood_types';
 import { sameSettlement, dailyLifeInputCurrent } from './region_livelihood_evidence';
-import { processingEvidenceCurrent } from './region_evidence';
+import { createProcessingEvidenceChecker } from './region_evidence';
 
 const object = (value: unknown): Record<string, unknown> | null =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -21,6 +21,7 @@ export function dailyLifeFactsError(
   settlementValid: (value: unknown) => boolean,
 ): string | null {
   const facts = value as unknown as RegionFacts;
+  const current = createProcessingEvidenceChecker(facts);
   const anchorValid = (value: unknown): boolean => {
     const anchor = object(value);
     return (
@@ -115,10 +116,10 @@ export function dailyLifeFactsError(
     if (
       fact.origin === 'generated' &&
       fact.reason?.status !== 'stale' &&
-      (!processingEvidenceCurrent(fact, facts) ||
-        !processingEvidenceCurrent(role, facts) ||
+      (!current(fact) ||
+        !current(role) ||
         !fact.inputs.every((input) =>
-          dailyLifeInputCurrent(facts, map, start, fact.settlement, input),
+          dailyLifeInputCurrent(facts, map, start, fact.settlement, input, current),
         ))
     )
       return 'current daily-life fact uses unavailable, stale or inaccessible inputs';
