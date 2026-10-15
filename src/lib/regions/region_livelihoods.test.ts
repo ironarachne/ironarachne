@@ -284,6 +284,76 @@ describe('supported settlement daily life', () => {
     expect(derive(farm).facts.dailyLife).toEqual([]);
   });
 
+  it.each(
+    (['timber', 'stone'] as const).flatMap((kind) =>
+      (['adjacent', 'widely separated', 'disconnected', 'across water'] as const).map(
+        (placement) => ({ kind, placement }),
+      ),
+    ),
+  )(
+    'treats $placement $kind as potential access without claiming proximity or changing provenance',
+    ({ kind, placement }) => {
+      const region = fixture();
+      region.facts.resources = region.facts.resources.filter((fact) => fact.kind === kind);
+      const disconnected = placement === 'disconnected' || placement === 'across water';
+      if (placement === 'widely separated') {
+        region.map.nodes[0].neighbors = [5];
+        region.map.nodes[1].neighbors = [5];
+        region.map.width = 100001;
+        region.map.height = 100001;
+        region.map.nodes[1].center = { x: 100000, y: 100000 };
+        region.map.nodes.push(node(5, [1, 2]));
+      }
+      if (placement === 'disconnected') {
+        region.facts.resources[0].anchor!.nodeIds = [3];
+        if (kind === 'stone') region.facts.resourceDeposits[0].anchor.nodeIds = [3];
+      }
+      if (placement === 'across water') {
+        region.map.nodes[0].neighbors = [4];
+        region.map.nodes[1].neighbors = [4];
+        region.map.nodes[3].neighbors = [1, 2];
+      }
+      const before = structuredClone(region.facts.resources);
+      const accessible = accessibleDailyLifeResources(region, 1, 'settlement:home');
+      expect(accessible.map((entry) => entry.fact.id)).toEqual(
+        disconnected ? [] : [kind === 'timber' ? 'resource:wood' : 'resource:stone'],
+      );
+      derive(region);
+      expect(region.facts.resources).toEqual(before);
+      if (disconnected) {
+        expect(region.facts.dailyLife).toEqual([]);
+        return;
+      }
+      expect(
+        region.facts.dailyLife.find(
+          (fact) =>
+            fact.activityKey === (kind === 'timber' ? 'timber-gathering' : 'raw-extraction'),
+        )!.description,
+      ).toContain(
+        kind === 'timber'
+          ? 'Woodland in the region could provide'
+          : 'Deposits in the region could provide',
+      );
+      for (const fact of region.facts.dailyLife) {
+        expect(fact.description).not.toMatch(/nearby|local|close|within easy reach/i);
+        expect(fact.inputs).toEqual([
+          {
+            kind: 'resource',
+            resourceId: before[0].id,
+            anchor: before[0].anchor,
+            depositIds: before[0].depositIds,
+          },
+        ]);
+        expect(dailyLifeInputCurrent(region.facts, region.map, 1, target, fact.inputs[0])).toBe(
+          true,
+        );
+      }
+      const replay = structuredClone(region);
+      replay.facts.dailyLife = [];
+      expect(derive(replay).facts.dailyLife).toEqual(region.facts.dailyLife);
+    },
+  );
+
   it('requires actual shore supply for fishing, rather than a port label or distant water', () => {
     const region = fixture();
     region.facts.resources = [

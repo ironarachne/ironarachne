@@ -72,6 +72,10 @@ describe('regional evidence and prose', () => {
     fact.description = describeResource(fact, new RNG('words'));
     expect(fact.description).toMatch(/could/);
     expect(fact.description).not.toMatch(/implied|logging|industry|unverified/);
+    for (const option of resourceNarrativeOptions(fact)) {
+      expect(option).toContain('in the region');
+      expect(option).not.toMatch(/nearby|local|close|within easy reach/i);
+    }
     expect(describeResource(fact, new RNG('words'))).toBe(fact.description);
   });
   it.each(['unknown', 'not-observed'] as const)(
@@ -103,6 +107,7 @@ describe('regional evidence and prose', () => {
       if (kind === 'freshwater') {
         fact.name = 'Lake water';
         expect(resourceNarrativeOptions(fact).join(' ')).toContain('lake');
+        expect(resourceNarrativeOptions(fact).join(' ')).not.toMatch(/nearby|local/i);
       }
     },
   );
