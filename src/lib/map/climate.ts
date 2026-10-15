@@ -4,7 +4,7 @@ import { createSimplexNoise2D } from '../noise/simplex.js';
 export interface TemperatureConfig {
   seed: string;
   baseTemp: number; // e.g. 15 Celsius
-  latitude: number; // 0 (Equator) to 90 (Poles)
+  latitude: number; // Signed center latitude: positive north, negative south, 0 at the equator
   elevationLapseRate: number; // how much temp drops per elevation unit (e.g. 6.5 C per km)
   frequency: number;
 }
@@ -27,15 +27,14 @@ export function assignTemperature(map: RegionMap, config: TemperatureConfig): Re
   const { width, height } = newMap;
   const noise = createSimplexNoise2D(config.seed);
 
-  // Calculate latitude gradient across the map (assuming top is North, bottom is South or vice versa)
-  // For simplicity, map Y is used as a variation of the base latitude.
-  // 0 -> config.latitude - offset, height -> config.latitude + offset
-  const latOffset = 10; // degrees span across the region map
+  // North is up: Y increases southward, so signed latitude decreases with Y.
+  // The map spans 10 degrees either side of its center latitude (20 degrees total).
+  const latOffset = 10;
 
   // Process corners first
   for (const corner of newMap.corners) {
     const yRatio = Math.max(0, Math.min(1, corner.point.y / height));
-    const latBase = config.latitude + (yRatio * 2 - 1) * latOffset;
+    const latBase = config.latitude + (1 - yRatio * 2) * latOffset;
     // Base temp is roughly equator temp. Drop by ~50C from equator to poles.
     const latTemp = config.baseTemp - (Math.abs(latBase) / 90) * 50;
 

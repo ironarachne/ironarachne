@@ -143,7 +143,7 @@ describe('grounded regional identity', () => {
     );
     expect(rollRegionSnapshot('5wyedz5q272fz')).toEqual(region);
     expect(region.description).toMatchInlineSnapshot(
-      `"The region takes in level low-lying country. A river runs between patches of seasonal woodland and rain-soaked woodland. Revilun stands beside a freshwater river, with a road leading through the surrounding country to Pelirgir. A lake offers a freshwater source. In the southern part of the region: freezing temperatures, making exposure a travel concern."`,
+      `"The region takes in level low-lying country. A river runs between patches of seasonal woodland and rain-soaked woodland. Revilun stands on the coast, with a road leading through the surrounding country to Pelirgir. A lake offers a freshwater source. In the northern eastern part of the region: freezing temperatures, making exposure a travel concern."`,
     );
   });
   it.each(['Dense forest', ' dense forest '])(
