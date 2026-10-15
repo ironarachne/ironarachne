@@ -11,7 +11,7 @@ import {
 import type Region from './region';
 import type { RegionFacts, ResourceFact, SettlementTarget } from './region_fact_types';
 import type { AccessibleProcessingResource } from './region_processing_types';
-import { processingEvidenceCurrent } from './region_evidence';
+import { createProcessingEvidenceChecker } from './region_evidence';
 export { processingEvidenceCurrent, reachableProcessingNodes } from './region_evidence';
 
 function descriptor(fact: ResourceFact, facts: RegionFacts): Resource | undefined {
@@ -63,6 +63,7 @@ export function accessibleProcessingResources(
   owner?: string | SettlementTarget,
 ): AccessibleProcessingResource[] {
   const facts = region.facts!;
+  const current = createProcessingEvidenceChecker(facts);
   const results: AccessibleProcessingResource[] = [];
   const reviewed = new Map(
     [...getBiologicalSourceDefinitions(), ...getGeologicalSourceDefinitions()].map((entry) => [
@@ -77,11 +78,7 @@ export function accessibleProcessingResources(
       if (!['available', 'limited'].includes(fact.availability)) continue;
       for (const id of [...fact.sourceIds].sort()) {
         const source = facts.resourceSources.find((entry) => entry.id === id);
-        if (
-          !source ||
-          !['available', 'limited'].includes(source.availability) ||
-          !processingEvidenceCurrent(source, facts)
-        )
+        if (!source || !['available', 'limited'].includes(source.availability) || !current(source))
           continue;
         // New generation must recognize the rule; historical saved reads use their snapshots.
         if (reviewed.get(source.definitionId) !== source.resource.id) continue;
@@ -141,11 +138,7 @@ export function accessibleProcessingResources(
       }
       continue;
     }
-    if (
-      !['available', 'limited'].includes(fact.availability) ||
-      !processingEvidenceCurrent(fact, facts)
-    )
-      continue;
+    if (!['available', 'limited'].includes(fact.availability) || !current(fact)) continue;
     const resource = descriptor(fact, facts);
     if (!resource) continue;
     let nodeIds = (fact.anchor?.nodeIds ?? []).filter((id) => reached.has(id));
@@ -157,7 +150,7 @@ export function accessibleProcessingResources(
           entry.concentration !== 'trace' &&
           entry.exposure !== 'deep' &&
           entry.extraction !== 'drilling' &&
-          processingEvidenceCurrent(entry, facts) &&
+          current(entry) &&
           entry.anchor.nodeIds.some((id) => nodeIds.includes(id)),
       );
       depositIds = deposits.map((entry) => entry.id).sort();

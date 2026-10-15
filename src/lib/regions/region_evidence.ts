@@ -2,24 +2,40 @@ import type Region from './region';
 import type { FactBase, RegionFacts } from './region_fact_types';
 import type { RegionSemanticFact } from './region_resource_types';
 
+/** Index and memoize one immutable read operation, never cache across edits or saves. */
+export function createProcessingEvidenceChecker(facts: RegionFacts) {
+  const entries = new Map(
+    (Object.values(facts).filter(Array.isArray).flat() as RegionSemanticFact[]).map((entry) => [
+      entry.id,
+      entry,
+    ]),
+  );
+  const checked = new Map<FactBase, boolean>();
+  const check = (fact: FactBase, visiting = new Set<string>()): boolean => {
+    if (fact.reason?.status === 'stale' || visiting.has(fact.id)) return false;
+    const cached = checked.get(fact);
+    if (cached !== undefined) return cached;
+    const next = new Set(visiting).add(fact.id);
+    const selected = sourceSpecificSummaryIds(fact);
+    const current = (fact.reason?.sources ?? [])
+      .filter((source) => source.kind !== 'fact' || !selected.has(source.factId))
+      .every((source) => {
+        if (source.kind !== 'fact') return true;
+        const parent = entries.get(source.factId);
+        return parent !== undefined && check(parent, next);
+      });
+    checked.set(fact, current);
+    return current;
+  };
+  return check;
+}
 /** Follow stored evidence so stale upstream facts cannot quietly support a new product. */
 export function processingEvidenceCurrent(
   fact: FactBase,
   facts: RegionFacts,
   visiting = new Set<string>(),
 ): boolean {
-  if (fact.reason?.status === 'stale' || visiting.has(fact.id)) return false;
-  const next = new Set(visiting);
-  next.add(fact.id);
-  const entries = Object.values(facts).filter(Array.isArray).flat() as RegionSemanticFact[];
-  const selected = sourceSpecificSummaryIds(fact);
-  return (fact.reason?.sources ?? [])
-    .filter((source) => source.kind !== 'fact' || !selected.has(source.factId))
-    .every((source) => {
-      if (source.kind !== 'fact') return true;
-      const parent = entries.find((entry) => entry.id === source.factId);
-      return parent !== undefined && processingEvidenceCurrent(parent, facts, next);
-    });
+  return createProcessingEvidenceChecker(facts)(fact, visiting);
 }
 export function reachableProcessingNodes(region: Pick<Region, 'map'>, start: number): Set<number> {
   const land = new Map(
@@ -55,15 +71,16 @@ export function selectedResourceCurrent(
   facts: RegionFacts,
   resourceId: string,
   sourceId?: string,
+  current = createProcessingEvidenceChecker(facts),
 ): boolean {
   const resource = facts.resources.find((entry) => entry.id === resourceId);
   if (!resource || !['available', 'limited'].includes(resource.availability)) return false;
-  if (!sourceId) return !resource.sourceIds && processingEvidenceCurrent(resource, facts);
+  if (!sourceId) return !resource.sourceIds && current(resource);
   const source = facts.resourceSources.find((entry) => entry.id === sourceId);
   return (
     !!source &&
     !!resource.sourceIds?.includes(sourceId) &&
     ['available', 'limited'].includes(source.availability) &&
-    processingEvidenceCurrent(source, facts)
+    current(source)
   );
 }

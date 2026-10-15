@@ -615,3 +615,7 @@ uses the grape's own yeasts under explicit controlled-process assumptions, with 
 purchased yeast or sugar. Corresponding food and process references are stored with the definitions.
 The planner collects shared downstream food constraints before choosing sources, avoiding a
 Cartesian search and requiring no search-budget fallback in this finite catalog.
+
+Evidence reads index the saved fact graph once and memoize completed subgraphs within each
+operation. Shared dependency paths are not recursively re-expanded, and the index is never reused
+across edits or saves. Cycle and source-specific stale-evidence rules remain enforced.
