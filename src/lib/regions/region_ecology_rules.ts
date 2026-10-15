@@ -88,6 +88,13 @@ export const PRODUCER_LABELS = new Set([
   'salt-tolerant shrub',
 ]);
 
+/** Canonical producer metadata, never an inhabitant's editable name or description.
+ * Trees support generic raw wood only; this declares no grade, yield or forestry industry.
+ */
+export const TIMBER_PRODUCER_LABELS = new Set(
+  [...PRODUCER_LABELS].filter((label) => label.endsWith(' tree')),
+);
+
 /** Small authored suitability/niche rules supplement catalogs; no diets or relationships. */
 export const ECOLOGY_RULES: readonly EcologyRule[] = [
   {

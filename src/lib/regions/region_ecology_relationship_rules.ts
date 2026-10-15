@@ -1,4 +1,5 @@
 import type { EcologyFeedingRule, EcologyUseRule } from './region_ecology_relationship_types';
+import { TIMBER_PRODUCER_LABELS } from './region_ecology_rules';
 
 const grasses = ['grass', 'tall grass', 'bunchgrass', 'tussock grass', 'clover'];
 
@@ -46,17 +47,7 @@ export const ECOLOGY_USE_RULES: readonly EcologyUseRule[] = [
   },
   {
     id: 'woodland-material',
-    sources: [
-      'oak tree',
-      'maple tree',
-      'birch tree',
-      'elm tree',
-      'hickory tree',
-      'pine tree',
-      'fir tree',
-      'spruce tree',
-      'cedar tree',
-    ],
+    sources: [...TIMBER_PRODUCER_LABELS],
     use: 'material',
     purpose: 'local woodwork',
   },

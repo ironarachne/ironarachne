@@ -15,6 +15,10 @@ import type { FactBase, FactSource, ResourceFact, ResourceKind } from './region_
 import type { RegionResourceCatalog, ResourceCandidate } from './region_resource_rule_types';
 import { ecologyCandidatesFor } from './region_ecology';
 import { depositKinds, resourceKinds } from './region_resource_constants';
+import { TIMBER_PRODUCER_LABELS } from './region_ecology_rules';
+import { createProcessingEvidenceChecker } from './region_evidence';
+import type { EcologyCandidate } from './region_ecology_rule_types';
+import type { EcologyInhabitantFact } from './region_ecology_types';
 
 import { biologicalSourceCandidates, geologicalSourceCandidates } from './region_raw_sources';
 
@@ -22,6 +26,35 @@ const current = (fact: FactBase) => fact.reason?.status !== 'stale';
 const lexical = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 const reference = (factId: string): FactSource => ({ kind: 'fact', factId });
 const positive = (fact: ResourceFact) => ['available', 'limited'].includes(fact.availability);
+function supportsInhabitant(entry: EcologyCandidate, inhabitant: EcologyInhabitantFact): boolean {
+  return (
+    entry.category === inhabitant.category &&
+    JSON.stringify(entry.source) === JSON.stringify(inhabitant.source) &&
+    JSON.stringify([...entry.roles].sort()) === JSON.stringify([...inhabitant.roles].sort())
+  );
+}
+
+/** Unrecognized or incompatible flora is a catalog gap, not an observed wood shortage. */
+function timberEvidenceKnown(
+  region: Pick<Region, 'map' | 'facts' | 'environment'>,
+  catalog: RegionResourceCatalog,
+): boolean {
+  const evidenceCurrent = createProcessingEvidenceChecker(region.facts!);
+  return region
+    .facts!.ecologyInhabitants.filter((entry) => entry.category === 'flora')
+    .every(
+      (inhabitant) =>
+        evidenceCurrent(inhabitant) &&
+        inhabitant.roles.includes('producer') &&
+        region.facts!.habitats.some(
+          (habitat) =>
+            inhabitant.habitatIds.includes(habitat.id) &&
+            ecologyCandidatesFor(region, habitat, catalog.ecology).some((entry) =>
+              supportsInhabitant(entry, inhabitant),
+            ),
+        ),
+    );
+}
 export { positive as isUsableRegionResource };
 function observations(node: MapNode): FactSource[] {
   return (['elevation', 'temperature', 'moisture', 'biomeId', 'isWater', 'isOcean'] as const).map(
@@ -206,11 +239,12 @@ function organicCandidates(
 ): ResourceCandidate[] {
   const grouped = new Map<string, ResourceCandidate>();
   const facts = region.facts!;
+  const evidenceCurrent = createProcessingEvidenceChecker(facts);
   const zones = new Set(
     facts.areas.filter((area) => area.id.startsWith('area:habitat-zone:')).map((area) => area.id),
   );
   const habitats = facts.habitats
-    .filter((habitat) => current(habitat) && habitat.areaIds.some((id) => zones.has(id)))
+    .filter((habitat) => evidenceCurrent(habitat) && habitat.areaIds.some((id) => zones.has(id)))
     .sort(
       (a, b) =>
         (b.anchor?.nodeIds.length ?? 0) - (a.anchor?.nodeIds.length ?? 0) || lexical(a.id, b.id),
@@ -240,38 +274,22 @@ function organicCandidates(
     candidate.supportIds.add(habitatId);
     grouped.set(key, candidate);
   };
-  const trees = new Set([
-    'oak',
-    'pine',
-    'birch',
-    'maple',
-    'spruce',
-    'fir',
-    'cedar',
-    'beech',
-    'willow',
-    'cypress',
-    'mangrove',
-  ]);
   for (const habitat of habitats) {
     const candidates = ecologyCandidatesFor(region, habitat, catalog.ecology);
     for (const inhabitant of facts.ecologyInhabitants
-      .filter(current)
+      .filter((entry) => evidenceCurrent(entry))
       .filter((entry) => entry.habitatIds.includes(habitat.id))) {
-      const support = candidates.find(
-        (entry) =>
-          entry.category === inhabitant.category &&
-          JSON.stringify(entry.source) === JSON.stringify(inhabitant.source) &&
-          JSON.stringify([...entry.roles].sort()) === JSON.stringify([...inhabitant.roles].sort()),
-      );
+      const support = candidates.find((entry) => supportsInhabitant(entry, inhabitant));
       if (!support) continue;
       const nodeIds = [...support.nodeSources.keys()].sort((a, b) => a - b);
       const sources = [reference(inhabitant.id), ...[...support.nodeSources.values()].flat()];
       if (inhabitant.category === 'flora' && inhabitant.roles.includes('producer')) {
-        const treeName = support.name.replace(/ tree$/, '');
-        if (trees.has(treeName)) {
+        if (TIMBER_PRODUCER_LABELS.has(support.name)) {
+          const treeName = support.name.replace(/ tree$/, '');
           const name = `${treeName} timber`;
-          const known = catalog.buildingMaterials.find((entry) => entry.name === name);
+          const known = catalog.buildingMaterials.find(
+            (entry) => entry.name === name && entry.major_type === 'wood',
+          );
           add(
             'timber',
             name,
@@ -433,7 +451,9 @@ export function generateResourceFacts(
       : kind === 'freshwater' ||
         (catalog.ecology.biomes.length > 0 &&
           facts.habitats.length > 0 &&
-          (kind === 'arable-land' || catalog.ecology.species.length > 0));
+          (kind === 'timber'
+            ? timberEvidenceKnown(region, catalog)
+            : kind === 'arable-land' || catalog.ecology.species.length > 0));
     const availability = known && evidence.every(current) ? 'not-observed' : 'unknown';
     facts.resources.push({
       id: `resource:assessment:${kind}`,

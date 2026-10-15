@@ -309,6 +309,14 @@ current saved inhabitants against local habitat support; timber and reed/papyrus
 explicit rules, while animal food/materials reuse species-product derivation. Water comes from
 actual rivers or lakes, and potential cultivation ground needs suitable land and soil evidence.
 
+Tree producers in the explicit ecology metadata, including elm and hickory, share timber
+eligibility with the woodland material-use rule. Their supported occurrences establish potential
+raw wood, without inventing processed goods, structural properties, yield or a forestry industry.
+Missing or stale upstream evidence cannot support a source. Unrecognized or incompatible flora
+metadata leaves an otherwise unsupported timber assessment `unknown`, so incomplete catalog
+knowledge cannot justify a supply shortage. Editable names and descriptions never determine
+producer identity; saved text and source links are preserved on loading and export.
+
 Availability distinguishes `available`, `limited`, `not-observed` and `unknown`. The first two
 mean potential raw supply; they do not imply safe access, sustainability, purity or extraction
 technology. Deep oil/gas remain recorded for later sci-fi consumers without inventing a fantasy
