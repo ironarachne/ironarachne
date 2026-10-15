@@ -99,7 +99,9 @@ describe('release coherence across page-default regions', () => {
       expect(saved.description).not.toMatch(/implied|unverified|low-altitude|mid-altitude/);
       expect(saved.facts.products.length).toBeGreaterThan(0);
       expect(saved.facts.dailyLife.length).toBeGreaterThan(0);
-      expect(saved.facts.supply.length).toBeGreaterThan(0);
+      if (saved.facts.resources.some((entry) => entry.availability === 'unknown'))
+        expect(saved.facts.supply).toEqual([]);
+      else expect(saved.facts.supply.length).toBeGreaterThan(0);
       for (const route of saved.facts.routes)
         for (const id of route.anchor.edgeIds) {
           const edge = saved.map.edges.find((entry) => entry.id === id)!;

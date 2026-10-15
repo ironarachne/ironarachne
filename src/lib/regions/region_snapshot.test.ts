@@ -261,3 +261,31 @@ describe('geological snapshot durability', () => {
     expect(restored.environment).toEqual(edited.environment);
   });
 });
+
+describe('tree resource snapshot durability', () => {
+  it('repeats the reported forest seed and preserves edited wood facts and source links through JSON and loading', () => {
+    const seed = '5wyedz5q272fz';
+    const saved = toRegionSnapshot(rollRegion(seed).region);
+    expect(toRegionSnapshot(rollRegion(seed).region).facts).toEqual(saved.facts);
+    const timber = saved.facts.resources.find((entry) =>
+      ['elm timber', 'hickory timber'].includes(entry.name),
+    )!;
+    expect(timber).toBeDefined();
+    expect(['limited', 'available']).toContain(timber.availability);
+    expect(
+      timber.reason!.sources.some(
+        (source) =>
+          source.kind === 'fact' &&
+          saved.facts.ecologyInhabitants.some((entry) => entry.id === source.factId),
+      ),
+    ).toBe(true);
+    timber.name = 'Authored wood source';
+    timber.description = 'Saved notes about gathering wood.';
+    timber.origin = 'authored';
+    const exported = JSON.parse(JSON.stringify(saved));
+    expect(validateRegionSnapshot(exported).ok).toBe(true);
+    const loaded = toRegionSnapshot(regionFromSnapshot(exported, new RNG('other-read-seed')));
+    expect(loaded.facts).toEqual(saved.facts);
+    expect(JSON.parse(JSON.stringify(loaded)).facts.resources).toContainEqual(timber);
+  }, 30000);
+});
