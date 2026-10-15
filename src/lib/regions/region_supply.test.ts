@@ -261,7 +261,7 @@ describe('saved scarcity and conditional imports', () => {
     for (const fact of facts) {
       expect(fact.status).toBe('limited-local');
       expect(fact.missingInputKeys).toEqual([]);
-      expect(fact.description).toContain('could be supplied locally');
+      expect(fact.description).toContain('delivery and quantities remain uncertain');
       expect(fact.importSuggestion?.explanation).toContain('could supplement');
     }
     const generated = generate(region);
@@ -305,8 +305,8 @@ describe('saved scarcity and conditional imports', () => {
     region.facts.resources.find((entry) => entry.kind === 'timber')!.anchor!.nodeIds = [3];
     const wood = assessments(region).find((fact) => fact.needKey === 'construction-timber')!;
     expect(wood.status).toBe('local-not-supported');
-    expect(wood.description).toContain('outside supported access');
-    expect(wood.description).toContain('not regional absence');
+    expect(wood.description).toContain('without an established way to bring them here');
+    expect(wood.description).toContain('Known sources lie elsewhere in the region');
   });
 
   it('does not infer a regional producer from inputs on disconnected land', () => {
@@ -314,8 +314,10 @@ describe('saved scarcity and conditional imports', () => {
     region.facts.resources.find((entry) => entry.kind === 'timber')!.anchor!.nodeIds = [3];
     const tools = assessments(region).find((fact) => fact.needKey === 'iron-tools')!;
     expect(tools.status).toBe('local-not-supported');
-    expect(tools.description).toContain('Required raw inputs are represented regionally');
-    expect(tools.description).toContain('Regional production and transport are not established');
+    expect(tools.description).toContain('The region has potential raw inputs');
+    expect(tools.description).toContain(
+      'obtaining and processing all of them here remains uncertain',
+    );
     expect(tools.description).not.toContain('Represented regional supply');
   });
 
@@ -327,7 +329,7 @@ describe('saved scarcity and conditional imports', () => {
     });
     const missing = assessments(region);
     expect(missing.map((fact) => fact.needKey)).toEqual(['building-stone', 'iron-tools']);
-    expect(missing[0].description).toContain('unsupported extraction');
+    expect(missing[0].description).toContain('extraction methods beyond the assumed capabilities');
   });
 
   it.each(['wood', 'flax', 'ore', 'meat'])('requires complete chains after removing %s', (key) => {

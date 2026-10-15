@@ -284,23 +284,23 @@ export function assessSettlementSupply(
       .map((key) => labels.get(key) ?? 'a declared processing capability')
       .join(', ');
     const limitation = assessment.supported
-      ? `${need.name} can be supplied locally, but its recorded raw inputs have limited supply. This can constrain ${need.use}.`
-      : `${need.name} has no supported local provision at this site under the saved inventory and craft policy. ${
+      ? `Potential sources for ${need.name.toLowerCase()} are limited. Obtaining and processing them could constrain ${need.use}.`
+      : `No complete source of ${need.name.toLowerCase()} is established for this settlement. ${
           regionalInputsRepresented
             ? need.selector
-              ? 'Represented regional supply is outside supported access at this site; this is not regional absence.'
-              : 'Required raw inputs are represented regionally, but no complete accessible local chain is established here. Regional production and transport are not established.'
-            : `The recorded accessible sources do not complete the required supply${missing ? `; missing supported inputs include ${missing}` : ''}. Deposits requiring unsupported extraction do not establish usable supply.`
+              ? 'Known sources lie elsewhere in the region, without an established way to bring them here.'
+              : 'The region has potential raw inputs, but obtaining and processing all of them here remains uncertain.'
+            : `The potential sources do not provide all the required inputs${missing ? `; missing inputs include ${missing}` : ''}. Some deposits may require extraction methods beyond the assumed capabilities.`
         } ${need.consequence}`;
     const explanation = assessment.supported
-      ? `Bringing in ${need.name.toLowerCase()} could supplement the limited local supply.`
+      ? `Bringing in ${need.name.toLowerCase()} could supplement these potential sources.`
       : `${need.name} would need to be brought in if used; no supplier or transport route is established.`;
     results.push({
       id: `supply:${encodeURIComponent(role.id)}:${need.key}`,
       needKey: need.key,
       name: need.name,
       description: assessment.supported
-        ? `${need.name} could be supplied locally in limited amounts. Bringing more in could supplement the local sources.`
+        ? `Potential sources for ${need.name.toLowerCase()} are limited. Using them would require acquisition and any necessary processing; delivery and quantities remain uncertain. Bringing goods in could supplement these sources.`
         : `${limitation}${importedSupport(region, role, need, resources)} ${explanation}`,
       origin: 'generated',
       status,

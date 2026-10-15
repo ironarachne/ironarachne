@@ -52,7 +52,7 @@ export function resourceNarrativeOptions(fact: ResourceFact): string[] {
     ];
   if (fact.kind === 'freshwater')
     return fact.name === 'Lake water'
-      ? ['A lake offers a freshwater source.', 'Freshwater is available from a local lake.']
+      ? ['A lake offers a freshwater source.', 'A lake in the region offers freshwater.']
       : ['A river provides a freshwater source.', 'The river offers a source of freshwater.'];
   if (presence.status === 'confirmed' && fact.depositIds.length)
     return [
@@ -60,8 +60,8 @@ export function resourceNarrativeOptions(fact: ResourceFact): string[] {
       `${fact.name.charAt(0).toUpperCase()}${fact.name.slice(1)} deposits lie in this country.`,
     ];
   return [
-    `Local sources could provide ${fact.name}.`,
-    `${fact.name.charAt(0).toUpperCase()}${fact.name.slice(1)} could be obtained from local sources.`,
+    `Sources in the region could provide ${fact.name}.`,
+    `${fact.name.charAt(0).toUpperCase()}${fact.name.slice(1)} could be obtained from sources in the region.`,
   ];
 }
 export function describeResource(fact: ResourceFact, rng: RNG): string {

@@ -269,7 +269,7 @@ function organicCandidates(
     candidate.fact.anchor!.nodeIds.push(...nodeIds);
     candidate.fact.areaIds.push(...base(region, kind, name, nodeIds).areaIds);
     candidate.fact.catalogSource = catalogSource;
-    candidate.fact.description = `Potential raw ${name} from locally supported sources; no cultivated crop, domestication or sustainable yield is implied.`;
+    candidate.fact.description = `Potential raw ${name} from sources supported in the region; no cultivated crop, domestication or sustainable yield is implied.`;
     candidate.sources.push(reference(habitatId), ...sources);
     candidate.supportIds.add(habitatId);
     grouped.set(key, candidate);

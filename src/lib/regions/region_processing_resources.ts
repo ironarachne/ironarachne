@@ -58,6 +58,7 @@ function descriptor(fact: ResourceFact, facts: RegionFacts): Resource | undefine
     commonality: 1,
   };
 }
+/** Eligible potential sources within the caller's node set; never evidence of delivery or volume. */
 export function accessibleProcessingResources(
   region: Pick<Region, 'facts' | 'map'>,
   reached: Set<number>,

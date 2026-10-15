@@ -77,7 +77,7 @@ function candidatesFor(
     results.push({
       id: `daily-life:${id}`,
       name,
-      description: `${text}${limited ? ' Local sources are limited.' : ''}`,
+      description: `${text}${limited ? ' Potential sources are limited.' : ''}`,
       origin: 'generated',
       category,
       activityKey,
@@ -137,7 +137,7 @@ function candidatesFor(
         'livelihood',
         source.method,
         `${source.method} opportunity`,
-        `Local ${label} could be obtained by ${source.method}.${assumption}`,
+        `${label} could be obtained by ${source.method}.${assumption}`,
         inputs,
       );
       add(
@@ -153,7 +153,7 @@ function candidatesFor(
         'livelihood',
         'timber-gathering',
         'Timber gathering',
-        `Nearby woodland could provide ${label} for gathering.`,
+        `Woodland in the region could provide ${label} for gathering.`,
         inputs,
       );
       add(
@@ -163,14 +163,20 @@ function candidatesFor(
         `${label} could provide raw construction material.`,
         inputs,
       );
-      add('fuel', 'wood-fuel', `${label} fuel`, `${label} can provide gathered wood fuel.`, inputs);
+      add(
+        'fuel',
+        'wood-fuel',
+        `${label} fuel`,
+        `${label} could provide wood fuel if gathered.`,
+        inputs,
+      );
     }
     if (fact.kind === 'fiber' && resource.major_type === 'plant-fiber') {
       add(
         'livelihood',
         'fiber-gathering',
         'Fiber gathering',
-        `${label} could be gathered for local material work.`,
+        `${label} could be gathered for material work.`,
         inputs,
       );
       if (['reed', 'papyrus'].includes(resource.minor_type))
@@ -190,7 +196,7 @@ function candidatesFor(
         'livelihood',
         'raw-extraction',
         `${label} extraction`,
-        `Nearby deposits could provide raw ${label}.`,
+        `Deposits in the region could provide raw ${label}.`,
         inputs,
       );
       if (fact.kind === 'stone' && resource.major_type === 'stone')
@@ -261,7 +267,7 @@ function candidatesFor(
         'building-material',
         `building-${product.productKey}`,
         product.name,
-        `${product.name} is a possible building material through local processing.`,
+        `${product.name} is a possible building material if processed at the settlement.`,
         inputs,
       );
     if (context.uses.includes('fuel'))
@@ -280,7 +286,7 @@ function candidatesFor(
         'staple',
         `food-${product.productKey}`,
         product.name,
-        `${product.name} is a possible ${context.uses.includes('preserved-food') ? 'preserved' : 'prepared'} food through local processing.`,
+        `${product.name} is a possible ${context.uses.includes('preserved-food') ? 'preserved' : 'prepared'} food if processed at the settlement.`,
         inputs,
       );
   }

@@ -45,6 +45,34 @@ site and current site role. Raw inputs need current positive availability, a rea
 on the saved dry-land neighbor graph and current supporting facts. No map distance, boat access
 or imported transport is implied. Intermediate inputs belong to the same settlement.
 
+#### Access and wording contract (#440)
+
+Regional presence means a source is represented somewhere on the saved map. Settlement-local
+access means a current, eligible source can be reached from that settlement through the saved
+dry-land neighbor graph. “Local” in type names and saved status keys distinguishes these inputs
+from explicit imports; it is not a claim of proximity. The traversal has no hop limit or catchment
+radius: adjacent land and land many connected cells away qualify equally, even when their map
+coordinates are widely separated. Disconnected land and paths crossing water do not qualify.
+A regional inventory assessment may inspect sources across disconnected land; it establishes no
+settlement access or regional producer.
+
+Connectivity alone never supports “nearby”, “close”, “within easy reach”, or equivalent wording.
+Even graph adjacency has no defined physical scale. New proximity language must declare its
+supporting evidence and interpretation separately; neither coordinates nor a hop count is a
+kilometer scale or travel time. Existing generated wording therefore describes sources in the
+region and possible acquisition or processing, without proximity adjectives.
+
+Accessible sources and complete recipes establish possibilities, not extraction, transport,
+imports, operating workshops or usable quantities. `available` and `limited` are qualitative
+source assessments, not yield or throughput measurements. Several settlements may cite the same
+deposit without dividing it or establishing enough material for any of them. A limited source
+must not become a promise of supply “in limited amounts”. An import suggestion remains a
+possibility; only an explicit saved import input records an imported dependency.
+
+This clarification changes generated wording only. Access eligibility, provenance links, random
+draws, persisted types/statuses and authored or historical descriptions retain their contracts.
+No new distance model or persisted concept is introduced.
+
 For geological resources, select actual reachable workable/rich deposits. The first fantasy
 policy permits surface gathering/quarrying and shallow mining. Deep mining and drilling remain
 unavailable to this policy. Oil/gas stay saved geological resources without automatic refined

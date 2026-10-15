@@ -37,6 +37,11 @@ export function processingEvidenceCurrent(
 ): boolean {
   return createProcessingEvidenceChecker(facts)(fact, visiting);
 }
+/**
+ * Coarse potential overland access: the entire dry-land connected component.
+ * No radius, travel distance, transport or usable quantity is established, even for neighbors.
+ * See docs/region-processing.md's access and wording contract.
+ */
 export function reachableProcessingNodes(region: Pick<Region, 'map'>, start: number): Set<number> {
   const land = new Map(
     region.map.nodes

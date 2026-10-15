@@ -37,7 +37,12 @@ Their descriptions preserve limited-supply qualifications. They establish no com
 permanent mine, workshop or cultivated acreage. Crafts remain plausible household work under
 the recorded technique/tool assumptions. A potential processing chain alone is not an industry.
 
-### 2. Use coarse local access, including water without inventing transport
+### 2. Use coarse settlement access, including water without inventing transport
+
+The [processing access and wording contract](region-processing.md#access-and-wording-contract-440)
+also applies to livelihoods, raw resources and supply assessments. Descriptions say what could
+be gathered or processed, without turning connected land into nearby sources or a limited
+source assessment into a usable volume.
 
 A settlement needs a valid dry-land site and a current site-role fact. Reuse the saved dry-land
 neighbor graph from processing for terrestrial resources and accessible surface/shallow
