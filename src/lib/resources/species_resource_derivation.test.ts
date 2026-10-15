@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { black_pudding, ghoul, owlbear } from '$lib/species_monsters';
-import { camel, cow, eagle, bear, snake } from '$lib/species_animals';
+import { camel, cow, eagle, bear, snake, crayfish, crab } from '$lib/species_animals';
 import { allSpecies } from '$lib/species';
 import {
   deriveResourcesFromSpecies,
@@ -30,6 +30,36 @@ describe('inferCarcassBodyPlan', () => {
 });
 
 describe('deriveResourcesFromSpecies', () => {
+  it('uses reviewed crayfish flesh while keeping shell material, independently of anatomy', () => {
+    const products = deriveResourcesFromSpecies({
+      ...crayfish,
+      carcassBodyPlan: 'furred',
+      adjective: 'Edited animal',
+      resourceProductNames: { meat: 'Edited meat' },
+    });
+    expect(products).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'crayfish flesh',
+          major_type: 'animal-food',
+          minor_type: 'crayfish',
+        }),
+      ]),
+    );
+    expect(products.some((product) => product.minor_type.endsWith('meat'))).toBe(false);
+    expect(
+      deriveResourcesFromSpecies(crayfish).some((product) => product.minor_type === 'chitin'),
+    ).toBe(true);
+    expect(deriveResourcesFromSpecies(crab).map((product) => product.minor_type)).toEqual([
+      'chitin',
+    ]);
+    const insect = { ...crayfish, name: 'terrestrial insect', tags: ['insect'] };
+    expect(deriveResourcesFromSpecies(insect).map((product) => product.minor_type)).toEqual([
+      'insect_meat',
+      'chitin',
+    ]);
+  });
+
   it('uses beef for cow meat', () => {
     const resources = deriveResourcesFromSpecies(cow);
     const meat = resources.find((r) => r.minor_type === 'red_meat');

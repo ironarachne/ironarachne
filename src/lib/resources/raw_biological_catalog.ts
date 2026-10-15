@@ -1,3 +1,4 @@
+import type { Resource } from './resource_types';
 import { getBiologicalHabitatRules } from '$lib/environment';
 import { biologicalSourceSpecs } from './raw_biological_data';
 import type {
@@ -125,4 +126,22 @@ export function getManagedProductionRules(): ManagedProductionRule[] {
       }),
     );
   return [...new Map(rules.map((rule) => [rule.id, rule])).values()].sort(lexical);
+}
+
+/** Catalog compatibility only; Regions independently qualifies occurrence and collection access. */
+export function getSpeciesAquaticFoodResources(speciesName: string): Resource[] {
+  const ids = new Set(
+    biologicalSourceSpecs
+      .filter(
+        ([, kind, producer, , , , , method]) =>
+          kind === 'species' &&
+          producer === speciesName &&
+          ['fishing', 'shellfish-collection'].includes(method),
+      )
+      .map(([id]) => id),
+  );
+  if (!ids.size) return [];
+  return getBiologicalRawResources()
+    .filter((raw) => ids.has(raw.id) && raw.uses.includes('food'))
+    .map((raw) => raw.resource);
 }

@@ -250,6 +250,14 @@ than the old unrestricted derivation API.
 
 ## Aquatic resources
 
+The approved #438 correction adds `crayfish-flesh` for the existing canonical `crayfish`
+producer, using `shellfish-collection`, the existing freshwater-crayfish habitat profile,
+`animal-food/crayfish`, and ordinary food preparation with collection/handling requirements.
+This is a coarse fantasy freshwater source, not a taxonomic alias for noble crayfish or a
+permission for marine or arbitrary crustacean food. Its background reference is the same
+European crustacean food-use reference recorded for noble crayfish below. Generic crab food
+remains unreviewed; anatomy can supply shell material but not inferred insect meat.
+
 New ordinary species entries are preferred to interpreting a generic legacy crab or crayfish as
 a particular real species. The named organism's source must assert a compatible accessible margin
 occurrence. A species profile saying it can also live offshore does not authorize an offshore

@@ -14,7 +14,12 @@ import {
   dailyLifeInputCurrent,
   sameSettlement,
 } from './region_livelihood_access';
-import { processingEvidenceCurrent, reachableProcessingNodes } from './region_processing_resources';
+import {
+  processingEvidenceCurrent,
+  reachableProcessingNodes,
+  processingSourceInputsSupported,
+} from './region_processing_resources';
+import { resolveProcessingChain } from './region_processing_chain';
 
 export const DAILY_LIFE_LIMITS: Record<DailyLifeCategory, number> = {
   livelihood: 3,
@@ -220,7 +225,11 @@ function candidatesFor(
     const inputs: DailyLifeInput[] = [{ kind: 'product', productId: product.id }];
     if (
       !sameSettlement(product.settlement, role.settlement) ||
-      !dailyLifeInputCurrent(facts, region.map, start, role.settlement, inputs[0])
+      !dailyLifeInputCurrent(facts, region.map, start, role.settlement, inputs[0]) ||
+      !processingSourceInputsSupported(
+        resolveProcessingChain(facts, product.id).localInputs,
+        resources,
+      )
     )
       continue;
     const context = productContext(product);
