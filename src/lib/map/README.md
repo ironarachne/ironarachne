@@ -22,6 +22,18 @@ Corners within 0.1 map units are interned by distance, including across spatial-
 boundaries. Collapsed edges are removed from the cell ring, and polygons use the canonical corner
 positions so their geometry agrees with the graph.
 
+Maps are north-up, matching the rendered compass: X increases eastward from the left edge,
+and Y increases southward from the top edge. Temperature configuration uses a signed center
+latitude (positive north, negative south). The northern edge is center latitude + 10 degrees;
+the southern edge is center latitude - 10 degrees. The baseline cools with absolute latitude,
+so it cools northward in the northern hemisphere and southward in the southern hemisphere,
+with the warmest baseline at the equator on maps that cross it. Local seeded noise and
+above-sea-level elevation cooling are added separately; individual cells can depart from that
+baseline. Cell temperatures average their corners.
+
+This calculation applies when generating a new map. Loading a saved region retains its stored
+map, climate observations, and descriptions, including authored text; it does not rerun climate.
+
 ## Pipeline
 
 | Stage                                 | What it does                                           |

@@ -55,6 +55,55 @@ describe('rolling a region', () => {
     expect(rollRegion('one').region.name).not.toEqual(rollRegion('two').region.name);
   });
 
+  it('derives habitat and cold-hazard evidence from the corrected map for #441', () => {
+    const snapshot = rollRegionSnapshot('5wyedz5q272fz');
+    expect(snapshot).toEqual(rollRegionSnapshot('5wyedz5q272fz'));
+    expect(validateRegionSnapshot(snapshot).ok).toBe(true);
+    const facts = [...snapshot.facts.areas, ...snapshot.facts.habitats, ...snapshot.facts.notables];
+    const observations = facts
+      .flatMap((fact) => fact.reason?.sources ?? [])
+      .filter((source) => source.kind === 'map-node' && source.property === 'temperature');
+    expect(observations.length).toBeGreaterThan(0);
+    for (const source of observations) {
+      if (source.kind !== 'map-node') continue;
+      const node = snapshot.map.nodes.find((node) => node.id === source.nodeId)!;
+      expect(source.observedValue).toBe(String(node.temperature));
+    }
+    const coldHazards = snapshot.facts.notables.filter(
+      (fact) => fact.name === 'Cold travel country',
+    );
+    expect(coldHazards.length).toBeGreaterThan(0);
+    for (const hazard of coldHazards) {
+      const temperatures = hazard.reason!.sources.filter(
+        (source) => source.kind === 'map-node' && source.property === 'temperature',
+      );
+      expect(temperatures.length).toBeGreaterThan(0);
+      temperatures.forEach((source) => {
+        if (source.kind === 'map-node') expect(Number(source.observedValue)).toBeLessThanOrEqual(0);
+      });
+    }
+  });
+
+  it('loads historical temperatures and authored descriptions without rerunning climate', () => {
+    const snapshot = rollRegionSnapshot('5wyedz5q272fz');
+    // A stored map can carry temperatures from an older algorithm, independent of its seed.
+    snapshot.map.corners.forEach((corner) => {
+      corner.temperature = -12;
+    });
+    snapshot.map.nodes.forEach((node) => {
+      node.temperature = -12;
+    });
+    snapshot.description = 'An authored account of the old southern cold country.';
+    snapshot.facts.habitats[0].origin = 'authored';
+    snapshot.facts.habitats[0].description = 'An authored habitat description.';
+    const before = structuredClone(snapshot);
+    const restored = toRegionSnapshot(regionFromSnapshot(snapshot, new RNG('restore-old-climate')));
+    expect(restored.map).toEqual(before.map);
+    expect(restored.description).toBe(before.description);
+    expect(restored.facts).toEqual(before.facts);
+    expect(snapshot).toEqual(before);
+  });
+
   it('reports the name set it used, which is what provenance records', () => {
     const rolled = rollRegion('reported');
     expect(regionNameSetNames()).toContain(rolled.nameSet);

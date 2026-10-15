@@ -20,7 +20,11 @@ const snapshot = rollRegionSnapshot('kind-seed', {
 delete snapshot.overviewReason;
 
 // Historical migration fixtures cannot contain references to newly introduced forest facts.
+const forestIds = new Set(snapshot.facts.denseForests.map((forest) => forest.id));
 snapshot.facts.denseForests = [];
+snapshot.facts.claims = snapshot.facts.claims.filter(
+  (claim) => !forestIds.has(claim.subjectId) && !claim.relatedIds.some((id) => forestIds.has(id)),
+);
 snapshot.facts.notables = snapshot.facts.notables.filter(
   (fact) => fact.reason?.ruleId !== 'fantasy:region:dense-forest-landmark:v1',
 );
@@ -963,7 +967,8 @@ describe('supply save migration', () => {
     expect(migrateRegionSnapshot(snapshot, 7).ok).toBe(false);
   });
   it('round-trips authored supply through the saved codec and JSON without regenerating it', async () => {
-    const saved = structuredClone(snapshot);
+    // Use a current region with supply, rather than the stripped historical migration fixture.
+    const saved = rollRegionSnapshot('alpha');
     expect(saved.facts.supply.length).toBeGreaterThan(0);
     saved.facts.supply[0].description = 'My supplied materials';
     saved.facts.supply[0].origin = 'authored';
