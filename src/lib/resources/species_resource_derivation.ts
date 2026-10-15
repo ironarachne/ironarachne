@@ -1,3 +1,4 @@
+import { getSpeciesAquaticFoodResources } from './raw_biological_catalog';
 import { allSpecies } from '$lib/species';
 import type { CarcassBodyPlan, Species } from '$lib/species';
 import type { Resource } from './resource_types';
@@ -31,7 +32,11 @@ export function inferCarcassBodyPlan(species: Species): CarcassBodyPlan {
   if (species.carcassBodyPlan) {
     return species.carcassBodyPlan;
   }
-  if (species.tags.includes('insect') || species.tags.includes('arachnid')) {
+  if (
+    species.tags.includes('insect') ||
+    species.tags.includes('arachnid') ||
+    species.tags.includes('crustacean')
+  ) {
     return 'chitinous';
   }
   const traitTags = collectPhysicalTraitTagSet(species);
@@ -191,7 +196,18 @@ export function deriveResourcesFromSpecies(species: Species): Resource[] {
   }
   const plan = inferCarcassBodyPlan(species);
   const overrides = mergeProductOverrides(species);
-  return buildResourcesForPlan(species, plan, overrides);
+  const products = buildResourcesForPlan(species, plan, overrides);
+  const aquatic = getSpeciesAquaticFoodResources(species.name);
+  if (!aquatic.length && !species.tags.includes('crustacean')) return products;
+  // Anatomy supplies materials, not aquatic food permission or a harvesting method.
+  const materials = products.filter(
+    (product) =>
+      !['red_meat', 'reptile_meat', 'poultry', 'insect_meat', 'fish'].includes(product.minor_type),
+  );
+  return [
+    ...aquatic.map((resource) => ({ ...resource, commonality: commonalityForSpecies(species) })),
+    ...materials,
+  ];
 }
 
 /**

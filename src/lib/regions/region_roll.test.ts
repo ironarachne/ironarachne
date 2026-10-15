@@ -1,3 +1,6 @@
+import { validateRegionSnapshot } from './region_artifact_kind';
+import { regionFromSnapshot } from './region_rehydrate';
+import { toRegionSnapshot } from './region_snapshot';
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 
@@ -17,6 +20,35 @@ describe('rolling a region', () => {
     // The whole determinism claim, and the one the library could not make before: its default
     // config seeded both its RNG *and* its fallback name generator set from the clock.
     expect(rollRegion('repeatable').region).toEqual(rollRegion('repeatable').region);
+  });
+
+  it('repeats the reported crayfish seed without hunting shellfish and preserves authored legacy words', () => {
+    const seed = '5wyedz5q272fz';
+    const snapshot = rollRegionSnapshot(seed);
+    expect(snapshot).toEqual(rollRegionSnapshot(seed));
+    expect(validateRegionSnapshot(snapshot).ok).toBe(true);
+    const shellfish = snapshot.facts.resourceSources.filter(
+      (source) => source.method === 'shellfish-collection',
+    );
+    expect(shellfish.length).toBeGreaterThan(0);
+    const ids = new Set(shellfish.map((source) => source.id));
+    for (const fact of snapshot.facts.dailyLife.filter((entry) =>
+      entry.inputs.some((input) => input.kind === 'resource' && ids.has(input.sourceId ?? '')),
+    )) {
+      expect(fact.activityKey).not.toBe('hunting');
+      expect(fact.activityKey).not.toBe('game-food');
+    }
+    const source = shellfish[0];
+    source.origin = 'authored';
+    source.name = 'Authored shellfish source';
+    source.definitionId = 'historical:unknown';
+    const legacy = snapshot.facts.dailyLife.find((entry) => entry.category === 'livelihood')!;
+    legacy.origin = 'authored';
+    legacy.activityKey = 'hunting';
+    legacy.name = 'Authored legacy game hunting';
+    expect(validateRegionSnapshot(snapshot).ok).toBe(true);
+    const restored = toRegionSnapshot(regionFromSnapshot(snapshot, new RNG('rehydration')));
+    expect(restored.facts).toEqual(snapshot.facts);
   });
 
   it('gives a different region for a different seed', () => {

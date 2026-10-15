@@ -563,3 +563,18 @@ over limited ones. Pending grain restrictions survive flour/dough; only permitte
 them. Classifications let cotton and wool satisfy cloth needs and let new roofing, food and crafts
 appear in existing context and exports. Ingredients and beverages do not become staples.
 See the [finished-goods design and gap ledger](../../../docs/fantasy-finished-goods.md).
+
+### Aquatic source qualification (#438)
+
+Reviewed fishing and shellfish-collection sources share the existing `fish` inventory/access
+bucket, including bivalves. Source methods and raw food policies govern acquisition and food
+use; body plans and editable names do not. Before new processing, livelihood or supply
+assessment uses an aquatic input, the shared resource adapter checks its saved producer,
+habitat, method, reachable land anchor and surviving compatible water witnesses. A dried
+river or an ocean replacing a freshwater lake cannot support the old freshwater source.
+Historical reads retain saved text and policies without live-catalog rewriting.
+
+Direct aquatic livelihoods retain settlement-site shore access. Processing retains reachable
+collection access; daily-life/supply validation of processed products still applies the stricter
+shore rule to raw aquatic leaves. This existing distant-shore product limitation is documented
+in [the shellfish correction](../../../docs/shellfish-harvesting.md).

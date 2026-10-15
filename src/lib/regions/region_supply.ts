@@ -12,7 +12,10 @@ import type Region from './region';
 import type { SettlementRoleFact } from './region_fact_types';
 import type { ProcessingCapability, SettlementSupplyFact, SupplyNeed } from './region_supply_types';
 import type { AccessibleProcessingResource } from './region_processing_types';
-import { accessibleProcessingResources } from './region_processing_resources';
+import {
+  accessibleProcessingResources,
+  processingSourceInputsSupported,
+} from './region_processing_resources';
 import { processingEvidenceCurrent, reachableProcessingNodes } from './region_evidence';
 import {
   createProcessingCapabilityAssessor,
@@ -148,6 +151,7 @@ function assessNeed(
     )
       continue;
     const chain = resolveProcessingChain(facts, product.id);
+    if (!processingSourceInputsSupported(chain.localInputs, resources)) continue;
     const ids = chain.localInputs.map((input) => input.resourceId);
     options.push({
       supported: true,
@@ -210,6 +214,7 @@ function importedSupport(
   region: Pick<Region, 'facts' | 'map'>,
   role: SettlementRoleFact,
   need: SupplyNeed,
+  resources: AccessibleProcessingResource[],
 ): string {
   const facts = region.facts!;
   const inputs = facts.products
@@ -221,6 +226,7 @@ function importedSupport(
       const chain = resolveProcessingChain(facts, product.id);
       if (
         chain.issues.length ||
+        !processingSourceInputsSupported(chain.localInputs, resources) ||
         !chain.products.every((entry) => sameSettlement(entry.settlement, role.settlement)) ||
         !chain.localInputs.every((input) =>
           dailyLifeInputCurrent(facts, region.map, role.anchor.nodeIds[0], role.settlement, input),
@@ -295,7 +301,7 @@ export function assessSettlementSupply(
       name: need.name,
       description: assessment.supported
         ? `${need.name} could be supplied locally in limited amounts. Bringing more in could supplement the local sources.`
-        : `${limitation}${importedSupport(region, role, need)} ${explanation}`,
+        : `${limitation}${importedSupport(region, role, need, resources)} ${explanation}`,
       origin: 'generated',
       status,
       settlement: structuredClone(role.settlement),

@@ -309,6 +309,7 @@ describe('supported settlement daily life', () => {
         waterSources: [{ kind: 'lake', nodeId: 4 }],
       },
     ];
+    region.map.nodes[0].biomeId = 'temperate grassland';
     region.facts.ecologyInhabitants[0].source = { kind: 'species', speciesName: 'European perch' };
     derive(region);
     expect(region.facts.dailyLife.map((fact) => fact.activityKey).sort()).toEqual([

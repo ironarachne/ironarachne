@@ -20,11 +20,9 @@ import { depositKinds } from './region_resource_constants';
 function biologicalKind(
   raw: RawResourceDefinition,
   producerKind: 'plant' | 'species',
+  aquatic: boolean,
 ): ResourceKind {
-  if (raw.uses.includes('food'))
-    return ['fish', 'mussel', 'oyster', 'crab', 'crayfish'].includes(raw.resource.minor_type)
-      ? 'fish'
-      : 'food';
+  if (raw.uses.includes('food')) return aquatic ? 'fish' : 'food';
   if (['plant-fiber', 'animal-fiber'].includes(raw.resource.major_type)) return 'fiber';
   return producerKind === 'species' ? 'animal-material' : 'plant-material';
 }
@@ -191,6 +189,11 @@ export function biologicalSourceCandidates(
         biologicalKind(
           raw,
           definitions.find((entry) => entry.rawResourceId === raw.id)?.producer.kind ?? 'plant',
+          definitions.some(
+            (entry) =>
+              entry.rawResourceId === raw.id &&
+              ['fishing', 'shellfish-collection'].includes(entry.method),
+          ),
         ),
       ]),
     ),

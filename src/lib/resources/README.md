@@ -86,7 +86,10 @@ See the [accepted Regions contract](../../../docs/regions-release-contract.md),
 `getGeologicalSourceDefinitions` separate commodities, producers, harvesting and occurrence rules.
 `snapshotRawResource` saves identity, uses and food qualification. Catalog arrays are independent
 copies. Generic species anatomy remains a compatibility API, and never grants regional food use
-to the new reviewed species.
+to the new reviewed species. Generic crayfish uses an explicit freshwater shellfish source
+(`crayfish-flesh`), separate from noble crayfish. Its catalog food product is
+`animal-food/crayfish`; crustacean anatomy alone never grants insect meat or hunting.
+Eligible non-food shell material remains available through the anatomy API.
 
 Recipes now carry explicit saved food policies and input uses. Material ingredients propagate
 preparation restrictions; fuel supports a process without becoming an ingredient. Finished-goods

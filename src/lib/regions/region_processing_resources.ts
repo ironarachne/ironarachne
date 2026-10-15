@@ -1,3 +1,4 @@
+import { createAquaticSourceQualifier } from './region_aquatic_sources';
 import { allSpecies } from '$lib/species';
 import {
   deriveResourcesFromSpecies,
@@ -10,7 +11,7 @@ import {
 } from '$lib/resources';
 import type Region from './region';
 import type { RegionFacts, ResourceFact, SettlementTarget } from './region_fact_types';
-import type { AccessibleProcessingResource } from './region_processing_types';
+import type { AccessibleProcessingResource, ProcessingInput } from './region_processing_types';
 import { createProcessingEvidenceChecker } from './region_evidence';
 export { processingEvidenceCurrent, reachableProcessingNodes } from './region_evidence';
 
@@ -65,6 +66,8 @@ export function accessibleProcessingResources(
   const facts = region.facts!;
   const current = createProcessingEvidenceChecker(facts);
   const results: AccessibleProcessingResource[] = [];
+  const biological = new Map(getBiologicalSourceDefinitions().map((entry) => [entry.id, entry]));
+  const qualifyAquatic = createAquaticSourceQualifier(region);
   const reviewed = new Map(
     [...getBiologicalSourceDefinitions(), ...getGeologicalSourceDefinitions()].map((entry) => [
       entry.id,
@@ -81,7 +84,16 @@ export function accessibleProcessingResources(
         if (!source || !['available', 'limited'].includes(source.availability) || !current(source))
           continue;
         // New generation must recognize the rule; historical saved reads use their snapshots.
-        if (reviewed.get(source.definitionId) !== source.resource.id) continue;
+        if (
+          reviewed.get(source.definitionId) !== source.resource.id ||
+          fact.catalogSource?.kind !== 'raw-resource' ||
+          fact.catalogSource.resourceId !== source.resource.id
+        )
+          continue;
+        const definition = biological.get(source.definitionId);
+        const aquatic =
+          definition && ['fishing', 'shellfish-collection'].includes(definition.method);
+        const qualifiedNodes = aquatic ? new Set(qualifyAquatic(source, definition)) : undefined;
         if (source.source.kind === 'managed') {
           const production = facts.managedProduction.find(
             (entry) => source.source.kind === 'managed' && entry.id === source.source.productionId,
@@ -113,7 +125,9 @@ export function accessibleProcessingResources(
             deposit.extraction === 'drilling')
         )
           continue;
-        const nodeIds = source.anchor.nodeIds.filter((id) => reached.has(id));
+        const nodeIds = source.anchor.nodeIds.filter(
+          (id) => reached.has(id) && (!qualifiedNodes || qualifiedNodes.has(id)),
+        );
         if (!nodeIds.length) continue;
         const raw = source.resource;
         results.push({
@@ -169,4 +183,22 @@ export function accessibleProcessingResources(
     });
   }
   return results;
+}
+
+/** New uses of retained products must pass the same live source checks as new recipes. */
+export function processingSourceInputsSupported(
+  inputs: ProcessingInput[],
+  resources: AccessibleProcessingResource[],
+): boolean {
+  return inputs.every(
+    (input) =>
+      input.kind !== 'resource' ||
+      !input.sourceId ||
+      resources.some(
+        (entry) =>
+          entry.fact.id === input.resourceId &&
+          entry.sourceId === input.sourceId &&
+          input.anchor.nodeIds.every((id) => entry.anchor.nodeIds.includes(id)),
+      ),
+  );
 }
