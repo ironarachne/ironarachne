@@ -37,21 +37,24 @@ See [regional resource generation](../../../docs/region-resources.md).
 ## Qualitative processing recipes
 
 `getPlantProducts(plantName)` supplies typed raw stems for reeds, papyrus and flax. Unknown plants
-return no products. `getProcessingRecipes()` defines twelve versioned steps across timber, matting,
-linen, iron, preserved provisions and stone. Each declares an output key, technique, assumed tools
+return no products. `getProcessingRecipes()` defines 78 versioned steps, retaining the twelve representative chains
+and adding textiles, sewn goods, ceramics, lime, lighting, iron components, ornaments, pigments,
+prepared food and beverages. Each declares an output key, technique, assumed tools
 or facilities and required inputs with material/fuel/water roles. Inputs match raw `Resource`
 classification and optional exact catalog names, or a previous product's stable key.
-`matchesProcessingInput(selector, input)` shares that compatibility rule with future item consumers.
+`matchesProcessingInput(selector, input)` retains the metadata/product-key compatibility API.
+`matchesProcessingSource` additionally matches new `raw-resource` selectors against the selected
+source snapshot's exact commodity ID. Bare `Resource` values cannot establish that identity.
 
 These recipes describe possible transformations without inventing numeric yields, duration or
 technology levels. They complement the existing quantitative `RefinementProcess` model. Regions
 adds supply/access evidence and stores complete chains; the shared catalog itself imports no
 regional types. For example, iron tools require bloomery iron, charcoal fuel and wood for handles;
-linen requires prepared flax and spinning, including freshwater for fiber preparation.
+linen requires prepared flax and spinning, including an explicit settlement-water input for fiber preparation.
 
 The catalog is representative rather than exhaustive. Additional fantasy raw inputs and finished
-goods are tracked in [#364](https://github.com/ironarachne/ironarachne/issues/364) and
-[#365](https://github.com/ironarachne/ironarachne/issues/365).
+goods are documented in the [finished-goods model](../../../docs/fantasy-finished-goods.md),
+including explicit deferrals for unsupported metallurgy, leather, soap, glass and salted provisions.
 
 ## Catalogs versus regional occurrences
 
@@ -62,8 +65,9 @@ local occurrence, access, an existing workshop or a trade flow. Match stable cat
 product keys, never user-editable regional names.
 
 Generated processing needs current usable sources reachable through the saved dry-land graph and
-records the accessible workable/rich deposit subset. It uses a shared fantasy technique policy and
-complete input closure, including intermediates, fuel and water. Missing inputs cause omission;
+records the accessible workable/rich deposit subset. It uses a shared fantasy technique catalog and deterministic complete-chain planner, including
+intermediates and fuel. Ordinary clean water is a settlement baseline, saved explicitly without
+inventing mapped sources or imports. New raw selectors require exact reviewed commodity IDs. Missing inputs cause omission;
 authored imported inputs retain explicit explanations. Supply assesses possible chains before
 representative selection, so a product omitted by the display cap does not prove scarcity.
 
@@ -86,5 +90,7 @@ to the new reviewed species.
 
 Recipes now carry explicit saved food policies and input uses. Material ingredients propagate
 preparation restrictions; fuel supports a process without becoming an ingredient. Finished-goods
-recipe expansion, consumed water, food-grade salts and processing aids remain #365. The reviewed
+recipes and settlement-water inputs are implemented for #365; food-grade salts and unsupported
+processing aids remain explicit gaps. Product context snapshots classify new goods for livelihoods
+and supply without consulting live recipes when reading old saves. The reviewed
 coverage and exclusions are recorded in `docs/fantasy-raw-resource-ledger.md`.

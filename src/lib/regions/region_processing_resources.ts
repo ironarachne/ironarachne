@@ -64,10 +64,11 @@ export function accessibleProcessingResources(
 ): AccessibleProcessingResource[] {
   const facts = region.facts!;
   const results: AccessibleProcessingResource[] = [];
-  const reviewed = new Set(
-    [...getBiologicalSourceDefinitions(), ...getGeologicalSourceDefinitions()].map(
-      (entry) => entry.id,
-    ),
+  const reviewed = new Map(
+    [...getBiologicalSourceDefinitions(), ...getGeologicalSourceDefinitions()].map((entry) => [
+      entry.id,
+      entry.rawResourceId,
+    ]),
   );
   for (const fact of [...facts.resources].sort((a, b) =>
     a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
@@ -83,7 +84,7 @@ export function accessibleProcessingResources(
         )
           continue;
         // New generation must recognize the rule; historical saved reads use their snapshots.
-        if (!reviewed.has(source.definitionId)) continue;
+        if (reviewed.get(source.definitionId) !== source.resource.id) continue;
         if (source.source.kind === 'managed') {
           const production = facts.managedProduction.find(
             (entry) => source.source.kind === 'managed' && entry.id === source.source.productionId,
@@ -121,6 +122,7 @@ export function accessibleProcessingResources(
         results.push({
           fact,
           sourceId: source.id,
+          rawResourceId: source.resource.id,
           food: structuredClone(source.resource.food),
           sourceAvailability: source.availability,
           acquisitionRequirements: [...source.requirements],

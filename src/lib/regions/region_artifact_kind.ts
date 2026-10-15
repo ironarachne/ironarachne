@@ -36,8 +36,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 15 saves qualified raw sources and owned production without backfilling historical policy. */
-export const REGION_PAYLOAD_VERSION = 15 as const;
+/** Version 16 adds saved product context and explicit settlement-water inputs without backfilling either. */
+export const REGION_PAYLOAD_VERSION = 16 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -392,10 +392,16 @@ function withEmptyDenseForests(payload: unknown): unknown {
 function validateMigratedRegionSnapshot(payload: unknown): PayloadResult<RegionSnapshot> {
   const record = asRecord(payload);
   const facts = asRecord(record?.facts);
-  return validateRegionSnapshot(
+  const upgraded =
     record && facts?.version === 9
       ? { ...record, facts: { ...facts, version: 10, managedProduction: [], resourceSources: [] } }
-      : payload,
+      : payload;
+  const next = asRecord(upgraded);
+  const nextFacts = asRecord(next?.facts);
+  return validateRegionSnapshot(
+    next && nextFacts?.version === 10
+      ? { ...next, facts: { ...nextFacts, version: 11 } }
+      : upgraded,
   );
 }
 
@@ -404,7 +410,7 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (!Number.isInteger(from) || from < 1 || from > 14)
+  if (!Number.isInteger(from) || from < 1 || from > 15)
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,
@@ -418,6 +424,8 @@ export function migrateRegionSnapshot(
     return rejectedPayload('unsupported-version', 'Version 11 requires region facts version 6');
   if (from === 13 && asRecord(record?.facts)?.version !== 8)
     return rejectedPayload('unsupported-version', 'Version 13 requires region facts version 8');
+  if (from === 15 && asRecord(record?.facts)?.version !== 10)
+    return rejectedPayload('unsupported-version', 'Version 15 requires region facts version 10');
   if (from === 14 && asRecord(record?.facts)?.version !== 9)
     return rejectedPayload('unsupported-version', 'Version 14 requires region facts version 9');
   const upgraded = withEmptyDenseForests(withEmptyMountainRanges(adopted));

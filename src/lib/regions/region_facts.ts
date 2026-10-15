@@ -14,7 +14,7 @@ import type { RegionFacts, RegionSettlement } from './region_fact_types.js';
 
 export function emptyRegionFacts(state: RegionFacts['state']): RegionFacts {
   return {
-    version: 10,
+    version: 11,
     managedProduction: [],
     resourceSources: [],
     denseForests: [],
@@ -66,7 +66,7 @@ export function regionFactsError(
   const facts = object(value);
   if (
     facts === null ||
-    facts.version !== 10 ||
+    facts.version !== 11 ||
     !['current', 'legacy'].includes(String(facts.state))
   ) {
     return 'region facts have an unsupported version or state';

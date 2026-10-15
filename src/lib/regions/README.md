@@ -327,8 +327,8 @@ regeneration is unavailable under the implemented
 ## Local processing (#339)
 
 `generateProcessingFacts` uses the isolated `processing` stream after habitation and ecology
-relationships. It selects up to three supported craft families and twelve product facts, including
-all necessary intermediate steps. Timber construction, reed/papyrus mats, flax linen, charcoal and
+relationships. It selects up to three supported craft families and twenty-four product facts, including
+all necessary intermediate steps, with dependency depth at most eight. Timber construction, reed/papyrus mats, flax linen, charcoal and
 bloomery iron tools, preserved animal provisions and dressed stone use the shared qualitative
 recipe catalog in `$lib/resources`. Supported flax grows only in the curated temperate grassland
 conditions; its stems provide textile fiber, while reeds and papyrus provide matting fiber.
@@ -342,7 +342,7 @@ quantities or sustainable yield. Missing inputs cause omission rather than autom
 Authored inputs can record imports with an explicit resource and explanation.
 
 `resolveProcessingChain(facts, productId)` returns saved steps in dependency order, raw leaves,
-imports and diagnostic issues without choosing recipes again. Unknown saved recipe/output keys
+imports, settlement-water leaves and diagnostic issues without choosing recipes again. Unknown saved recipe/output keys
 remain readable. Source/product text edits stale dependent explanations; removals preserve authored
 dependencies. Payload v6 adds `products: []` to older saves, preserving their map, facts and edits.
 Daily-life rules use these saved facts; the gazetteer links their supporting explanations. Supply rules
@@ -525,7 +525,7 @@ with a review note. Legacy regions gain no fabricated facts on load. See
 
 ## Qualified raw supply and managed production (#364)
 
-Payload version 15 / facts version 10 saves `resourceSources` and `managedProduction`. Historical
+Payload version 15 / facts version 10 introduced `resourceSources` and `managedProduction`. Historical
 migrations add empty lists and preserve missing food metadata. New summaries retain at most four
 sources per commodity, with at most three positive summaries per resource kind. Wild sources
 require a saved exact producer occurrence; managed sources require owned production, supported
@@ -544,3 +544,22 @@ a reviewed provision explicitly satisfies them. Legacy qualification stays unkno
 claims require both qualification and current local access; imports cannot establish local-only
 livelihoods. Gazettes and exports show source and production qualifications alongside potential
 supply, while the inspector retains full saved evidence.
+
+## Finished goods (#365)
+
+Payload version 16 / facts version 11 adds optional saved `ProductContext` and explicit
+`settlement-water` input leaves. Migration preserves all old chains and adds no food permissions,
+water assumptions or inferred context. The original twelve keys retain frozen compatibility
+meanings when context is absent; unknown historical outputs remain readable.
+
+New recipes use selected raw commodity IDs, explicit food policies, tools/facilities and all
+material/fuel inputs. Every settlement has reasonable ordinary access to clean freshwater;
+water slots preserve that assumption without creating a mapped source or import. Mapped water
+continues to support separate geographic and managed-production assertions.
+
+Generation and supply use the same deterministic plan, with source constraints collected across
+shared ingredient steps before choosing raw leaves. Available qualified alternatives take priority
+over limited ones. Pending grain restrictions survive flour/dough; only permitted provisions clear
+them. Classifications let cotton and wool satisfy cloth needs and let new roofing, food and crafts
+appear in existing context and exports. Ingredients and beverages do not become staples.
+See the [finished-goods design and gap ledger](../../../docs/fantasy-finished-goods.md).

@@ -107,7 +107,7 @@ export type RouteFact = FactBase & {
 export type CausalFact = FactBase & { subjectId: string; relatedIds: string[] };
 
 export type RegionFacts = {
-  version: 10;
+  version: 11;
   managedProduction: ManagedProductionFact[];
   resourceSources: ResourceSourceFact[];
   denseForests: DenseForestFact[];

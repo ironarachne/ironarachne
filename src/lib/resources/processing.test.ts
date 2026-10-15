@@ -7,7 +7,19 @@ describe('qualitative processing recipes', () => {
     const recipes = getProcessingRecipes();
     expect(new Set(recipes.map((entry) => entry.id)).size).toBe(recipes.length);
     expect(new Set(recipes.map((entry) => entry.family))).toEqual(
-      new Set(['timber', 'fiber', 'textile', 'iron', 'food', 'stone']),
+      new Set([
+        'timber',
+        'fiber',
+        'textile',
+        'iron',
+        'food',
+        'stone',
+        'ceramics',
+        'lime',
+        'lighting',
+        'ornament',
+        'pigment',
+      ]),
     );
     for (const recipe of recipes) {
       expect(recipe.inputs.length).toBeGreaterThan(0);

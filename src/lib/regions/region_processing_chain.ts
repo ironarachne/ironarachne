@@ -11,6 +11,7 @@ export function resolveProcessingChain(
     products: [],
     localInputs: [],
     imports: [],
+    settlementWaterInputs: [],
     issues: [],
   };
   const visiting = new Set<string>();
@@ -32,7 +33,11 @@ export function resolveProcessingChain(
     for (const input of product.inputs) {
       if (input.kind === 'product') visit(input.productId);
       else if (input.kind === 'import') result.imports.push(input);
-      else {
+      else if (input.kind === 'settlement-water') {
+        result.settlementWaterInputs.push(input);
+        if (input.role !== 'water' || !input.explanation.trim())
+          result.issues.push(`Invalid settlement water: ${id}`);
+      } else {
         result.localInputs.push(input);
         const resource = facts.resources.find((entry) => entry.id === input.resourceId);
         if (

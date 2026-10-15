@@ -1,4 +1,4 @@
-import { isProductFoodPolicy, isImportedFoodDescriptor } from '$lib/resources';
+import { isProductFoodPolicy, isImportedFoodDescriptor, isProductContext } from '$lib/resources';
 import type { RegionMap } from '$lib/map';
 import type { RegionFacts } from './region_fact_types';
 
@@ -38,6 +38,11 @@ export function processingFactsError(
   for (const raw of value.products as Record<string, unknown>[]) {
     if (
       (raw.food !== undefined && !isProductFoodPolicy(raw.food)) ||
+      (raw.context !== undefined &&
+        !isProductContext(
+          raw.context,
+          raw.food as import('$lib/resources').ProductFoodPolicy | undefined,
+        )) ||
       !text(raw.productKey) ||
       !text(raw.recipeId) ||
       !text(raw.technique) ||
@@ -60,6 +65,27 @@ export function processingFactsError(
           (input.role === 'material' && input.foodUse === 'process-water'))
       )
         return 'regional product has an invalid food input use';
+      if (input.kind === 'settlement-water') {
+        const food = object(raw.food);
+        if (
+          input.role !== 'water' ||
+          !text(input.explanation) ||
+          [
+            'resourceId',
+            'sourceId',
+            'depositIds',
+            'anchor',
+            'resourceName',
+            'foodDescriptor',
+            'productId',
+          ].some((key) => key in input) ||
+          (food?.kind === 'food'
+            ? !['ingredient', 'process-water'].includes(String(input.foodUse))
+            : input.foodUse !== undefined && input.foodUse !== 'support')
+        )
+          return 'regional product has an invalid settlement water input';
+        continue;
+      }
       if (input.kind === 'import') {
         if (input.foodDescriptor !== undefined && !isImportedFoodDescriptor(input.foodDescriptor))
           return 'regional product has an invalid imported food descriptor';

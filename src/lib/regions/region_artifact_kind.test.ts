@@ -694,7 +694,7 @@ describe('ecology save compatibility', () => {
       ...legacy,
       facts: {
         ...legacy.facts,
-        version: 10,
+        version: 11,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -830,7 +830,7 @@ describe('processing save migration', () => {
       ...input,
       facts: {
         ...input.facts,
-        version: 10,
+        version: 11,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -863,7 +863,7 @@ describe('daily-life save migration', () => {
       ...input,
       facts: {
         ...input.facts,
-        version: 10,
+        version: 11,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -953,7 +953,7 @@ describe('supply save migration', () => {
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...input,
-      facts: { ...input.facts, version: 10, denseForests: [], mountainRanges: [], supply: [] },
+      facts: { ...input.facts, version: 11, denseForests: [], mountainRanges: [], supply: [] },
     });
     expect(input).toEqual(before);
     expect(validateRegionSnapshot(result.value).ok).toBe(true);
@@ -1002,7 +1002,7 @@ describe('raw source save migration', () => {
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...old,
-      facts: { ...old.facts, version: 10, managedProduction: [], resourceSources: [] },
+      facts: { ...old.facts, version: 11, managedProduction: [], resourceSources: [] },
     });
     expect(
       result.value.facts.products.every(
@@ -1013,5 +1013,37 @@ describe('raw source save migration', () => {
     ).toBe(true);
     expect(old).toEqual(before);
     expect(migrateRegionSnapshot(snapshot, 14).ok).toBe(false);
+  });
+});
+
+describe('finished goods save compatibility', () => {
+  it('upgrades v15 without qualifying old water, filling context, or rewriting edited chains', () => {
+    const legacy = structuredClone(snapshot);
+    for (const product of legacy.facts.products) {
+      product.name = 'Authored old product';
+      product.origin = 'authored';
+      product.recipeId = 'historical:unknown-recipe';
+      delete product.context;
+      delete product.food;
+      product.inputs = product.inputs.map((input) =>
+        input.kind === 'settlement-water'
+          ? {
+              kind: 'import',
+              role: 'water',
+              resourceName: 'saved water',
+              explanation: 'Authored historical supply',
+            }
+          : input,
+      );
+    }
+    const old = { ...legacy, facts: { ...legacy.facts, version: 10 } };
+    const before = structuredClone(old);
+    const result = migrateRegionSnapshot(old, 15);
+    expect(result.ok, result.ok ? '' : result.message).toBe(true);
+    if (!result.ok) throw new Error(result.message);
+    expect(result.value).toEqual({ ...old, facts: { ...old.facts, version: 11 } });
+    expect(result.value.facts.products).toEqual(old.facts.products);
+    expect(old).toEqual(before);
+    expect(migrateRegionSnapshot(snapshot, 15).ok).toBe(false);
   });
 });

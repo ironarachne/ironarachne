@@ -2,6 +2,9 @@ import { assessRegionProductFood } from './region_food';
 import type { RNG } from '@ironarachne/rng';
 import {
   getProcessingRecipes,
+  getBiologicalRawResources,
+  getGeologicalRawResources,
+  productContext,
   type RecipeInputSelector,
   type ProcessingRecipe,
 } from '$lib/resources';
@@ -11,7 +14,10 @@ import type { ProcessingCapability, SettlementSupplyFact, SupplyNeed } from './r
 import type { AccessibleProcessingResource } from './region_processing_types';
 import { accessibleProcessingResources } from './region_processing_resources';
 import { processingEvidenceCurrent, reachableProcessingNodes } from './region_evidence';
-import { assessProcessingCapability, assessRawCapability } from './region_processing_capability';
+import {
+  createProcessingCapabilityAssessor,
+  assessRawCapability,
+} from './region_processing_capability';
 import { dailyLifeInputCurrent, sameSettlement } from './region_livelihood_evidence';
 import { resolveProcessingChain } from './region_processing_chain';
 import { supplyInventoryCurrent } from './region_supply_evidence';
@@ -74,6 +80,33 @@ const needs: SupplyNeed[] = [
   },
 ];
 
+function matchesNeed(
+  need: SupplyNeed,
+  product: { productKey: string; context?: import('$lib/resources').ProductContext },
+): boolean {
+  const use =
+    need.key === 'woven-cloth'
+      ? 'cloth'
+      : need.key === 'preserved-provisions'
+        ? 'preserved-food'
+        : undefined;
+  return use
+    ? productContext(product).uses.includes(use)
+    : need.outputs.includes(product.productKey);
+}
+function needOutputs(need: SupplyNeed, recipes: ProcessingRecipe[]): string[] {
+  return [
+    ...new Set([
+      ...need.outputs,
+      ...recipes
+        .filter((recipe) =>
+          matchesNeed(need, { productKey: recipe.outputKey, context: recipe.context }),
+        )
+        .map((recipe) => recipe.outputKey),
+    ]),
+  ];
+}
+
 function bestCapability(options: ProcessingCapability[]): ProcessingCapability {
   return (
     options.find((option) => option.supported && !option.limited) ??
@@ -93,12 +126,11 @@ function assessNeed(
   need: SupplyNeed,
   resources: AccessibleProcessingResource[],
   recipes: ProcessingRecipe[],
+  assessOutput: (outputKey: string) => ProcessingCapability,
 ): ProcessingCapability {
   const facts = region.facts!;
   const start = role.anchor.nodeIds[0];
-  const options = need.outputs.map((output) =>
-    assessProcessingCapability(recipes, resources, output),
-  );
+  const options = needOutputs(need, recipes).map((output) => assessOutput(output));
   if (need.selector) options.unshift(assessRawCapability(resources, need.selector));
   // Saved authored local chains remain evidence even if their recipe is no longer in the catalog.
   for (const product of [...facts.products].sort((a, b) => lexical(a.id, b.id))) {
@@ -107,7 +139,7 @@ function assessNeed(
         assessRegionProductFood(facts, product.id, (entry) =>
           processingEvidenceCurrent(entry, facts),
         ).status !== 'eligible') ||
-      !need.outputs.includes(product.productKey) ||
+      !matchesNeed(need, product) ||
       !sameSettlement(product.settlement, role.settlement) ||
       !dailyLifeInputCurrent(facts, region.map, start, role.settlement, {
         kind: 'product',
@@ -135,26 +167,41 @@ function assessNeed(
 }
 
 function missingInputLabels(recipes: ProcessingRecipe[]): Map<string, string> {
+  const rawNames = new Map(
+    [...getBiologicalRawResources(), ...getGeologicalRawResources()].map((entry) => [
+      entry.id,
+      entry.resource.name,
+    ]),
+  );
   return new Map(
     [
       ...recipes.flatMap((recipe) => recipe.inputs.map(({ selector }) => selector)),
       ...needs.flatMap((need) => (need.selector ? [need.selector] : [])),
     ].flatMap((selector) =>
-      selector.kind === 'raw'
+      selector.kind === 'raw-resource'
         ? [
             [
               JSON.stringify(selector),
-              selector.resourceNames.join(' or ') ||
-                ({
-                  organic: 'represented meat or fish',
-                  wood: 'timber',
-                  water: 'freshwater',
-                  stone: 'workable building stone',
-                }[selector.majorType] ??
-                  selector.majorType),
+              selector.rawResourceIds
+                .map((id) => rawNames.get(id) ?? 'a reviewed raw commodity')
+                .join(' or '),
             ] as const,
           ]
-        : [],
+        : selector.kind === 'raw'
+          ? [
+              [
+                JSON.stringify(selector),
+                selector.resourceNames.join(' or ') ||
+                  ({
+                    organic: 'represented meat or fish',
+                    wood: 'timber',
+                    water: 'freshwater',
+                    stone: 'workable building stone',
+                  }[selector.majorType] ??
+                    selector.majorType),
+              ] as const,
+            ]
+          : [],
     ),
   );
 }
@@ -168,8 +215,7 @@ function importedSupport(
   const inputs = facts.products
     .filter(
       (product) =>
-        need.outputs.includes(product.productKey) &&
-        sameSettlement(product.settlement, role.settlement),
+        matchesNeed(need, product) && sameSettlement(product.settlement, role.settlement),
     )
     .flatMap((product) => {
       const chain = resolveProcessingChain(facts, product.id);
@@ -215,19 +261,19 @@ export function assessSettlementSupply(
   );
   const recipes = getProcessingRecipes();
   const labels = missingInputLabels(recipes);
+  const assessLocal = createProcessingCapabilityAssessor(recipes, resources);
+  const assessRegional = createProcessingCapabilityAssessor(recipes, regional);
   const resourceIds = facts.resources.map((entry) => entry.id).sort();
   const productIds = facts.products.map((entry) => entry.id).sort();
   const results: SettlementSupplyFact[] = [];
   for (const need of needs) {
-    const assessment = assessNeed(region, role, need, resources, recipes);
+    const assessment = assessNeed(region, role, need, resources, recipes, assessLocal);
     if (assessment.supported && !assessment.limited) continue;
     const status = assessment.supported ? 'limited-local' : 'local-not-supported';
     // A region-wide inventory establishes represented raw inputs, not a reachable supplier.
     const regionalInputsRepresented = need.selector
       ? assessRawCapability(regional, need.selector).supported
-      : need.outputs.some(
-          (output) => assessProcessingCapability(recipes, regional, output).supported,
-        );
+      : needOutputs(need, recipes).some((output) => assessRegional(output).supported);
     const missing = assessment.missingInputKeys
       .map((key) => labels.get(key) ?? 'a declared processing capability')
       .join(', ');

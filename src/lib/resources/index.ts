@@ -16,3 +16,6 @@ export type * from './raw_source_types';
 export * from './raw_biological_catalog';
 export * from './raw_geological_catalog';
 export * from './food_validation';
+
+export * from './processing_context';
+export * from './processing_techniques';

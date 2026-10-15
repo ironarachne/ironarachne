@@ -1,3 +1,6 @@
+import { finishedGoodsRecipes } from './processing_finished_goods';
+import { productContext } from './processing_context';
+import type { ProductFoodPolicy } from './raw_source_types';
 import type { Resource } from './resource_types';
 import type {
   ProcessingRecipe,
@@ -23,6 +26,7 @@ function recipe(
   technique: string,
   requirements: string[],
   inputs: RecipeInput[],
+  food: ProductFoodPolicy = { kind: 'not-food' },
 ): ProcessingRecipe {
   return {
     id: `fantasy:processing:${outputKey}:v1`,
@@ -31,24 +35,17 @@ function recipe(
     outputName,
     technique,
     requirements,
+    context: productContext({ productKey: outputKey }),
     inputs: inputs.map((input) => ({
       ...input,
-      foodUse: family === 'food' && input.role === 'material' ? 'ingredient' : 'support',
+      foodUse: food.kind === 'food' && input.role === 'material' ? 'ingredient' : 'support',
     })),
-    food:
-      family === 'food'
-        ? {
-            kind: 'food',
-            use: 'provision',
-            reviewRuleId: `fantasy:processing:${outputKey}:food:v1`,
-            requirements: [...requirements],
-          }
-        : { kind: 'not-food' },
+    food,
   };
 }
 /** Qualitative recipes: no invented time, yield, temperature or numeric technology level. */
 export function getProcessingRecipes(): ProcessingRecipe[] {
-  return [
+  const baseline = [
     recipe(
       'timber',
       'sawn-timber',
@@ -79,7 +76,10 @@ export function getProcessingRecipes(): ProcessingRecipe[] {
       'Prepared flax fiber',
       'fiber preparation',
       ['retting and fiber preparation tools'],
-      [raw('plant-fiber', ['textile'], ['flax stems']), raw('water', [], [], 'water')],
+      [
+        raw('plant-fiber', ['textile'], ['flax stems']),
+        { role: 'water', selector: { kind: 'settlement-water' } },
+      ],
     ),
     recipe(
       'textile',
@@ -124,6 +124,12 @@ export function getProcessingRecipes(): ProcessingRecipe[] {
         raw('organic', ['red_meat', 'reptile_meat', 'poultry', 'insect_meat', 'fish']),
         raw('wood', [], [], 'fuel'),
       ],
+      {
+        kind: 'food',
+        use: 'provision',
+        reviewRuleId: 'fantasy:processing:smoked-provisions:food:v1',
+        requirements: ['smoking hearth and racks'],
+      },
     ),
     recipe(
       'food',
@@ -132,6 +138,12 @@ export function getProcessingRecipes(): ProcessingRecipe[] {
       'drying',
       ['covered drying racks'],
       [raw('organic', ['red_meat', 'reptile_meat', 'poultry', 'insect_meat', 'fish'])],
+      {
+        kind: 'food',
+        use: 'provision',
+        reviewRuleId: 'fantasy:processing:dried-provisions:food:v1',
+        requirements: ['covered drying racks'],
+      },
     ),
     recipe(
       'stone',
@@ -142,6 +154,9 @@ export function getProcessingRecipes(): ProcessingRecipe[] {
       [raw('stone')],
     ),
   ];
+  baseline.find((entry) => entry.outputKey === 'prepared-flax')!.id =
+    'fantasy:processing:prepared-flax:v2';
+  return [...baseline, ...finishedGoodsRecipes()];
 }
 export function matchesProcessingInput(
   selector: RecipeInputSelector,
@@ -149,10 +164,22 @@ export function matchesProcessingInput(
 ): boolean {
   if (selector.kind === 'product')
     return 'productKey' in input && selector.productKey === input.productKey;
+  if (selector.kind !== 'raw') return false;
   return (
     'major_type' in input &&
     input.major_type === selector.majorType &&
     (!selector.minorTypes.length || selector.minorTypes.includes(input.minor_type)) &&
     (!selector.resourceNames.length || selector.resourceNames.includes(input.name))
   );
+}
+
+/** Identity selectors require the selected reviewed source, never just a matching display name. */
+export function matchesProcessingSource(
+  selector: RecipeInputSelector,
+  resource: Resource,
+  rawResourceId?: string,
+): boolean {
+  return selector.kind === 'raw-resource'
+    ? rawResourceId !== undefined && selector.rawResourceIds.includes(rawResourceId)
+    : matchesProcessingInput(selector, resource);
 }

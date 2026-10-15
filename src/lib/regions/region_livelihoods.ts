@@ -1,3 +1,4 @@
+import { productContext } from '$lib/resources';
 import { assessRawSourceFood, assessRegionProductFood } from './region_food';
 import type { RNG } from '@ironarachne/rng';
 import type Region from './region';
@@ -222,24 +223,22 @@ function candidatesFor(
       !dailyLifeInputCurrent(facts, region.map, start, role.settlement, inputs[0])
     )
       continue;
-    const capabilities: Record<string, string> = {
-      'construction-components': 'Woodworking',
-      'woven-mats': 'Mat weaving',
-      linen: 'Linen weaving',
-      'dressed-stone': 'Stone dressing',
-      'iron-tools': 'Basic iron toolmaking',
-      'smoked-provisions': 'Food smoking',
-      'dried-provisions': 'Food drying',
-    };
-    const craft = Object.hasOwn(capabilities, product.productKey)
-      ? capabilities[product.productKey]
-      : undefined;
+    const context = productContext(product);
+    const craft = context.craftLabel;
+    const foodStatus = assessRegionProductFood(facts, product.id, (entry) =>
+      processingEvidenceCurrent(entry, facts),
+    ).status;
+    const foodCraft =
+      foodStatus === 'eligible' ||
+      (product.food?.kind === 'food' &&
+        product.food.use === 'ingredient' &&
+        ['ingredient-only', 'requires-preparation'].includes(foodStatus));
     if (
       craft &&
-      (!['smoked-provisions', 'dried-provisions'].includes(product.productKey) ||
-        assessRegionProductFood(facts, product.id, (entry) =>
-          processingEvidenceCurrent(entry, facts),
-        ).status === 'eligible')
+      (!context.uses.some((use) =>
+        ['preserved-food', 'prepared-food', 'beverage', 'food-ingredient'].includes(use),
+      ) ||
+        foodCraft)
     ) {
       const assumptions = product.requirements.length
         ? `, assuming ${product.requirements.join(', ')}`
@@ -248,7 +247,7 @@ function candidatesFor(
       add('craft', `craft-${product.productKey}`, craft, text, inputs);
       add('livelihood', `processing-${product.productKey}`, craft, text, inputs);
     }
-    if (['sawn-timber', 'construction-components', 'dressed-stone'].includes(product.productKey))
+    if (context.uses.some((use) => ['wood-construction', 'masonry', 'roofing'].includes(use)))
       add(
         'building-material',
         `building-${product.productKey}`,
@@ -256,7 +255,7 @@ function candidatesFor(
         `${product.name} is a possible building material through local processing.`,
         inputs,
       );
-    if (product.productKey === 'charcoal')
+    if (context.uses.includes('fuel'))
       add(
         'fuel',
         'charcoal-fuel',
@@ -265,14 +264,14 @@ function candidatesFor(
         inputs,
       );
     if (
-      assessRegionProductFood(facts, product.id, (entry) => processingEvidenceCurrent(entry, facts))
-        .status === 'eligible'
+      context.uses.some((use) => use === 'preserved-food' || use === 'prepared-food') &&
+      foodStatus === 'eligible'
     )
       add(
         'staple',
         `food-${product.productKey}`,
         product.name,
-        `${product.name} is a possible preserved food through local processing.`,
+        `${product.name} is a possible ${context.uses.includes('preserved-food') ? 'preserved' : 'prepared'} food through local processing.`,
         inputs,
       );
   }
