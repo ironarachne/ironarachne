@@ -37,7 +37,7 @@ See [regional resource generation](../../../docs/region-resources.md).
 ## Qualitative processing recipes
 
 `getPlantProducts(plantName)` supplies typed raw stems for reeds, papyrus and flax. Unknown plants
-return no products. `getProcessingRecipes()` defines 78 versioned steps, retaining the twelve representative chains
+return no products. `getProcessingRecipes()` defines 81 versioned steps, retaining the twelve representative chains
 and adding textiles, sewn goods, ceramics, lime, lighting, iron components, ornaments, pigments,
 prepared food and beverages. Each declares an output key, technique, assumed tools
 or facilities and required inputs with material/fuel/water roles. Inputs match raw `Resource`

@@ -603,7 +603,7 @@ remain outside this implementation and need their own model review.
 
 ## Implementation record
 
-The implemented catalog has 78 recipes: the twelve representative chains plus 66 additions.
+The implemented catalog has 81 recipes: the twelve representative chains plus 69 additions.
 The recipe rows in `src/lib/resources/processing_finished_goods.ts` are the enabled review ledger,
 with explicit selectors, roles, policies, equipment assumptions and references. Blocked rows in
 this document remain deliberately absent from that catalog.

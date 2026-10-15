@@ -176,7 +176,7 @@ function error(region: ReturnType<typeof fixture>) {
 describe('expanded fantasy processing catalog', () => {
   it('has complete reviewed routes and rejects duplicate identities, broken graphs and malformed inputs', () => {
     expect(processingCatalogErrors(catalog)).toEqual([]);
-    expect(catalog.length).toBeGreaterThan(70);
+    expect(catalog).toHaveLength(81);
     for (const recipe of catalog.slice(12)) {
       expect(recipe.reviewRefs?.length).toBeGreaterThan(0);
       expect(recipe.reviewNote?.length).toBeGreaterThan(0);
