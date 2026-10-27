@@ -120,9 +120,14 @@ function climateSection(snapshot: EnvironmentSnapshot): EnvironmentSection {
     heading: 'Climate',
     lines: [
       ...(isPrintable(climate.name) ? [labelled('Type', climate.name)] : []),
+      labelled('Annual mean', Temperature.getComparativeString(climate.temperature, 'celsius')),
       labelled(
-        'Temperature',
-        `${Temperature.getComparativeString(climate.temperatureMin, 'celsius')} to ${Temperature.getComparativeString(climate.temperatureMax, 'celsius')}`,
+        'Coldest month',
+        Temperature.getComparativeString(climate.temperatureMin, 'celsius'),
+      ),
+      labelled(
+        'Warmest month',
+        Temperature.getComparativeString(climate.temperatureMax, 'celsius'),
       ),
       labelled('Humidity', asPercentage(climate.humidity)),
       labelled('Cloud cover', asPercentage(climate.cloudCover)),

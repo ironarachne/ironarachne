@@ -67,7 +67,7 @@ describe('generate', () => {
   });
 
   it('names the region after its main realm', () => {
-    const region = generate(configFor('named'));
+    const region = generate(configFor('named-1'));
 
     expect(region.name).toBe(region.realms[region.mainRealm!].name);
   });

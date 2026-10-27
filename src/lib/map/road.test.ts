@@ -62,9 +62,7 @@ function buildPipelineMap(rng: RNG, seedSuffix: string): RegionMap {
   map = simulateWater(map, { seaLevel: -0.1, springCountPercentage: 0.1, rng });
   map = assignTemperature(map, {
     seed: `t-${seedSuffix}`,
-    baseTemp: 28,
     latitude: 40,
-    elevationLapseRate: 6.5,
     frequency: 2.2,
   });
   map = assignMoisture(map, { seed: `m-${seedSuffix}`, baseMoisture: 0.45, frequency: 2.2 });

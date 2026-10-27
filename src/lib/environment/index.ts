@@ -8,6 +8,13 @@ export * from './environments';
 // because its own index already namespaces the table, so it arrives as `Landforms.all`.
 export * as Biomes from './biomes';
 export * as Climates from './climates';
+export type {
+  Climate,
+  RegionalTemperatureSummary,
+  Season,
+  SiteTemperature,
+  SpatialTemperatureEnvelope,
+} from './climates';
 export * as Ecosystems from './ecosystems';
 export * from './landforms';
 export * as PrecipitationTypes from './precipitationtypes';

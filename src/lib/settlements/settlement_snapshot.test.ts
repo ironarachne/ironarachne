@@ -8,13 +8,14 @@ import type { Settlement } from './settlement_types';
 /**
  * The seeds are pinned, and each was chosen for what it produces rather than at random.
  *
- * `greyhaven` is the fully loaded case: every enrichment layer on, an organization whose emblem is
- * a coat of arms, and a leader carrying arms of their own — which together are all three of the
- * things in a settlement that are not plain data. `ashfall` is the same settings with a
- * merchant-mark emblem instead, so the emblem variants that need no rebuilding are exercised too.
+ * `settlement-probe-45` is the fully loaded case: every enrichment layer on, an organization whose
+ * emblem is a coat of arms, and a leader carrying arms of their own — which together are all three
+ * of the things in a settlement that are not plain data. `settlement-probe-13` is the same settings
+ * with a merchant-mark emblem instead, so the emblem variants that need no rebuilding are exercised
+ * too.
  */
-const LOADED_SEED = 'greyhaven';
-const MERCHANT_MARK_SEED = 'ashfall';
+const LOADED_SEED = 'settlement-probe-45';
+const MERCHANT_MARK_SEED = 'settlement-probe-13';
 
 const EVERY_LAYER = {
   size: 'large',

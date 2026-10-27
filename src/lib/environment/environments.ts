@@ -1,6 +1,8 @@
 import * as RNG from '@ironarachne/rng';
 import * as Biomes from './biomes/biomes';
 import * as Climates from './climates/climates';
+import type { BiomeGeneratorConfig } from './biomes/biome_types';
+import type { Climate, RegionalTemperatureSummary } from './climates/index';
 import * as EcosystemGeneration from './ecosystems/ecosystem_generation';
 import * as TerrainGeneration from './terrain/index';
 import * as WaterSystems from './water_systems/index';
@@ -54,11 +56,63 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
     description: '',
   };
 
-  environment.description = `${config.rng.item(biome.descriptions)} ${config.rng.item(biome.features)}`;
-  environment.description += ` ${environment.climate.description}`;
-  environment.description += ` ${describeTerrain(terrain, config.rng)}`;
+  environment.description = describeEnvironment(environment, config.rng);
 
   return environment;
+}
+
+/**
+ * Compose the environment's prose from its parts.
+ *
+ * A region materializes a site environment by replacing only the climate and biome; this helper
+ * lets it recompose the description without generating a second environment.
+ */
+export function describeEnvironment(environment: Environment, rng: RNG.RNG): string {
+  const biomeDescription = `${rng.item(environment.biome.descriptions)} ${rng.item(environment.biome.features)}`;
+  const climateDescription = environment.climate.description;
+  const terrainDescription = describeTerrain(environment.terrain, rng);
+  return `${biomeDescription} ${climateDescription} ${terrainDescription}`;
+}
+
+/**
+ * Replace an environment's temperature story with a realized regional summary.
+ *
+ * The preliminary environment keeps the generation stream and terrain/water/ecosystems it always
+ * had. The region derives the summary from the finished map, then this function reclassifies the
+ * climate, rebuilds the biome from the new temperature range, and recomposes the prose. It draws
+ * only from the caller's environment stream, so it cannot shift the map.
+ */
+export function reconcileTemperature(
+  environment: Environment,
+  summary: RegionalTemperatureSummary,
+  biomeConfig: BiomeGeneratorConfig,
+  rng: RNG.RNG,
+): Environment {
+  const climate: Climate = {
+    ...environment.climate,
+    name: 'unknown',
+    description: '',
+    temperature: summary.annualMean,
+    temperatureMin: summary.coldestMonth,
+    temperatureMax: summary.warmestMonth,
+    seasons: summary.seasons.map((season) => ({ ...season })),
+  };
+  climate.name = Climates.generateClimateName(climate, summary.referenceLatitude);
+  climate.description = Climates.describe(climate, rng.randomString(16));
+
+  const biome = Biomes.generate({
+    ...biomeConfig,
+    rng,
+    altitude: summary.referenceHeight,
+    temperatureMin: climate.temperatureMin,
+    temperatureMax: climate.temperatureMax,
+    humidityMin: Math.max(climate.humidity - 0.1, 0),
+    humidityMax: Math.min(climate.humidity + 0.1, 1),
+  });
+
+  const result: Environment = { ...environment, climate, biome, description: '' };
+  result.description = describeEnvironment(result, rng);
+  return result;
 }
 
 export function generateForClimate(climateName: string, rng: RNG.RNG): Environment {

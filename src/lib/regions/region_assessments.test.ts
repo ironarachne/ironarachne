@@ -173,14 +173,17 @@ describe('regional evidence and prose', () => {
         .filter((entry) => !regionInspectionFacts(old).some((other) => other.id === entry.id))
         .map((entry) => entry.id),
     );
-    for (const fact of regionInspectionFacts(old))
-      if (fact.reason)
-        fact.reason.sources = fact.reason.sources.filter(
-          (source) => source.kind !== 'fact' || !removed.has(source.factId),
-        );
+    for (const fact of regionInspectionFacts(old)) {
+      if (!fact.reason) continue;
+      fact.reason.sources = fact.reason.sources.filter(
+        (source) => source.kind !== 'fact' || !removed.has(source.factId),
+      );
+      // An older payload would not contain a fact whose only support was a newer resource.
+      if (fact.reason.sources.length === 0) delete fact.reason;
+    }
     const input = { ...old, facts: { ...old.facts, version: 8 } };
     const result = migrateRegionSnapshot(input, 13);
-    expect(result.ok).toBe(true);
+    expect(result.ok, result.ok ? '' : result.message).toBe(true);
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual(old);
     expect(regionToMarkdown(result.value)).toContain(old.description);

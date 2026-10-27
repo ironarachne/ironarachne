@@ -1,11 +1,20 @@
 import type { RegionMap } from './map_graph.js';
 import { createSimplexNoise2D } from '../noise/simplex.js';
+import {
+  LOCAL_VARIATION_C,
+  annualMeanAt,
+  mapHeight,
+  seasonCalendar,
+  seasonExtremeAmplitude,
+} from '../environment/climates/climate_model.js';
+import type {
+  RegionalTemperatureSummary,
+  SpatialTemperatureEnvelope,
+} from '../environment/climates/climate_types.js';
 
 export interface TemperatureConfig {
   seed: string;
-  baseTemp: number; // e.g. 15 Celsius
   latitude: number; // Signed center latitude: positive north, negative south, 0 at the equator
-  elevationLapseRate: number; // how much temp drops per elevation unit (e.g. 6.5 C per km)
   frequency: number;
 }
 
@@ -15,11 +24,23 @@ export interface MoistureConfig {
   frequency: number;
 }
 
+function percentile(values: number[], fraction: number): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.max(0, Math.ceil(sorted.length * fraction) - 1)];
+}
+
+function landNodes(map: RegionMap) {
+  return map.nodes.filter((node) => !node.isOcean && !node.isWater);
+}
+
 /**
- * Calculates temperature for each node and corner based on latitude, elevation, and noise.
+ * Calculates the local annual mean for each node and corner from the shared temperature model.
+ *
+ * Latitude changes across the map from north to south, and elevation is normalized once by the
+ * model. The only local term is a bounded seeded variation; it cannot invent a regional climate.
  *
  * @param {RegionMap} map The map graph with elevation calculated.
- * @param {TemperatureConfig} config Configuration containing base temperature and latitude.
+ * @param {TemperatureConfig} config Seed, signed center latitude and noise frequency.
  * @returns {RegionMap} A new MapGraph instance with temperatures assigned.
  */
 export function assignTemperature(map: RegionMap, config: TemperatureConfig): RegionMap {
@@ -35,21 +56,12 @@ export function assignTemperature(map: RegionMap, config: TemperatureConfig): Re
   for (const corner of newMap.corners) {
     const yRatio = Math.max(0, Math.min(1, corner.point.y / height));
     const latBase = config.latitude + (1 - yRatio * 2) * latOffset;
-    // Base temp is roughly equator temp. Drop by ~50C from equator to poles.
-    const latTemp = config.baseTemp - (Math.abs(latBase) / 90) * 50;
 
-    // Noise adds local variation
     const nx = (corner.point.x / width) * config.frequency;
     const ny = (corner.point.y / height) * config.frequency;
-    const localThrust = noise(nx, ny) * 5; // +/- 5 Celsius
+    const localThrust = noise(nx, ny) * LOCAL_VARIATION_C;
 
-    // Elevation drops temp
-    const ev = Math.max(0, corner.elevation); // Only above sea level
-    // Assume max elevation (ev=1.0) is roughly 3km
-    const maxZ = 3.0;
-    const elevationTemp = ev * maxZ * config.elevationLapseRate;
-
-    corner.temperature = latTemp + localThrust - elevationTemp;
+    corner.temperature = annualMeanAt(latBase, mapHeight(corner.elevation)) + localThrust;
   }
 
   // Process Nodes
@@ -62,6 +74,79 @@ export function assignTemperature(map: RegionMap, config: TemperatureConfig): Re
   }
 
   return newMap;
+}
+
+/**
+ * The regional temperature summary: what the realized dry land actually averages, with the
+ * seasonal amplitude for the region's center latitude.
+ *
+ * The summary is derived from the map rather than drawn separately, so it cannot disagree with
+ * the cells it describes. It is generation-time data, never a persisted field.
+ */
+export function summarizeLandTemperature(
+  map: RegionMap,
+  referenceLatitude: number,
+): RegionalTemperatureSummary {
+  const land = landNodes(map);
+  if (land.length === 0) {
+    return {
+      annualMean: 0,
+      coldestMonth: 0,
+      warmestMonth: 0,
+      referenceLatitude,
+      referenceHeight: 0.5,
+      seasons: seasonCalendar(referenceLatitude),
+    };
+  }
+
+  const annualMean = land.reduce((sum, node) => sum + node.temperature, 0) / land.length;
+  const amplitude = seasonExtremeAmplitude(referenceLatitude);
+  const referenceHeight = percentile(
+    land.map((node) => mapHeight(node.elevation)),
+    0.5,
+  );
+
+  return {
+    annualMean,
+    coldestMonth: annualMean - amplitude,
+    warmestMonth: annualMean + amplitude,
+    referenceLatitude,
+    referenceHeight,
+    seasons: seasonCalendar(referenceLatitude),
+  };
+}
+
+/**
+ * The distribution of dry-land annual means, including the cells at its ends.
+ *
+ * Spatial claims use this envelope; the regional summary's seasonal minimum is not a floor over
+ * the map. It is derived on demand and never persisted.
+ */
+export function measureTemperatureEnvelope(map: RegionMap): SpatialTemperatureEnvelope {
+  const land = landNodes(map);
+  if (land.length === 0) {
+    return {
+      meanAnnual: 0,
+      coldestNodeId: -1,
+      coldestAnnual: 0,
+      warmestNodeId: -1,
+      warmestAnnual: 0,
+      p10Annual: 0,
+      p90Annual: 0,
+    };
+  }
+
+  const sorted = [...land].sort((a, b) => a.temperature - b.temperature || a.id - b.id);
+  const temperatures = sorted.map((node) => node.temperature);
+  return {
+    meanAnnual: temperatures.reduce((sum, value) => sum + value, 0) / temperatures.length,
+    coldestNodeId: sorted[0].id,
+    coldestAnnual: sorted[0].temperature,
+    warmestNodeId: sorted[sorted.length - 1].id,
+    warmestAnnual: sorted[sorted.length - 1].temperature,
+    p10Annual: percentile(temperatures, 0.1),
+    p90Annual: percentile(temperatures, 0.9),
+  };
 }
 
 /**

@@ -1,6 +1,17 @@
 import * as MT from '$lib/math_translation';
-import type { Climate, ClimateGeneratorConfig, ClimateType, Season } from './climate_types';
+import { annualMeanAt, mapHeight, seasonCalendar, seasonExtremeAmplitude } from './climate_model';
+import type {
+  Climate,
+  ClimateGeneratorConfig,
+  ClimateType,
+  Season,
+  SiteTemperature,
+} from './climate_types';
 import * as RNG from '@ironarachne/rng';
+
+function formatTemperature(value: number): string {
+  return `${Math.round(value)}°C`;
+}
 
 export function describe(climate: Climate, seed: string): string {
   const rng = new RNG.RNG(seed);
@@ -14,10 +25,11 @@ export function describe(climate: Climate, seed: string): string {
   ];
 
   let tempPhrase = 'moderate temperatures';
-  if (climate.temperatureMax > 30) tempPhrase = 'scorching heat';
-  else if (climate.temperatureMax > 20) tempPhrase = 'warm temperatures';
-  else if (climate.temperatureMax < 0) tempPhrase = 'freezing cold';
-  else if (climate.temperatureMax < 10) tempPhrase = 'chilly weather';
+  if (climate.temperature > 25) tempPhrase = 'scorching heat';
+  else if (climate.temperature > 18) tempPhrase = 'warm temperatures';
+  else if (climate.temperature > 10) tempPhrase = 'moderate temperatures';
+  else if (climate.temperature > 0) tempPhrase = 'chilly weather';
+  else tempPhrase = 'freezing cold';
 
   let precipPhrase = 'average precipitation';
   if (climate.precipitationAmount > 0.8) precipPhrase = 'heavy rainfall';
@@ -25,19 +37,21 @@ export function describe(climate: Climate, seed: string): string {
   else if (climate.precipitationAmount < 0.2) precipPhrase = 'very little precipitation';
   else if (climate.precipitationAmount < 0.4) precipPhrase = 'sparse rain';
 
-  const description = `The climate here is ${climate.name}, ${rng.item(adjectives)} ${tempPhrase} and ${precipPhrase}. ${rng.item(seasonPhrases)}`;
+  const seasonalPhrase =
+    climate.temperatureMax - climate.temperatureMin >= 5
+      ? `The coldest month averages ${formatTemperature(climate.temperatureMin)} and the warmest ${formatTemperature(climate.temperatureMax)}.`
+      : 'Temperatures vary little through the year.';
 
-  return description;
+  return `The climate here is ${climate.name}, ${rng.item(adjectives)} ${tempPhrase} and ${precipPhrase}. ${rng.item(seasonPhrases)} ${seasonalPhrase}`;
 }
 
 export function generate(config: ClimateGeneratorConfig): Climate {
-  const temperatureRange = getTemperatureRange(
-    config.elevation,
-    config.latitude,
-    config.temperatureAtEquator,
-  );
-  const temperatureMin = temperatureRange[0];
-  const temperatureMax = temperatureRange[1];
+  const temperature = annualMeanAt(config.latitude, mapHeight(config.elevation));
+  const seasons = seasonCalendar(config.latitude);
+  const amplitude = seasonExtremeAmplitude(config.latitude);
+  const temperatureMin = temperature - amplitude;
+  const temperatureMax = temperature + amplitude;
+
   const wind = getWind(
     config.latitude,
     config.waterDirection,
@@ -46,29 +60,23 @@ export function generate(config: ClimateGeneratorConfig): Climate {
   );
 
   const precipitationAmount = getPrecipitation(
-    temperatureMax,
+    temperature,
     wind,
     config.terrainNormalVector,
     config.waterDirection,
   );
   const precipitationFrequency = MT.clamp(precipitationAmount * config.rng.float(0.25, 1.25), 0, 1);
 
-  const humidity = getHumidity(precipitationAmount, temperatureMax);
+  const humidity = getHumidity(precipitationAmount, temperature);
 
-  const seasons = getSeasons(config.latitude, temperatureMax, precipitationAmount);
-
-  const cloudCover = getCloudCover(
-    config.latitude,
-    temperatureMin + (temperatureMax - temperatureMin) / 2,
-    wind,
-  );
+  const cloudCover = getCloudCover(config.latitude, temperature, wind);
 
   const partialClimate: Climate = {
     name: 'unknown',
     description: '',
     cloudCover,
     wind,
-    temperature: (temperatureMin + temperatureMax) / 2,
+    temperature,
     temperatureMin,
     temperatureMax,
     precipitationAmount,
@@ -80,6 +88,62 @@ export function generate(config: ClimateGeneratorConfig): Climate {
   const name = generateClimateName(partialClimate, config.latitude);
 
   return { ...partialClimate, name };
+}
+
+/**
+ * The local temperature at one map node, using the saved season departures.
+ *
+ * The node's stored value is already the local annual mean. A legacy climate with no usable
+ * departures falls back to the stored range's departures around that mean, so a saved snapshot
+ * remains readable without inventing a season.
+ */
+export function siteTemperature(climate: Climate, annualMean: number): SiteTemperature {
+  const seasons = climate.seasons.filter(
+    (season) =>
+      season.name.trim().length > 0 &&
+      Number.isInteger(season.startDay) &&
+      Number.isInteger(season.endDay) &&
+      season.startDay >= 1 &&
+      season.startDay <= 365 &&
+      season.endDay >= 1 &&
+      season.endDay <= 365 &&
+      Number.isFinite(season.temperatureAdjustment),
+  );
+  if (seasons.length === 0) {
+    const base = Number.isFinite(climate.temperature) ? climate.temperature : annualMean;
+    const coldDelta = Number.isFinite(climate.temperatureMin) ? climate.temperatureMin - base : 0;
+    const warmDelta = Number.isFinite(climate.temperatureMax) ? climate.temperatureMax - base : 0;
+    return {
+      annualMean,
+      coldestMonth: annualMean + coldDelta,
+      warmestMonth: annualMean + warmDelta,
+      coldestSeason: '',
+      warmestSeason: '',
+    };
+  }
+
+  const earlier = (a: Season, b: Season): boolean =>
+    a.startDay < b.startDay || (a.startDay === b.startDay && a.name < b.name);
+  const coldest = seasons.reduce((best, season) =>
+    season.temperatureAdjustment < best.temperatureAdjustment ||
+    (season.temperatureAdjustment === best.temperatureAdjustment && earlier(season, best))
+      ? season
+      : best,
+  );
+  const warmest = seasons.reduce((best, season) =>
+    season.temperatureAdjustment > best.temperatureAdjustment ||
+    (season.temperatureAdjustment === best.temperatureAdjustment && earlier(season, best))
+      ? season
+      : best,
+  );
+
+  return {
+    annualMean,
+    coldestMonth: annualMean + coldest.temperatureAdjustment,
+    warmestMonth: annualMean + warmest.temperatureAdjustment,
+    coldestSeason: coldest.name,
+    warmestSeason: warmest.name,
+  };
 }
 
 export function generateClimateName(climate: Climate, latitude: number): string {
@@ -199,7 +263,6 @@ export function getDefaultConfig(rng: RNG.RNG): ClimateGeneratorConfig {
     longitude: 0,
     waterDirection: [0, 0, 0], // direction and distance to nearest body of water
     current: [0, 0, 0], // current is not present
-    temperatureAtEquator: 35,
     terrainNormalVector: [0, 0, 0], // flat terrain
     rng,
   };
@@ -274,97 +337,6 @@ function getPrecipitation(
     waterInfluence * 0.4 + tempInfluence * 0.3 + terrainInfluence * 0.2 + windInfluence * 0.1;
 
   return MT.clamp(precipitation, 0, 1);
-}
-
-function getSeasons(latitude: number, _temperature: number, _precipitation: number): Season[] {
-  // Seasons are influenced by latitude, temperature, and precipitation
-  // The number of seasons is determined by the temperature and precipitation
-  // The length of each season is determined by the temperature and precipitation
-
-  let seasons: Season[] = [];
-
-  // if latitude is between 23.5 and -23.5, there are two seasons; otherwise, there are four
-
-  if (latitude < 23.5 && latitude > -23.5) {
-    seasons = [
-      {
-        name: 'dry',
-        startDay: 200,
-        endDay: 50,
-        temperatureAdjustment: 0.1,
-        humidityAdjustment: 0,
-      },
-      {
-        name: 'wet',
-        startDay: 51,
-        endDay: 199,
-        temperatureAdjustment: 0,
-        humidityAdjustment: 0.2,
-      },
-    ];
-  } else {
-    seasons = [
-      {
-        name: 'spring',
-        startDay: 91,
-        endDay: 181,
-        temperatureAdjustment: 0,
-        humidityAdjustment: 0.1,
-      },
-      {
-        name: 'summer',
-        startDay: 182,
-        endDay: 272,
-        temperatureAdjustment: 0.1,
-        humidityAdjustment: 0.1,
-      },
-      {
-        name: 'autumn',
-        startDay: 273,
-        endDay: 363,
-        temperatureAdjustment: 0,
-        humidityAdjustment: 0,
-      },
-      {
-        name: 'winter',
-        startDay: 364,
-        endDay: 90,
-        temperatureAdjustment: -0.1,
-        humidityAdjustment: -0.1,
-      },
-    ];
-  }
-
-  // TODO: adjust the temperatureAdjustment and precipitationAdjustment based on the temperature and precipitation
-
-  return seasons;
-}
-
-function getTemperatureRange(
-  elevation: number,
-  latitude: number,
-  temperatureAtEquator: number,
-): [number, number] {
-  // Temperature is influenced by latitude and elevation
-  // The temperature at the equator is the base temperature
-  // Range of temperature is shorter at the equator and poles, and longer at the mid-latitudes
-
-  const midTemperature = temperatureAtEquator - (10 * Math.abs(latitude)) / 20;
-
-  // Temperature should be modified by elevation such that the temperature at the highest elevation is 0 degrees Celsius
-  const elevationTemperature = midTemperature * (1 - elevation);
-
-  // Temperature range variance is a bell curve, with the lowest variance at the equator and poles, and the highest variance at the mid-latitudes
-  const inner = Math.abs(latitude) - 45;
-  const power = Math.pow(inner, 2);
-  const fraction = 1 / 2025;
-  const temperatureRangeVariance = -1 * fraction * power + 1;
-  const temperatureRangeStrength = 10; // the maximum variance is 10 degrees Celsius
-
-  const temperatureMin = elevationTemperature - temperatureRangeVariance * temperatureRangeStrength;
-  const temperatureMax = elevationTemperature + temperatureRangeVariance * temperatureRangeStrength;
-
-  return [temperatureMin, temperatureMax];
 }
 
 function getWind(

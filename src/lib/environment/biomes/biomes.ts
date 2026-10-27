@@ -7,12 +7,21 @@ import * as Words from '@ironarachne/words';
 import type { BiomeClassification } from './biome_types.js';
 
 export function generate(config: BiomeGeneratorConfig): Biome {
-  const biomeClassification = getBiomeClassificationForConfig(config);
+  return fromClassification(getBiomeClassificationForConfig(config), config);
+}
 
+/**
+ * Build a biome from a classification that has already been chosen — the map node's assigned
+ * biome, for example — without running the distance search a second time.
+ */
+export function fromClassification(
+  biomeClassification: BiomeClassification,
+  config: BiomeGeneratorConfig,
+): Biome {
   const features = generateBiomeFeatures(biomeClassification, config.rng);
   const descriptions = generateBiomeDescriptions(biomeClassification, config.rng);
 
-  const biome: Biome = {
+  return {
     name: biomeClassification.name,
     altitude: config.altitude,
     humidity: config.rng.float(config.humidityMin, config.humidityMax),
@@ -21,8 +30,6 @@ export function generate(config: BiomeGeneratorConfig): Biome {
     descriptions,
     features,
   };
-
-  return biome;
 }
 
 export function generateBiomeDescriptions(

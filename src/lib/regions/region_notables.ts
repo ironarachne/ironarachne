@@ -1,6 +1,7 @@
 import { riverAssessments } from './region_resource_narrative';
 import { isUsableRegionResource } from './region_resources';
 import { ecologyHarvestRisks } from './region_ecology_relationships';
+import { Climates } from '$lib/environment';
 import type { RNG } from '@ironarachne/rng';
 import type { MapNode, MapEdge } from '$lib/map';
 import type Region from './region.js';
@@ -19,6 +20,14 @@ function observation(
   property: 'elevation' | 'temperature' | 'moisture',
 ): FactSource {
   return { kind: 'map-node', nodeId: node.id, property, observedValue: String(node[property]) };
+}
+
+function climateObservation(region: Region): FactSource {
+  return {
+    kind: 'environment',
+    field: 'climate',
+    observedValue: JSON.stringify(region.environment.climate),
+  };
 }
 
 function notable(
@@ -142,6 +151,7 @@ function riverPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
 function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
   return nodes.flatMap((node) => {
     const candidates: NotableFact[] = [];
+    const site = Climates.siteTemperature(region.environment.climate, node.temperature);
     if (node.elevation >= 0.65)
       candidates.push(
         notable(
@@ -154,7 +164,7 @@ function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
           [observation(node, 'elevation')],
         ),
       );
-    if (node.temperature <= 0)
+    if (site.coldestMonth <= 0)
       candidates.push(
         notable(
           region,
@@ -162,11 +172,11 @@ function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
           'hazard',
           'cold-travel',
           'Cold travel country',
-          'freezing temperatures, making exposure a travel concern. Hook: arrange shelter and supplies for a journey through the cold country.',
-          [observation(node, 'temperature')],
+          `freezing temperatures${site.coldestSeason.trim() === '' ? '' : ` during ${site.coldestSeason}`}, making exposure a travel concern. Hook: arrange shelter and supplies for a journey through the cold country.`,
+          [observation(node, 'temperature'), climateObservation(region)],
         ),
       );
-    if (node.temperature >= 25 && node.moisture <= 0.2)
+    if (site.warmestMonth >= 25 && node.moisture <= 0.2)
       candidates.push(
         notable(
           region,
@@ -175,7 +185,11 @@ function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
           'hot-dry-travel',
           'Hot dry traverse',
           'heat and dry conditions make water planning a travel concern. Hook: survey water access before attempting this traverse.',
-          [observation(node, 'temperature'), observation(node, 'moisture')],
+          [
+            observation(node, 'temperature'),
+            observation(node, 'moisture'),
+            climateObservation(region),
+          ],
         ),
       );
     return candidates;

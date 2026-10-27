@@ -1,14 +1,20 @@
 import { generateManagedProduction, finalizeResourceInventory } from './region_managed_production';
 import { generateDenseForestFacts, generateDenseForestLandmark } from './region_dense_forests';
 import { generateMountainRangeFacts } from './region_mountain_ranges';
-import type { Environment } from '$lib/environment';
-import { Environments } from '$lib/environment';
+import type { Climate, Environment } from '$lib/environment';
+import {
+  BiomeClassifications,
+  Biomes,
+  Climates,
+  Environments,
+  describeEnvironment,
+} from '$lib/environment';
 import * as Characters from '$lib/characters';
 import { generateOrganization, addRandomRivalryBetweenPairs } from '$lib/organizations';
 import type { Organization } from '$lib/organizations';
 import type { Realm } from '$lib/realms';
 import { Realms } from '$lib/realms';
-import type { Settlement } from '$lib/settlements';
+import type { Settlement, SettlementGeneratorConfig } from '$lib/settlements';
 import * as Settlements from '$lib/settlements';
 import * as Names from '$lib/names';
 import * as RNG from '@ironarachne/rng';
@@ -34,7 +40,7 @@ import {
 } from './region_generation_passes.js';
 import { emptyRegionFacts } from './region_facts.js';
 import type RegionGeneratorConfig from './region_generator_config.js';
-import { generateRiverGeometry, type RegionMap } from '$lib/map';
+import { generateRiverGeometry, type MapNode, type RegionMap } from '$lib/map';
 import {
   MapBuilder,
   MapElevation,
@@ -80,15 +86,12 @@ function resolveNameGeneratorSet(
 }
 
 /**
- * Builds the map and runs the physical passes over it in order — elevation, water, temperature,
- * moisture, biomes — since each reads what the one before it wrote.
- *
- * Latitude and the profile are selected before this pass so the map and overview environment use
- * the same physical inputs. This config owns only the physical-geography child stream.
+ * Builds the physical map through temperature. Elevation comes first because temperature and
+ * later moisture both read it; latitude and the profile are selected before this pass so the map
+ * and environment share one physical input.
  */
-function buildRegionTerrain(
+function buildRegionBase(
   config: RegionGeneratorConfig,
-  environment: Environment,
   profile: RegionTerrainProfile,
   latitude: number,
 ): RegionMap {
@@ -128,30 +131,33 @@ function buildRegionTerrain(
     rng: config.rng,
   });
 
-  map = MapClimate.assignTemperature(map, {
+  return MapClimate.assignTemperature(map, {
     seed: config.rng.randomString(8),
-    baseTemp: 30,
-    latitude: latitude,
-    elevationLapseRate: 6.5,
+    latitude,
+    frequency: 2.5,
+  });
+}
+
+/** Applies the environment's moisture and dominant biome once the environment exists. */
+function finishRegionMap(
+  config: RegionGeneratorConfig,
+  environment: Environment,
+  map: RegionMap,
+): RegionMap {
+  let result = MapClimate.assignMoisture(map, {
+    seed: config.rng.randomString(8),
+    baseMoisture: environment.climate.humidity,
     frequency: 2.5,
   });
 
-  const regionalMoisture = environment.climate.humidity;
-
-  map = MapClimate.assignMoisture(map, {
-    seed: config.rng.randomString(8),
-    baseMoisture: regionalMoisture,
-    frequency: 2.5,
-  });
-
-  map = MapBiome.assignBiomes(map, {
+  result = MapBiome.assignBiomes(result, {
     rng: config.rng,
     paletteSize: 5,
     dominantBiome: environment.biome.name,
     dominantBiomeFraction: 0.6,
   });
 
-  return map;
+  return result;
 }
 
 /** What lives on the map: the environment description, its settlements, roads and organizations. */
@@ -160,6 +166,7 @@ function populateRegionInhabitants(
   config: RegionGeneratorConfig,
   environment: Environment,
   nameGenSet: Names.NameGeneratorSet,
+  latitude: number,
 ): void {
   region.settlements = randomSettlements(
     environment,
@@ -167,6 +174,7 @@ function populateRegionInhabitants(
     config.rng,
     region.map,
     region.affiliation === 'affiliated',
+    latitude,
   );
   const townIds = region.settlements
     .map((s) => s.mapNodeId)
@@ -276,6 +284,8 @@ export function generate(config: RegionGeneratorConfig): Region {
   const physicalConfig = stageConfig('physical-geography');
   const profile = chooseTerrainProfile(physicalConfig.rng);
   const latitude = chooseLatitude(physicalConfig.rng);
+  // Generate the preliminary environment first so the physical map keeps the stream it always
+  // had; the realized temperature summary is reconciled afterwards on its own stage.
   const environmentConfig = Environments.getDefaultConfig(physicalConfig.rng);
   environmentConfig.latitude = latitude;
   environmentConfig.elevation =
@@ -283,8 +293,16 @@ export function generate(config: RegionGeneratorConfig): Region {
   environmentConfig.reliefEnergy =
     profile.relief === 'flat' ? 0.05 : profile.relief === 'hilly' ? 0.4 : 0.7;
   environmentConfig.erosionIterations = 0;
-  region.environment = Environments.generate(environmentConfig);
-  region.map = buildRegionTerrain(physicalConfig, region.environment, profile, latitude);
+  const preliminaryEnvironment = Environments.generate(environmentConfig);
+  const baseMap = buildRegionBase(physicalConfig, profile, latitude);
+  const temperatureSummary = MapClimate.summarizeLandTemperature(baseMap, latitude);
+  region.environment = Environments.reconcileTemperature(
+    preliminaryEnvironment,
+    temperatureSummary,
+    environmentConfig.biomeConfig,
+    stageConfig('environment').rng,
+  );
+  region.map = finishRegionMap(physicalConfig, region.environment, baseMap);
   region.facts = emptyRegionFacts('current');
   recordPhysicalFacts(region, profile, physicalConfig.rng);
 
@@ -302,7 +320,13 @@ export function generate(config: RegionGeneratorConfig): Region {
 
   const habitationConfig = stageConfig('habitation');
   const habitationNames = Names.nameGeneratorSetFromPatternSources(patterns, habitationConfig.rng);
-  populateRegionInhabitants(region, habitationConfig, region.environment, habitationNames);
+  populateRegionInhabitants(
+    region,
+    habitationConfig,
+    region.environment,
+    habitationNames,
+    latitude,
+  );
   region.map = generateRiverGeometry(region.map, createRegionStageRng(seed, 'river-geometry'));
   addRealmsToRegion(region, habitationConfig, habitationNames);
   if (region.affiliation === 'unaffiliated') {
@@ -384,41 +408,76 @@ function randomOrganizations(rng: RNG.RNG, environment: Environment): Organizati
   return orgs;
 }
 
+function siteClimate(climate: Climate, node: MapNode, latitude: number, rng: RNG.RNG): Climate {
+  const site = Climates.siteTemperature(climate, node.temperature);
+  const result: Climate = {
+    ...climate,
+    name: 'unknown',
+    description: '',
+    temperature: site.annualMean,
+    temperatureMin: site.coldestMonth,
+    temperatureMax: site.warmestMonth,
+    seasons: climate.seasons.map((season) => ({ ...season })),
+  };
+  result.name = Climates.generateClimateName(result, latitude);
+  result.description = Climates.describe(result, rng.randomString(16));
+  return result;
+}
+
+/** A settlement's environment is the region environment sampled at its map node. */
+function siteEnvironment(
+  environment: Environment,
+  node: MapNode,
+  latitude: number,
+  rng: RNG.RNG,
+): Environment {
+  const climate = siteClimate(environment.climate, node, latitude, rng);
+  const classification =
+    node.biomeId === undefined
+      ? undefined
+      : BiomeClassifications.getAll().find((entry) => entry.name === node.biomeId);
+  const biome =
+    classification === undefined
+      ? { ...environment.biome }
+      : Biomes.fromClassification(classification, {
+          altitude: Climates.mapHeight(node.elevation),
+          temperatureMin: climate.temperatureMin,
+          temperatureMax: climate.temperatureMax,
+          humidityMin: Math.max(0, node.moisture - 0.1),
+          humidityMax: Math.min(1, node.moisture + 0.1),
+          isAquatic: classification.isAquatic,
+          rng,
+        });
+  if (classification !== undefined) biome.temperature = climate.temperature;
+
+  const site: Environment = {
+    ...environment,
+    climate,
+    biome,
+    description: '',
+  };
+  site.description = describeEnvironment(site, rng);
+  return site;
+}
+
 function randomSettlements(
   environment: Environment,
   nameGeneratorSet: Names.NameGeneratorSet,
   rng: RNG.RNG,
   map: RegionMap,
   affiliated: boolean,
+  latitude: number,
 ): Settlement[] {
-  const settlementGenConfig = Settlements.getDefaultConfig(rng);
-  settlementGenConfig.rng = rng;
-  settlementGenConfig.nameGenerator = nameGeneratorSet.town;
-  settlementGenConfig.size = 'large';
-  settlementGenConfig.environment = environment;
-  const capital = Settlements.generate(settlementGenConfig);
-
   const numberOfMediumTowns = rng.int(1, 3);
   const numberOfSmallTowns = rng.int(3, 5);
-  const towns = [];
-
-  if (affiliated) capital.description += ' This is the capital of the region.';
-  towns.push(capital);
-
-  for (let i = 0; i < numberOfMediumTowns; i++) {
-    settlementGenConfig.size = 'medium';
-    const town = Settlements.generate(settlementGenConfig);
-    towns.push(town);
-  }
-
-  for (let i = 0; i < numberOfSmallTowns; i++) {
-    settlementGenConfig.size = 'small';
-    const town = Settlements.generate(settlementGenConfig);
-    towns.push(town);
-  }
+  const sizes: SettlementGeneratorConfig['size'][] = [
+    'large',
+    ...Array.from({ length: numberOfMediumTowns }, () => 'medium' as const),
+    ...Array.from({ length: numberOfSmallTowns }, () => 'small' as const),
+  ];
+  const totalSettlements = sizes.length;
 
   // Position settlements using the map suitability engine
-  const totalSettlements = towns.length;
   const suitabilityEngine: Suitability.SuitabilityEngine = {
     rules: [
       Suitability.standardRules.notOcean(),
@@ -458,13 +517,24 @@ function randomSettlements(
     }
   }
 
-  for (let i = 0; i < towns.length; i++) {
-    if (i < bestNodes.length) {
-      const node = map.nodes[bestNodes[i]];
-      towns[i].location = node.center;
-      towns[i].mapNodeId = node.id;
-    }
-  }
+  const settlementGenConfig: SettlementGeneratorConfig = {
+    environment,
+    nameGenerator: nameGeneratorSet.town,
+    size: 'large',
+    rng,
+  };
 
-  return towns;
+  return sizes.map((size, index) => {
+    const node = map.nodes[bestNodes[index]];
+    settlementGenConfig.size = size;
+    settlementGenConfig.environment =
+      node === undefined ? environment : siteEnvironment(environment, node, latitude, rng);
+    const town = Settlements.generate(settlementGenConfig);
+    if (index === 0 && affiliated) town.description += ' This is the capital of the region.';
+    if (node !== undefined) {
+      town.location = node.center;
+      town.mapNodeId = node.id;
+    }
+    return town;
+  });
 }

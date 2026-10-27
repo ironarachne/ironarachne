@@ -25,9 +25,7 @@ describe('buildRoadCentroidPolylines', () => {
     map = simulateWater(map, { seaLevel: -0.1, springCountPercentage: 0.1, rng });
     map = assignTemperature(map, {
       seed: 't',
-      baseTemp: 28,
       latitude: 40,
-      elevationLapseRate: 6.5,
       frequency: 2.2,
     });
     map = assignMoisture(map, { seed: 'm', baseMoisture: 0.45, frequency: 2.2 });
