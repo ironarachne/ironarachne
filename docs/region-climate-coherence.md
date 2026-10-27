@@ -36,9 +36,9 @@ different temperature models, and no consumer can tell which one is making a cla
 2. **Different elevation models.** The environment subtracts heat _multiplicatively_:
    `midTemperature * (1 - elevation)`, where `elevation` is a value sampled from the environment's
    own terrain summary. The map subtracts an absolute lapse of
-   `max(0, node.elevation) * 3 km * 6.5 °C/km`. In the seed the environment's terrain span is
-   −0.03 to 0.08 while the map's dry-land median is 0.139, so the two models are not even reading
-   the same kind of number.
+   `max(0, elevation) * 3 km * 6.5 °C/km`. In the seed the environment's terrain span is −0.03 to
+   0.08 while the map's dry-land median is 0.139, so the two models are not even reading the same
+   kind of number.
 3. **An undefined range.** `Climate.temperatureMin` and `temperatureMax` are documented as the
    “base temperature at night” and “at midday”, but the presentation labels their pair simply
    “Temperature”, biome selection uses its midpoint, and `Climates.describe` picks heat adjectives
@@ -535,7 +535,8 @@ classDiagram
    environment.
 7. **Consumer routing.** Ecology cold-browse and notable climate hazards use
    `SiteTemperature.coldestMonth`/`warmestMonth` and cite the node and season evidence. A regional
-   summary alone cannot produce either claim.
+   summary alone cannot produce either claim. No region-level sentence calls the whole region cold
+   from one cold node, and no habitat sentence calls a patch warm from the regional summary.
 8. **Determinism.** The same seed and configuration reproduce the entire snapshot under two clock
    values and an unrelated reopening RNG. Moving an unrelated environment draw does not change the
    map, and moving a map draw does not change the environment stage.
