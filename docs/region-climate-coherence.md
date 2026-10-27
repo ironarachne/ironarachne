@@ -6,8 +6,9 @@ work for [#442](https://github.com/ironarachne/ironarachne/issues/442), and it e
 contract accepted in [region environment coherence](region-environment-coherence.md) from
 landform to temperature.
 
-**Status:** proposal. The human reviewer must approve the decisions and the domain model below
-before implementation begins. No generator code is part of this proposal.
+**Status:** accepted. The human reviewer approved the temperature contract, domain model and
+implementation sequence on 2026-10-27. Implementation is tracked by
+[#442](https://github.com/ironarachne/ironarachne/issues/442).
 
 ## Problem
 
@@ -548,9 +549,9 @@ classDiagram
     into a regional heat claim. The page and export tests cover the region and settlement views,
     and `npm run verify:all` runs because the change is browser-visible.
 
-## Implementation sequence after approval
+## Implementation sequence
 
-The domain model is the gate. Once it is approved, the work divides without reopening the shape:
+The domain model is approved, so the work divides without reopening its shape:
 
 1. Add the pure model and its boundary tests. Change no caller yet.
 2. Move `MapClimate.assignTemperature` onto the model, remove the per-call baselines and lapse,
@@ -565,9 +566,9 @@ The domain model is the gate. Once it is approved, the work divides without reop
    Render the region environment and a settlement environment for visual review, because the
    change is visible in both panels.
 
-## Approval requested
+## Approval record
 
-The reviewer is asked to approve:
+On 2026-10-27 the human reviewer approved:
 
 1. the measure table and its names, including the reinterpretation of
    `temperatureMin`/`temperatureMax` as the coldest and warmest month for the region's typical land;
@@ -575,3 +576,6 @@ The reviewer is asked to approve:
 3. the map-derived regional summary and the changed physical pass order;
 4. site environments for embedded settlements, with no persisted shape change;
 5. no payload version bump or migration, with legacy values left as stored.
+
+The domain model is the accepted shape. Implementation follows the sequence above; it must not
+reopen the model without a new review.
