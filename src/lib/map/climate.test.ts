@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { assignTemperature, type TemperatureConfig } from './climate';
+import {
+  assignTemperature,
+  measureTemperatureEnvelope,
+  summarizeLandTemperature,
+  type TemperatureConfig,
+} from './climate';
+import { annualMeanAt, mapHeight } from '../environment/climates/climate_model';
 import type { RegionMap } from './map_graph';
 
 function fixture(): RegionMap {
@@ -43,31 +49,28 @@ function fixture(): RegionMap {
 
 function config(latitude: number): TemperatureConfig {
   // Sampling simplex noise at (0, 0) gives zero, isolating the latitude baseline.
-  return { seed: 'climate', baseTemp: 30, latitude, elevationLapseRate: 6.5, frequency: 0 };
+  return { seed: 'climate', latitude, frequency: 0 };
 }
 
 describe('north-up map temperature', () => {
-  it.each([
-    { latitude: 40, expected: [50, 45, 40, 35, 30] },
-    { latitude: -40, expected: [-30, -35, -40, -45, -50] },
-    { latitude: 0, expected: [10, 5, 0, -5, -10] },
-    { latitude: 5, expected: [15, 10, 5, 0, -5] },
-    { latitude: -5, expected: [5, 0, -5, -10, -15] },
-  ])('cools poleward at center latitude $latitude', ({ latitude, expected }) => {
+  it.each([40, -40, 0, 5, -5])('cools poleward at center latitude $latitude', (latitude) => {
     const original = fixture();
     const map = assignTemperature(original, config(latitude));
-    const temperatures = expected.map((lat) => 30 - (Math.abs(lat) / 90) * 50);
+    const height = mapHeight(0);
+    const latitudes = [10, 5, 0, -5, -10].map((offset) => latitude + offset);
+    const expectedCornerTemperatures = latitudes.map((value) => annualMeanAt(value, height));
     map.corners.forEach((corner, index) => {
-      expect(corner.temperature).toBeCloseTo(temperatures[index], 10);
+      expect(corner.temperature).toBeCloseTo(expectedCornerTemperatures[index], 10);
     });
     expect(map.nodes[0].temperature).toBeCloseTo(
-      temperatures.reduce((sum, value) => sum + value, 0) / temperatures.length,
+      expectedCornerTemperatures.reduce((sum, value) => sum + value, 0) /
+        expectedCornerTemperatures.length,
       10,
     );
     expect(original).toEqual(fixture());
   });
 
-  it('keeps local noise and elevation effects separate from latitude', () => {
+  it('keeps bounded local variation and elevation effects separate from latitude', () => {
     const flat = fixture();
     const elevated = fixture();
     elevated.corners.forEach((corner, index) => {
@@ -80,15 +83,50 @@ describe('north-up map temperature', () => {
       const cooled = assignTemperature(elevated, settings);
       expect(cooled).toEqual(assignTemperature(elevated, settings));
       const variation = noisy.corners.map((corner, index) => {
+        const lat = latitude + (1 - (index / 4) * 2) * 10;
         expect(cooled.corners[index].temperature).toBeCloseTo(
-          corner.temperature - Math.max(0, elevated.corners[index].elevation) * 3 * 6.5,
+          corner.temperature +
+            annualMeanAt(lat, mapHeight(elevated.corners[index].elevation)) -
+            annualMeanAt(lat, mapHeight(0)),
           10,
         );
         return corner.temperature - baseline.corners[index].temperature;
       });
+      expect(variation.every((value) => Math.abs(value) <= 2)).toBe(true);
       expect(variation.some((value) => Math.abs(value) > 0.01)).toBe(true);
       return variation;
     });
     results[0].forEach((value, index) => expect(value).toBeCloseTo(results[1][index], 10));
+  });
+
+  it('summarizes the realized dry land and its spatial envelope', () => {
+    const map = assignTemperature(fixture(), config(40));
+    map.nodes.push({
+      ...map.nodes[0],
+      id: 1,
+      elevation: 1.2,
+      isWater: false,
+      isOcean: false,
+    });
+    map.corners.forEach((corner) => {
+      corner.temperature = 4;
+    });
+    map.nodes[0].temperature = 4;
+    map.nodes[1].temperature = 12;
+
+    const summary = summarizeLandTemperature(map, 40);
+    expect(summary.annualMean).toBe(8);
+    expect(summary.coldestMonth).toBeLessThan(summary.annualMean);
+    expect(summary.warmestMonth).toBeGreaterThan(summary.annualMean);
+    expect(summary.seasons.map((season) => season.temperatureAdjustment)).toContain(
+      summary.coldestMonth - summary.annualMean,
+    );
+
+    const envelope = measureTemperatureEnvelope(map);
+    expect(envelope.meanAnnual).toBe(8);
+    expect(envelope.coldestNodeId).toBe(0);
+    expect(envelope.coldestAnnual).toBe(4);
+    expect(envelope.warmestNodeId).toBe(1);
+    expect(envelope.warmestAnnual).toBe(12);
   });
 });

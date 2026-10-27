@@ -50,6 +50,15 @@ describe('arranging an environment for reading', () => {
     ).toBe(true);
   });
 
+  it('names the temperature measures instead of an unlabelled range', () => {
+    const climate = document.sections.find((section) => section.heading === 'Climate');
+    const labels = climate?.lines.map((line) => line.label) ?? [];
+    expect(labels).toContain('Annual mean');
+    expect(labels).toContain('Coldest month');
+    expect(labels).toContain('Warmest month');
+    expect(labels).not.toContain('Temperature');
+  });
+
   it('lists a season under the climate', () => {
     const climate = document.sections.find((section) => section.heading === 'Climate');
     const season = snapshot.climate.seasons[0];

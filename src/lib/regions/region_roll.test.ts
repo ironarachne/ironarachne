@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 
 import { generateCulture } from '$lib/culture';
+import { Climates } from '$lib/environment';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 
 import {
@@ -78,9 +79,14 @@ describe('rolling a region', () => {
         (source) => source.kind === 'map-node' && source.property === 'temperature',
       );
       expect(temperatures.length).toBeGreaterThan(0);
-      temperatures.forEach((source) => {
-        if (source.kind === 'map-node') expect(Number(source.observedValue)).toBeLessThanOrEqual(0);
-      });
+      for (const source of temperatures) {
+        if (source.kind !== 'map-node') continue;
+        const node = snapshot.map.nodes.find((node) => node.id === source.nodeId)!;
+        expect(source.observedValue).toBe(String(node.temperature));
+        expect(
+          Climates.siteTemperature(snapshot.environment.climate, node.temperature).coldestMonth,
+        ).toBeLessThanOrEqual(0);
+      }
     }
   });
 

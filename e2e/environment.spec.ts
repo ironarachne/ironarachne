@@ -118,6 +118,10 @@ test.describe('an environment', () => {
     const panel = await openInWorkshop(page, 'The Dry Reach');
     const biomeName = await panel.getByRole('textbox', { name: 'Biome name' }).inputValue();
 
+    for (const name of ['Annual mean (°C)', 'Coldest month (°C)', 'Warmest month (°C)']) {
+      await expect(panel.getByRole('spinbutton', { name, exact: true })).toBeVisible();
+    }
+
     await panel.getByRole('spinbutton', { name: 'Biome humidity (0 to 1)' }).fill('0.95');
     await expect(panel.getByRole('textbox', { name: 'Biome name' })).toHaveValue(biomeName);
   });

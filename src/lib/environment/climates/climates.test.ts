@@ -11,7 +11,6 @@ describe('Climates Generator', () => {
       longitude: -120,
       waterDirection: [0.5, -0.5, 0],
       current: [0.1, 0, 0],
-      temperatureAtEquator: 30,
       terrainNormalVector: [0, 0, 1],
       rng: new RNG('test-seed-123'),
     };
@@ -35,7 +34,6 @@ describe('Climates Generator', () => {
       longitude: 0,
       waterDirection: [0, 0, 0],
       current: [0, 0, 0],
-      temperatureAtEquator: 40,
       terrainNormalVector: [0, 0, 0],
       rng: new RNG('equator-seed'),
     };
@@ -79,7 +77,6 @@ describe('Climates Generator', () => {
         longitude: 0,
         waterDirection: [20, 20, 0], // far inland (distance > 5 normalizes to 0 influence)
         current: [0, 0, 0],
-        temperatureAtEquator: 40,
         terrainNormalVector: [0, 0, 0],
         rng: new RNG('dry-seed'),
       };
@@ -100,7 +97,6 @@ describe('Climates Generator', () => {
         longitude: 0,
         waterDirection: [0.1, 0.1, 0], // close to water
         current: [0.5, 0.5, 0],
-        temperatureAtEquator: 40,
         terrainNormalVector: [0.5, 0.5, 0], // favorable terrain tilt
         rng: new RNG('wet-seed'),
       };
@@ -115,5 +111,63 @@ describe('Climates Generator', () => {
         climateType.precipitationMin - 0.15,
       );
     });
+  });
+});
+
+describe('Site temperature', () => {
+  const climate = Climates.generate({
+    ...Climates.getDefaultConfig(new RNG('site-climate')),
+    latitude: 40,
+  });
+
+  it('applies the saved season departures to a local annual mean', () => {
+    const site = Climates.siteTemperature(climate, 5);
+    expect(site.annualMean).toBe(5);
+    expect(site.coldestMonth).toBeCloseTo(5 + climate.temperatureMin - climate.temperature, 10);
+    expect(site.warmestMonth).toBeCloseTo(5 + climate.temperatureMax - climate.temperature, 10);
+    expect(site.coldestSeason).toBe('winter');
+    expect(site.warmestSeason).toBe('summer');
+  });
+
+  it('falls back to the stored range when there are no seasons', () => {
+    const legacy = { ...climate, seasons: [] };
+    const site = Climates.siteTemperature(legacy, 12);
+    expect(site.coldestMonth).toBeCloseTo(12 + legacy.temperatureMin - legacy.temperature, 10);
+    expect(site.warmestMonth).toBeCloseTo(12 + legacy.temperatureMax - legacy.temperature, 10);
+    expect(site.coldestSeason).toBe('');
+  });
+});
+
+describe('Climate prose', () => {
+  it('describes the annual mean rather than a single warm month', () => {
+    const climate = {
+      ...Climates.generate({
+        ...Climates.getDefaultConfig(new RNG('prose-climate')),
+        latitude: 40,
+      }),
+      temperature: 12,
+      temperatureMin: 2,
+      temperatureMax: 32,
+    };
+    const description = Climates.describe(climate, 'prose-seed');
+    expect(description).toContain('moderate temperatures');
+    expect(description).not.toContain('scorching heat');
+    expect(description).toContain('The coldest month averages 2°C');
+    expect(description).toContain('warmest 32°C');
+  });
+
+  it('says temperatures vary little when the seasonal range is small', () => {
+    const climate = {
+      ...Climates.generate({
+        ...Climates.getDefaultConfig(new RNG('prose-climate')),
+        latitude: 0,
+      }),
+      temperature: 26,
+      temperatureMin: 25,
+      temperatureMax: 27,
+    };
+    expect(Climates.describe(climate, 'prose-seed')).toContain(
+      'Temperatures vary little through the year.',
+    );
   });
 });

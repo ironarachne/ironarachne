@@ -2,7 +2,7 @@
 export const REGION_SEED_BANK = [
   { seed: 'alpha', contrast: 'coastal', habitat: 'temperate deciduous forest' },
   { seed: 'bravo', contrast: 'arid pocket', habitat: 'cold desert' },
-  { seed: 'foxtrot', contrast: 'wetland', habitat: 'mangrove forest' },
+  { seed: 'foxtrot', contrast: 'wetland', habitat: 'flooded grassland' },
   { seed: 'charlie', contrast: 'mountain', habitat: 'alpine tundra' },
-  { seed: '5pkjdquccl04i', contrast: '#249 regression', habitat: 'boreal forest' },
+  { seed: '5pkjdquccl04i', contrast: '#249 regression', habitat: 'temperate grassland' },
 ] as const;

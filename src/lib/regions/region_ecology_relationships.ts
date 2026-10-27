@@ -1,5 +1,5 @@
 import type { RNG } from '@ironarachne/rng';
-import { BiomeClassifications, getPlantDefinitions } from '$lib/environment';
+import { BiomeClassifications, Climates, getPlantDefinitions } from '$lib/environment';
 import { allSpecies } from '$lib/species';
 import type { MapNode } from '$lib/map';
 import { ecologyCandidatesFor } from './region_ecology';
@@ -68,37 +68,30 @@ function occurrencesFor(
     });
 }
 
-/** Cooling directions and observed cold justify a qualification, never a projected seasonal temperature. */
+/** A local cold month justifies a qualification; the regional summary alone does not. */
 function seasonalBrowse(
   region: EcologyRelationshipRegion,
   node: MapNode,
   rule: EcologyFeedingRule,
 ): { text: string; sources: FactSource[] } {
-  if (!rule.coldBrowse || node.temperature > 5) return { text: '', sources: [] };
+  if (!rule.coldBrowse) return { text: '', sources: [] };
   const climate = region.environment.climate;
-  const seasons = (climate?.seasons ?? [])
-    .filter(
-      (season) =>
-        season.name.trim().length > 0 &&
-        Number.isInteger(season.startDay) &&
-        Number.isInteger(season.endDay) &&
-        season.startDay >= 1 &&
-        season.startDay <= 365 &&
-        season.endDay >= 1 &&
-        season.endDay <= 365 &&
-        Number.isFinite(season.temperatureAdjustment) &&
-        season.temperatureAdjustment < 0,
-    )
-    .sort((a, b) => a.startDay - b.startDay || a.endDay - b.endDay || lexical(a.name, b.name));
-  const names = [...new Set(seasons.map((season) => season.name))].slice(0, 2);
-  return names.length === 0
-    ? { text: '', sources: [] }
-    : {
-        text: ` During ${names.join(' and ')}, cold conditions can restrict fresh browse here.`,
-        sources: [
-          { kind: 'environment', field: 'climate', observedValue: JSON.stringify(climate) },
-        ],
-      };
+  const site = Climates.siteTemperature(climate, node.temperature);
+  if (site.coldestMonth > 5 || site.coldestSeason.trim() === '') {
+    return { text: '', sources: [] };
+  }
+  return {
+    text: ` During ${site.coldestSeason}, cold conditions can restrict fresh browse here.`,
+    sources: [
+      { kind: 'environment', field: 'climate', observedValue: JSON.stringify(climate) },
+      {
+        kind: 'map-node',
+        nodeId: node.id,
+        property: 'temperature',
+        observedValue: String(node.temperature),
+      },
+    ],
+  };
 }
 
 function relationship(

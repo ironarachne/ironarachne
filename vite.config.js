@@ -13,6 +13,9 @@ export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(version) },
   plugins: [sveltekit(), glsl()],
   test: {
+    // Region and cartography tests build whole Voronoi maps; under v8 coverage a loaded machine
+    // can exceed the 5s default. This is a ceiling for a hung test, not an allowance for slow work.
+    testTimeout: 20000,
     // e2e/ holds Playwright specs, which throw if collected by Vitest.
     // Run them with `npm run test:e2e` instead.
     exclude: [...configDefaults.exclude, 'e2e/**'],

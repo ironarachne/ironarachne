@@ -13,12 +13,13 @@ small in number and assert relationships rather than snapshotting every generate
 | --------------- | ---------------------------------------- | -------------------------- |
 | `alpha`         | Coastal woodland; dry coastal cells      | temperate deciduous forest |
 | `bravo`         | Arid **pockets** within a montane region | cold desert                |
-| `foxtrot`       | Wetland woodland                         | mangrove forest            |
+| `foxtrot`       | Wetland woodland                         | flooded grassland          |
 | `charlie`       | Realized mountainous terrain             | alpine tundra              |
-| `5pkjdquccl04i` | Original #249 regression seed            | boreal forest              |
+| `5pkjdquccl04i` | Original #249 regression seed            | temperate grassland        |
 
-The regression seed now rolls a boreal region, not the historical tropical mangrove result. Keeping
-it tests the current complete public generation path; copying the old description onto its new map
+The regression seed now rolls a temperate-grassland region after the #442 climate model; earlier
+generations produced a boreal or a historical tropical mangrove result from the same seed. Keeping
+it tests the current complete public generation path; copying an old description onto its new map
 would assert a false contract. The arid fixture has a secondary cold-desert habitat, not an entirely
 arid regional overview. The test requires its footprint to exist and its cells to carry that biome.
 

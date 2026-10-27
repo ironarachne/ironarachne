@@ -225,19 +225,19 @@
 
       {@render numberRow(
         `${uid}-climate-temperature`,
-        'Average temperature (°C)',
+        'Annual mean (°C)',
         environment.climate.temperature,
         (next) => edit((current) => setClimateNumber(current, 'temperature', next)),
       )}
       {@render numberRow(
         `${uid}-climate-temperature-min`,
-        'Night temperature (°C)',
+        'Coldest month (°C)',
         environment.climate.temperatureMin,
         (next) => edit((current) => setClimateNumber(current, 'temperatureMin', next)),
       )}
       {@render numberRow(
         `${uid}-climate-temperature-max`,
-        'Midday temperature (°C)',
+        'Warmest month (°C)',
         environment.climate.temperatureMax,
         (next) => edit((current) => setClimateNumber(current, 'temperatureMax', next)),
       )}

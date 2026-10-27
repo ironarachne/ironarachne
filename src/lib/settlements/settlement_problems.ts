@@ -78,7 +78,8 @@ function deriveAcuteConditions(ctx: ProblemContext): AcuteConditions {
   const { facets, environment: env, category } = ctx;
   const tags = new Set(facets.settlementTags);
 
-  const t = env.climate.temperature;
+  const coldest = env.climate.temperatureMin;
+  const warmest = env.climate.temperatureMax;
   const pAmt = env.climate.precipitationAmount;
   const hum = env.climate.humidity;
   const relief = env.terrain.reliefEnergy;
@@ -94,8 +95,8 @@ function deriveAcuteConditions(ctx: ProblemContext): AcuteConditions {
     biomeName: env.biome.name.toLowerCase(),
     isWet: pAmt > 0.5 || hum > 0.62,
     isDry: pAmt < 0.28 && hum < 0.42,
-    isVeryHot: t > 28 || tags.has('hot_climate'),
-    isCold: t < 2 || tags.has('cold_climate'),
+    isVeryHot: warmest > 28 || tags.has('hot_climate'),
+    isCold: coldest < 2 || tags.has('cold_climate'),
     isRoughGround: relief > 0.48 || elev > 2200,
     isUrbanCore: tags.has('urban_core'),
     isRural: tags.has('rural'),
@@ -293,7 +294,8 @@ function buildCreepingPool(ctx: ProblemContext): ProblemRow[] {
   const seen = new Set<string>();
   const out: ProblemRow[] = [];
 
-  const t = env.climate.temperature;
+  const coldest = env.climate.temperatureMin;
+  const warmest = env.climate.temperatureMax;
   const pAmt = env.climate.precipitationAmount;
   const hum = env.climate.humidity;
   const relief = env.terrain.reliefEnergy;
@@ -301,8 +303,8 @@ function buildCreepingPool(ctx: ProblemContext): ProblemRow[] {
   const isWet = pAmt > 0.5 || hum > 0.58;
   const isCoastal = tags.has('coastal');
   const isRiver = tags.has('river_trade');
-  const isHot = t > 28 || tags.has('hot_climate');
-  const isCold = t < 2 || tags.has('cold_climate');
+  const isHot = warmest > 28 || tags.has('hot_climate');
+  const isCold = coldest < 2 || tags.has('cold_climate');
   const isHigh = tags.has('highland') || relief > 0.45;
 
   if (facets.lawAndOrder < 6) {

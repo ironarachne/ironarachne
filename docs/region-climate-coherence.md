@@ -154,8 +154,9 @@ After the map has elevation, water and temperature:
 1. `annualMean` is the unweighted mean of dry-land node annual means. The Voronoi mesh makes this
    approximately area-weighted. Ocean and lake cells are excluded, exactly as the terrain contract
    excludes them.
-2. `amplitude` is `seasonalAmplitudeAt(referenceLatitude)`, where the reference latitude is the
-   region's selected center latitude.
+2. `amplitude` is the season extreme at `referenceLatitude`: `seasonalAmplitudeAt` for a
+   four-season climate, half of it for a tropical two-season climate. The summary and the saved
+   seasons therefore always agree.
 3. `coldestMonth` is `annualMean − amplitude`; `warmestMonth` is `annualMean + amplitude`.
 4. The season list carries departures in Celsius whose extreme adjustments are
    `coldestMonth − annualMean` and `warmestMonth − annualMean`.
@@ -180,19 +181,21 @@ The physical pass order changes to make this possible:
 
 ```text
 profile and signed latitude
-→ base map, elevation, water
-→ map temperature (shared model)
+→ base map, elevation, water, temperature (the physical stream is unchanged)
 → regional temperature summary and spatial envelope
-→ environment (climate summary, biome, terrain, water system, ecosystem)
+→ preliminary environment (keeps the physical stream for map topology and rivers)
+→ reconcile the climate, biome and description from the summary on the environment stage
 → map moisture and biomes
 → settlement sites and settlements
 → facts and prose
 ```
 
-Environment generation moves to its own named `environment` RNG stage so that map draws cannot
-shift it and unrelated environment draws cannot shift the map. The same seed and configuration
-still reproduce the whole run; newly rolled regions will differ from today's because the order and
-the model change. Saved snapshots are never regenerated on read.
+The preliminary environment is generated before the map so that the map's base topology, elevation,
+water and river seeds are identical to the pre-#442 stream. Its climate and biome are then replaced
+from the realized summary on a separate `environment` RNG stage, so reconciliation cannot shift the
+map. This is an implementation detail of the rule, not a second climate: the saved climate and
+biome are the reconciled ones. Newly rolled regions still change temperature and biome values, and
+any roads or settlements that follow from them; saved snapshots are never regenerated on read.
 
 ### 4. Seasons are Celsius departures tied to the regional range
 
@@ -557,8 +560,9 @@ The domain model is approved, so the work divides without reopening its shape:
 2. Move `MapClimate.assignTemperature` onto the model, remove the per-call baselines and lapse,
    and update the map tests and the north-up fixture.
 3. Add the realized-summary and envelope derivation with synthetic-map tests.
-4. Reorder the region physical pass as in decision 3, add the `environment` stage, pass the
-   realized summary into environment generation, and update the seeded region fixtures.
+4. Add the realized summary to the region pass, keep the preliminary environment on the physical
+   stream, reconcile its climate and biome on the `environment` stage, and update the seeded region
+   fixtures.
 5. Add `SiteTemperature`, site environments, and site-first settlement composition; update
    settlement and habitation fixtures.
 6. Route the consumers in decision 6 and update the climate prose and presentation labels.

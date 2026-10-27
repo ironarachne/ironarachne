@@ -195,7 +195,7 @@ test.describe('a region', () => {
     await expectNoHorizontalOverflow(page);
   });
 
-  test('uses fluent woodland prose and excludes unnamed forest identities for the reported seed', async ({
+  test('uses fluent regional prose and excludes unnamed forest identities for the reported seed', async ({
     page,
   }) => {
     await openGenerator(page);
@@ -204,7 +204,7 @@ test.describe('a region', () => {
     await page.getByLabel('Affiliation', { exact: true }).selectOption('random');
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
     const introduction = page.locator('.gazetteer > p').last();
-    await expect(introduction).toContainText('seasonal woodland', { ignoreCase: true });
+    await expect(introduction).toContainText('open grassland', { ignoreCase: true });
     await expect(introduction).toContainText('rain-soaked woodland');
     await expect(introduction).not.toContainText('Dense forest');
     await expect(introduction).not.toContainText('lie alongside');

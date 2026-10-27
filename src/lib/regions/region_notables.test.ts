@@ -1,9 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
+import type { Climate } from '$lib/environment';
 import type { MapNode, MapEdge } from '$lib/map';
 import type Region from './region';
 import { emptyRegionFacts, regionFactsError } from './region_facts';
 import { generateNotableFacts } from './region_notables';
+
+function climate(overrides: Partial<Climate> = {}): Climate {
+  return {
+    name: 'temperate',
+    description: '',
+    cloudCover: 0.5,
+    wind: [0, 0, 0],
+    temperature: 10,
+    temperatureMin: 10,
+    temperatureMax: 10,
+    precipitationAmount: 0.4,
+    precipitationFrequency: 0.5,
+    humidity: 0.5,
+    seasons: [],
+    ...overrides,
+  };
+}
 
 function node(id: number, overrides: Partial<MapNode> = {}): MapNode {
   return {
@@ -31,7 +49,11 @@ function fixture(nodes: MapNode[], edges: MapEdge[] = []): Region {
     origin: 'generated',
     mapNodeIds: nodes.filter((node) => !node.isWater && !node.isOcean).map((node) => node.id),
   });
-  return { map: { width: 30, height: 30, nodes, edges, corners: [] }, facts } as unknown as Region;
+  return {
+    map: { width: 30, height: 30, nodes, edges, corners: [] },
+    facts,
+    environment: { climate: climate() },
+  } as unknown as Region;
 }
 function derive(region: Region, seed = 'notables') {
   const before = structuredClone(region);
@@ -227,5 +249,54 @@ describe('grounded regional places', () => {
       ),
     );
     expect(variants.size).toBeGreaterThan(1);
+  });
+});
+
+describe('seasonal climate hazards', () => {
+  const seasons = [
+    {
+      name: 'winter',
+      startDay: 364,
+      endDay: 90,
+      temperatureAdjustment: -18,
+      humidityAdjustment: 0,
+    },
+    {
+      name: 'summer',
+      startDay: 182,
+      endDay: 272,
+      temperatureAdjustment: 12,
+      humidityAdjustment: 0,
+    },
+  ];
+
+  it('uses the local coldest month for a cold-travel hazard', () => {
+    const region = fixture([node(8, { temperature: 8, moisture: 0.5 })]);
+    region.environment = {
+      climate: climate({
+        temperature: 8,
+        temperatureMin: -10,
+        temperatureMax: 20,
+        seasons,
+      }),
+    } as never;
+    const places = derive(region);
+    expect(places.map((place) => place.name)).toContain('Cold travel country');
+    expect(places.map((place) => place.name)).not.toContain('Hot dry traverse');
+  });
+
+  it('uses the local warmest month for a hot-dry hazard', () => {
+    const region = fixture([node(8, { temperature: 20, moisture: 0.1 })]);
+    region.environment = {
+      climate: climate({
+        temperature: 20,
+        temperatureMin: 8,
+        temperatureMax: 32,
+        seasons,
+      }),
+    } as never;
+    const places = derive(region);
+    expect(places.map((place) => place.name)).toContain('Hot dry traverse');
+    expect(places.map((place) => place.name)).not.toContain('Cold travel country');
   });
 });
