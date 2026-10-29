@@ -16,6 +16,7 @@ import { regionReadingSnapshot } from './region_narrative_evidence';
 import { setRegionPlaceText, removeRegionPlace } from './region_editing';
 import {
   removeRegionResourceFact,
+  canRemoveRegionResourceFact,
   setRegionResourceFactText,
   staleRegionFactDependents,
   withRegionOverviewEvidence,
@@ -565,6 +566,10 @@ describe('activity persistence, edits and reading', () => {
   });
   it('removes generated activities with their inputs and protects authored dependent work', () => {
     const snapshot = woodSnapshot();
+    const before = structuredClone(snapshot);
+    expect(canRemoveRegionResourceFact(snapshot, 'resources', 'resource:timber')).toBe(true);
+    expect(canRemoveRegionResourceFact(snapshot, 'resources', 'resource:missing')).toBe(false);
+    expect(snapshot).toEqual(before);
     const removed = removeRegionResourceFact(snapshot, 'resources', 'resource:timber');
     expect(removed.facts.activities).toEqual([]);
     expect(removed.settlements[0].descriptionReason?.status).toBe('stale');
@@ -576,6 +581,7 @@ describe('activity persistence, edits and reading', () => {
       'description',
       'My local woodworkers.',
     );
+    expect(canRemoveRegionResourceFact(authored, 'resources', 'resource:timber')).toBe(false);
     expect(removeRegionResourceFact(authored, 'resources', 'resource:timber')).toBe(authored);
     expect(removeRegionPlace(authored, 'settlements', 0)).toBe(authored);
     expect(regionToMarkdown(authored)).toContain('My local woodworkers.');

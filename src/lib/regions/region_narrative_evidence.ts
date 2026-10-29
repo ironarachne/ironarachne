@@ -52,25 +52,27 @@ export function regionInspectionFacts(snapshot: RegionSnapshot): RegionSemanticF
 export function regionReadingSnapshot(snapshot: RegionSnapshot): RegionSnapshot {
   const current = createRegionEvidenceChecker(snapshot);
   const modern =
+    snapshot.facts.activities.length > 0 ||
     snapshot.overviewReason !== undefined ||
     snapshot.settlements.some((entry) => entry.descriptionReason !== undefined) ||
     snapshot.facts.resources.some((fact) => fact.assessments !== undefined);
   const readable = (fact: FactBase) =>
     fact.origin === 'authored' ||
-    ((!('support' in fact) ||
-      activityEvidenceCurrent(
-        snapshot.facts,
-        snapshot.map,
-        fact as import('./region_activity_types').SettlementActivityFact,
-      )) &&
-      (!modern ||
-        ((fact.assessments === undefined ||
-          fact.assessments.some((entry) => entry.status !== 'unknown')) &&
-          current(fact))));
+    !modern ||
+    ((fact.assessments === undefined ||
+      fact.assessments.some((entry) => entry.status !== 'unknown')) &&
+      current(fact));
   return {
     ...snapshot,
     settlements: snapshot.settlements.map((entry) =>
-      regionOverviewCurrent(snapshot, entry.descriptionReason)
+      !entry.descriptionReason ||
+      current({
+        id: `description:${entry.id}`,
+        name: '',
+        description: '',
+        origin: 'generated',
+        reason: entry.descriptionReason,
+      })
         ? entry
         : { ...entry, snapshot: { ...entry.snapshot, description: '' } },
     ),

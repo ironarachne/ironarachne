@@ -1,5 +1,5 @@
 import { sourceSpecificSummaryIds } from './region_evidence';
-import { regionContextEvidenceCurrent } from './region_context_evidence';
+import { createRegionEvidenceChecker } from './region_context_evidence';
 import type { RegionFacts } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
 import type { RegionResourceFactList, RegionSemanticFact } from './region_resource_types';
@@ -176,12 +176,12 @@ export function setRegionResourceFactText(
 }
 
 /** Direct generated links are removed; reason-only dependents remain with stale explanations. */
-export function removeRegionResourceFact(
+function regionResourceRemovalIds(
   snapshot: RegionSnapshot,
   list: RegionResourceFactList,
   id: string,
-): RegionSnapshot {
-  if (!snapshot.facts[list].some((fact) => fact.id === id)) return snapshot;
+): Set<string> | null {
+  if (!snapshot.facts[list].some((fact) => fact.id === id)) return null;
   const removed = new Set([id]);
   const all = lists.flatMap<RegionSemanticFact>((key) => snapshot.facts[key]);
   let grew = true;
@@ -202,26 +202,47 @@ export function removeRegionResourceFact(
       const reasonLinked = fact.reason?.sources.some(
         (source) => source.kind === 'fact' && removed.has(source.factId),
       );
-      if (fact.id !== id && (linked || reasonLinked) && fact.origin === 'authored') return snapshot;
+      if (fact.id !== id && (linked || reasonLinked) && fact.origin === 'authored') return null;
       if (!removed.has(fact.id) && linked) {
         removed.add(fact.id);
         grew = true;
       }
     }
   }
-  return withRegionOverviewEvidence({
-    ...snapshot,
-    facts: removeRegionFactIds(snapshot.facts, removed),
-  });
+  return removed;
+}
+
+/** Query removal protection without constructing hypothetical snapshots or composing evidence. */
+export function canRemoveRegionResourceFact(
+  snapshot: RegionSnapshot,
+  list: RegionResourceFactList,
+  id: string,
+): boolean {
+  return regionResourceRemovalIds(snapshot, list, id) !== null;
+}
+
+export function removeRegionResourceFact(
+  snapshot: RegionSnapshot,
+  list: RegionResourceFactList,
+  id: string,
+): RegionSnapshot {
+  const removed = regionResourceRemovalIds(snapshot, list, id);
+  return removed === null
+    ? snapshot
+    : withRegionOverviewEvidence({
+        ...snapshot,
+        facts: removeRegionFactIds(snapshot.facts, removed),
+      });
 }
 
 export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnapshot {
+  const current = createRegionEvidenceChecker(snapshot);
   snapshot = {
     ...snapshot,
     settlements: snapshot.settlements.map((entry) => {
       const reason = entry.descriptionReason;
       return !reason ||
-        regionContextEvidenceCurrent(snapshot, {
+        current({
           id: `description:${entry.id}`,
           name: '',
           description: '',
@@ -235,7 +256,7 @@ export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnap
   const reason = snapshot.overviewReason;
   if (
     !reason ||
-    regionContextEvidenceCurrent(snapshot, {
+    current({
       id: 'overview',
       name: '',
       description: '',

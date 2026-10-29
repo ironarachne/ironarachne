@@ -10,6 +10,7 @@
     setRegionResourceFactText,
     removeRegionPlace,
     removeRegionResourceFact,
+    canRemoveRegionResourceFact,
     regionFactsNeedingReview,
     setRealmText,
     setRegionMainRealm,
@@ -209,13 +210,13 @@
         </div>
         <BaseButton
           aria-label="Remove mountain range {index + 1} from this region"
-          disabled={removeRegionResourceFact(region, 'mountainRanges', range.id) === region}
+          disabled={!canRemoveRegionResourceFact(region, 'mountainRanges', range.id)}
           onclick={() =>
             edit((current) => removeRegionResourceFact(current, 'mountainRanges', range.id))}
         >
           Remove mountain range {index + 1}
         </BaseButton>
-        {#if removeRegionResourceFact(region, 'mountainRanges', range.id) === region}
+        {#if !canRemoveRegionResourceFact(region, 'mountainRanges', range.id)}
           <p class="region-editor__note">
             Authored regional facts refer to this range, so it cannot be removed here.
           </p>
@@ -255,13 +256,13 @@
         </div>
         <BaseButton
           aria-label="Remove dense forest {index + 1} from this region"
-          disabled={removeRegionResourceFact(region, 'denseForests', forest.id) === region}
+          disabled={!canRemoveRegionResourceFact(region, 'denseForests', forest.id)}
           onclick={() =>
             edit((current) => removeRegionResourceFact(current, 'denseForests', forest.id))}
         >
           Remove dense forest {index + 1}
         </BaseButton>
-        {#if removeRegionResourceFact(region, 'denseForests', forest.id) === region}
+        {#if !canRemoveRegionResourceFact(region, 'denseForests', forest.id)}
           <p class="region-editor__note">
             Authored regional facts refer to this forest, so it cannot be removed here.
           </p>
@@ -319,11 +320,11 @@
             ></textarea>
           </div>
           <BaseButton
-            disabled={removeRegionResourceFact(
+            disabled={!canRemoveRegionResourceFact(
               region,
               list as 'managedProduction' | 'resourceSources' | 'activities',
               fact.id,
-            ) === region}
+            )}
             onclick={() =>
               edit((current) =>
                 removeRegionResourceFact(
@@ -339,7 +340,7 @@
                 : 'raw source'}
             {index + 1}</BaseButton
           >
-          {#if removeRegionResourceFact(region, list as 'managedProduction' | 'resourceSources' | 'activities', fact.id) === region}<p
+          {#if !canRemoveRegionResourceFact(region, list as 'managedProduction' | 'resourceSources' | 'activities', fact.id)}<p
               class="region-editor__note"
             >
               Authored work depends on this record, so it cannot be removed here.
