@@ -1,3 +1,4 @@
+import type { RegionGazetteer } from './region_editorial_types';
 import type { RegionAffiliation } from './region_affiliation_types';
 import { type Character } from '$lib/characters';
 import { type Culture } from '$lib/culture';
@@ -13,6 +14,7 @@ export default interface Region {
   environment: Environment;
   description: string;
   overviewReason?: FactReason;
+  gazetteer?: RegionGazetteer;
   /**
    * The culture that fills this region, or `null` when it has none of its own.
    *

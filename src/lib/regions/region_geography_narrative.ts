@@ -193,7 +193,12 @@ export function overviewSettlement(region: Region, role: SettlementRoleFact) {
 }
 
 /** The saved road must actually trace a continuous land path between its named endpoints. */
-export function overviewRoad(region: Region, route: RouteFact) {
+export function overviewRoad(
+  region: Pick<Region, 'map' | 'settlementIds'> & {
+    settlements: { name: string; mapNodeId?: number }[];
+  },
+  route: RouteFact,
+) {
   const settlements = route.endpoints.map((endpoint) => {
     if (endpoint.kind !== 'settlement' || endpoint.settlement.kind !== 'embedded') return undefined;
     const index = region.settlementIds?.indexOf(endpoint.settlement.settlementId) ?? -1;

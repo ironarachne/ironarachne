@@ -4,7 +4,7 @@ import { denseForestFixture } from '../../../scripts/region_dense_forest_fixture
 import { emptyRegionFacts } from './region_facts';
 import { generateDenseForestFacts, generateDenseForestLandmark } from './region_dense_forests';
 import { denseForestFactsError } from './region_dense_forest_validation';
-import { rollRegion } from './region_roll';
+import { legacyRegion as rollRegion } from '../../../test_fixtures/region_legacy';
 import { toRegionSnapshot } from './region_snapshot';
 import { migrateRegionSnapshot, validateRegionSnapshot } from './region_artifact_kind';
 import { regionToMapSvg, regionToMarkdown } from './region_presentation';

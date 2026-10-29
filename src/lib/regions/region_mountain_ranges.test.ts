@@ -5,7 +5,10 @@ import { mountainRangeFixture } from '../../../scripts/region_mountain_range_fix
 import { generateMountainRangeFacts } from './region_mountain_ranges';
 import { mountainRangeFactsError } from './region_mountain_range_validation';
 import { emptyRegionFacts } from './region_facts';
-import { rollRegionSnapshot, rollRegion } from './region_roll';
+import {
+  legacyRegionSnapshot as rollRegionSnapshot,
+  legacyRegion as rollRegion,
+} from '../../../test_fixtures/region_legacy';
 import {
   validateRegionSnapshot,
   migrateRegionSnapshot,
@@ -156,7 +159,7 @@ describe('saved regional mountain ranges', () => {
     });
     expect(regionToMapSvg(migrated.value)).not.toContain('data-range-id=');
     expect(old).toEqual(before);
-    expect(REGION_PAYLOAD_VERSION).toBe(17);
+    expect(REGION_PAYLOAD_VERSION).toBe(18);
     expect(migrateRegionSnapshot(snapshot, 12).ok).toBe(false);
     expect(migrateRegionSnapshot(snapshot, 11).ok).toBe(false);
     expect(validateRegionSnapshot(snapshot).ok).toBe(true);

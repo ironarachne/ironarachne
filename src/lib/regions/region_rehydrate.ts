@@ -76,6 +76,7 @@ function realmFromStored(stored: StoredRealm): Realm {
 export function regionFromSnapshot(snapshot: RegionSnapshot, rng: RNG): Region {
   return {
     name: snapshot.name,
+    ...(snapshot.gazetteer ? { gazetteer: snapshot.gazetteer } : {}),
     affiliation: snapshot.affiliation,
     description: snapshot.description,
     ...(snapshot.overviewReason ? { overviewReason: snapshot.overviewReason } : {}),

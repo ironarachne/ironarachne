@@ -5,7 +5,10 @@ import { cultureFromSnapshot, rollCultureSnapshot, type Culture } from '$lib/cul
 import type { MapNode, RegionMap } from '$lib/map';
 import { emptyRegionFacts } from './region_facts';
 import { generateLandscapeNames, landscapeSummaryHeading } from './region_landscape_names';
-import { rollRegionSnapshot, rollRegion } from './region_roll';
+import {
+  legacyRegionSnapshot as rollRegionSnapshot,
+  legacyRegion as rollRegion,
+} from '../../../test_fixtures/region_legacy';
 import { regionToUiDocument } from './region_ui_presentation';
 import { regionToMarkdown, regionToText } from './region_presentation';
 

@@ -119,6 +119,44 @@ function factEntry(snapshot: RegionSnapshot, section: string, fact: FactBase): R
 /** Build heading/body pairs from source fields, never by splitting names or prose at a colon. */
 export function regionToUiDocument(snapshot: RegionSnapshot): RegionUiDocument {
   const document = regionToDocument(snapshot);
+  if (snapshot.gazetteer) {
+    const used = new Set([document.title.toLowerCase(), 'region generator']);
+    const facts = new Map(regionSupportingFacts(snapshot).map((fact) => [fact.id, fact]));
+    return {
+      title: document.title,
+      paragraphs: document.paragraphs,
+      sections: document.sections.map((section) => ({
+        heading: uniqueHeading(section.heading, used, 'Section'),
+        entries: section.lines.map((body, index) => {
+          const id = section.factIds?.[index];
+          if (!id) {
+            const heading = section.entryHeadings?.[index] ?? '';
+            return {
+              heading: heading ? uniqueHeading(heading, used) : '',
+              body:
+                heading && body.startsWith(`${heading}\n\n`)
+                  ? body.slice(heading.length + 2)
+                  : body === heading
+                    ? ''
+                    : body,
+            };
+          }
+          const fact = facts.get(id)!;
+          const text = REGION_HOOK_SECTIONS.includes(section.heading)
+            ? regionHook(fact.description)
+            : { body: fact.description };
+          return {
+            ...text,
+            heading: section.heading === 'Flora and fauna' ? '' : uniqueHeading(fact.name, used),
+            factId: id,
+            ...('hook' in text && text.hook
+              ? { hookHeading: uniqueHeading(`An Adventure Hook for ${fact.name}`, used) }
+              : {}),
+          };
+        }),
+      })),
+    };
+  }
   const facts = new Map(regionSupportingFacts(snapshot).map((fact) => [fact.id, fact]));
   const review = regionFactsNeedingReview(snapshot);
   const settlements = regionSettlementEntries(snapshot);

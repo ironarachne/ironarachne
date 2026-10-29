@@ -22,6 +22,7 @@ import * as RNG from '@ironarachne/rng';
 import type Region from './region.js';
 import {
   createRegionStageRng,
+  generateRegionGazetteer,
   generateHabitatFacts,
   generateLandscapeNames,
   generateEcologyInhabitants,
@@ -36,7 +37,6 @@ import {
   generateHabitationFacts,
   generateNotableFacts,
   generateRegionIdentity,
-  presentRegion,
   recordPhysicalFacts,
 } from './region_generation_passes.js';
 import { emptyRegionFacts } from './region_facts.js';
@@ -345,7 +345,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   generateNotableFacts(region, createRegionStageRng(seed, 'notable-places'), forestLandmark);
   generateEcologyNarrative(region, createRegionStageRng(seed, 'ecology-narrative'));
   generateRegionIdentity(region, createRegionStageRng(seed, 'regional-identity'));
-  presentRegion(region, createRegionStageRng(seed, 'presentation'));
+  generateRegionGazetteer(region, createRegionStageRng(seed, 'gazetteer-editorial'));
   addNeighborsToRegion(region, stageConfig('neighbors'));
   return region;
 }

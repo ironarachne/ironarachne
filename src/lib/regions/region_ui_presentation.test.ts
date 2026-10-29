@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { regionToUiDocument } from './region_ui_presentation';
 import { regionToMarkdown } from './region_presentation';
-import { rollRegionSnapshot } from './region_roll';
+import { legacyRegionSnapshot as rollRegionSnapshot } from '../../../test_fixtures/region_legacy';
 import { emptyRegionFacts } from './region_facts';
 import { REGION_SEED_BANK } from '../../../test_fixtures/region_seeds';
 

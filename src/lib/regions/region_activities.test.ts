@@ -30,6 +30,8 @@ import * as Passes from './region_generation_passes';
 import type { ResourceFact } from './region_fact_types';
 
 const base = rollRegionSnapshot('activity-fixture-base');
+// Custom activity fixtures predate and replace all editorial evidence.
+delete base.gazetteer;
 const target = { kind: 'embedded', settlementId: 'settlement:home' } as const;
 const node = (id: number, neighbors: number[]): MapNode => ({
   id,

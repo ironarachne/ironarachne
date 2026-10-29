@@ -1,3 +1,4 @@
+import { regionEditorialDocument } from './region_editorial_presentation';
 import { regionHook, REGION_HOOK_SECTIONS } from './region_prose';
 import { regionSourceQualifications } from './region_source_presentation';
 /** Shared sourcebook presentation for the page, Markdown and PDF. Saved prose is never rerolled. */
@@ -25,6 +26,8 @@ export type RegionSection = {
   lines: string[];
   /** Optional semantic identities for entries and map features on screen. */
   factIds?: string[];
+  /** Explicit entry titles for saved editorial paragraphs; never parsed out of prose. */
+  entryHeadings?: string[];
 };
 
 /** A region arranged for reading, independent of the format it is finally written in. */
@@ -261,6 +264,7 @@ function ecologySections(snapshot: RegionSnapshot): RegionSection[] {
 
 /** Arrange a region for reading. */
 export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
+  if (snapshot.gazetteer) return regionEditorialDocument(snapshot);
   const overview = regionOverviewCurrent(snapshot, snapshot.overviewReason)
     ? snapshot.description
     : '';
@@ -372,7 +376,19 @@ export function regionToMarkdown(snapshot: RegionSnapshot): string {
 
   for (const section of document.sections) {
     blocks.push(`## ${section.heading}`);
-    if (section.heading === 'Settlements') {
+    if (snapshot.gazetteer) {
+      for (const [index, line] of section.lines.entries()) {
+        const heading = section.entryHeadings?.[index];
+        if (heading) blocks.push(`### ${heading}`);
+        const text =
+          heading && line.startsWith(`${heading}\n\n`)
+            ? line.slice(heading.length + 2)
+            : line === heading
+              ? ''
+              : line;
+        if (text) blocks.push(text);
+      }
+    } else if (section.heading === 'Settlements') {
       for (const entry of regionSettlementEntries(snapshot)) {
         blocks.push(`### ${entry.name}`);
         if (isPrintable(entry.description)) blocks.push(entry.description);

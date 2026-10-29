@@ -604,3 +604,21 @@ prose; authored activity and description edits survive save/load/export. The edi
 text and removal, and the evidence inspector retains stale descriptions. Facts version 12 and region
 payload version 17 migrate older saves without inferring activities or rewriting their prose.
 See [the approved design](../../../docs/region-settlement-activities.md).
+
+## Coordinated gazetteer selection (#445)
+
+New generation saves a version-1 `gazetteer` in payload version 18 (facts remain version 12).
+`region_editorial.ts` builds the complete current candidate pool, chooses meanings by defining,
+distinctive and supporting importance, and allocates at most 24 rendered sentences across the
+opening and sections. Stable IDs canonicalize seeded ties; resource/use peer comparisons and
+explicit batch history prevent first-item selection. Fantastical presence has no eligibility roll.
+Independent selection and wording child streams derive from `gazetteer-editorial`; upstream facts
+and generation streams are unchanged.
+
+`region_editorial_evidence.ts` validates every saved sentence's transitive sources and complete
+population/road comparison observations. Reading can omit stale sentences but cannot replenish
+or reroll them. `region_editorial_presentation.ts` supplies the same saved text to the page,
+Markdown, PDF and project publication. Authored source text and opening overrides are protected,
+including intentional blanks. Snapshots without a gazetteer retain the legacy reading path.
+See [the approved editorial design](../../../docs/region-gazetteer-salience.md) and the historical
+[Belvorn fixture](../../../test_fixtures/region_445_belvorn.md).

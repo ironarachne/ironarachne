@@ -1,13 +1,18 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import * as Names from '$lib/names';
-import { generate, getDefaultConfig } from './regions';
+import { getDefaultConfig } from './regions';
+import { legacyGenerate as generate } from '../../../test_fixtures/region_legacy';
 import { toRegionSnapshot } from './region_snapshot';
 import { regionFromSnapshot } from './region_rehydrate';
 import { migrateRegionSnapshot, validateRegionSnapshot } from './region_artifact_kind';
 import { regionToMapSvg, regionToText } from './region_presentation';
 import { regionToUiDocument } from './region_ui_presentation';
-import { readRegionGeneratorConfig, rollRegion, rollRegionSnapshot } from './region_roll';
+import { readRegionGeneratorConfig } from './region_roll';
+import {
+  legacyRegion as rollRegion,
+  legacyRegionSnapshot as rollRegionSnapshot,
+} from '../../../test_fixtures/region_legacy';
 import { setRegionMainRealm, setRegionText } from './region_editing';
 import type { RegionAffiliationMode } from './region_affiliation_types';
 import { generateRegionGeographicName } from './region_landscape_names';

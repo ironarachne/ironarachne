@@ -3,7 +3,7 @@ import * as ResourceNarrative from './region_resource_narrative';
 import { generateResourceFacts } from './region_resources';
 import { RNG } from '@ironarachne/rng';
 import { getFantasyNameGeneratorSet } from '$lib/names';
-import { generate } from './regions';
+import { legacyGenerate as generate } from '../../../test_fixtures/region_legacy';
 import { toRegionSnapshot } from './region_snapshot';
 import { regionFromSnapshot } from './region_rehydrate';
 import { regionToMarkdown } from './region_presentation';

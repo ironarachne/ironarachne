@@ -9,7 +9,7 @@ import {
   setRegionPlaceText,
   setRegionText,
 } from './region_editing';
-import { rollRegionSnapshot } from './region_roll';
+import { legacyRegionSnapshot as rollRegionSnapshot } from '../../../test_fixtures/region_legacy';
 import { emptyRegionFacts } from './region_facts';
 import { validateRegionSnapshot } from './region_artifact_kind';
 import { regionToMarkdown, regionToText, regionToMapSvg } from './region_presentation';

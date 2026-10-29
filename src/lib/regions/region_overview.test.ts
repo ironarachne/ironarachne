@@ -10,7 +10,7 @@ import { regionToMarkdown, regionToText } from './region_presentation';
 
 function fixture(seed = 'overview') {
   const rng = new RNG(seed);
-  return generate({
+  const region = generate({
     rng,
     nameGeneratorSet: getFantasyNameGeneratorSet('human', rng),
     dominantCulture: null,
@@ -21,6 +21,9 @@ function fixture(seed = 'overview') {
     minRealms: 1,
     maxRealms: 1,
   });
+  // This suite exercises explicit composition on the legacy overview fields.
+  delete region.gazetteer;
+  return region;
 }
 
 function overview(region: ReturnType<typeof fixture>, seed = 'words') {

@@ -206,9 +206,9 @@ test.describe('a region', () => {
     await page.getByLabel('Seed', { exact: true }).fill('alpha');
     await page.getByLabel('Lock Seed').check();
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
-    const identity = page.getByRole('region', { name: 'Regional identity', exact: true });
+    const identity = page.locator('.gazetteer');
     await expect(identity).toBeVisible();
-    const details = await identity.locator('[data-gazetteer-text]').allTextContents();
+    const details = await identity.locator(':scope > p[data-gazetteer-text]').allTextContents();
     expect(details.length).toBeGreaterThan(0);
     expect(details.length).toBeLessThanOrEqual(3);
     expect(await identity.textContent()).not.toContain('undefined');
@@ -218,14 +218,12 @@ test.describe('a region', () => {
     for (const detail of details) expect(contents).toContain(detail);
     await saveAs(page, 'Identity Country');
     const panel = await openInWorkshop(page, 'Identity Country');
-    const saved = panel.getByRole('region', { name: 'Regional identity', exact: true });
+    const saved = panel.locator('.gazetteer');
     for (const detail of details) await expect(saved).toContainText(detail);
     await page.reload({ waitUntil: 'load' });
     const reopened = await openInWorkshop(page, 'Identity Country');
     for (const detail of details)
-      await expect(
-        reopened.getByRole('region', { name: 'Regional identity', exact: true }),
-      ).toContainText(detail);
+      await expect(reopened.locator('.gazetteer')).toContainText(detail);
     await expectNoHorizontalOverflow(page);
   });
 
@@ -237,7 +235,7 @@ test.describe('a region', () => {
     await page.getByLabel('Lock Seed').check();
     await page.getByLabel('Affiliation', { exact: true }).selectOption('random');
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
-    const introduction = page.locator('.gazetteer > p').last();
+    const introduction = page.locator('.gazetteer > p').first();
     await expect(introduction).toContainText('open grassland', { ignoreCase: true });
     await expect(introduction).toContainText('rain-soaked woodland');
     await expect(introduction).not.toContainText('Dense forest');
@@ -520,11 +518,9 @@ test.describe('a region', () => {
     for (const section of await gazetteer.locator('section').all()) {
       await expect(section.locator(':scope > h3')).toHaveCount(1);
       for (const article of await section.locator('article').all()) {
+        const sectionName = await section.locator(':scope > h3').innerText();
         await expect(article.locator(':scope > h4')).toHaveCount(
-          (await article.getAttribute('data-fact-id')) === 'area:land' ||
-            (await section.locator(':scope > h3').innerText()) === 'Flora and fauna'
-            ? 0
-            : 1,
+          sectionName === 'Settlements' ? 1 : 0,
         );
       }
     }
@@ -547,35 +543,17 @@ test.describe('a region', () => {
       name: 'Settlements',
       exact: true,
     });
-    await expect(
-      settlementCharacter
-        .getByRole('heading', { level: 5, name: /^Settlement character of / })
-        .first(),
-    ).toBeVisible();
-    await expect(
-      gazetteer.getByRole('heading', { level: 3, name: 'Livelihoods', exact: true }),
-    ).toHaveCount(0);
-    await expect(
-      gazetteer.getByRole('heading', { level: 3, name: 'Settlement character', exact: true }),
-    ).toHaveCount(0);
-    await expect(settlementCharacter).toContainText('Local work —');
-    await expect(settlementCharacter).toContainText('Supply needs —');
-    const landscape = page.getByRole('region', { name: 'Landscape', exact: true });
-    await expect(landscape.locator('[data-fact-id="area:land"] > p')).toBeVisible();
-    await expect(landscape.getByRole('heading', { name: /Regional land/i })).toHaveCount(0);
-    await expect(landscape.getByRole('heading', { name: /^The Landscape of / })).toHaveCount(0);
-    const zoneHeadings = landscape.locator('[data-fact-id^="area:habitat-zone:"] > h4');
-    expect(await zoneHeadings.count()).toBeGreaterThan(0);
-    for (const name of await zoneHeadings.allTextContents()) {
-      expect(name).not.toMatch(/zone$/);
-      expect(name.trim().length).toBeGreaterThan(0);
-    }
-    await expect(landscape.locator('[data-fact-id^="habitat:"] > h4').first()).toContainText(
-      'across the region',
+    expect(await settlementCharacter.locator('h4').count()).toBeGreaterThan(0);
+    // Editorial prose is bounded and selected; source inventories remain in inspection.
+    const generatedParagraphs = await gazetteer.locator('[data-gazetteer-text]').allTextContents();
+    const sentenceCount = generatedParagraphs.reduce(
+      (sum, text) => sum + (text.match(/[.!?](?:\s|$)/g)?.length ?? 0),
+      0,
     );
-    await expect(landscape).not.toContainText(
-      /cells|edges|median|°C|0–1|temperatures of|moisture of|not achieved/,
-    );
+    expect(sentenceCount).toBeLessThanOrEqual(24);
+    await expect(
+      gazetteer.getByRole('heading', { name: 'Regional identity', exact: true }),
+    ).toHaveCount(0);
 
     const markdown = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download Markdown' }).click();
@@ -583,9 +561,7 @@ test.describe('a region', () => {
     expect(markdownFile.suggestedFilename()).toMatch(/\.md$/);
     const contents = await new Response(await markdownFile.createReadStream()).text();
     expect(contents.toLowerCase()).toContain(heading.toLowerCase());
-    expect(contents).toContain('## Realms');
     const places = page.locator('[data-notable-id]');
-    expect(await places.count()).toBeGreaterThan(0);
     for (const place of await places.all()) {
       for (const text of await place.locator('[data-gazetteer-text]').allTextContents()) {
         expect(contents).toContain(text);
@@ -596,7 +572,6 @@ test.describe('a region', () => {
       // Compare the source text, as the export preserves it verbatim.
       expect(contents).toContain(await paragraph.textContent());
     }
-    expect(contents).toContain('Hook:');
     expect(contents).not.toContain('## Supporting facts and explanations');
     expect(contents).not.toContain('Supporting explanation:');
     await expect(page.locator('.gazetteer details')).toHaveCount(0);

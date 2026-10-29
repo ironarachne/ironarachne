@@ -1,3 +1,4 @@
+import { regionGazetteerError } from './region_editorial_validation';
 import map from '$lib/assets/icons/set1/map.svg?raw';
 import { legacyRiverNetwork, riverNetworkError } from '$lib/map';
 import {
@@ -36,8 +37,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 17 adds declared activities, description provenance and typed import requirements. */
-export const REGION_PAYLOAD_VERSION = 17 as const;
+/** Version 18 saves the coordinated gazetteer without changing source facts. */
+export const REGION_PAYLOAD_VERSION = 18 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -201,6 +202,11 @@ export function validateRegionSnapshot(payload: unknown): PayloadResult<RegionSn
     new Set(regionSemanticFactLists.flatMap((key) => facts[key].map((fact) => fact.id))),
   );
   if (overviewError) return rejectedPayload('invalid-payload', overviewError);
+  const gazetteerError = regionGazetteerError(
+    record.gazetteer,
+    record as unknown as RegionSnapshot,
+  );
+  if (gazetteerError) return rejectedPayload('invalid-payload', gazetteerError);
   const factIds = new Set(
     regionSemanticFactLists.flatMap((key) => facts[key].map((fact) => fact.id)),
   );
@@ -427,7 +433,7 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (!Number.isInteger(from) || from < 1 || from > 16)
+  if (!Number.isInteger(from) || from < 1 || from > 17)
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,
@@ -441,6 +447,8 @@ export function migrateRegionSnapshot(
     return rejectedPayload('unsupported-version', 'Version 11 requires region facts version 6');
   if (from === 13 && asRecord(record?.facts)?.version !== 8)
     return rejectedPayload('unsupported-version', 'Version 13 requires region facts version 8');
+  if (from === 17 && asRecord(record?.facts)?.version !== 12)
+    return rejectedPayload('unsupported-version', 'Version 17 requires region facts version 12');
   if (from === 16 && asRecord(record?.facts)?.version !== 11)
     return rejectedPayload('unsupported-version', 'Version 16 requires region facts version 11');
   if (from === 15 && asRecord(record?.facts)?.version !== 10)

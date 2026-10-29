@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import { rollRegion, rollRegionSnapshot } from './region_roll';
+import {
+  legacyRegionSnapshot as rollRegionSnapshot,
+  legacyRegion as rollRegion,
+} from '../../../test_fixtures/region_legacy';
 import { emptyRegionFacts } from './region_facts';
 import { toRegionSnapshot } from './region_snapshot';
 import { regionArtifactKind, validateRegionSnapshot } from './region_artifact_kind';

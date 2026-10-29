@@ -73,3 +73,6 @@ export { generateManagedProduction, finalizeResourceInventory } from './region_m
 export type * from './region_activity_types';
 export { generateSettlementActivities } from './region_activities';
 export { activityEvidenceCurrent } from './region_activity_support';
+
+export type * from './region_editorial_types';
+export { generateRegionGazetteer, composeRegionGazetteer } from './region_editorial';
