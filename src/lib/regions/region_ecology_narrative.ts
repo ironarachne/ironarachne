@@ -70,8 +70,8 @@ function relationCandidate(
       relation.relation.use
     ];
     options = [
-      `In ${where}, the local population of ${name} provides ${use} for ${settlement}.`,
-      `${settlement} draws on ${name} in ${where} as a source of ${use}.`,
+      `In ${where}, the local ${name} population provides ${use} for ${settlement}.`,
+      `${settlement} draws on the local ${name} population in ${where} as a source of ${use}.`,
       `The ${name} population in ${where} is locally important as a source of ${use} for ${settlement}.`,
     ];
     importance = 'defining';
@@ -86,20 +86,20 @@ function relationCandidate(
     const other = target.name.trim();
     const clauses = {
       'feeds-on': [
-        `the local population of ${name} feeds on ${other}`,
-        `the ${other} population supplies food for ${name}`,
+        `the local ${name} population feeds on the local ${other} population`,
+        `the ${other} population supplies food for the local ${name} population`,
       ],
       pollinates: [
-        `the local population of ${name} pollinates ${other}`,
-        `the ${other} population is pollinated by ${name}`,
+        `the local ${name} population pollinates the local ${other} population`,
+        `the ${other} population is pollinated by the local ${name} population`,
       ],
       'competes-with': [
-        `the local population of ${name} competes with ${other}`,
-        `the populations of ${name} and ${other} are competitors`,
+        `the local ${name} population competes with the local ${other} population`,
+        `the ${name} and ${other} populations are competitors`,
       ],
       'pest-of': [
-        `the local population of ${name} is a pest of ${other}`,
-        `the ${other} population is affected by the pest ${name}`,
+        `the local ${name} population is a pest of the local ${other} population`,
+        `the ${other} population is affected by the local ${name} pest population`,
       ],
     }[relation.relation.kind];
     options = [`In ${where}, ${clauses[0]}.`, `${clauses[1]} in ${where}.`];
@@ -168,9 +168,9 @@ function hazardCandidates(snapshot: RegionSnapshot): NarrativeCandidate[] {
           'defining',
           sources,
           [
-            `In ${habitat.name}, the presence of ${population.name} makes the gathering banks hazardous.`,
-            `Gatherers in ${habitat.name} must take care around ${population.name}.`,
-            `The presence of ${population.name} in ${habitat.name} poses a hazard to local gatherers.`,
+            `In ${habitat.name}, the presence of the local ${population.name} population makes the gathering banks hazardous.`,
+            `Gatherers in ${habitat.name} must take care around the local ${population.name} population.`,
+            `The presence of the local ${population.name} population in ${habitat.name} poses a hazard to local gatherers.`,
           ],
         ),
       ];
@@ -271,7 +271,7 @@ export function legacyEcologyParagraph(snapshot: RegionSnapshot): string {
         detail.toLowerCase().includes(population.name.toLowerCase()) &&
         habitatNames.every((name) => detail.includes(name))
           ? ''
-          : `The local population of ${population.name} occurs in ${habitatNames.join(' and ')}. `;
+          : `The local ${population.name} population occurs in ${habitatNames.join(' and ')}. `;
       const text = prefix + sentences(detail);
       const count = text.match(/[.!?](?:\s|$)/g)?.length ?? 1;
       if (count > remaining) return '';

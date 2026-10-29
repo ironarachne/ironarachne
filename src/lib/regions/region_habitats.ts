@@ -1,3 +1,4 @@
+import { compassPosition } from './region_prose';
 import type { RNG } from '@ironarachne/rng';
 import type { MapNode, RegionMap } from '$lib/map';
 import { composeNarrative, type NarrativeContext } from '$lib/narrative';
@@ -55,9 +56,7 @@ function components(nodes: MapNode[]): MapNode[][] {
 function location(nodes: MapNode[], map: RegionMap): string {
   const x = nodes.reduce((sum, node) => sum + node.center.x, 0) / nodes.length / map.width;
   const y = nodes.reduce((sum, node) => sum + node.center.y, 0) / nodes.length / map.height;
-  const vertical = y < 1 / 3 ? 'northern' : y > 2 / 3 ? 'southern' : '';
-  const horizontal = x < 1 / 3 ? 'western' : x > 2 / 3 ? 'eastern' : '';
-  return [vertical, horizontal].filter(Boolean).join(' ') || 'central';
+  return compassPosition(x, y);
 }
 
 function riverEdges(nodes: MapNode[], map: RegionMap) {

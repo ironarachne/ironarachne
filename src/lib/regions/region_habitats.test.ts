@@ -61,7 +61,7 @@ describe('spatial regional habitats', () => {
       'area:habitat-zone:1',
       'area:habitat-zone:3',
     ]);
-    expect(facts.areas[1].name).toBe('northern western forest zone');
+    expect(facts.areas[1].name).toBe('northwestern forest zone');
     expect(facts.areas[2].name).toBe('central desert zone');
     expect(region.map).toEqual(original);
   });
@@ -121,7 +121,7 @@ describe('spatial regional habitats', () => {
     });
     const facts = derive(region);
     const zone = facts.areas[1];
-    expect(zone.name).toBe('southern eastern forest zone');
+    expect(zone.name).toBe('southeastern forest zone');
     expect(zone.description).toMatch(/coast|sea/i);
     expect(zone.description).toMatch(/river/i);
     expect(zone.description).not.toMatch(/cells|edges|median|°C|moisture|temperature|\d/);

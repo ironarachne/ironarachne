@@ -1,3 +1,4 @@
+import { regionHook } from './region_prose';
 import { typographyRiverFixture } from '../../../test_fixtures/region_typography';
 import type { RegionSnapshot } from './region_snapshot';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -64,7 +65,8 @@ describe('arranging a region for reading', () => {
       );
       expect(comparisons.length).toBeLessThan(landscape.lines.length / 2);
       for (const prose of [regionToMarkdown(saved), regionToText(saved)]) {
-        for (const line of landscape.lines) expect(prose).toContain(line);
+        for (const line of landscape.lines)
+          expect(prose.replace(/\s+/g, ' ')).toContain(line.replace(/\s+/g, ' '));
       }
     },
   );
@@ -178,8 +180,11 @@ describe('exporting a region (6.3)', () => {
   it('includes stored landmarks and hazards with hooks in both gazetteer formats', () => {
     expect(snapshot.facts.notables.length).toBeGreaterThan(0);
     for (const fact of snapshot.facts.notables) {
-      expect(regionToMarkdown(snapshot)).toContain(`${fact.name}: ${fact.description}`);
-      expect(regionToText(snapshot)).toContain(`${fact.name}: ${fact.description}`);
+      const { body, hook } = regionHook(fact.description);
+      for (const text of [regionToMarkdown(snapshot), regionToText(snapshot)]) {
+        expect(text).toContain(`${fact.name}: ${body}`);
+        expect(text).toContain(hook);
+      }
       expect(fact.description).toContain('Hook:');
     }
     const legacy = { ...snapshot, facts: { ...snapshot.facts, notables: [] } };
@@ -310,7 +315,7 @@ describe('complete gazetteer exports', () => {
       );
       for (const section of regionToDocument(snapshot).sections) {
         for (const line of section.lines.flatMap((line) => line.split('\n\n')))
-          expect(prose).toContain(line);
+          expect(prose.replace(/\s+/g, ' ')).toContain(line.replace(/\s+/g, ' '));
       }
     }
     expect(snapshot).toEqual(before);
@@ -422,7 +427,7 @@ describe('sourcebook gazetteer', () => {
       for (const line of [...settlements.lines, ...inhabitants.lines].flatMap((line) =>
         line.split('\n\n'),
       ))
-        expect(prose).toContain(line);
+        expect(prose.replace(/\s+/g, ' ')).toContain(line.replace(/\s+/g, ' '));
     }
   });
 
@@ -437,8 +442,8 @@ describe('sourcebook gazetteer', () => {
         section.lines.flatMap((line) => line.split('\n\n')),
       ),
     ]) {
-      expect(markdown).toContain(line);
-      expect(text).toContain(line);
+      expect(markdown.replace(/\s+/g, ' ')).toContain(line.replace(/\s+/g, ' '));
+      expect(text.replace(/\s+/g, ' ')).toContain(line.replace(/\s+/g, ' '));
     }
     const headings = document.sections.map((section) => section.heading);
     expect(headings.length).toBeGreaterThan(0);
@@ -535,10 +540,14 @@ describe('sourcebook gazetteer', () => {
     )!;
     for (const route of saved.facts.routes) {
       expect(route.description).toContain('Hook:');
-      expect(ui.entries.find((entry) => entry.factId === route.id)?.body).toBe(route.description);
+      const { body, hook } = regionHook(route.description);
+      expect(ui.entries.find((entry) => entry.factId === route.id)?.body).toBe(body);
+      expect(ui.entries.find((entry) => entry.factId === route.id)?.hook).toBe(hook);
       expect(exported.lines.some((line) => line.includes(route.description))).toBe(true);
-      expect(regionToMarkdown(saved)).toContain(route.description);
-      expect(regionToText(saved)).toContain(route.description);
+      for (const text of [regionToMarkdown(saved), regionToText(saved)]) {
+        expect(text).toContain(body);
+        expect(text).toContain(hook);
+      }
     }
     expect(saved).toEqual(before);
   });

@@ -81,7 +81,10 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
             (text) =>
               text.closest('[data-feature-id]')?.getAttribute('data-feature-id') === area.id,
           );
-          if (!label || label.getAttribute('data-map-name')?.trim() !== area.name)
+          const savedName = label?.getAttribute('data-map-name')?.trim() ?? '';
+          // Generated headings capitalize the initial letter; map labels retain the literal name.
+          const headingName = savedName.charAt(0).toUpperCase() + savedName.slice(1);
+          if (!label || headingName !== area.name)
             errors.push(`Missing saved landscape label: ${area.name}`);
         }
         if (root.querySelector('[data-feature-id^="habitat:biome:"]'))

@@ -1,3 +1,4 @@
+import { regionHook, REGION_HOOK_SECTIONS } from './region_prose';
 import { regionSourceQualifications } from './region_source_presentation';
 /** Shared sourcebook presentation for the page, Markdown and PDF. Saved prose is never rerolled. */
 
@@ -381,12 +382,16 @@ export function regionToMarkdown(snapshot: RegionSnapshot): string {
     } else
       blocks.push(
         section.lines
-          .map((line, index) =>
-            section.heading === 'Flora and fauna' ||
-            (section.heading === 'Landscape' && section.factIds?.[index] === 'area:land')
+          .map((line, index) => {
+            if (REGION_HOOK_SECTIONS.includes(section.heading)) {
+              const { body, hook } = regionHook(line);
+              return `- ${body}${hook ? `\n\n  Hook:\n\n  ${hook}` : ''}`;
+            }
+            return section.heading === 'Flora and fauna' ||
+              (section.heading === 'Landscape' && section.factIds?.[index] === 'area:land')
               ? line
-              : `- ${line}`,
-          )
+              : `- ${line}`;
+          })
           .join('\n\n'),
       );
   }
@@ -400,7 +405,16 @@ export function regionToText(snapshot: RegionSnapshot): string {
   const blocks = [...document.paragraphs];
 
   for (const section of document.sections) {
-    blocks.push([section.heading.toUpperCase(), ...section.lines].join('\n'));
+    blocks.push(
+      [
+        section.heading.toUpperCase(),
+        ...section.lines.map((line) => {
+          if (!REGION_HOOK_SECTIONS.includes(section.heading)) return line;
+          const { body, hook } = regionHook(line);
+          return `${body}${hook ? `\n\nHook:\n\n${hook}` : ''}`;
+        }),
+      ].join('\n'),
+    );
   }
 
   return blocks.join('\n\n');

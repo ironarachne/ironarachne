@@ -59,7 +59,7 @@ export function generateDenseForestLandmark(region: Region, rng: RNG): NotableFa
     id: `landmark:${forest.id}`,
     kind: 'landmark',
     name: forest.name,
-    description: `${forest.description} Hook: survey the edge of this forest and compare its dense canopy with the surrounding woodland.`,
+    description: `${forest.description} Hook: Survey the edge of this forest and compare its dense canopy with the surrounding woodland.`,
     origin: 'generated',
     areaIds: facts.areas
       .filter((area) => area.mapNodeIds.some((id) => forest.mapNodeIds.includes(id)))

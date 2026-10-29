@@ -170,7 +170,9 @@ describe('bounded ecological relationships', () => {
     const [entry] = derive(region);
     expect(entry.relation).toEqual({ kind: 'feeds-on', targetId: 'inhabitant:crayfish' });
     expect(entry.subjectId).toBe('inhabitant:heron');
-    expect(entry.description).toContain('Food for Silver herons: crayfish');
+    expect(entry.description).toContain(
+      'The local Silver herons population feeds on the local crayfish population',
+    );
     expect(entry.reason!.sources).toContainEqual({ kind: 'fact', factId: 'inhabitant:crayfish' });
     expect(entry.reason!.sources).toContainEqual({
       kind: 'map-edge',

@@ -224,6 +224,37 @@ function process(region: ReturnType<typeof fixture>, families: string[]) {
 afterEach(() => vi.restoreAllMocks());
 
 describe('supported settlement daily life', () => {
+  it.each(['bear meat', 'berries', 'milk'])(
+    'uses a complete capitalized raw-food sentence for %s',
+    (name) => {
+      const region = fixture();
+      region.facts.resourceSources[0].resource.name = name;
+      region.facts.resources = region.facts.resources.filter((fact) => fact.id === 'resource:meat');
+      derive(region);
+      const food = region.facts.dailyLife.find((fact) => fact.category === 'staple')!;
+      expect(food.description).toContain(`A supply of ${name} is a qualified raw food opportunity`);
+      const livelihood = region.facts.dailyLife.find((fact) => fact.activityKey === 'hunting')!;
+      expect(livelihood.description).toMatch(/^[A-Z].*\.$/);
+      expect(livelihood.description.toLowerCase()).toContain(
+        `${name} could be obtained by hunting`,
+      );
+    },
+  );
+
+  it.each(['Dried provisions', 'Preserved meat', 'Rendered fat'])(
+    'uses a number-independent product sentence for %s',
+    (name) => {
+      const region = process(fixture(), ['food']);
+      expect(region.facts.products.length).toBeGreaterThan(0);
+      for (const product of region.facts.products) product.name = name;
+      derive(region);
+      const food = region.facts.dailyLife.find(
+        (fact) => fact.category === 'staple' && fact.inputs[0].kind === 'product',
+      )!;
+      expect(food.description).toContain(`A supply of ${name} is a possible preserved food`);
+    },
+  );
+
   it('records bounded distinct foods, materials and fuel with inspectable sources and limited supply', () => {
     const region = fixture();
     const before = structuredClone(region);

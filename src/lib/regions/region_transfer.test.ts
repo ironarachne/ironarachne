@@ -104,7 +104,7 @@ it.each(
     for (const section of regionToExportDocument(payload).sections) {
       expect(printed).toContain(section.heading);
       for (const line of section.lines.flatMap((line) => line.split('\n\n')))
-        expect(printed).toContain(line);
+        expect(printed.replace(/\s+/g, ' ')).toContain(line.replace(/\s+/g, ' '));
     }
   },
   // Each case generates a region and renders the original, imported copy, and publication.

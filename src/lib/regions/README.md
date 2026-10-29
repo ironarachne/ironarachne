@@ -121,7 +121,12 @@ The modules the readiness pass gives every Release-ready tool
   `regionToUiDocument` projects qualified entry headings and descriptive paragraphs for the page:
   h3 sections, h4 entries and h5 adventure hooks. Duplicate headings receive readable qualifiers;
   saved names containing colons and capital identity are preserved. This UI projection does not
-  change the Markdown/PDF text document or saved payloads.
+  change saved payloads. Generated headings and standalone hook sentences use sentence case:
+  only the initial letter is capitalized, preserving the remaining case of literal names.
+  Authored headings and saved hook wording retain their original case. Travel, Notable places
+  and Hazards all separate the explicit stored ` Hook:` marker into a hook paragraph in the
+  page, Markdown and PDF. Generation stores the final sentences; readers never repair old prose
+  or choose new wording. Patch and site directions use compounds such as “southeastern”.
   PDF pagination has no fixed page cap. The illustrative map remains a separate SVG rendered
   from the same snapshot; no new map or facts are generated on export. See
   [region export decisions](../../../docs/region-exports.md).
