@@ -1,3 +1,4 @@
+import { compassPosition } from './region_prose';
 import { riverAssessments } from './region_resource_narrative';
 import { isUsableRegionResource } from './region_resources';
 import { ecologyHarvestRisks } from './region_ecology_relationships';
@@ -10,9 +11,7 @@ import type { FactSource, NotableFact } from './region_fact_types.js';
 function location(node: MapNode, region: Region): string {
   const x = node.center.x / region.map.width;
   const y = node.center.y / region.map.height;
-  const vertical = y < 1 / 3 ? 'northern' : y > 2 / 3 ? 'southern' : '';
-  const horizontal = x < 1 / 3 ? 'western' : x > 2 / 3 ? 'eastern' : '';
-  return [vertical, horizontal].filter(Boolean).join(' ') || 'central';
+  return compassPosition(x, y);
 }
 
 function observation(
@@ -44,7 +43,7 @@ function notable(
     id: `${kind}:${rule}:${node.id}${sources[0]?.kind === 'fact' ? `:${sources[0].factId}` : edges.length ? `:${edges[0].id}` : ''}`,
     kind,
     name,
-    description: `In the ${location(node, region)} part of the region: ${description}`,
+    description: `This site lies in the ${location(node, region)} part of the region. ${description}`,
     origin: 'generated',
     areaIds: region
       .facts!.areas.filter((area) => area.mapNodeIds.includes(node.id))
@@ -67,7 +66,7 @@ function naturalPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
         'landmark',
         'resource-reach',
         `${resource.name} reach`,
-        `${resource.description} Hook: survey access to this source and assess the requirements for its use.`,
+        `${resource.description} Hook: Survey access to this source and assess the requirements for its use.`,
         [{ kind: 'fact', factId: resource.id }],
         edges,
       ),
@@ -83,7 +82,7 @@ function naturalPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
         'landmark',
         'habitat-study',
         `${habitat.name} study site`,
-        `this site lies within the ${habitat.name} habitat. Hook: guide a survey of this habitat and compare it with nearby terrain.`,
+        `This site lies within the ${habitat.name} habitat. Hook: Guide a survey of this habitat and compare it with nearby terrain.`,
         [{ kind: 'fact', factId: habitat.id }],
       ),
     ];
@@ -104,7 +103,7 @@ function inhabitedPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
           'landmark',
           'settlement-approach',
           `${role.name} approach`,
-          `${role.description} Hook: escort travelers to this inhabited site and survey its approach.`,
+          `${role.description} Hook: Escort travelers to this inhabited site and survey its approach.`,
           [{ kind: 'fact', factId: role.id }],
           region.map.edges.filter((edge) => role.anchor.edgeIds.includes(edge.id)),
         ),
@@ -127,7 +126,7 @@ function riverPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
           'landmark',
           'river-meeting',
           road ? 'Road and river meeting' : 'River banks',
-          `${road ? 'a road meets the river here' : 'a river runs through this country'}. Hook: explore the banks and look for a crossing.`,
+          `${road ? 'A road meets the river here' : 'A river runs through this country'}. Hook: Explore the banks and look for a crossing.`,
           [
             {
               kind: 'map-edge',
@@ -160,7 +159,7 @@ function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
           'hazard',
           'high-ground-obstacle',
           'High-ground traverse',
-          'high ground complicates overland route planning. Hook: scout an approach through the high terrain before leading a caravan onward.',
+          'High ground complicates overland route planning. Hook: Scout an approach through the high terrain before leading a caravan onward.',
           [observation(node, 'elevation')],
         ),
       );
@@ -172,7 +171,7 @@ function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
           'hazard',
           'cold-travel',
           'Cold travel country',
-          `freezing temperatures${site.coldestSeason.trim() === '' ? '' : ` during ${site.coldestSeason}`}, making exposure a travel concern. Hook: arrange shelter and supplies for a journey through the cold country.`,
+          `Freezing temperatures${site.coldestSeason.trim() === '' ? '' : ` during ${site.coldestSeason}`} make exposure a travel concern. Hook: Arrange shelter and supplies for a journey through the cold country.`,
           [observation(node, 'temperature'), climateObservation(region)],
         ),
       );
@@ -184,7 +183,7 @@ function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
           'hazard',
           'hot-dry-travel',
           'Hot dry traverse',
-          'heat and dry conditions make water planning a travel concern. Hook: survey water access before attempting this traverse.',
+          'Heat and dry conditions make water planning a travel concern. Hook: Survey water access before attempting this traverse.',
           [
             observation(node, 'temperature'),
             observation(node, 'moisture'),
@@ -204,7 +203,7 @@ function ecologyGatheringHazards(region: Region): NotableFact[] {
       'hazard',
       'ecology-bank-gathering',
       'Hazardous bank gathering',
-      `the freshwater patch used for ${risk.use.name} also supports ${risk.inhabitant.name}. Gathering here calls for care. Hook: scout the banks before bringing gatherers to this site.`,
+      `The freshwater patch used for ${risk.use.name} also supports the local ${risk.inhabitant.name} population. Gathering here calls for care. Hook: Scout the banks before bringing gatherers to this site.`,
       risk.sources,
     ),
   );

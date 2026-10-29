@@ -169,7 +169,8 @@ export function ecologyCandidatesFor(
       category,
       roles: [...roles],
       description:
-        rule?.description ?? `${name} occur in the supported land patches of the listed habitats.`,
+        rule?.description ??
+        `The local ${name} population occurs in the supported land patches of the listed habitats.`,
       ruleId: `fantasy:region:ecology:${encodeURIComponent(name)}:v1`,
       sources,
       nodeSources: new Map([[patch.node.id, [...sources]]]),
@@ -237,7 +238,7 @@ export function ecologyCandidatesFor(
           category: producer.category,
           roles: producer.roles,
           occurrenceForm: producer.form,
-          description: `A supported ${producer.form} of ${producer.name}. Presence does not imply domestication or harvest.`,
+          description: `A local ${producer.name} ${producer.form} is supported here. Presence does not imply domestication or harvest.`,
           ruleId: 'fantasy:region:reviewed-occurrence:v1',
           sources,
           nodeSources: new Map([[patch.node.id, sources]]),

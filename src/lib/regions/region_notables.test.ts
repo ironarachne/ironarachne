@@ -282,6 +282,9 @@ describe('seasonal climate hazards', () => {
     } as never;
     const places = derive(region);
     expect(places.map((place) => place.name)).toContain('Cold travel country');
+    expect(places.find((place) => place.name === 'Cold travel country')!.description).toContain(
+      'Freezing temperatures during winter make exposure a travel concern. Hook: Arrange',
+    );
     expect(places.map((place) => place.name)).not.toContain('Hot dry traverse');
   });
 

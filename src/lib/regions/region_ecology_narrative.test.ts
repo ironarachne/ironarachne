@@ -90,6 +90,36 @@ function compose(seed = 'paragraph') {
 }
 
 describe('regional ecology narrative', () => {
+  it.each(['elm tree', 'rabbit', 'reeds', 'moss'])(
+    'keeps every relationship template grammatical for %s',
+    (name) => {
+      for (const kind of [
+        'used-by',
+        'feeds-on',
+        'pollinates',
+        'pest-of',
+        'competes-with',
+      ] as const) {
+        const texts = new Set<string>();
+        for (let index = 0; index < 40; index++) {
+          const region = fixture();
+          region.facts.ecologyInhabitants[0].name = name;
+          if (kind !== 'used-by')
+            region.facts.ecologyRelationships[0].relation = { kind, targetId: 'deer' };
+          generateEcologyNarrative(region, new RNG(`grammar:${index}`));
+          const text = summary(region)!.description;
+          expect(text).not.toContain(`population of ${name}`);
+          expect(text).not.toContain(`food for ${name}`);
+          expect(text).toContain(name);
+          expect(text).toContain('population');
+          expect(text).toMatch(/^[A-Z].*\.$/);
+          texts.add(text);
+        }
+        expect(texts.size).toBe(kind === 'used-by' ? 3 : 2);
+      }
+    },
+  );
+
   it('explains local use and location, omitting presence alone', () => {
     const region = compose();
     expect(summary(region)?.description).toMatch(/reeds.*Silver Marsh|Silver Marsh.*reeds/);

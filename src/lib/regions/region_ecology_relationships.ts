@@ -150,7 +150,7 @@ function feedingCandidates(
           relationship(
             `${rule.id}:${encodeURIComponent(subject.inhabitant.id)}:${encodeURIComponent(target.inhabitant.id)}:${encodeURIComponent(habitat.id)}`,
             `${subject.inhabitant.name} feeding`,
-            `Food for ${subject.inhabitant.name}: ${target.inhabitant.name}, where both occur in ${habitat.name}.${seasonal.text}`,
+            `The local ${subject.inhabitant.name} population feeds on the local ${target.inhabitant.name} population where both occur in ${habitat.name}.${seasonal.text}`,
             subject.inhabitant,
             habitat,
             { kind: 'feeds-on', targetId: target.inhabitant.id },

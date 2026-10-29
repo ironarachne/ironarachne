@@ -1,3 +1,4 @@
+import { sentenceCase } from './region_prose';
 import { productContext } from '$lib/resources';
 import { assessRawSourceFood, assessRegionProductFood } from './region_food';
 import type { RNG } from '@ironarachne/rng';
@@ -77,7 +78,7 @@ function candidatesFor(
     results.push({
       id: `daily-life:${id}`,
       name,
-      description: `${text}${limited ? ' Potential sources are limited.' : ''}`,
+      description: `${sentenceCase(text)}${limited ? ' Potential sources are limited.' : ''}`,
       origin: 'generated',
       category,
       activityKey,
@@ -144,7 +145,7 @@ function candidatesFor(
         'staple',
         `raw-food-${source.resource.id}`,
         label,
-        `${label} is a qualified raw food opportunity; handling and preparation remain necessary.${assumption}`,
+        `A supply of ${label} is a qualified raw food opportunity; handling and preparation remain necessary.${assumption}`,
         inputs,
       );
     }
@@ -267,7 +268,7 @@ function candidatesFor(
         'building-material',
         `building-${product.productKey}`,
         product.name,
-        `${product.name} is a possible building material if processed at the settlement.`,
+        `A supply of ${product.name} is a possible building material if processed at the settlement.`,
         inputs,
       );
     if (context.uses.includes('fuel'))
@@ -275,7 +276,7 @@ function candidatesFor(
         'fuel',
         'charcoal-fuel',
         product.name,
-        `${product.name} is a possible fuel through wood processing.`,
+        `A supply of ${product.name} is a possible fuel through wood processing.`,
         inputs,
       );
     if (
@@ -286,7 +287,7 @@ function candidatesFor(
         'staple',
         `food-${product.productKey}`,
         product.name,
-        `${product.name} is a possible ${context.uses.includes('preserved-food') ? 'preserved' : 'prepared'} food if processed at the settlement.`,
+        `A supply of ${product.name} is a possible ${context.uses.includes('preserved-food') ? 'preserved' : 'prepared'} food if processed at the settlement.`,
         inputs,
       );
   }

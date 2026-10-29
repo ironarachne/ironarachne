@@ -90,6 +90,29 @@ function derive(
   return region.facts.ecologyInhabitants;
 }
 
+describe('fallback population grammar', () => {
+  it.each(['bear', 'elm tree', 'wildflowers', 'moss'])(
+    'uses a complete number-independent occurrence sentence for %s',
+    (name) => {
+      const region = fixture([node(1, 'forest')]);
+      const inhabitants = derive(region, {
+        biomes: [
+          {
+            ...BiomeClassifications.getByName('temperate deciduous forest'),
+            name: 'forest',
+            vegetationTypes: [name],
+            faunaTypes: [],
+          },
+        ],
+        species: [],
+      });
+      expect(inhabitants.find((fact) => fact.name === name)?.description).toBe(
+        `The local ${name} population occurs in the supported land patches of the listed habitats.`,
+      );
+    },
+  );
+});
+
 describe('regional inhabitants', () => {
   it('grounds wetland flora, fauna and optional fantasy life in the same wet river bank', () => {
     const region = wetFixture();

@@ -1,3 +1,4 @@
+import { sentenceCase, regionHook, REGION_HOOK_SECTIONS } from './region_prose';
 import { title, getOrdinal } from '@ironarachne/words';
 import {
   describeRuler,
@@ -83,15 +84,17 @@ function factHeading(snapshot: RegionSnapshot, section: string, fact: FactBase):
   if (section === 'Flora and fauna') return '';
   if (section === 'Landscape' && fact.id === 'area:land') return '';
   const name = displayName(fact.name, 'an Unnamed Feature');
-  if (section === 'Regional identity') return `The ${title(name)}`;
+  if (section === 'Regional identity') return `The ${name}`;
   if (section === 'Landscape')
     return fact.origin !== 'authored' &&
       snapshot.facts.habitats.some((habitat) => habitat.id === fact.id)
       ? landscapeSummaryHeading(fact.name)
-      : name;
+      : fact.origin === 'authored'
+        ? name
+        : sentenceCase(name);
   if (section === 'Travel') {
     const route = snapshot.facts.routes.find((entry) => entry.id === fact.id)!;
-    return `The ${title(name)} from ${endpointName(snapshot, route.endpoints[0])} to ${endpointName(snapshot, route.endpoints[1])}`;
+    return `The ${name} from ${endpointName(snapshot, route.endpoints[0])} to ${endpointName(snapshot, route.endpoints[1])}`;
   }
   const qualifiers: Record<string, string> = {
     Landscape: 'Landscape',
@@ -109,16 +112,8 @@ function factEntry(snapshot: RegionSnapshot, section: string, fact: FactBase): R
       : undefined;
   const body = fact.description.trim();
   const heading = factHeading(snapshot, section, fact);
-  // A stored notable's explicitly labeled hook is a subheading, not part of its title.
-  const hookIndex = ['Notable places', 'Hazards'].includes(section) ? body.indexOf(' Hook:') : -1;
-  if (hookIndex < 0) return { heading, body, factId: fact.id, warning };
-  return {
-    heading,
-    body: body.slice(0, hookIndex),
-    factId: fact.id,
-    warning,
-    hook: body.slice(hookIndex + ' Hook:'.length).trim(),
-  };
+  const text = REGION_HOOK_SECTIONS.includes(section) ? regionHook(body) : { body };
+  return { heading, ...text, factId: fact.id, warning };
 }
 
 /** Build heading/body pairs from source fields, never by splitting names or prose at a colon. */
