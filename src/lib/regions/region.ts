@@ -26,6 +26,7 @@ export default interface Region {
   settlements: Settlement[];
   /** Local identities survive a snapshot read and subsequent edit/save cycle. */
   settlementIds?: string[];
+  settlementDescriptionReasons?: Record<string, FactReason>;
   facts?: RegionFacts;
   affiliation: RegionAffiliation;
   mainRealm: number | null;

@@ -586,3 +586,16 @@ Direct aquatic livelihoods retain settlement-site shore access. Processing retai
 collection access; daily-life/supply validation of processed products still applies the stricter
 shore rule to raw aquatic leaves. This existing distant-shore product limitation is documented
 in [the shellfish correction](../../../docs/shellfish-harvesting.md).
+
+### Declared settlement activities (#443)
+
+`facts.activities` establishes actual household practices, separately from possible daily life and
+processing chains. `generateSettlementActivities` follows livelihoods and precedes supply, preserving
+upstream RNG streams. Compatible local chains or explicit typed imports support crafts; actual
+managed cultivation supports plots. Missing inventory establishes neither activity nor absence.
+
+Descriptions record `RegionSettlement.descriptionReason`. Resource edits stale generated dependent
+prose; authored activity and description edits survive save/load/export. The editor exposes activity
+text and removal, and the evidence inspector retains stale descriptions. Facts version 12 and region
+payload version 17 migrate older saves without inferring activities or rewriting their prose.
+See [the approved design](../../../docs/region-settlement-activities.md).

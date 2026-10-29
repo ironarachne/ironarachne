@@ -1,3 +1,5 @@
+import { activityEvidenceCurrent } from './region_activity_support';
+import type { SettlementActivityFact } from './region_activity_types';
 import { sourceSpecificSummaryIds } from './region_evidence';
 import type { FactBase, FactSource } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
@@ -83,6 +85,11 @@ export function createRegionEvidenceChecker(snapshot: EvidenceContext) {
     if (path.has(entry.id) || entry.reason?.status === 'stale') return false;
     const cached = checked.get(entry.id);
     if (cached !== undefined) return cached;
+    if (
+      'support' in entry &&
+      !activityEvidenceCurrent(snapshot.facts, snapshot.map, entry as SettlementActivityFact)
+    )
+      return false;
     if (!entry.reason) return entry.origin !== 'generated';
     const next = new Set(path).add(entry.id);
     const sources = [

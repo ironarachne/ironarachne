@@ -269,22 +269,26 @@
       </fieldset>
     {/each}
 
-    {#each ['managedProduction', 'resourceSources'] as list}
-      {#each region.facts[list as 'managedProduction' | 'resourceSources'] as fact, index (fact.id)}
+    {#each ['managedProduction', 'resourceSources', 'activities'] as list}
+      {#each region.facts[list as 'managedProduction' | 'resourceSources' | 'activities'] as fact, index (fact.id)}
         <fieldset>
           <legend
-            >{list === 'managedProduction' ? 'Managed production' : 'Raw source'}
+            >{list === 'managedProduction'
+              ? 'Managed production'
+              : list === 'activities'
+                ? 'Activity'
+                : 'Raw source'}
             {index + 1}</legend
           >
           {@render textRow(
             `${uid}-${fact.id}-name`,
-            `${list === 'managedProduction' ? 'Managed production' : 'Raw source'} ${index + 1} name`,
+            `${list === 'managedProduction' ? 'Managed production' : list === 'activities' ? 'Activity' : 'Raw source'} ${index + 1} name`,
             fact.name,
             (next) =>
               edit((current) =>
                 setRegionResourceFactText(
                   current,
-                  list as 'managedProduction' | 'resourceSources',
+                  list as 'managedProduction' | 'resourceSources' | 'activities',
                   fact.id,
                   'name',
                   next,
@@ -293,7 +297,11 @@
           )}
           <div class="input-group">
             <label for={`${uid}-${fact.id}-description`}
-              >{list === 'managedProduction' ? 'Managed production' : 'Raw source'}
+              >{list === 'managedProduction'
+                ? 'Managed production'
+                : list === 'activities'
+                  ? 'Activity'
+                  : 'Raw source'}
               {index + 1} description</label
             ><textarea
               id={`${uid}-${fact.id}-description`}
@@ -302,7 +310,7 @@
                 edit((current) =>
                   setRegionResourceFactText(
                     current,
-                    list as 'managedProduction' | 'resourceSources',
+                    list as 'managedProduction' | 'resourceSources' | 'activities',
                     fact.id,
                     'description',
                     event.currentTarget.value,
@@ -313,21 +321,25 @@
           <BaseButton
             disabled={removeRegionResourceFact(
               region,
-              list as 'managedProduction' | 'resourceSources',
+              list as 'managedProduction' | 'resourceSources' | 'activities',
               fact.id,
             ) === region}
             onclick={() =>
               edit((current) =>
                 removeRegionResourceFact(
                   current,
-                  list as 'managedProduction' | 'resourceSources',
+                  list as 'managedProduction' | 'resourceSources' | 'activities',
                   fact.id,
                 ),
               )}
-            >Remove {list === 'managedProduction' ? 'managed production' : 'raw source'}
+            >Remove {list === 'managedProduction'
+              ? 'managed production'
+              : list === 'activities'
+                ? 'activity'
+                : 'raw source'}
             {index + 1}</BaseButton
           >
-          {#if removeRegionResourceFact(region, list as 'managedProduction' | 'resourceSources', fact.id) === region}<p
+          {#if removeRegionResourceFact(region, list as 'managedProduction' | 'resourceSources' | 'activities', fact.id) === region}<p
               class="region-editor__note"
             >
               Authored work depends on this record, so it cannot be removed here.

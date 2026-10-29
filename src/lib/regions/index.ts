@@ -69,3 +69,7 @@ export { regionInspectionFacts, regionOverviewCurrent } from './region_narrative
 export { regionSourceQualifications } from './region_source_presentation';
 
 export { generateManagedProduction, finalizeResourceInventory } from './region_managed_production';
+
+export type * from './region_activity_types';
+export { generateSettlementActivities } from './region_activities';
+export { activityEvidenceCurrent } from './region_activity_support';

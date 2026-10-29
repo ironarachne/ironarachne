@@ -6,6 +6,7 @@ import type {
   ProcessingInput,
   PlannedProduct,
   RegionProcessingCatalog,
+  ProcessingPlanSite,
 } from './region_processing_types';
 import {
   accessibleProcessingResources,
@@ -29,7 +30,6 @@ export function generateProcessingFacts(
   const facts = region.facts;
   if (!facts) return;
   const recipes = processingRecipes(catalog.recipes);
-  const byOutput = new Map(recipes.map((entry) => [entry.outputKey, entry]));
   const consumed = new Set(
     recipes.flatMap((recipe) =>
       recipe.inputs.flatMap(({ selector }) =>
@@ -130,7 +130,55 @@ export function generateProcessingFacts(
       selected.set(productId(candidate.id, product.productKey), { candidate, product });
     count++;
   }
-  for (const [id, { candidate, product }] of selected) {
+  for (const { candidate, product } of selected.values())
+    recordProcessingPlan(region, candidate, [product], catalog);
+}
+
+export function processingProductId(settlementId: string, key: string): string {
+  return `product:${encodeURIComponent(settlementId)}:${encodeURIComponent(key)}`;
+}
+
+/** Save a complete plan atomically; never replace a previously selected or authored product. */
+export function recordProcessingPlan(
+  region: Pick<Region, 'facts'>,
+  candidate: ProcessingPlanSite,
+  products: PlannedProduct[],
+  catalog: RegionProcessingCatalog,
+): boolean {
+  const facts = region.facts;
+  if (!facts) return false;
+  const ids = new Set([
+    ...facts.products.map((entry) => entry.id),
+    ...products.map((product) => processingProductId(candidate.id, product.productKey)),
+  ]);
+  if (ids.size > PROCESSING_MAX_PRODUCTS) return false;
+  const byOutput = new Map(catalog.recipes.map((recipe) => [recipe.outputKey, recipe]));
+  const productId = processingProductId;
+  for (const product of products) {
+    const previous = facts.products.find(
+      (entry) => entry.id === productId(candidate.id, product.productKey),
+    );
+    const inputs = product.inputs.map((input) =>
+      input.kind === 'product'
+        ? {
+            kind: 'product',
+            role: input.role,
+            foodUse: input.foodUse,
+            productId: productId(candidate.id, input.productKey),
+          }
+        : input,
+    );
+    if (
+      !byOutput.has(product.productKey) ||
+      (previous &&
+        (previous.recipeId !== product.recipeId ||
+          JSON.stringify(previous.inputs) !== JSON.stringify(inputs)))
+    )
+      return false;
+  }
+  for (const product of products) {
+    const id = productId(candidate.id, product.productKey);
+    if (facts.products.some((entry) => entry.id === id)) continue;
     const recipe = byOutput.get(product.productKey)!;
     const inputs: ProcessingInput[] = product.inputs.map((input) =>
       input.kind === 'product'
@@ -192,4 +240,5 @@ export function generateProcessingFacts(
       },
     });
   }
+  return true;
 }

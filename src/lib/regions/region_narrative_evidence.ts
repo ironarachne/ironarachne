@@ -1,3 +1,4 @@
+import { activityEvidenceCurrent } from './region_activity_support';
 import type { RegionSemanticFact } from './region_resource_types';
 import type { FactBase, FactReason } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
@@ -11,6 +12,15 @@ type Context = Pick<RegionSnapshot, 'facts' | 'map' | 'environment'>;
 /** Legacy and authored words remain verbatim; current generated words require their evidence. */
 export function regionFactReadable(context: Context, fact: FactBase): boolean {
   if (fact.origin === 'authored') return true;
+  if (
+    'support' in fact &&
+    !activityEvidenceCurrent(
+      context.facts,
+      context.map,
+      fact as import('./region_activity_types').SettlementActivityFact,
+    )
+  )
+    return false;
   if (
     fact.assessments === undefined &&
     !context.facts.resources.some((entry) => entry.assessments !== undefined)
@@ -43,15 +53,27 @@ export function regionReadingSnapshot(snapshot: RegionSnapshot): RegionSnapshot 
   const current = createRegionEvidenceChecker(snapshot);
   const modern =
     snapshot.overviewReason !== undefined ||
+    snapshot.settlements.some((entry) => entry.descriptionReason !== undefined) ||
     snapshot.facts.resources.some((fact) => fact.assessments !== undefined);
   const readable = (fact: FactBase) =>
     fact.origin === 'authored' ||
-    !modern ||
-    ((fact.assessments === undefined ||
-      fact.assessments.some((entry) => entry.status !== 'unknown')) &&
-      current(fact));
+    ((!('support' in fact) ||
+      activityEvidenceCurrent(
+        snapshot.facts,
+        snapshot.map,
+        fact as import('./region_activity_types').SettlementActivityFact,
+      )) &&
+      (!modern ||
+        ((fact.assessments === undefined ||
+          fact.assessments.some((entry) => entry.status !== 'unknown')) &&
+          current(fact))));
   return {
     ...snapshot,
+    settlements: snapshot.settlements.map((entry) =>
+      regionOverviewCurrent(snapshot, entry.descriptionReason)
+        ? entry
+        : { ...entry, snapshot: { ...entry.snapshot, description: '' } },
+    ),
     facts: {
       ...snapshot.facts,
       ...Object.fromEntries(

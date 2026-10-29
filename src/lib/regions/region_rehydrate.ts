@@ -86,6 +86,11 @@ export function regionFromSnapshot(snapshot: RegionSnapshot, rng: RNG): Region {
       settlementFromSnapshot(settlement),
     ),
     settlementIds: snapshot.settlements.map(({ id }) => id),
+    settlementDescriptionReasons: Object.fromEntries(
+      snapshot.settlements.flatMap(({ id, descriptionReason }) =>
+        descriptionReason ? [[id, descriptionReason]] : [],
+      ),
+    ),
     facts: snapshot.facts,
     mainRealm: snapshot.mainRealm,
     realms: snapshot.realms.map(realmFromStored),

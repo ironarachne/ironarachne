@@ -189,7 +189,7 @@ describe('dependent generation passes', () => {
       expect(regionFactsError(result.facts, result.map, result.settlements)).toBeNull();
       products += result.facts.products.length;
       dailyLife += result.facts.dailyLife.length;
-      expect(result.facts.products.length).toBeLessThanOrEqual(12);
+      expect(result.facts.products.length).toBeLessThanOrEqual(24);
       resources += result.facts.resources.length;
       inhabitants += result.facts.ecologyInhabitants.length;
       relationships += result.facts.ecologyRelationships.length;

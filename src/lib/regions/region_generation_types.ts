@@ -17,6 +17,7 @@ export type RegionGenerationStage =
   | 'resource-inventory'
   | 'processing'
   | 'livelihoods'
+  | 'settlement-activities'
   | 'supply'
   | 'resources'
   | 'affiliation'

@@ -116,20 +116,38 @@ function settlementRemovalDependencies(
     (entry) =>
       entry.settlement.kind === 'embedded' && entry.settlement.settlementId === settlementId,
   );
+  const activities = snapshot.facts.activities.filter(
+    (entry) =>
+      entry.settlement.kind === 'embedded' && entry.settlement.settlementId === settlementId,
+  );
   const production = snapshot.facts.managedProduction.filter(
     (entry) =>
       entry.settlement.kind === 'embedded' && entry.settlement.settlementId === settlementId,
   );
   if (
-    [...roles, ...routes, ...uses, ...products, ...dailyLife, ...supply, ...production].some(
-      (fact) => fact.origin === 'authored',
-    )
+    [
+      ...roles,
+      ...routes,
+      ...uses,
+      ...products,
+      ...dailyLife,
+      ...supply,
+      ...production,
+      ...activities,
+    ].some((fact) => fact.origin === 'authored')
   )
     return null;
   const removedIds = new Set(
-    [...roles, ...routes, ...uses, ...products, ...dailyLife, ...supply, ...production].map(
-      (fact) => fact.id,
-    ),
+    [
+      ...roles,
+      ...routes,
+      ...uses,
+      ...products,
+      ...dailyLife,
+      ...supply,
+      ...production,
+      ...activities,
+    ].map((fact) => fact.id),
   );
   const all = regionSemanticFactLists.flatMap<RegionSemanticFact>((key) => snapshot.facts[key]);
   while (true) {
@@ -238,6 +256,7 @@ export function setRegionPlaceText(
           facts: staleSettlementExplanations(snapshot, index),
           settlements: replaceAt(snapshot.settlements, index, {
             ...snapshot.settlements[index],
+            ...(field === 'description' ? { descriptionReason: undefined } : {}),
             snapshot: { ...snapshot.settlements[index].snapshot, [field]: value },
           }),
         })

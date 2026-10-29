@@ -1,3 +1,4 @@
+export { generateSettlementActivities } from './region_activities';
 export { generateSupplyFacts } from './region_supply';
 export { generateProcessingFacts } from './region_processing';
 export { generateLivelihoodFacts } from './region_livelihoods';

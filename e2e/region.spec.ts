@@ -97,6 +97,40 @@ test.describe('a region', () => {
     await createProject(page, 'The Marches');
   });
 
+  test('keeps declared activities and description evidence through editing and reopening', async ({
+    page,
+  }) => {
+    await openGenerator(page);
+    await page.getByLabel('Seed', { exact: true }).fill('5wyedz5q272fz');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    const evidence = page.locator('details.inspection');
+    await evidence.locator(':scope > summary').click();
+    await expect(evidence).toContainText('description evidence');
+    await expect(evidence).toContainText('activityKey');
+    await saveAs(page, 'Declared Work');
+    const panel = await openInWorkshop(page, 'Declared Work');
+    const description = panel.getByLabel('Activity 1 description', { exact: true });
+    await expect(description).toBeVisible();
+    await description.fill('The household craft tradition described by the referee.');
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+    await page.reload({ waitUntil: 'load' });
+    const reopened = await openInWorkshop(page, 'Declared Work');
+    await expect(reopened.getByLabel('Activity 1 description', { exact: true })).toHaveValue(
+      'The household craft tradition described by the referee.',
+    );
+    const removeButtons = reopened.getByRole('button', {
+      name: /Remove settlement \d+ from this region/,
+    });
+    expect(
+      await removeButtons.evaluateAll((buttons) =>
+        buttons.some((button) => (button as HTMLButtonElement).disabled),
+      ),
+    ).toBe(true);
+    await expectNoHorizontalOverflow(page);
+  });
+
   test('keeps qualified raw source evidence through editing, saving and reopening', async ({
     page,
   }) => {

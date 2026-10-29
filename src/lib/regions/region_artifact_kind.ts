@@ -36,8 +36,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 16 adds saved product context and explicit settlement-water inputs without backfilling either. */
-export const REGION_PAYLOAD_VERSION = 16 as const;
+/** Version 17 adds declared activities, description provenance and typed import requirements. */
+export const REGION_PAYLOAD_VERSION = 17 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -201,6 +201,17 @@ export function validateRegionSnapshot(payload: unknown): PayloadResult<RegionSn
     new Set(regionSemanticFactLists.flatMap((key) => facts[key].map((fact) => fact.id))),
   );
   if (overviewError) return rejectedPayload('invalid-payload', overviewError);
+  const factIds = new Set(
+    regionSemanticFactLists.flatMap((key) => facts[key].map((fact) => fact.id)),
+  );
+  for (const entry of settlements) {
+    const error = regionOverviewReasonError(
+      entry.descriptionReason,
+      record.map as RegionSnapshot['map'],
+      factIds,
+    );
+    if (error) return rejectedPayload('invalid-payload', `settlement description: ${error}`);
+  }
 
   return acceptedPayload(record as unknown as RegionSnapshot);
 }
@@ -398,10 +409,16 @@ function validateMigratedRegionSnapshot(payload: unknown): PayloadResult<RegionS
       : payload;
   const next = asRecord(upgraded);
   const nextFacts = asRecord(next?.facts);
-  return validateRegionSnapshot(
+  const withProducts =
     next && nextFacts?.version === 10
       ? { ...next, facts: { ...nextFacts, version: 11 } }
-      : upgraded,
+      : upgraded;
+  const latest = asRecord(withProducts);
+  const latestFacts = asRecord(latest?.facts);
+  return validateRegionSnapshot(
+    latest && latestFacts?.version === 11
+      ? { ...latest, facts: { ...latestFacts, version: 12, activities: [] } }
+      : withProducts,
   );
 }
 
@@ -410,7 +427,7 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (!Number.isInteger(from) || from < 1 || from > 15)
+  if (!Number.isInteger(from) || from < 1 || from > 16)
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,
@@ -424,6 +441,8 @@ export function migrateRegionSnapshot(
     return rejectedPayload('unsupported-version', 'Version 11 requires region facts version 6');
   if (from === 13 && asRecord(record?.facts)?.version !== 8)
     return rejectedPayload('unsupported-version', 'Version 13 requires region facts version 8');
+  if (from === 16 && asRecord(record?.facts)?.version !== 11)
+    return rejectedPayload('unsupported-version', 'Version 16 requires region facts version 11');
   if (from === 15 && asRecord(record?.facts)?.version !== 10)
     return rejectedPayload('unsupported-version', 'Version 15 requires region facts version 10');
   if (from === 14 && asRecord(record?.facts)?.version !== 9)

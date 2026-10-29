@@ -160,6 +160,8 @@ describe('regional evidence and prose', () => {
     expect(toRegionSnapshot(regionFromSnapshot(json, new RNG('reopen')))).toEqual(saved);
     const old = structuredClone(saved);
     delete old.overviewReason;
+    old.facts.activities = [];
+    for (const entry of old.settlements) delete entry.descriptionReason;
     for (const fact of regionInspectionFacts(old)) delete fact.assessments;
     old.description = 'Old technical prose: unverified.';
     old.facts.managedProduction = [];

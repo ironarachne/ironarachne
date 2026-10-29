@@ -1,6 +1,6 @@
 import { sourceSpecificSummaryIds } from './region_evidence';
 import { regionContextEvidenceCurrent } from './region_context_evidence';
-import type { FactBase, RegionFacts } from './region_fact_types';
+import type { RegionFacts } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
 import type { RegionResourceFactList, RegionSemanticFact } from './region_resource_types';
 import { regionSemanticFactLists } from './region_fact_lists';
@@ -18,16 +18,23 @@ export function regionFactTargets(fact: RegionSemanticFact): string[] {
       if (endpoint.kind === 'notable') direct.push(endpoint.notableId);
   if ('relation' in fact && 'targetId' in fact.relation) direct.push(fact.relation.targetId);
   if ('siteRoleId' in fact) direct.push(fact.siteRoleId, ...fact.areaIds);
-  if ('inputs' in fact)
-    for (const input of fact.inputs) {
-      if (input.kind === 'resource')
-        direct.push(
-          input.resourceId,
-          ...('sourceId' in input && input.sourceId ? [input.sourceId] : []),
-          ...input.depositIds,
-        );
-      if (input.kind === 'product') direct.push(input.productId);
-    }
+  if ('support' in fact && fact.support.kind !== 'unknown')
+    direct.push(...fact.support.productionIds);
+  const inputs =
+    'inputs' in fact
+      ? fact.inputs
+      : 'support' in fact && fact.support.kind !== 'unknown'
+        ? fact.support.inputs
+        : [];
+  for (const input of inputs) {
+    if (input.kind === 'resource')
+      direct.push(
+        input.resourceId,
+        ...('sourceId' in input && input.sourceId ? [input.sourceId] : []),
+        ...input.depositIds,
+      );
+    if (input.kind === 'product') direct.push(input.productId);
+  }
   if ('resourceIds' in fact) direct.push(...fact.resourceIds, ...fact.productIds);
   if ('geologyId' in fact) direct.push(fact.geologyId);
   if ('depositIds' in fact) direct.push(...fact.depositIds);
@@ -51,7 +58,10 @@ export function regionFactTargets(fact: RegionSemanticFact): string[] {
 export function staleRegionFactDependents(facts: RegionFacts, changed: Set<string>): RegionFacts {
   // Negative assessments depend on inventory membership, including newly added sources.
   const inventoryChanged = [...changed].some((id) => !id.startsWith('supply:'));
-  if (inventoryChanged) for (const fact of facts.supply) changed.add(fact.id);
+  if (inventoryChanged) {
+    for (const fact of facts.supply) changed.add(fact.id);
+    for (const fact of facts.activities) if (fact.support.kind === 'unknown') changed.add(fact.id);
+  }
   const explicit = new Set(changed);
   const all = lists.flatMap<RegionSemanticFact>((list) => facts[list]);
   let grew = true;
@@ -75,10 +85,19 @@ export function staleRegionFactDependents(facts: RegionFacts, changed: Set<strin
     ...Object.fromEntries(
       lists.map((list) => [
         list,
-        facts[list].map((fact: FactBase) =>
+        facts[list].map((fact: RegionSemanticFact) =>
           changed.has(fact.id) && fact.reason
             ? { ...fact, reason: { ...fact.reason, status: 'stale' } }
-            : fact,
+            : changed.has(fact.id) && 'support' in fact && fact.support.kind === 'unknown'
+              ? {
+                  ...fact,
+                  reason: {
+                    ruleId: 'authored:activity-support-review:v1',
+                    status: 'stale',
+                    sources: [{ kind: 'fact', factId: fact.siteRoleId }],
+                  },
+                }
+              : fact,
         ),
       ]),
     ),
@@ -197,6 +216,22 @@ export function removeRegionResourceFact(
 }
 
 export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnapshot {
+  snapshot = {
+    ...snapshot,
+    settlements: snapshot.settlements.map((entry) => {
+      const reason = entry.descriptionReason;
+      return !reason ||
+        regionContextEvidenceCurrent(snapshot, {
+          id: `description:${entry.id}`,
+          name: '',
+          description: '',
+          origin: 'generated',
+          reason,
+        })
+        ? entry
+        : { ...entry, descriptionReason: { ...reason, status: 'stale' } };
+    }),
+  };
   const reason = snapshot.overviewReason;
   if (
     !reason ||

@@ -368,6 +368,7 @@ describe('complete gazetteer exports', () => {
           {
             ...snapshot.facts.habitats[0],
             name: 'Final fact',
+            origin: 'authored' as const,
             description: 'END OF SAVED DETAIL',
             reason: undefined,
           },
@@ -617,6 +618,8 @@ describe('sourcebook gazetteer', () => {
     const edited = {
       ...snapshot,
       overviewReason: undefined,
+      // Legacy fixtures have no provenance from the modern settlement composer.
+      settlements: snapshot.settlements.map(({ descriptionReason: _reason, ...entry }) => entry),
       facts: { ...emptyRegionFacts('legacy'), habitats: [fact] },
     };
     for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {

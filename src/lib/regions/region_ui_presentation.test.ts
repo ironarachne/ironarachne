@@ -185,6 +185,7 @@ describe('region entry headings', () => {
     const edited = structuredClone(snapshot);
     edited.facts = emptyRegionFacts('legacy');
     const original = edited.settlements[0];
+    delete original.descriptionReason;
     original.snapshot.name = 'Shadowreach: Old Quarter';
     original.snapshot.description =
       'An old city: its streets follow the river. A market fills the square.';
