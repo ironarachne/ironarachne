@@ -20,3 +20,6 @@ export * from './settlement_presentation';
 export * from './settlement_rehydrate';
 export * from './settlement_roll';
 export * from './settlement_snapshot';
+
+export type * from './settlement_feature_types';
+export * from './settlement_features';

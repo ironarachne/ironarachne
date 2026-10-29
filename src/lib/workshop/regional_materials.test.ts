@@ -154,6 +154,8 @@ describe('regional material persistence and resolution', () => {
       ...adapted.facts.dailyLife,
       ...adapted.facts.products,
       ...adapted.facts.supply,
+      ...adapted.facts.activities,
+      ...adapted.facts.managedProduction,
     ]) {
       if (role.settlement.kind === 'embedded' && role.settlement.settlementId === embedded)
         role.settlement = link.sourceSettlement;

@@ -358,6 +358,7 @@ describe('regional ecology narrative', () => {
   it('uses a deterministic, bounded legacy paragraph without rewriting saved text', () => {
     const saved = toRegionSnapshot(fixture());
     delete saved.overviewReason;
+    for (const entry of saved.settlements) delete entry.descriptionReason;
     const before = structuredClone(saved);
     const text = legacyEcologyParagraph(saved);
     expect(text).toBe(saved.facts.ecologyRelationships[0].description);

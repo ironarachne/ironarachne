@@ -32,6 +32,7 @@ import {
   generateProcessingFacts,
   generateLivelihoodFacts,
   generateSupplyFacts,
+  generateSettlementActivities,
   generateHabitationFacts,
   generateNotableFacts,
   generateRegionIdentity,
@@ -339,6 +340,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   finalizeResourceInventory(region, createRegionStageRng(seed, 'resource-inventory'));
   generateProcessingFacts(region, createRegionStageRng(seed, 'processing'));
   generateLivelihoodFacts(region, createRegionStageRng(seed, 'livelihoods'));
+  generateSettlementActivities(region, createRegionStageRng(seed, 'settlement-activities'));
   generateSupplyFacts(region, createRegionStageRng(seed, 'supply'));
   generateNotableFacts(region, createRegionStageRng(seed, 'notable-places'), forestLandmark);
   generateEcologyNarrative(region, createRegionStageRng(seed, 'ecology-narrative'));
@@ -529,6 +531,9 @@ function randomSettlements(
     settlementGenConfig.size = size;
     settlementGenConfig.environment =
       node === undefined ? environment : siteEnvironment(environment, node, latitude, rng);
+    // Compatibility draws: keep the legacy composer on the habitation stream so moving
+    // final regional prose to settlement-activities cannot move names, organizations or realms.
+    // Its unchecked category/biome sentences are replaced before the region is returned.
     const town = Settlements.generate(settlementGenConfig);
     if (index === 0 && affiliated) town.description += ' This is the capital of the region.';
     if (node !== undefined) {

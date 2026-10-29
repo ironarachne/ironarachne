@@ -336,6 +336,8 @@ describe('settlement removal with ecological uses', () => {
   it('removes generated uses and their claims while preserving inhabitants, and protects authored uses', () => {
     const saved = structuredClone(snapshot);
     delete saved.overviewReason;
+    saved.facts.activities = [];
+    for (const entry of saved.settlements) delete entry.descriptionReason;
     saved.facts.products = [];
     saved.facts.dailyLife = [];
     saved.facts.supply = [];

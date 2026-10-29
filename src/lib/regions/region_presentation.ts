@@ -138,6 +138,7 @@ export function regionSettlementEntries(snapshot: RegionSnapshot) {
   );
   const modern =
     snapshot.overviewReason !== undefined ||
+    snapshot.settlements.some((entry) => entry.descriptionReason !== undefined) ||
     snapshot.facts.resources.some((fact) => fact.assessments !== undefined);
   const supply = representativeFacts(
     snapshot.facts.supply.filter(
@@ -152,7 +153,7 @@ export function regionSettlementEntries(snapshot: RegionSnapshot) {
     kind: 'embedded',
     settlementId: entry.id,
   }));
-  for (const fact of [...roles, ...dailyLife, ...supply])
+  for (const fact of [...roles, ...dailyLife, ...supply, ...snapshot.facts.activities])
     if (!targets.some((target) => sameSettlement(target, fact.settlement)))
       targets.push(fact.settlement);
   const labels: Record<DailyLifeCategory, string> = {
@@ -175,6 +176,9 @@ export function regionSettlementEntries(snapshot: RegionSnapshot) {
         name: settlement?.name.trim() || targetName(snapshot, target),
         description: settlement?.description.trim() || '',
         paragraphs: [
+          ...snapshot.facts.activities
+            .filter((fact) => sameSettlement(target, fact.settlement))
+            .map((fact) => `Established work — ${factLine(fact)}`),
           ...dailyLife
             .filter((fact) => sameSettlement(target, fact.settlement))
             .map((fact) => `${labels[fact.category]} — ${factLine(fact)}`),

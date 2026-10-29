@@ -1,3 +1,4 @@
+import { activityFactsError } from './region_activity_validation';
 import { regionAssessmentsError } from './region_assessment_validation';
 import { denseForestFactsError } from './region_dense_forest_validation';
 import { mountainRangeFactsError } from './region_mountain_range_validation';
@@ -14,7 +15,8 @@ import type { RegionFacts, RegionSettlement } from './region_fact_types.js';
 
 export function emptyRegionFacts(state: RegionFacts['state']): RegionFacts {
   return {
-    version: 11,
+    version: 12,
+    activities: [],
     managedProduction: [],
     resourceSources: [],
     denseForests: [],
@@ -66,12 +68,13 @@ export function regionFactsError(
   const facts = object(value);
   if (
     facts === null ||
-    facts.version !== 11 ||
+    facts.version !== 12 ||
     !['current', 'legacy'].includes(String(facts.state))
   ) {
     return 'region facts have an unsupported version or state';
   }
   const keys = [
+    'activities',
     'managedProduction',
     'resourceSources',
     'denseForests',
@@ -98,41 +101,43 @@ export function regionFactsError(
     for (const entry of facts[key] as unknown[]) {
       const fact = object(entry);
       const prefix =
-        key === 'managedProduction'
-          ? 'managed-production:'
-          : key === 'resourceSources'
-            ? 'resource-source:'
-            : key === 'denseForests'
-              ? 'forest:dense:'
-              : key === 'mountainRanges'
-                ? 'range:mountain:'
-                : key === 'supply'
-                  ? 'supply:'
-                  : key === 'dailyLife'
-                    ? 'daily-life:'
-                    : key === 'products'
-                      ? 'product:'
-                      : key === 'geology'
-                        ? 'geology:'
-                        : key === 'resourceDeposits'
-                          ? 'deposit:'
-                          : key === 'areas'
-                            ? 'area:'
-                            : key === 'habitats'
-                              ? 'habitat:'
-                              : key === 'settlementRoles'
-                                ? 'role:'
-                                : key === 'resources'
-                                  ? 'resource:'
-                                  : key === 'routes'
-                                    ? 'route:'
-                                    : key === 'ecologyInhabitants'
-                                      ? 'inhabitant:'
-                                      : key === 'ecologyRelationships'
-                                        ? 'ecology:'
-                                        : key === 'claims'
-                                          ? 'claim:'
-                                          : `${fact?.kind}:`;
+        key === 'activities'
+          ? 'activity:'
+          : key === 'managedProduction'
+            ? 'managed-production:'
+            : key === 'resourceSources'
+              ? 'resource-source:'
+              : key === 'denseForests'
+                ? 'forest:dense:'
+                : key === 'mountainRanges'
+                  ? 'range:mountain:'
+                  : key === 'supply'
+                    ? 'supply:'
+                    : key === 'dailyLife'
+                      ? 'daily-life:'
+                      : key === 'products'
+                        ? 'product:'
+                        : key === 'geology'
+                          ? 'geology:'
+                          : key === 'resourceDeposits'
+                            ? 'deposit:'
+                            : key === 'areas'
+                              ? 'area:'
+                              : key === 'habitats'
+                                ? 'habitat:'
+                                : key === 'settlementRoles'
+                                  ? 'role:'
+                                  : key === 'resources'
+                                    ? 'resource:'
+                                    : key === 'routes'
+                                      ? 'route:'
+                                      : key === 'ecologyInhabitants'
+                                        ? 'inhabitant:'
+                                        : key === 'ecologyRelationships'
+                                          ? 'ecology:'
+                                          : key === 'claims'
+                                            ? 'claim:'
+                                            : `${fact?.kind}:`;
       if (
         fact === null ||
         !nonempty(fact.id) ||
@@ -344,6 +349,7 @@ export function regionFactsError(
     }
   }
   return (
+    activityFactsError(facts, map, settlements, settlementTargetValid) ??
     dailyLifeFactsError(facts, map, settlements, settlementTargetValid) ??
     supplyFactsError(facts, map, settlements, settlementTargetValid)
   );

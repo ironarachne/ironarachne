@@ -1,3 +1,4 @@
+import type { SettlementActivityFact } from './region_activity_types';
 import type { RegionFactAssessment } from './region_assessment_types';
 import type { ManagedProductionFact, ResourceSourceFact } from './region_raw_source_types';
 import type { DenseForestFact } from './region_dense_forest_types';
@@ -15,7 +16,11 @@ import type { EcologyInhabitantFact, EcologyRelationshipFact } from './region_ec
 import type { SettlementSnapshot } from '$lib/settlements';
 
 /** Identity in this saved region, independent of a settlement's editable name. */
-export type RegionSettlement = { id: string; snapshot: SettlementSnapshot };
+export type RegionSettlement = {
+  id: string;
+  snapshot: SettlementSnapshot;
+  descriptionReason?: FactReason;
+};
 
 export type FactOrigin = 'generated' | 'authored';
 export type FactState = 'current' | 'legacy';
@@ -107,7 +112,8 @@ export type RouteFact = FactBase & {
 export type CausalFact = FactBase & { subjectId: string; relatedIds: string[] };
 
 export type RegionFacts = {
-  version: 11;
+  version: 12;
+  activities: SettlementActivityFact[];
   managedProduction: ManagedProductionFact[];
   resourceSources: ResourceSourceFact[];
   denseForests: DenseForestFact[];

@@ -18,6 +18,8 @@ const snapshot = rollRegionSnapshot('kind-seed', {
 });
 
 delete snapshot.overviewReason;
+snapshot.facts.activities = [];
+for (const entry of snapshot.settlements) delete entry.descriptionReason;
 
 // Historical migration fixtures cannot contain references to newly introduced forest facts.
 const forestIds = new Set(snapshot.facts.denseForests.map((forest) => forest.id));
@@ -698,7 +700,7 @@ describe('ecology save compatibility', () => {
       ...legacy,
       facts: {
         ...legacy.facts,
-        version: 11,
+        version: 12,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -834,7 +836,7 @@ describe('processing save migration', () => {
       ...input,
       facts: {
         ...input.facts,
-        version: 11,
+        version: 12,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -867,7 +869,7 @@ describe('daily-life save migration', () => {
       ...input,
       facts: {
         ...input.facts,
-        version: 11,
+        version: 12,
         denseForests: [],
         mountainRanges: [],
         supply: [],
@@ -957,7 +959,7 @@ describe('supply save migration', () => {
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...input,
-      facts: { ...input.facts, version: 11, denseForests: [], mountainRanges: [], supply: [] },
+      facts: { ...input.facts, version: 12, denseForests: [], mountainRanges: [], supply: [] },
     });
     expect(input).toEqual(before);
     expect(validateRegionSnapshot(result.value).ok).toBe(true);
@@ -1007,7 +1009,7 @@ describe('raw source save migration', () => {
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...old,
-      facts: { ...old.facts, version: 11, managedProduction: [], resourceSources: [] },
+      facts: { ...old.facts, version: 12, managedProduction: [], resourceSources: [] },
     });
     expect(
       result.value.facts.products.every(
@@ -1046,7 +1048,7 @@ describe('finished goods save compatibility', () => {
     const result = migrateRegionSnapshot(old, 15);
     expect(result.ok, result.ok ? '' : result.message).toBe(true);
     if (!result.ok) throw new Error(result.message);
-    expect(result.value).toEqual({ ...old, facts: { ...old.facts, version: 11 } });
+    expect(result.value).toEqual({ ...old, facts: { ...old.facts, version: 12 } });
     expect(result.value.facts.products).toEqual(old.facts.products);
     expect(old).toEqual(before);
     expect(migrateRegionSnapshot(snapshot, 15).ok).toBe(false);

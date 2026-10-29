@@ -19,3 +19,5 @@ export * from './food_validation';
 
 export * from './processing_context';
 export * from './processing_techniques';
+
+export * from './processing_selector';

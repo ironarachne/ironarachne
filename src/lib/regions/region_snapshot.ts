@@ -109,6 +109,16 @@ export function toRegionSnapshot(
     settlements: settlements.map(({ settlement, index }) => ({
       id: region.settlementIds?.[index] ?? `settlement:${index + 1}`,
       snapshot: toSettlementSnapshot(settlement),
+      ...(region.settlementDescriptionReasons?.[
+        region.settlementIds?.[index] ?? `settlement:${index + 1}`
+      ]
+        ? {
+            descriptionReason:
+              region.settlementDescriptionReasons[
+                region.settlementIds?.[index] ?? `settlement:${index + 1}`
+              ],
+          }
+        : {}),
     })),
     facts: region.facts ?? emptyRegionFacts('current'),
     mainRealm: region.mainRealm,

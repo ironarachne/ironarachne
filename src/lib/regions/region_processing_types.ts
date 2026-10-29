@@ -1,4 +1,5 @@
 import type {
+  RecipeInputSelector,
   ProcessingInputRole,
   ProcessingRecipe,
   Resource,
@@ -21,6 +22,7 @@ export type ProcessingInput = (
       kind: 'import';
       role: ProcessingInputRole;
       resourceName: string;
+      satisfies?: RecipeInputSelector;
       explanation: string;
       foodDescriptor?: ImportedFoodDescriptor;
     }
@@ -81,3 +83,5 @@ export type ProcessingPlanResult =
     }
   | { status: 'unsupported'; missingInputKeys: string[]; issues: string[] }
   | { status: 'incomplete'; issues: string[] };
+
+export type ProcessingPlanSite = { id: string; name: string; nodeId: number; roleId: string };

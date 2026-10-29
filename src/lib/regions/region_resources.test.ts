@@ -309,7 +309,7 @@ describe('resource editing dependencies', () => {
       const region = prepared();
       generateResourceFacts(region, new RNG(`edit:${i}`));
       if (region.facts!.resources.some((entry) => entry.depositIds.length))
-        return region as unknown as RegionSnapshot;
+        return { ...region, settlements: [] } as unknown as RegionSnapshot;
     }
     throw new Error('No usable fixture');
   }

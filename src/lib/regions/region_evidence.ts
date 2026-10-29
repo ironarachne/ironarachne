@@ -65,7 +65,13 @@ export function sourceSpecificSummaryIds(fact: FactBase): Set<string> {
   const inputs =
     'inputs' in fact && Array.isArray(fact.inputs)
       ? (fact.inputs as { kind: string; resourceId?: string; sourceId?: string }[])
-      : [];
+      : 'support' in fact &&
+          typeof fact.support === 'object' &&
+          fact.support !== null &&
+          'inputs' in fact.support &&
+          Array.isArray(fact.support.inputs)
+        ? (fact.support.inputs as { kind: string; resourceId?: string; sourceId?: string }[])
+        : [];
   return new Set(
     inputs
       .filter((input) => input.kind === 'resource' && input.sourceId)

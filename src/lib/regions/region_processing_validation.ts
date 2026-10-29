@@ -1,4 +1,11 @@
-import { isProductFoodPolicy, isImportedFoodDescriptor, isProductContext } from '$lib/resources';
+import {
+  isProductFoodPolicy,
+  isImportedFoodDescriptor,
+  isProductContext,
+  isRecipeInputSelector,
+  getProcessingRecipes,
+  processingSelectorSatisfies,
+} from '$lib/resources';
 import type { RegionMap } from '$lib/map';
 import type { RegionFacts } from './region_fact_types';
 
@@ -87,6 +94,26 @@ export function processingFactsError(
         continue;
       }
       if (input.kind === 'import') {
+        if (input.satisfies !== undefined && !isRecipeInputSelector(input.satisfies))
+          return 'regional product import has an invalid requirement selector';
+        if (input.satisfies !== undefined) {
+          const recipe = getProcessingRecipes().find(
+            (recipe) => recipe.id === raw.recipeId && recipe.outputKey === raw.productKey,
+          );
+          if (
+            recipe &&
+            recipe.inputs.filter(
+              (slot) =>
+                slot.role === input.role &&
+                slot.foodUse === input.foodUse &&
+                processingSelectorSatisfies(
+                  input.satisfies as import('$lib/resources').RecipeInputSelector,
+                  slot.selector,
+                ),
+            ).length !== 1
+          )
+            return 'regional product import does not fulfill an unambiguous recipe requirement';
+        }
         if (input.foodDescriptor !== undefined && !isImportedFoodDescriptor(input.foodDescriptor))
           return 'regional product has an invalid imported food descriptor';
         if (input.foodUse === 'process-water')

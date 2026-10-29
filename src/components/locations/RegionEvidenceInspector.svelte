@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     regionInspectionFacts,
+    activityEvidenceCurrent,
     regionOverviewCurrent,
     regionSourceQualifications,
     type RegionSnapshot,
@@ -27,10 +28,25 @@
         <pre>{JSON.stringify(snapshot.overviewReason, null, 2)}</pre>
       </details>
     {/if}
+    {#each snapshot.settlements.filter((entry) => entry.descriptionReason) as entry (entry.id)}
+      <details>
+        <summary
+          >{entry.snapshot.name || 'Unnamed settlement'} description evidence{regionOverviewCurrent(
+            snapshot,
+            entry.descriptionReason,
+          )
+            ? ''
+            : ' — needs review'}</summary
+        >
+        <p>{entry.snapshot.description}</p>
+        <pre>{JSON.stringify(entry.descriptionReason, null, 2)}</pre>
+      </details>
+    {/each}
     {#each facts as fact (fact.id)}
       <details>
         <summary
-          >{fact.name || 'Unnamed fact'}{fact.reason?.status === 'stale'
+          >{fact.name || 'Unnamed fact'}{fact.reason?.status === 'stale' ||
+          ('support' in fact && !activityEvidenceCurrent(snapshot.facts, snapshot.map, fact))
             ? ' — needs review'
             : ''}</summary
         >
