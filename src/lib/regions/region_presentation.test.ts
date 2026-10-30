@@ -19,7 +19,7 @@ import {
   regionFactExplanation,
 } from './region_presentation';
 import { emptyRegionFacts } from './region_facts';
-import { rollRegionSnapshot } from './region_roll';
+import { legacyRegionSnapshot as rollRegionSnapshot } from '../../../test_fixtures/region_legacy';
 import { toRegionSnapshot } from './region_snapshot';
 import { rollRegion } from './region_roll';
 import { REGION_SEED_BANK } from '../../../test_fixtures/region_seeds';

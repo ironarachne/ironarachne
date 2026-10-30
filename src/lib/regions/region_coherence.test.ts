@@ -4,7 +4,7 @@ import { classifyRelief, measureRegionTerrain } from '$lib/map';
 import { getGeologicalResources, supportsGeologicalResource } from '$lib/resources';
 import type { RegionSemanticFact } from './region_resource_types';
 import { REGION_SEED_BANK } from '../../../test_fixtures/region_seeds';
-import { rollRegionSnapshot } from './region_roll';
+import { legacyRegionSnapshot as rollRegionSnapshot } from '../../../test_fixtures/region_legacy';
 import { regionFactsError } from './region_facts';
 import { validateRegionSnapshot, migrateRegionSnapshot } from './region_artifact_kind';
 import { regionFromSnapshot } from './region_rehydrate';

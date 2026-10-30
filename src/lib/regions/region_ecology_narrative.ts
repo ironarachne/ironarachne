@@ -177,7 +177,7 @@ function hazardCandidates(snapshot: RegionSnapshot): NarrativeCandidate[] {
     });
 }
 
-function ecologyCandidates(snapshot: RegionSnapshot): NarrativeCandidate[] {
+export function ecologyCandidates(snapshot: RegionSnapshot, concise = true): NarrativeCandidate[] {
   const relationships = new Set<string>();
   const candidates = [
     ...hazardCandidates(snapshot),
@@ -197,6 +197,7 @@ function ecologyCandidates(snapshot: RegionSnapshot): NarrativeCandidate[] {
       return [entry];
     }),
   ];
+  if (!concise) return candidates;
   // Keep one meaning per population, preferring its significance to residents over ordinary feeding.
   const seen = new Set<string>();
   return candidates

@@ -1,3 +1,4 @@
+import { editorialSentenceChecker } from './region_editorial_evidence';
 import { sourceSpecificSummaryIds } from './region_evidence';
 import { createRegionEvidenceChecker } from './region_context_evidence';
 import type { RegionFacts } from './region_fact_types';
@@ -253,6 +254,23 @@ export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnap
         : { ...entry, descriptionReason: { ...reason, status: 'stale' } };
     }),
   };
+  if (snapshot.gazetteer) {
+    const editorialCurrent = editorialSentenceChecker(snapshot);
+    snapshot = {
+      ...snapshot,
+      gazetteer: {
+        ...snapshot.gazetteer,
+        blocks: snapshot.gazetteer.blocks.map((block) => ({
+          ...block,
+          sentences: block.sentences.map((sentence) =>
+            editorialCurrent(sentence)
+              ? sentence
+              : { ...sentence, reason: { ...sentence.reason, status: 'stale' as const } },
+          ),
+        })),
+      },
+    };
+  }
   const reason = snapshot.overviewReason;
   if (
     !reason ||

@@ -55,7 +55,7 @@ describe('dependent generation passes', () => {
     'generateHabitationFacts',
     'generateNotableFacts',
     'generateRegionIdentity',
-    'presentRegion',
+    'generateRegionGazetteer',
   ] as const)('isolates extra draws in %s from every other pass', (name) => {
     const original = Passes[name];
     const before = snapshot('isolated');
@@ -115,13 +115,13 @@ describe('dependent generation passes', () => {
         'generateLivelihoodFacts',
         'generateEcologyRelationships',
         'generateNotableFacts',
-        'presentRegion',
+        'generateRegionGazetteer',
       ].includes(name)
     )
       expect(after.facts.products).toEqual(before.facts.products);
-    if (['generateSupplyFacts', 'generateNotableFacts', 'presentRegion'].includes(name))
+    if (['generateSupplyFacts', 'generateNotableFacts', 'generateRegionGazetteer'].includes(name))
       expect(after.facts.dailyLife).toEqual(before.facts.dailyLife);
-    if (['generateNotableFacts', 'presentRegion'].includes(name))
+    if (['generateNotableFacts', 'generateRegionGazetteer'].includes(name))
       expect(after.facts.supply).toEqual(before.facts.supply);
     expect(after.settlements).toEqual(before.settlements);
     expect(after.realms).toEqual(before.realms);

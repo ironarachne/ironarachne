@@ -12,7 +12,7 @@ import {
   overviewSettlement,
 } from './region_geography_narrative';
 
-function siteClause(role: SettlementRoleFact): string[] {
+export function siteClause(role: SettlementRoleFact): string[] {
   switch (role.reason?.ruleId) {
     case 'fantasy:region:river-crossing:v1':
       return ['stands where a road meets a river', 'lies at a meeting of road and river'];

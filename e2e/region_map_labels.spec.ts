@@ -75,7 +75,10 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
           if (root.querySelector(`[data-feature-id="${id}"][data-feature-marker]`))
             errors.push('Forest landmark has a duplicate point marker');
         }
-        if (!areaLabels.length) errors.push('Expected named landscape areas');
+        // Gazetteer paragraphs select salient meanings; the map still labels named areas
+        // whether or not those areas earn a paragraph in the concise reading view.
+        if (!root.querySelector('[data-feature-id^="area:habitat-zone:"]'))
+          errors.push('Expected named landscape areas on the map');
         for (const area of areaLabels) {
           const label = labels.find(
             (text) =>

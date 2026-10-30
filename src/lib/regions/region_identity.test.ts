@@ -14,7 +14,7 @@ import { removeRegionResourceFact, setRegionResourceFactText } from './region_re
 import { createRegionStageRng } from './region_generation_passes';
 import type Region from './region';
 import type { FactBase, RegionFacts } from './region_fact_types';
-import { rollRegionSnapshot } from './region_roll';
+import { legacyRegionSnapshot as rollRegionSnapshot } from '../../../test_fixtures/region_legacy';
 
 const rng = new RNG('identity-fixture');
 const base = generate({
@@ -47,6 +47,7 @@ function fixture(): Region & { facts: RegionFacts } {
     ...base,
     description: '',
     overviewReason: undefined,
+    gazetteer: undefined,
     facts: emptyRegionFacts('current'),
     settlements: base.settlements.slice(0, 2).map((settlement, i) => ({
       ...settlement,

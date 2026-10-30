@@ -8,7 +8,7 @@ import {
   regionArtifactKind,
   validateRegionSnapshot,
 } from './region_artifact_kind';
-import { rollRegionSnapshot } from './region_roll';
+import { legacyRegionSnapshot as rollRegionSnapshot } from '../../../test_fixtures/region_legacy';
 import { emptyRegionFacts } from './region_facts';
 import { regionToMarkdown, regionToMapSvg } from './region_presentation';
 

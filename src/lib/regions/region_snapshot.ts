@@ -1,3 +1,4 @@
+import type { RegionGazetteer } from './region_editorial_types';
 /**
  * Writing a region for storage. Reading one back is `region_rehydrate.ts`.
  *
@@ -52,6 +53,7 @@ export type RegionSnapshot = {
   name: string;
   description: string;
   overviewReason?: FactReason;
+  gazetteer?: RegionGazetteer;
   environment: Environment;
   /** `null` when a referenced culture artifact supplies it. See the header. */
   dominantCulture: CultureSnapshot | null;
@@ -98,6 +100,7 @@ export function toRegionSnapshot(
   const settlements = region.settlements.map((settlement, index) => ({ settlement, index }));
   const snapshot: RegionSnapshot = {
     name: region.name,
+    ...(region.gazetteer ? { gazetteer: region.gazetteer } : {}),
     affiliation: region.affiliation,
     description: region.description,
     ...(region.overviewReason ? { overviewReason: region.overviewReason } : {}),

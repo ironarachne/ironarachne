@@ -60,7 +60,7 @@ function candidate(
   };
 }
 
-function identityCandidates(region: Region): RegionIdentityCandidate[] {
+export function identityCandidates(region: Region): RegionIdentityCandidate[] {
   const facts = region.facts!;
   const current = createRegionEvidenceChecker({ ...region, facts });
   const dry = (id: number) =>
