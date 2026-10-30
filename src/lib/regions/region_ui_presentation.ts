@@ -127,7 +127,26 @@ export function regionToUiDocument(snapshot: RegionSnapshot): RegionUiDocument {
       paragraphs: document.paragraphs,
       sections: document.sections.map((section) => ({
         heading: uniqueHeading(section.heading, used, 'Section'),
+        ...(section.landscapeReferences
+          ? { landscapeReferences: section.landscapeReferences }
+          : {}),
         entries: section.lines.map((body, index) => {
+          const anchorId = section.entryAnchors?.[index];
+          if (anchorId) {
+            const heading = section.entryHeadings?.[index] ?? '';
+            return {
+              heading,
+              body:
+                heading && body.startsWith(`${heading}\n\n`)
+                  ? body.slice(heading.length + 2)
+                  : body === heading
+                    ? ''
+                    : body,
+              anchorId,
+              factId: section.factIds?.[index],
+              inspectionFactIds: section.inspectionFactIds?.[index],
+            };
+          }
           const id = section.factIds?.[index];
           if (!id) {
             const heading = section.entryHeadings?.[index] ?? '';

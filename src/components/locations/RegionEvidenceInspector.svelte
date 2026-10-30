@@ -6,12 +6,15 @@
     regionSourceQualifications,
     type RegionSnapshot,
   } from '$lib/regions';
-  const { snapshot }: { snapshot: RegionSnapshot } = $props();
-  let expanded = $state(false);
+  let {
+    snapshot,
+    id,
+    expanded = $bindable(false),
+  }: { snapshot: RegionSnapshot; id?: string; expanded?: boolean } = $props();
   const facts = $derived(regionInspectionFacts(snapshot));
 </script>
 
-<details class="inspection" bind:open={expanded}>
+<details {id} class="inspection" bind:open={expanded}>
   <summary>Inspect evidence and qualifications</summary>
   {#if expanded}
     <p>
@@ -42,6 +45,12 @@
         <pre>{JSON.stringify(entry.descriptionReason, null, 2)}</pre>
       </details>
     {/each}
+    {#if snapshot.gazetteer?.version === 2 && snapshot.gazetteer.landscapePlaces.length}
+      <details>
+        <summary>Landscape reading identities and aliases</summary>
+        <pre>{JSON.stringify(snapshot.gazetteer.landscapePlaces, null, 2)}</pre>
+      </details>
+    {/if}
     {#each facts as fact (fact.id)}
       <details>
         <summary

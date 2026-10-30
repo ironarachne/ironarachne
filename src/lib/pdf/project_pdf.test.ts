@@ -79,6 +79,20 @@ describe('publication presenters', () => {
     ]);
   });
 
+  it('prints landscape references without exposing document anchor markup', () => {
+    expect(
+      presentationMarkdownToBlocks(
+        '## Landscape\n\n### Named landscapes\n\n- [The Weald](#landscape-area%3A1) — Landscape\n\n<a id="landscape-area%3A1"></a>\n\n### The Weald\n\nWoodland covers much of the region.',
+      ),
+    ).toEqual([
+      { type: 'heading', level: 2, text: 'Landscape' },
+      { type: 'heading', level: 3, text: 'Named landscapes' },
+      { type: 'list', ordered: false, items: ['The Weald — Landscape'] },
+      { type: 'heading', level: 3, text: 'The Weald' },
+      { type: 'paragraph', text: 'Woodland covers much of the region.' },
+    ]);
+  });
+
   it('keeps list, table, and inline text structure for the compositor', () => {
     expect(
       presentationMarkdownToBlocks(

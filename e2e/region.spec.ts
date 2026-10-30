@@ -499,6 +499,46 @@ test.describe('a region', () => {
     expect(contents).toContain('data-capital-pennant="true"');
   });
 
+  test('links named landscapes to one primary entry and keeps their facts inspectable', async ({
+    page,
+  }) => {
+    await openGenerator(page);
+    await page.getByLabel('Seed', { exact: true }).fill('5wyedz5q272fz');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    const gazetteer = page.locator('.gazetteer');
+    const directory = gazetteer.getByRole('navigation', { name: 'Named landscapes' });
+    await expect(directory).toBeVisible();
+    const links = directory.getByRole('link');
+    expect(await links.count()).toBeGreaterThan(0);
+    const targetIds: string[] = [];
+    for (const link of await links.all()) {
+      const href = await link.getAttribute('href');
+      expect(href).toMatch(/^#.+landscape-/);
+      targetIds.push(href!.slice(1));
+      const target = page.locator(`[id="${href!.slice(1)}"]`);
+      await expect(target).toHaveCount(1);
+      await expect(target.locator('h4')).toHaveText(await link.innerText());
+    }
+    expect(new Set(targetIds).size).toBe(targetIds.length);
+    await links.first().click();
+    const first = page.locator(`[id="${targetIds[0]}"]`);
+    await first.getByRole('link', { name: 'Inspect facts' }).click();
+    const evidence = page.locator('details.inspection');
+    await expect(evidence).toHaveAttribute('open');
+    await expect(evidence).toContainText('Landscape reading identities and aliases');
+    await expect(evidence).toContainText('mapNodeIds');
+    const headings = await gazetteer.locator('article h4').allTextContents();
+    expect(headings.join(' ')).not.toMatch(/\((?:Second |Third )?Entry\)/);
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download Markdown' }).click();
+    const file = await download;
+    const markdown = await new Response(await file.createReadStream()).text();
+    for (const name of await links.allTextContents())
+      expect(markdown).toContain(`[${name}](#landscape-`);
+    await expectNoHorizontalOverflow(page);
+  });
+
   test('downloads a gazetteer a referee can take to the table', async ({ page }) => {
     await openGenerator(page);
     // Regression seed includes a trading-company name with repeated spaces.
@@ -520,7 +560,7 @@ test.describe('a region', () => {
       for (const article of await section.locator('article').all()) {
         const sectionName = await section.locator(':scope > h3').innerText();
         await expect(article.locator(':scope > h4')).toHaveCount(
-          sectionName === 'Settlements' ? 1 : 0,
+          ['Settlements', 'Landscape', 'Notable places'].includes(sectionName) ? 1 : 0,
         );
       }
     }

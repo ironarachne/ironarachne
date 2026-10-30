@@ -1,3 +1,4 @@
+import { landscapePlaceCurrent } from './region_landscape_reading';
 import { editorialSentenceChecker } from './region_editorial_evidence';
 import { sourceSpecificSummaryIds } from './region_evidence';
 import { createRegionEvidenceChecker } from './region_context_evidence';
@@ -260,6 +261,15 @@ export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnap
       ...snapshot,
       gazetteer: {
         ...snapshot.gazetteer,
+        ...(snapshot.gazetteer.version === 2
+          ? {
+              landscapePlaces: snapshot.gazetteer.landscapePlaces.map((place) =>
+                landscapePlaceCurrent(snapshot, place)
+                  ? place
+                  : { ...place, reason: { ...place.reason, status: 'stale' as const } },
+              ),
+            }
+          : {}),
         blocks: snapshot.gazetteer.blocks.map((block) => ({
           ...block,
           sentences: block.sentences.map((sentence) =>

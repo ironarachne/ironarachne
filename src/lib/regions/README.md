@@ -119,7 +119,14 @@ The modules the readiness pass gives every Release-ready tool
   `regionToExportDocument` shares the concise reading entry for Markdown, standalone PDF text
   and project PDF publication.
   `regionToUiDocument` projects qualified entry headings and descriptive paragraphs for the page:
-  h3 sections, h4 entries and h5 adventure hooks. Duplicate headings receive readable qualifiers;
+  h3 sections, h4 entries and h5 adventure hooks. Version-2 gazetteers save primary landscape
+  identities and explicit forest/notable aliases. A named-landscape directory links each place to
+  one owner; significant patches use saved extent-based descriptors, while minor habitats remain
+  in inspection. Landscape and geographic notable entries share a three-sentence budget. Authored
+  aliases retain their own text, including blanks and duplicate titles, with distinct machine anchors.
+  Version-1 and legacy reading paths remain unchanged. See
+  [landscape hierarchy](../../../docs/region-landscape-hierarchy.md).
+  Legacy duplicate headings receive readable qualifiers;
   saved names containing colons and capital identity are preserved. This UI projection does not
   change saved payloads. Generated headings and standalone hook sentences use sentence case:
   only the initial letter is capitalized, preserving the remaining case of literal names.

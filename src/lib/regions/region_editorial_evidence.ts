@@ -1,3 +1,4 @@
+import { landscapeObservationCurrent } from './region_landscape_extent';
 import type { FactBase } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
 import type { RegionEditorialObservation, RegionGazetteerSentence } from './region_editorial_types';
@@ -100,6 +101,8 @@ export function editorialSentenceChecker(snapshot: RegionSnapshot) {
     )
       return false;
     return sentence.observations.every((observation) => {
+      if (observation.kind === 'landscape-footprint')
+        return landscapeObservationCurrent(snapshot, observation);
       const key =
         observation.kind === 'settlement-populations'
           ? observation.kind

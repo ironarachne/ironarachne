@@ -70,7 +70,7 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
           const label = labels.find(
             (text) => text.closest('[data-feature-id]')?.getAttribute('data-feature-id') === id,
           );
-          if (!label || !name.includes(label.textContent!.trim()))
+          if (!label || !name.toLowerCase().includes(label.textContent!.trim().toLowerCase()))
             errors.push('Forest landmark label disagrees with the saved gazetteer');
           if (root.querySelector(`[data-feature-id="${id}"][data-feature-marker]`))
             errors.push('Forest landmark has a duplicate point marker');

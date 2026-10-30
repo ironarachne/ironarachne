@@ -76,3 +76,6 @@ export { activityEvidenceCurrent } from './region_activity_support';
 
 export type * from './region_editorial_types';
 export { generateRegionGazetteer, composeRegionGazetteer } from './region_editorial';
+
+export { landscapePlaceAnchor, landscapeOwnerHeading } from './region_landscape_reading';
+export type * from './region_landscape_reading_types';

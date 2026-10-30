@@ -1,3 +1,5 @@
+import type { RegionLandscapePlace } from './region_landscape_reading_types';
+import { buildLandscapePlaces, landscapeReadingCandidates } from './region_landscape_reading';
 import { editorialSentenceCount, editorialSingleSentence } from './region_editorial_policy';
 export { editorialSentenceCount } from './region_editorial_policy';
 import { siteClause } from './region_overview';
@@ -34,7 +36,7 @@ const destination = (
   settlement?: SettlementTarget,
 ): RegionEditorialDestination => ({ section, ...(settlement ? { settlement } : {}) });
 export const editorialDestinationKey = (value: RegionEditorialDestination) =>
-  `${value.section}:${JSON.stringify(value.settlement ?? null)}`;
+  `${value.section}:${JSON.stringify(value.settlement ?? null)}${value.landscapePlaceId ? `:${value.landscapePlaceId}` : ''}`;
 const weight = { defining: 0, distinctive: 1, supporting: 2 };
 const meaningKey = (entry: RegionEditorialCandidate) => entry.narrative.templates[0].id;
 const targetKey = (target: SettlementTarget) =>
@@ -126,12 +128,17 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
       landscape.candidate.sourceIds.flatMap((id) =>
         facts.habitats.filter((fact) => fact.id === id),
       ),
-      [destination('opening'), destination('landscape')],
+      [destination('opening')],
       { sources: landscape.sources },
     );
   else {
     const land = facts.areas.find((fact) => fact.id === 'area:land');
-    if (land?.description.trim())
+    if (
+      land?.description.trim() &&
+      land.mapNodeIds.some((id) =>
+        snapshot.map.nodes.some((node) => node.id === id && !node.isWater && !node.isOcean),
+      )
+    )
       add(
         'editorial:land',
         'landscape',
@@ -139,7 +146,7 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
         'region',
         [land.description],
         [land],
-        [destination('opening'), destination('landscape')],
+        [destination('opening')],
       );
   }
   for (const role of facts.settlementRoles) {
@@ -473,6 +480,7 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
       { consequence: true, located: true },
     );
   }
+  candidates.push(...landscapeReadingCandidates(snapshot, buildLandscapePlaces(snapshot)));
   return candidates
     .filter((entry) => entry.narrative.templates[0].parts[0].options.every((text) => text.trim()))
     .sort((a, b) => lexical(a.narrative.id, b.narrative.id));
@@ -483,6 +491,7 @@ export function composeRegionGazetteer(
   candidates: RegionEditorialCandidate[],
   rng: RNG,
   context: RegionEditorialContext = { wording: { recentSelections: [] }, recentMeaningKeys: [] },
+  landscapePlaces: RegionLandscapePlace[] = [],
 ): { gazetteer: RegionGazetteer; nextContext: RegionEditorialContext } {
   const token = rng.int(0, 2147483647);
   const selectionRng = new RNG(JSON.stringify(['gazetteer-selection-v1', token]));
@@ -506,7 +515,24 @@ export function composeRegionGazetteer(
         Number(a.section === 'opening' && entry.narrative.importance !== 'supporting'),
     );
     return sections.find((dest) => {
+      if (
+        dest.landscapePlaceId &&
+        !landscapePlaces.some(
+          (place) => place.id === dest.landscapePlaceId && place.owner === dest.section,
+        )
+      )
+        return false;
       const key = editorialDestinationKey(dest);
+      const geographic = dest.section === 'landscape' || dest.section === 'notable-place';
+      if (
+        geographic &&
+        (selected.filter(
+          ({ destination }) =>
+            destination.section === 'landscape' || destination.section === 'notable-place',
+        ).length >= 3 ||
+          (counts.get(key) ?? 0) >= 1)
+      )
+        return false;
       const cost = Math.max(
         ...entry.narrative.templates[0].parts[0].options.map(editorialSentenceCount),
       );
@@ -594,6 +620,7 @@ export function composeRegionGazetteer(
   const sectionOrder: RegionEditorialSection[] = [
     'opening',
     'landscape',
+    'notable-place',
     'ecology',
     'materials-work',
     'travel',
@@ -634,26 +661,35 @@ export function composeRegionGazetteer(
       repeatedOrientation: false,
       selection: result.selections[0],
       reason: {
-        ruleId: 'fantasy:region:gazetteer-editorial:v1',
+        ruleId: 'fantasy:region:gazetteer-editorial:v2',
         status: 'current',
         sources: entry.sources,
       },
       observations: entry.observations,
     });
   }
-  return { gazetteer: { version: 1, blocks: [...blocks.values()] }, nextContext };
+  return {
+    gazetteer: { version: 2, blocks: [...blocks.values()], landscapePlaces },
+    nextContext,
+  };
 }
 
 export function generateRegionGazetteer(region: Region, rng: RNG): void {
   if (region.gazetteer) return;
-  region.gazetteer = composeRegionGazetteer(regionEditorialCandidates(region), rng).gazetteer;
+  const landscapePlaces = buildLandscapePlaces(toRegionSnapshot(region));
+  region.gazetteer = composeRegionGazetteer(
+    regionEditorialCandidates(region),
+    rng,
+    undefined,
+    landscapePlaces,
+  ).gazetteer;
   const opening = region.gazetteer.blocks
     .filter((block) => block.destination.section === 'opening')
     .flatMap((block) => block.sentences);
   region.description = opening.map((sentence) => sentence.text).join(' ');
   if (opening.length)
     region.overviewReason = {
-      ruleId: 'fantasy:region:gazetteer-editorial:v1',
+      ruleId: 'fantasy:region:gazetteer-editorial:v2',
       status: 'current',
       sources: opening.flatMap((sentence) => sentence.reason.sources),
     };

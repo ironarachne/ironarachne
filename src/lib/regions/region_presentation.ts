@@ -1,3 +1,5 @@
+import type { RegionLandscapeReference } from './region_landscape_reading_types';
+import { landscapePlaceAnchor, landscapeOwnerHeading } from './region_landscape_reading';
 import { regionEditorialDocument } from './region_editorial_presentation';
 import { regionHook, REGION_HOOK_SECTIONS } from './region_prose';
 import { regionSourceQualifications } from './region_source_presentation';
@@ -28,6 +30,9 @@ export type RegionSection = {
   factIds?: string[];
   /** Explicit entry titles for saved editorial paragraphs; never parsed out of prose. */
   entryHeadings?: string[];
+  entryAnchors?: string[];
+  inspectionFactIds?: string[][];
+  landscapeReferences?: RegionLandscapeReference[];
 };
 
 /** A region arranged for reading, independent of the format it is finally written in. */
@@ -377,8 +382,20 @@ export function regionToMarkdown(snapshot: RegionSnapshot): string {
   for (const section of document.sections) {
     blocks.push(`## ${section.heading}`);
     if (snapshot.gazetteer) {
+      if (section.landscapeReferences?.length)
+        blocks.push(
+          '### Named landscapes',
+          section.landscapeReferences
+            .map(
+              (reference) =>
+                `- [${reference.label.replace(/[[\]\\]/g, '\\$&')}](#${landscapePlaceAnchor(reference.placeId)}) — ${landscapeOwnerHeading(reference.owner)}`,
+            )
+            .join('\n'),
+        );
       for (const [index, line] of section.lines.entries()) {
         const heading = section.entryHeadings?.[index];
+        const anchor = section.entryAnchors?.[index];
+        if (anchor) blocks.push(`<a id="${anchor}"></a>`);
         if (heading) blocks.push(`### ${heading}`);
         const text =
           heading && line.startsWith(`${heading}\n\n`)
@@ -424,6 +441,14 @@ export function regionToText(snapshot: RegionSnapshot): string {
     blocks.push(
       [
         section.heading.toUpperCase(),
+        ...(section.landscapeReferences?.length
+          ? [
+              'Named landscapes',
+              ...section.landscapeReferences.map(
+                (reference) => `${reference.label} — ${landscapeOwnerHeading(reference.owner)}`,
+              ),
+            ]
+          : []),
         ...section.lines.map((line) => {
           if (!REGION_HOOK_SECTIONS.includes(section.heading)) return line;
           const { body, hook } = regionHook(line);
