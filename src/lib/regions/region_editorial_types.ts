@@ -1,9 +1,14 @@
+import type {
+  LandscapeFootprintObservation,
+  RegionLandscapePlace,
+} from './region_landscape_reading_types';
 import type { NarrativeCandidate, NarrativeContext, NarrativeSelection } from '$lib/narrative';
 import type { FactReason, FactSource, SettlementTarget } from './region_fact_types';
 
 export type RegionEditorialSection =
   | 'opening'
   | 'landscape'
+  | 'notable-place'
   | 'ecology'
   | 'materials-work'
   | 'travel'
@@ -12,6 +17,7 @@ export type RegionEditorialSection =
 export type RegionEditorialDestination = {
   section: RegionEditorialSection;
   settlement?: SettlementTarget;
+  landscapePlaceId?: string;
 };
 export type RegionEditorialPriority = {
   residentConsequence: boolean;
@@ -20,6 +26,7 @@ export type RegionEditorialPriority = {
   peerSupportCount: number;
 };
 export type RegionEditorialObservation =
+  | LandscapeFootprintObservation
   | {
       kind: 'settlement-populations';
       values: { settlementId: string; population: number }[];
@@ -65,4 +72,6 @@ export type RegionGazetteerBlock = {
   destination: RegionEditorialDestination;
   sentences: RegionGazetteerSentence[];
 };
-export type RegionGazetteer = { version: 1; blocks: RegionGazetteerBlock[] };
+export type RegionGazetteer =
+  | { version: 1; blocks: RegionGazetteerBlock[] }
+  | { version: 2; blocks: RegionGazetteerBlock[]; landscapePlaces: RegionLandscapePlace[] };

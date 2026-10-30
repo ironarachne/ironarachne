@@ -1,3 +1,4 @@
+import { landscapeObservationError, landscapePlacesError } from './region_landscape_validation';
 import { asRecord } from '$lib/artifact_kinds';
 import type { RegionSnapshot } from './region_snapshot';
 import { regionOverviewReasonError } from './region_assessment_validation';
@@ -14,11 +15,19 @@ const text = (value: unknown) => typeof value === 'string' && value.trim().lengt
 export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): string | null {
   if (value === undefined) return null;
   const gazetteer = asRecord(value);
-  if (!gazetteer || gazetteer.version !== 1 || !Array.isArray(gazetteer.blocks))
+  if (
+    !gazetteer ||
+    (gazetteer.version !== 1 && gazetteer.version !== 2) ||
+    !Array.isArray(gazetteer.blocks)
+  )
     return 'invalid region gazetteer';
   const factIds = new Set(
     regionSemanticFactLists.flatMap((key) => snapshot.facts[key].map((fact) => fact.id)),
   );
+  if (gazetteer.version === 2) {
+    const error = landscapePlacesError(gazetteer.landscapePlaces, snapshot, factIds);
+    if (error) return error;
+  }
   const blocks = new Set<string>();
   const sentences = new Set<string>();
   for (const raw of gazetteer.blocks) {
@@ -32,6 +41,7 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
       ![
         'opening',
         'landscape',
+        ...(gazetteer.version === 2 ? ['notable-place'] : []),
         'ecology',
         'materials-work',
         'travel',
@@ -56,6 +66,19 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
       )
         return 'invalid gazetteer settlement';
     } else if (destination.settlement !== undefined) return 'unexpected gazetteer settlement';
+    if (destination.landscapePlaceId !== undefined) {
+      const places = gazetteer.landscapePlaces as { id: string; owner: string }[] | undefined;
+      if (
+        gazetteer.version !== 2 ||
+        !['landscape', 'notable-place'].includes(String(destination.section)) ||
+        !places?.some(
+          (place) =>
+            place.id === destination.landscapePlaceId && place.owner === destination.section,
+        )
+      )
+        return 'invalid landscape place destination';
+    } else if (destination.section === 'notable-place')
+      return 'missing landscape place destination';
     for (const rawSentence of block.sentences) {
       const sentence = asRecord(rawSentence);
       const selection = asRecord(sentence?.selection);
@@ -85,7 +108,10 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
       for (const rawObservation of sentence.observations) {
         const observation = asRecord(rawObservation);
         if (!observation) return 'invalid gazetteer observation';
-        if (observation.kind === 'settlement-populations') {
+        if (observation.kind === 'landscape-footprint' && gazetteer.version === 2) {
+          const error = landscapeObservationError(observation);
+          if (error) return error;
+        } else if (observation.kind === 'settlement-populations') {
           if (!Array.isArray(observation.values) || observation.values.length < 2)
             return 'invalid gazetteer population comparison';
           const ids: string[] = [];

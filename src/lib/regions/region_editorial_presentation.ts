@@ -1,3 +1,5 @@
+import { appendLandscapeReading } from './region_landscape_presentation';
+import { landscapePlaceFactIds } from './region_landscape_reading';
 import { editorialSentenceCount } from './region_editorial_policy';
 import type { RegionDocument } from './region_presentation';
 import type { RegionSnapshot } from './region_snapshot';
@@ -8,6 +10,7 @@ import { regionSemanticFactLists } from './region_fact_lists';
 const headings: Record<RegionEditorialSection, string> = {
   opening: '',
   landscape: 'Landscape',
+  'notable-place': 'Notable places',
   ecology: 'Flora and fauna',
   'materials-work': 'Materials and work',
   travel: 'Travel',
@@ -25,7 +28,13 @@ export function regionEditorialDocument(snapshot: RegionSnapshot): RegionDocumen
   const authoredEcology = snapshot.facts.claims.some(
     (fact) => fact.id === 'claim:ecology-summary' && fact.origin === 'authored',
   );
+  const landscapeIds = new Set(
+    snapshot.gazetteer?.version === 2
+      ? snapshot.gazetteer.landscapePlaces.flatMap(landscapePlaceFactIds)
+      : [],
+  );
   for (const block of snapshot.gazetteer?.blocks ?? []) {
+    if (snapshot.gazetteer?.version === 2 && block.destination.landscapePlaceId) continue;
     if (authoredEcology && block.destination.section === 'ecology') continue;
     if (block.destination.section === 'opening' && snapshot.overviewReason === undefined) continue;
     const sentences = block.sentences.filter(readable).map((sentence) => sentence.text);
@@ -66,7 +75,9 @@ export function regionEditorialDocument(snapshot: RegionSnapshot): RegionDocumen
     document.paragraphs = [snapshot.description];
   // Authored source prose is intentionally outside generated sentence budgets, including blanks.
   for (const key of regionSemanticFactLists) {
-    for (const fact of snapshot.facts[key].filter((entry) => entry.origin === 'authored')) {
+    for (const fact of snapshot.facts[key].filter(
+      (entry) => entry.origin === 'authored' && !landscapeIds.has(entry.id),
+    )) {
       if (!fact.description.trim()) continue;
       const sectionName =
         fact.id === 'claim:ecology-summary'
@@ -127,5 +138,6 @@ export function regionEditorialDocument(snapshot: RegionSnapshot): RegionDocumen
       section.lines.push(settlement.snapshot.name);
     }
   }
+  appendLandscapeReading(snapshot, document);
   return document;
 }

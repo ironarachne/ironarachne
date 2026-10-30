@@ -124,7 +124,8 @@ export function presentationMarkdownToBlocks(markdown: string): PublicationBlock
   let index = 0;
   while (index < lines.length) {
     const line = lines[index].trim();
-    if (line === '') {
+    // Explicit document anchors carry navigation, never printable prose.
+    if (line === '' || /^<a id="[A-Za-z0-9_%:.-]+"><\/a>$/.test(line)) {
       index += 1;
       continue;
     }

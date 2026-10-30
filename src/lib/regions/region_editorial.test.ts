@@ -415,9 +415,9 @@ describe('coordinated regional editorial policy', () => {
     expect(() => structuredClone(restored)).not.toThrow();
     expect(restored.gazetteer).not.toBe(proxied.gazetteer);
   });
-  it('round trips version 18 and migrates version 17 without creating editorial prose', () => {
+  it('round trips version 19 and migrates version 17 without creating editorial prose', () => {
     const snapshot = rollRegionSnapshot('445-persistence');
-    expect(REGION_PAYLOAD_VERSION).toBe(18);
+    expect(REGION_PAYLOAD_VERSION).toBe(19);
     expect(validateRegionSnapshot(snapshot)).toMatchObject({ ok: true });
     expect(toRegionSnapshot(regionFromSnapshot(snapshot, new RNG('restore'))).gazetteer).toEqual(
       snapshot.gazetteer,
