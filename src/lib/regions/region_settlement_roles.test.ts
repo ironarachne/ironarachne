@@ -189,13 +189,12 @@ describe('geographic settlement roles', () => {
     const facts = derive(region);
     expect(facts.routes).toHaveLength(1);
     expect(facts.routes[0].anchor).toEqual({ nodeIds: [11, 9, 5], edgeIds: [71, 70] });
-    expect(facts.routes[0].description).toMatch(/forest|woodland/);
-    expect(facts.routes[0].description).toContain('Hook:');
+    expect(facts.routes[0].description).toBe('');
     expect(facts.routes[0].reason?.sources).toContainEqual({
-      kind: 'map-node',
-      nodeId: 9,
-      property: 'biomeId',
-      observedValue: 'woodland',
+      kind: 'map-edge',
+      edgeId: 71,
+      property: 'road',
+      observedValue: '1',
     });
     expect(facts.claims[0].relatedIds).toContain(facts.routes[0].id);
     expect(

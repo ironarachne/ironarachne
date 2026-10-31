@@ -57,6 +57,9 @@
               <p data-gazetteer-text>{paragraph}</p>
             {/each}
           {/if}
+          {#each entry.references ?? [] as reference}
+            <p><a href={`#${uid}-${reference.anchorId}`}>{reference.label}</a></p>
+          {/each}
           {#if entry.hook}
             <h5>{entry.hookHeading}</h5>
             <p data-gazetteer-text>{entry.hook}</p>

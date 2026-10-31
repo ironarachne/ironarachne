@@ -52,7 +52,11 @@ function staleSettlementExplanations(snapshot: RegionSnapshot, index: number, na
     .flatMap<RegionSemanticFact>((list) => snapshot.facts[list])
     .filter(
       (fact) =>
-        !(nameOnly && fact.id.startsWith('role:site:')) &&
+        !(
+          nameOnly &&
+          (fact.id.startsWith('role:site:') ||
+            (snapshot.gazetteer?.version === 4 && 'endpoints' in fact && fact.kind === 'road'))
+        ) &&
         (('settlement' in fact && isTarget(fact.settlement)) ||
           ('endpoints' in fact &&
             fact.endpoints.some(

@@ -1,3 +1,8 @@
+import {
+  currentEmbeddedRoads,
+  roadNetworkObservation,
+  roadPathCurrent,
+} from './region_road_evidence';
 import { landscapeObservationCurrent } from './region_landscape_extent';
 import { notableSubjectName, notableEvidenceKey } from './region_notable_identity';
 import type { RegionNotableReferenceContext } from './region_notable_reading_types';
@@ -5,31 +10,11 @@ import type { FactBase } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
 import type { RegionEditorialObservation, RegionGazetteerSentence } from './region_editorial_types';
 import { createRegionEvidenceChecker } from './region_context_evidence';
-import { overviewRoad } from './region_geography_narrative';
 import { regionSemanticFactLists } from './region_fact_lists';
 
 export const lexical = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 export const ordered = (values: string[]) => [...new Set(values)].sort(lexical);
-export function editorialRoads(snapshot: RegionSnapshot) {
-  const current = createRegionEvidenceChecker(snapshot);
-  const context = {
-    map: snapshot.map,
-    settlementIds: snapshot.settlements.map((entry) => entry.id),
-    settlements: snapshot.settlements.map((entry) => entry.snapshot),
-  };
-  return snapshot.facts.routes
-    .filter((route) => route.kind === 'road' && current(route))
-    .flatMap((route) => {
-      const road = overviewRoad(context, route);
-      const ids = route.endpoints.flatMap((endpoint) =>
-        endpoint.kind === 'settlement' && endpoint.settlement.kind === 'embedded'
-          ? [endpoint.settlement.settlementId]
-          : [],
-      );
-      return road && ids.length === 2 ? [{ route, road, ids }] : [];
-    })
-    .sort((a, b) => lexical(a.route.id, b.route.id));
-}
+export const editorialRoads = currentEmbeddedRoads;
 export function populationObservation(snapshot: RegionSnapshot): RegionEditorialObservation {
   return {
     kind: 'settlement-populations',
@@ -106,6 +91,11 @@ export function editorialSentenceChecker(
     )
       return false;
     return sentence.observations.every((observation) => {
+      if (observation.kind === 'road-network')
+        return (
+          notableEvidenceKey(roadNetworkObservation(snapshot)) === notableEvidenceKey(observation)
+        );
+      if (observation.kind === 'road-path') return roadPathCurrent(snapshot, observation);
       if (observation.kind === 'notable-name')
         return (
           notableSubjectName(snapshot, observation.subject, references) === observation.observedName

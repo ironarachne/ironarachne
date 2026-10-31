@@ -38,6 +38,7 @@ export type RegionSection = {
   entryPrompts?: string[];
   entryPromptHeadings?: string[];
   entryLocations?: string[];
+  entryReferences?: { label: string; anchorId: string }[][];
 };
 
 /** A region arranged for reading, independent of the format it is finally written in. */
@@ -425,6 +426,8 @@ export function regionToMarkdown(
         if (section.entryLocations?.[index])
           blocks.push(`Location: ${section.entryLocations[index]}`);
         if (text) blocks.push(text);
+        for (const reference of section.entryReferences?.[index] ?? [])
+          blocks.push(`[${reference.label.replace(/[[\]\\]/g, '\\$&')}](#${reference.anchorId})`);
         if (section.entryPrompts?.[index])
           blocks.push(
             `#### ${section.entryPromptHeadings?.[index] || 'Suggested adventure'}`,
@@ -479,10 +482,11 @@ export function regionToText(
             ]
           : []),
         ...section.lines.map((line, index) => {
-          if (snapshot.gazetteer?.version === 3)
+          if (snapshot.gazetteer?.version === 3 || snapshot.gazetteer?.version === 4)
             return [
               section.entryLocations?.[index] ? `Location: ${section.entryLocations[index]}` : '',
               line,
+              ...(section.entryReferences?.[index] ?? []).map((reference) => reference.label),
               section.entryPrompts?.[index]
                 ? `${section.entryPromptHeadings?.[index] || 'Suggested adventure'}\n${section.entryPrompts[index]}`
                 : '',

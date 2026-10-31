@@ -1,3 +1,4 @@
+import { appendRoadReading } from './region_road_presentation';
 import { regionHook } from './region_prose';
 import { notableEntryAnchor } from './region_notable_identity';
 import { appendNotableReading } from './region_notable_presentation';
@@ -44,7 +45,12 @@ export function regionEditorialDocument(
       : [],
   );
   for (const block of snapshot.gazetteer?.blocks ?? []) {
-    if (block.destination.landscapePlaceId || block.destination.notableId) continue;
+    if (
+      block.destination.landscapePlaceId ||
+      block.destination.notableId ||
+      block.destination.routeId
+    )
+      continue;
     if (authoredEcology && block.destination.section === 'ecology') continue;
     if (block.destination.section === 'opening' && snapshot.overviewReason === undefined) continue;
     const sentences = block.sentences.filter(readable).map((sentence) => sentence.text);
@@ -93,6 +99,13 @@ export function regionEditorialDocument(
       (entry) => entry.origin === 'authored' && !landscapeIds.has(entry.id),
     )) {
       if (!fact.description.trim()) continue;
+      if (
+        snapshot.gazetteer?.version === 4 &&
+        key === 'routes' &&
+        'kind' in fact &&
+        fact.kind === 'road'
+      )
+        continue;
       const sectionName =
         fact.id === 'claim:ecology-summary'
           ? 'Flora and fauna'
@@ -158,6 +171,7 @@ export function regionEditorialDocument(
   }
   appendLandscapeReading(snapshot, document);
   appendNotableReading(snapshot, document, references);
+  appendRoadReading(snapshot, document, references);
   // Authored suggestions stay distinct from generated ones, including promoted forest aliases.
   for (const section of document.sections) {
     for (const [index, id] of (section.factIds ?? []).entries()) {

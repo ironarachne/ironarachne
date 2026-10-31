@@ -652,3 +652,26 @@ Reading validates saved choices without RNG or replacement selection. Name obser
 only generated sentences that spell the changed name; identity labels follow current references.
 Source edits/removals and stale relationships invalidate dependent output. Versions 1 and 2 remain
 readable and migrations preserve saved prose. See [the approved design](../../../docs/region-notable-reading.md).
+
+## Compact road reading (#448)
+
+New gazetteers use version 4 (region payload version 22), preserving version-3 landscape and
+notable reading. `region_road_reading_types.ts` defines complete route-set and individual path
+observations, route directory records, shared detail owners and references to separately saved
+notable suggestions. `region_road_evidence.ts` validates current continuous land paths and exact
+endpoint/path observations. Connectivity describes saved itineraries: paths may share segments or
+pass through intermediate settlements, and establish no separate spokes, trade, safety or distance.
+
+`region_road_reading.ts` supplies distinctive supported travel candidates to the common editorial
+planner. Ordinary forest/open-country routes receive no filler or compulsory hook. Shared path
+constraints use shared assertion keys; a selected notable owns its existing adventure suggestion.
+`region_road_presentation.ts` builds the complete endpoint directory with stable route anchors and
+inspection IDs. Generated detail is read from saved blocks once; authored route names, descriptions,
+hooks and blanks override it. All reading exports consume the same directory and owner references.
+
+The region artifact migration preserves earlier gazetteer versions and source prose without
+composition. Explicit library-level editorial regeneration can build a version-4 plan from existing
+facts; the editor does not introduce a partial-regeneration control. Names update directory labels;
+name-dependent saved sentences and changed path/network observations become stale independently.
+See [the approved design](../../../docs/region-road-reading.md) and
+[the reading review](../../../docs/region-road-reading-review.md).
