@@ -23,3 +23,8 @@ export * from './settlement_snapshot';
 
 export type * from './settlement_feature_types';
 export * from './settlement_features';
+
+export {
+  generateSettlementArchitecture,
+  regenerateSettlementArchitecture,
+} from './settlement_architecture';

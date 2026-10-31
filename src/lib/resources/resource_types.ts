@@ -32,3 +32,5 @@ export type Component = {
   required_resources: { resource: string; quantity: number }[];
   complexity: number;
 };
+
+export type ResourceAvailability = 'available' | 'limited' | 'not-observed' | 'unknown';

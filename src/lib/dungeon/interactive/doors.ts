@@ -1,5 +1,4 @@
 import * as RNG from '@ironarachne/rng';
-import * as Words from '@ironarachne/words';
 import { getTile } from '../grid/grid';
 import type { DungeonLayout } from '../layout/types';
 import type { Door, DoorType, DoorState } from './types';
@@ -119,12 +118,11 @@ export function generateDoors(
       state = 'open';
     }
 
-    const doorMaterials = ['wooden', 'iron-bound', 'heavy oak', 'stone', 'bronze', 'rotting wood'];
-    const doorMaterial = doorMaterials[rng.int(0, doorMaterials.length - 1)];
-    const doorConditions = ['sturdy', 'battered', 'ancient', 'pristine', 'solid'];
-    const doorCondition = doorConditions[rng.int(0, doorConditions.length - 1)];
-
-    let description = `${Words.article(doorCondition)} ${doorCondition} ${doorMaterial} door`;
+    // Preserve the two historical flavor draws so existing door positions/states and later
+    // lock/key generation retain their streams. Materials now belong to architecture.
+    rng.int(0, 5);
+    rng.int(0, 4);
+    let description = 'a door';
     if (type === 'secret') {
       description += `, cleverly disguised to blend in with the wall`;
     }

@@ -1,3 +1,10 @@
+import { doorsOnRoomWalls } from './dungeon_room_doors';
+// The synchronous artifact boundary excludes architecture generation and resource catalogs.
+import {
+  legacyArchitectureState,
+  validateArchitectureState,
+  validateArchitecturalInstance,
+} from '$lib/architecture/validation';
 import door from '$lib/assets/icons/set2/door.svg?raw';
 import {
   acceptedPayload,
@@ -25,8 +32,8 @@ import type { EngineeredDungeon } from './generator/types.js';
  */
 export const DUNGEON_ARTIFACT_KIND = 'dungeon' as const;
 
-/** Version 2 composes the actor migration through every room encounter. */
-export const DUNGEON_PAYLOAD_VERSION = 2 as const;
+/** Version 3 stores shared architecture and per-room instances; older text and topology are preserved. */
+export const DUNGEON_PAYLOAD_VERSION = 3 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -231,6 +238,8 @@ export function validateDungeonSnapshot(payload: unknown): PayloadResult<Dungeon
     return rejectedPayload('invalid-payload', 'dungeon payload needs a name');
   }
 
+  if (!validateArchitectureState(record.architecture).ok)
+    return rejectedPayload('invalid-payload', 'dungeon architecture is invalid');
   const checks = [
     validateTheme(record.theme),
     validateLayout(record.layout),
@@ -244,7 +253,30 @@ export function validateDungeonSnapshot(payload: unknown): PayloadResult<Dungeon
     return failed as PayloadResult<DungeonSnapshot>;
   }
 
-  return acceptedPayload(record as unknown as DungeonSnapshot);
+  const snapshot = record as unknown as DungeonSnapshot;
+  if (
+    snapshot.rooms.some(
+      (room) =>
+        room.architecture !== null &&
+        (!asRecord(room.architecture) ||
+          !snapshot.architecture.style ||
+          !validateArchitecturalInstance(room.architecture, snapshot.architecture.style, {
+            id: room.id,
+            profileId: room.architecture.profileId,
+            currentPurpose: room.architecture.currentPurpose,
+            shape: 'irregular',
+            widthDepthRatio: room.primitive.width / room.primitive.height,
+            condition: room.architecture.condition,
+            placedFeatureIds: [],
+            connections: doorsOnRoomWalls(room, snapshot.doors)
+              .map((e) => e.door)
+              .filter((d) => d.type !== 'secret')
+              .map((d) => ({ id: d.id, kind: 'door' })),
+          }).ok),
+    )
+  )
+    return rejectedPayload('invalid-payload', 'dungeon room architecture is invalid');
+  return acceptedPayload(snapshot);
 }
 
 /** Composes the encounter migration through every populated room. */
@@ -252,10 +284,10 @@ export function migrateDungeonSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<DungeonSnapshot> {
-  if (from !== 1) {
+  if (from !== 1 && from !== 2) {
     return rejectedPayload(
       'unsupported-version',
-      `Dungeons have no migration from payload version ${from}; version 1 is the only older shape there has been`,
+      `Dungeons have no migration from payload version ${from}; versions 1–2 are the older shapes`,
     );
   }
   const record = asRecord(payload);
@@ -264,14 +296,19 @@ export function migrateDungeonSnapshot(
   }
   return validateDungeonSnapshot({
     ...record,
+    architecture: legacyArchitectureState(),
     rooms: Array.isArray(record.rooms)
       ? record.rooms.map((room) => {
           const storedRoom = asRecord(room);
-          if (storedRoom === null || storedRoom.encounter === undefined) {
-            return room;
-          }
+          if (storedRoom === null) return room;
+          if (from === 2 || storedRoom.encounter === undefined)
+            return { ...storedRoom, architecture: null };
           const migrated = migrateEncounterSnapshot(storedRoom.encounter, 1);
-          return { ...storedRoom, encounter: migrated.ok ? migrated.value : storedRoom.encounter };
+          return {
+            ...storedRoom,
+            architecture: null,
+            encounter: migrated.ok ? migrated.value : storedRoom.encounter,
+          };
         })
       : record.rooms,
   });

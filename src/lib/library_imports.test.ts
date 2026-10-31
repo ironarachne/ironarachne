@@ -28,6 +28,10 @@ const libRoot = join(repoRoot, 'src/lib');
  * Add to this list only with a build measurement behind it. "It felt heavy" is how the rule rots.
  */
 const ALLOWED_DEEP_IMPORTS = new Set([
+  // Architecture's synchronous artifact validation entry excludes generation and resource catalogs.
+  // Measured workshop static dependency graph: 1,126,396 bytes through validation versus
+  // 1,148,774 through the barrel (73 chunks in each), before subsequent catalog refinements.
+  '$lib/architecture/validation',
   // Re-exporting a ruleset implementation from `$lib/rulesets` would make it statically reachable
   // from the registry entry point and defeat the dynamic import boundary introduced by #206. The
   // nested compatibility package is the intentional implementation entry point for normalized

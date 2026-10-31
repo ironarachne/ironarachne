@@ -1,3 +1,9 @@
+import type {
+  ArchitectureState,
+  ArchitectureResources,
+  ArchitecturalSite,
+  CulturalPreference,
+} from '$lib/architecture';
 import type * as MUN from '@ironarachne/made-up-names';
 import type { RNG } from '@ironarachne/rng';
 import type { Character, CharacterGenerationConfig } from '$lib/characters';
@@ -75,6 +81,7 @@ export type SettlementEnrichmentConfig = {
 export type SettlementSizeFilter = 'small' | 'medium' | 'large' | 'any';
 
 export type SettlementGeneratorConfig = {
+  architecture?: SettlementArchitectureConfig;
   environment: Environment;
   nameGenerator: MUN.NameGenerator | null;
   /** Which `sizeClass` values to draw categories from. Use `any` for all listed categories. */
@@ -88,6 +95,7 @@ export type SettlementGeneratorConfig = {
  * A populated place: narrative description plus structured fields for later rules and UI.
  */
 export type Settlement = {
+  architecture: ArchitectureState;
   regionalMaterialContext?: RegionalMaterialLink | null;
   name: string;
   description: string;
@@ -115,4 +123,11 @@ export type Settlement = {
   creepingProblems?: SettlementProblem[];
   organizations?: Organization[];
   importantPeople?: SettlementImportantPerson[];
+};
+
+export type SettlementArchitectureConfig = {
+  seed: string;
+  resources: ArchitectureResources;
+  site?: ArchitecturalSite;
+  culturalPreferences?: CulturalPreference[];
 };

@@ -1,3 +1,11 @@
+import type {
+  ArchitectureState,
+  ArchitecturalInstance,
+  ArchitectureResources,
+  ArchitectureContext,
+  ArchitecturalSite,
+  CulturalPreference,
+} from '$lib/architecture';
 export type DungeonEntrance = {
   x: number;
   y: number;
@@ -11,6 +19,7 @@ import type { Encounter } from '../../encounters/encounter_types';
 import type { Item } from '../../equipment';
 
 export type PopulatedRoom = PlacedRoom & {
+  architecture: ArchitecturalInstance | null;
   id: string; // The numeric-based ID mapped for visual reference
   name: string; // E.g. "Armory", "Mossy Grotto"
   purpose: string; // The functional intent, e.g. "Armory"
@@ -20,6 +29,7 @@ export type PopulatedRoom = PlacedRoom & {
 };
 
 export type EngineeredDungeon = {
+  architecture: ArchitectureState;
   name: string;
   theme: DungeonTheme;
 
@@ -33,4 +43,12 @@ export type EngineeredDungeon = {
 
   // Entrances (stairs down or exterior door)
   entrances: DungeonEntrance[];
+};
+
+export type DungeonArchitectureConfig = {
+  resources: ArchitectureResources;
+  contexts?: ArchitectureContext[];
+  roomProfiles?: Record<string, string>;
+  site?: ArchitecturalSite;
+  culturalPreferences?: CulturalPreference[];
 };

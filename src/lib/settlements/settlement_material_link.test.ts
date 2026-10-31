@@ -1,3 +1,4 @@
+import { legacyArchitectureState } from '$lib/architecture';
 import { describe, expect, it } from 'vitest';
 import {
   isRegionalMaterialLink,
@@ -65,7 +66,10 @@ describe('material links and migrations', () => {
     const snapshot = toSettlementSnapshot(rollSettlement('material-link').settlement);
     const { regionalMaterialContext: _link, ...old } = snapshot;
     const migrated = migrateSettlementSnapshot(old, version);
-    expect(migrated).toEqual({ ok: true, value: snapshot });
+    expect(migrated).toEqual({
+      ok: true,
+      value: { ...snapshot, architecture: legacyArchitectureState() },
+    });
     expect(old).not.toHaveProperty('regionalMaterialContext');
   });
   it('adds null to embedded v8 settlements without touching region facts or map', () => {
