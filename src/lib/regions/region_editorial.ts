@@ -1,3 +1,6 @@
+import { settlementReadingCandidates, emptySettlementReadings } from './region_settlement_reading';
+import type { RegionSettlementReading } from './region_settlement_reading_types';
+import { sameSettlement } from './region_livelihood_evidence';
 import {
   buildRoadReadings,
   roadReadingCandidates,
@@ -164,7 +167,10 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
   }
   for (const role of facts.settlementRoles) {
     const settlement = overviewSettlement(region, role);
-    const clauses = siteClause(role);
+    const clauses =
+      role.reason?.ruleId === 'fantasy:region:agricultural-site:v1'
+        ? ['lies beside ground suitable for cultivation']
+        : siteClause(role);
     if (!settlement || !clauses.length) continue;
     const woodland = role.reason?.ruleId === 'fantasy:region:forest-settlement:v1';
     add(
@@ -372,11 +378,6 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
     if (!peers.has(key)) peers.set(key, new Set());
     peers.get(key)!.add(targetKey(fact.settlement));
   }
-  for (const fact of facts.activities.filter((fact) => current(fact))) {
-    const key = `practice:${fact.activityKey}`;
-    if (!peers.has(key)) peers.set(key, new Set());
-    peers.get(key)!.add(targetKey(fact.settlement));
-  }
   for (const fact of facts.supply.filter((fact) => current(fact))) {
     const key = `provision:${fact.needKey}:${fact.status}`;
     if (!peers.has(key)) peers.set(key, new Set());
@@ -386,61 +387,47 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
     target.kind === 'embedded'
       ? snapshot.settlements.find((entry) => entry.id === target.settlementId)?.snapshot.name.trim()
       : undefined;
-  for (const fact of [...facts.dailyLife, ...facts.activities, ...facts.supply]) {
+  for (const fact of [
+    ...facts.dailyLife.filter((fact) => fact.inputs.every((input) => input.kind !== 'product')),
+    ...facts.supply,
+  ]) {
     const name = nameFor(fact.settlement);
     if (!name || !fact.description.trim()) continue;
-    const practice = 'support' in fact;
     const provision = 'status' in fact;
     if (provision && fact.status !== 'limited-local') continue;
     const key =
       'category' in fact
         ? `${fact.category}:${fact.activityKey}:${fact.name.toLowerCase()}`
-        : practice
-          ? `practice:${fact.activityKey}`
-          : `provision:${fact.needKey}:${fact.status}`;
+        : `provision:${fact.needKey}:${fact.status}`;
     const distinguishes = (peers.get(key)?.size ?? 0) <= 1;
     const extraction = 'category' in fact && fact.activityKey === 'raw-extraction';
     const topic = extraction
       ? 'material'
-      : practice
-        ? 'practice'
-        : provision
-          ? 'provision'
-          : fact.category === 'livelihood'
-            ? 'practice'
-            : 'material';
-    const centralPractice =
-      practice &&
-      distinguishes &&
-      candidates.some(
-        (entry) =>
-          entry.narrative.importance === 'defining' &&
-          entry.subjectKey === targetKey(fact.settlement),
-      );
+      : provision
+        ? 'provision'
+        : fact.category === 'livelihood'
+          ? 'practice'
+          : 'material';
     add(
       `editorial:local:${fact.id}`,
       topic,
-      centralPractice
-        ? 'defining'
-        : practice && distinguishes
+      provision
+        ? distinguishes
           ? 'distinctive'
-          : provision
-            ? distinguishes
-              ? 'distinctive'
-              : 'supporting'
-            : (extraction && (peers.get(key)?.size ?? 0) < snapshot.settlements.length) ||
-                (distinguishes && 'category' in fact && fact.category === 'livelihood')
-              ? 'distinctive'
-              : 'supporting',
+          : 'supporting'
+        : (extraction && (peers.get(key)?.size ?? 0) < snapshot.settlements.length) ||
+            (distinguishes && 'category' in fact && fact.category === 'livelihood')
+          ? 'distinctive'
+          : 'supporting',
       targetKey(fact.settlement),
-      [`${name}: ${fact.description}`],
+      [fact.description.includes(name) ? fact.description : `${name}: ${fact.description}`],
       [fact],
       [
-        destination('settlement', fact.settlement),
+        destination('materials-work'),
         ...(distinguishes && !provision ? [destination('opening')] : []),
       ],
       {
-        consequence: (practice || provision) && distinguishes,
+        consequence: provision && distinguishes,
         located: true,
         connects: true,
         meaning: `editorial:local:${key}`,
@@ -480,6 +467,7 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
       },
     );
   }
+  candidates.push(...settlementReadingCandidates(region, snapshot));
   candidates.push(...roadReadingCandidates(snapshot));
   candidates.push(...notableEditorialCandidates(snapshot).descriptions);
   candidates.push(...landscapeReadingCandidates(snapshot, buildLandscapePlaces(snapshot)));
@@ -497,6 +485,7 @@ export function composeRegionGazetteer(
   notableReadings: RegionNotableReading[] = [],
   promptCandidates: RegionNotablePromptCandidate[] = [],
   roadReadings: RegionRoadReading[] = [],
+  settlementReadings: RegionSettlementReading[] = [],
 ): { gazetteer: RegionGazetteer; nextContext: RegionEditorialContext } {
   const token = rng.int(0, 2147483647);
   const selectionRng = new RNG(JSON.stringify(['gazetteer-selection-v1', token]));
@@ -509,6 +498,7 @@ export function composeRegionGazetteer(
   const selected: { entry: RegionEditorialCandidate; destination: RegionEditorialDestination }[] =
     [];
   const readings = structuredClone(notableReadings);
+  const settlementEntries = structuredClone(settlementReadings);
   const promptById = new Map(
     promptCandidates.map((candidate) => [candidate.editorial.narrative.id, candidate]),
   );
@@ -548,6 +538,15 @@ export function composeRegionGazetteer(
       )
         return false;
       const key = editorialDestinationKey(dest);
+      if (dest.section === 'settlement') {
+        const role = entry.settlementReadingRole ?? 'portrait';
+        const roleCount = selected.filter(
+          (previous) =>
+            editorialDestinationKey(previous.destination) === key &&
+            (previous.entry.settlementReadingRole ?? 'portrait') === role,
+        ).length;
+        if (roleCount >= (role === 'portrait' ? 2 : 1)) return false;
+      }
       const geographic = dest.section === 'landscape' || !!dest.landscapePlaceId;
       if (
         geographic &&
@@ -622,6 +621,7 @@ export function composeRegionGazetteer(
         !entry.assertionKeys.some((key) => assertionKeys.has(key)) &&
         (subjectTopics.get(`${entry.subjectKey}:${entry.narrative.topic}`) ?? 0) < 2 &&
         (entry.narrative.importance !== 'supporting' ||
+          entry.settlementReadingRole === 'portrait' ||
           selected.some(({ entry: previous }) => previous.subjectKey === entry.subjectKey)) &&
         chooseDestination(entry),
     );
@@ -720,11 +720,30 @@ export function composeRegionGazetteer(
       const key = editorialDestinationKey(dest);
       if (!blocks.has(key)) blocks.set(key, { id: key, destination: dest, sentences: [] });
       blocks.get(key)!.sentences.push(sentence);
+      if (dest.section === 'settlement' && dest.settlement) {
+        let reading = settlementEntries.find((reading) =>
+          sameSettlement(reading.settlement, dest.settlement!),
+        );
+        if (!reading) {
+          reading = {
+            settlement: dest.settlement,
+            portraitSentenceIds: [],
+            opportunitySentenceIds: [],
+          };
+          settlementEntries.push(reading);
+        }
+        reading[
+          entry.settlementReadingRole === 'opportunity'
+            ? 'opportunitySentenceIds'
+            : 'portraitSentenceIds'
+        ].push(sentence.id);
+      }
     }
   }
   return {
     gazetteer: {
-      version: 4,
+      version: 5,
+      settlementReadings: settlementEntries,
       roadReadings,
       blocks: [...blocks.values()],
       landscapePlaces,
@@ -747,8 +766,34 @@ export function generateRegionGazetteer(region: Region, rng: RNG): void {
     notables.readings,
     notables.prompts,
     buildRoadReadings(snapshot),
+    emptySettlementReadings(snapshot),
   ).gazetteer;
   assignRoadReadingOwners({ ...snapshot, gazetteer: region.gazetteer });
+  if (region.gazetteer.version === 5) {
+    for (const reading of region.gazetteer.settlementReadings) {
+      if (reading.settlement.kind !== 'embedded') continue;
+      const index = region.settlementIds?.indexOf(reading.settlement.settlementId) ?? -1;
+      if (index < 0 || !region.settlementDescriptionReasons?.[reading.settlement.settlementId])
+        continue;
+      const portrait = region.gazetteer.blocks
+        .flatMap((block) => block.sentences)
+        .filter((sentence) => reading.portraitSentenceIds.includes(sentence.id));
+      region.settlements[index].description = portrait.map((sentence) => sentence.text).join(' ');
+      region.settlementDescriptionReasons[reading.settlement.settlementId] = {
+        ruleId: 'fantasy:region:settlement-portrait:v1',
+        status: 'current',
+        sources: portrait.length
+          ? portrait.flatMap((sentence) => sentence.reason.sources)
+          : [
+              {
+                kind: 'environment',
+                field: 'biome',
+                observedValue: JSON.stringify(region.environment.biome),
+              },
+            ],
+      };
+    }
+  }
   const opening = region.gazetteer.blocks
     .filter((block) => block.destination.section === 'opening')
     .flatMap((block) => block.sentences);

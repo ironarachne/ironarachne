@@ -1,4 +1,8 @@
 import {
+  settlementCharacterObservation,
+  settlementWorkOptions,
+} from './region_settlement_reading_evidence';
+import {
   currentEmbeddedRoads,
   roadNetworkObservation,
   roadPathCurrent,
@@ -90,7 +94,23 @@ export function editorialSentenceChecker(
       })
     )
       return false;
+    if (sentence.candidateId.startsWith('editorial:work:')) {
+      const product = snapshot.facts.products.find((entry) =>
+        sentence.reason.sources.some(
+          (source) => source.kind === 'fact' && source.factId === entry.id,
+        ),
+      );
+      if (!product || !settlementWorkOptions(snapshot, product).length) return false;
+    }
     return sentence.observations.every((observation) => {
+      if (observation.kind === 'settlement-character') {
+        const entry = snapshot.settlements.find((entry) => entry.id === observation.settlementId);
+        return (
+          !!entry &&
+          notableEvidenceKey(settlementCharacterObservation(entry.id, entry.snapshot)) ===
+            notableEvidenceKey(observation)
+        );
+      }
       if (observation.kind === 'road-network')
         return (
           notableEvidenceKey(roadNetworkObservation(snapshot)) === notableEvidenceKey(observation)
@@ -122,4 +142,23 @@ export function editorialSentenceChecker(
       return observations.get(key) === notableEvidenceKey(observation);
     });
   };
+}
+
+/** Aggregate mirror consumers must respect the per-sentence facet/name observations too. */
+export function settlementPortraitCurrent(
+  snapshot: RegionSnapshot,
+  settlementId: string,
+  readable = editorialSentenceChecker(snapshot),
+): boolean {
+  const gazetteer = snapshot.gazetteer;
+  if (gazetteer?.version !== 5) return true;
+  const reading = gazetteer.settlementReadings.find(
+    (reading) =>
+      reading.settlement.kind === 'embedded' && reading.settlement.settlementId === settlementId,
+  );
+  if (!reading) return false;
+  return gazetteer.blocks
+    .flatMap((block) => block.sentences)
+    .filter((sentence) => reading.portraitSentenceIds.includes(sentence.id))
+    .every(readable);
 }

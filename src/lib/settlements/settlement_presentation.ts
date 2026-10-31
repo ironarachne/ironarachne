@@ -132,7 +132,9 @@ function notableSections(settlement: Settlement): SettlementSection[] {
  * Assembled here rather than in each renderer so the Markdown and the PDF cannot disagree about
  * how a settlement introduces itself.
  */
-export function settlementSummaryLine(settlement: Settlement): string {
+export function settlementSummaryLine(
+  settlement: Pick<Settlement, 'category' | 'population' | 'prosperity' | 'economicRole'>,
+): string {
   return `${settlement.category.name} · population ${settlement.population.toLocaleString()} · prosperity ${settlement.prosperity} · ${settlement.economicRole}`;
 }
 

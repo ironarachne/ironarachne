@@ -123,7 +123,7 @@ describe('compact saved road reading', () => {
   it('presents the verified historical seven-connection hub without repeating old filler', () => {
     const before = JSON.stringify(historical.facts);
     const result = generate(historical);
-    expect(result.gazetteer?.version).toBe(4);
+    expect(result.gazetteer?.version).toBe(5);
     expect(JSON.stringify(result.facts)).toBe(before);
     const roads = historical.facts.routes.filter((route) => route.kind === 'road');
     expect(roads).toHaveLength(7);
@@ -219,7 +219,7 @@ describe('compact saved road reading', () => {
     const source = fixture();
     source.map.edges[0].river = 2;
     const result = generate(source);
-    if (result.gazetteer?.version !== 4) throw new Error('Missing road plan');
+    if (result.gazetteer?.version !== 5) throw new Error('Missing road plan');
     expect(
       sentences(result).filter((sentence) => sentence.assertionKeys.includes('road-river:10')),
     ).toHaveLength(1);
@@ -313,7 +313,7 @@ describe('compact saved road reading', () => {
       },
     ];
     const result = generate(source);
-    if (result.gazetteer?.version !== 4) throw new Error('Missing plan');
+    if (result.gazetteer?.version !== 5) throw new Error('Missing plan');
     expect(
       result.gazetteer.roadReadings.filter((reading) => reading.promptNotableId === 'notable:cold'),
     ).toHaveLength(3);
@@ -333,7 +333,7 @@ describe('compact saved road reading', () => {
 
   it('keeps linked suggestions valid for persistence after a named settlement is renamed', () => {
     const source = rollRegionSnapshot('bravo');
-    if (source.gazetteer?.version !== 4) throw new Error('Missing plan');
+    if (source.gazetteer?.version !== 5) throw new Error('Missing plan');
     const reading = source.gazetteer.roadReadings.find((reading) => reading.promptNotableId)!;
     expect(reading).toBeDefined();
     const notable = source.facts.notables.find((fact) => fact.id === reading.promptNotableId)!;
@@ -402,7 +402,7 @@ describe('compact saved road reading', () => {
     const source = fixture();
     source.map.edges[0].river = 2;
     const result = generate(source);
-    if (result.gazetteer?.version !== 4) throw new Error('Missing plan');
+    if (result.gazetteer?.version !== 5) throw new Error('Missing plan');
     const facts = new Set(result.facts.routes.map((route) => route.id));
     expect(roadReadingsError(undefined, result, facts)).toBeTruthy();
     expect(roadReadingsError([{}], result, facts)).toBeTruthy();

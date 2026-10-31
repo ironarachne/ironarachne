@@ -135,7 +135,12 @@ export function accessibleProcessingResources(
           fact,
           sourceId: source.id,
           rawResourceId: source.resource.id,
-          food: structuredClone(source.resource.food),
+          // Reading an edited snapshot may supply reactive proxies; copy the small data union
+          // explicitly rather than passing a proxy to structuredClone.
+          food:
+            source.resource.food.kind === 'food'
+              ? { ...source.resource.food, productKeys: [...source.resource.food.productKeys] }
+              : { ...source.resource.food },
           sourceAvailability: source.availability,
           acquisitionRequirements: [...source.requirements],
           resource: {

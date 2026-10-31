@@ -6,7 +6,7 @@ import * as Words from '@ironarachne/words';
 import * as Dice from '$lib/dice';
 import * as Categories from './settlement_categories.js';
 import { applySettlementEnrichment, buildSettlementWithFacets } from './enrich_settlement.js';
-import { pickCategoryPlausibleLine, socialToneFromFacets } from './settlement_narrative.js';
+import { composeSettlementPortrait, settlementPortraitSubject } from './settlement_reading';
 import type { Settlement, SettlementGeneratorConfig } from './settlement_types.js';
 
 export function generate(config: SettlementGeneratorConfig): Settlement {
@@ -24,7 +24,16 @@ export function generate(config: SettlementGeneratorConfig): Settlement {
     prosperity: Dice.roll('2d6', config.rng),
   };
   let settlement = buildSettlementWithFacets(preFacets);
-  settlement = { ...settlement, description: randomDescription(settlement, config.rng) };
+  // Keep the former checklist's five draws so portrait changes cannot reroll enrichment
+  // or later regional identities. The caller supplies the seed for a dedicated prose stream.
+  const portraitToken = config.rng.int(0, 2147483647);
+  for (let draw = 0; draw < 4; draw++) config.rng.next();
+  if (!config.deferDescription) {
+    settlement.description = composeSettlementPortrait(
+      settlementPortraitSubject(settlement),
+      new RNG.RNG(JSON.stringify(['settlement-portrait-v1', portraitToken])),
+    ).text;
+  }
   if (config.enrichment) {
     settlement = applySettlementEnrichment(settlement, config.enrichment, config.rng);
   }
@@ -47,63 +56,4 @@ export function getDefaultConfig(
     size: 'any',
     rng,
   };
-}
-
-function randomDescription(settlement: Settlement, rng: RNG.RNG): string {
-  let description = rng.item([
-    '{name} is a {category} of {population} people.',
-    'The {category} of {name} has {population} people.',
-  ]);
-
-  description = description.replace('{category}', settlement.category.name);
-  description = description.replace(
-    '{population}',
-    new Intl.NumberFormat().format(settlement.population),
-  );
-  description = description.replace('{name}', settlement.name);
-  description += ` ${pickCategoryPlausibleLine(settlement.category, settlement.lawAndOrder, rng)}`;
-  description += ` ${randomProsperity(settlement.prosperity, rng)}`;
-  description += ` ${socialToneFromFacets(settlement, rng)}`;
-  description += ` ${rng.item(settlement.environment.biome.features)}`;
-
-  return description;
-}
-
-function randomProsperity(prosperity: number, rng: RNG.RNG): string {
-  const prefixes = [
-    'The people here',
-    'Most people here',
-    'Folks here',
-    'Most folks here',
-    'People here',
-  ];
-
-  let suffixes: string[] = [];
-
-  if (prosperity < 4) {
-    suffixes = [
-      'have little more than what they need to survive',
-      'struggle to make ends meet',
-      'struggle to have enough to survive',
-    ];
-  } else if (prosperity < 8) {
-    suffixes = [
-      'have enough to meet their needs',
-      'have just enough to meet their needs',
-      'seem to be doing well',
-      'have their needs met',
-    ];
-  } else {
-    suffixes = ['have more wealth than most', 'are prosperous', 'have more than they need'];
-  }
-
-  const options: string[] = [];
-
-  for (let i = 0; i < prefixes.length; i++) {
-    for (let j = 0; j < suffixes.length; j++) {
-      options.push(`${prefixes[i]} ${suffixes[j]}.`);
-    }
-  }
-
-  return rng.item(options);
 }

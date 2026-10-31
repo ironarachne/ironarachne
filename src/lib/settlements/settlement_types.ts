@@ -81,6 +81,8 @@ export type SettlementEnrichmentConfig = {
 export type SettlementSizeFilter = 'small' | 'medium' | 'large' | 'any';
 
 export type SettlementGeneratorConfig = {
+  /** Regional generation supplies a coordinated portrait after its evidence exists. */
+  deferDescription?: boolean;
   architecture?: SettlementArchitectureConfig;
   environment: Environment;
   nameGenerator: MUN.NameGenerator | null;

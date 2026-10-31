@@ -28,3 +28,6 @@ export {
   generateSettlementArchitecture,
   regenerateSettlementArchitecture,
 } from './settlement_architecture';
+
+export * from './settlement_reading';
+export type * from './settlement_reading_types';

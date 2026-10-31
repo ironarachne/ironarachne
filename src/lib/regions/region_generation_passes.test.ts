@@ -126,7 +126,9 @@ describe('dependent generation passes', () => {
     const coreSettlements = (value: typeof before) =>
       value.settlements.map((entry) => ({
         ...entry,
-        snapshot: { ...entry.snapshot, architecture: null },
+        // The editorial pass mirrors its selected portrait and evidence after semantic passes.
+        descriptionReason: undefined,
+        snapshot: { ...entry.snapshot, description: '', architecture: null },
       }));
     expect(coreSettlements(after)).toEqual(coreSettlements(before));
     // Architecture consumes construction evidence; changing that evidence may change the style.

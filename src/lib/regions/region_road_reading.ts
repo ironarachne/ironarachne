@@ -245,7 +245,7 @@ export function roadReadingCandidates(snapshot: RegionSnapshot): RegionEditorial
 /** Assign shared owners only after selection; no hidden duplicate sentences or suggestions. */
 export function assignRoadReadingOwners(snapshot: RegionSnapshot): void {
   const gazetteer = snapshot.gazetteer;
-  if (gazetteer?.version !== 4) return;
+  if (gazetteer?.version !== 4 && gazetteer?.version !== 5) return;
   for (const reading of gazetteer.roadReadings) {
     const route = snapshot.facts.routes.find((route) => route.id === reading.routeId)!;
     if (route.origin === 'authored') continue;

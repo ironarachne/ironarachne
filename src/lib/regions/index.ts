@@ -85,3 +85,5 @@ export type * from './region_notable_reading_types';
 export { regionArchitectureResources, generateRegionArchitecture } from './region_architecture';
 
 export type * from './region_road_reading_types';
+
+export type * from './region_settlement_reading_types';

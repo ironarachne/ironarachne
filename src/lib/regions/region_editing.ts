@@ -55,7 +55,9 @@ function staleSettlementExplanations(snapshot: RegionSnapshot, index: number, na
         !(
           nameOnly &&
           (fact.id.startsWith('role:site:') ||
-            (snapshot.gazetteer?.version === 4 && 'endpoints' in fact && fact.kind === 'road'))
+            ((snapshot.gazetteer?.version === 4 || snapshot.gazetteer?.version === 5) &&
+              'endpoints' in fact &&
+              fact.kind === 'road'))
         ) &&
         (('settlement' in fact && isTarget(fact.settlement)) ||
           ('endpoints' in fact &&
@@ -258,7 +260,10 @@ export function setRegionPlaceText(
     return hasIndex(snapshot.settlements.length, index)
       ? withRegionOverviewEvidence({
           ...snapshot,
-          facts: staleSettlementExplanations(snapshot, index, field === 'name'),
+          facts:
+            snapshot.gazetteer?.version === 5 && field === 'description'
+              ? snapshot.facts
+              : staleSettlementExplanations(snapshot, index, field === 'name'),
           settlements: replaceAt(snapshot.settlements, index, {
             ...snapshot.settlements[index],
             ...(field === 'description' ? { descriptionReason: undefined } : {}),

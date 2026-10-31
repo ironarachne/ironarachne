@@ -35,6 +35,8 @@ export type RegionSection = {
   entryAnchors?: string[];
   inspectionFactIds?: string[][];
   landscapeReferences?: RegionLandscapeReference[];
+  entrySummaries?: string[];
+  entryPossibleWork?: string[];
   entryPrompts?: string[];
   entryPromptHeadings?: string[];
   entryLocations?: string[];
@@ -417,6 +419,7 @@ export function regionToMarkdown(
         const anchor = section.entryAnchors?.[index];
         if (anchor) blocks.push(`<a id="${anchor}"></a>`);
         if (heading) blocks.push(`### ${heading}`);
+        if (section.entrySummaries?.[index]) blocks.push(section.entrySummaries[index]);
         const text =
           heading && line.startsWith(`${heading}\n\n`)
             ? line.slice(heading.length + 2)
@@ -426,6 +429,8 @@ export function regionToMarkdown(
         if (section.entryLocations?.[index])
           blocks.push(`Location: ${section.entryLocations[index]}`);
         if (text) blocks.push(text);
+        if (section.entryPossibleWork?.[index])
+          blocks.push('#### Possible work', section.entryPossibleWork[index]);
         for (const reference of section.entryReferences?.[index] ?? [])
           blocks.push(`[${reference.label.replace(/[[\]\\]/g, '\\$&')}](#${reference.anchorId})`);
         if (section.entryPrompts?.[index])
@@ -482,10 +487,33 @@ export function regionToText(
             ]
           : []),
         ...section.lines.map((line, index) => {
-          if (snapshot.gazetteer?.version === 3 || snapshot.gazetteer?.version === 4)
+          const heading = section.entryHeadings?.[index];
+          const summary = section.entrySummaries?.[index];
+          const reading =
+            heading && summary
+              ? [
+                  heading,
+                  summary,
+                  line.startsWith(`${heading}\n\n`)
+                    ? line.slice(heading.length + 2)
+                    : line === heading
+                      ? ''
+                      : line,
+                ]
+                  .filter(Boolean)
+                  .join('\n\n')
+              : line;
+          if (
+            snapshot.gazetteer?.version === 3 ||
+            snapshot.gazetteer?.version === 4 ||
+            snapshot.gazetteer?.version === 5
+          )
             return [
               section.entryLocations?.[index] ? `Location: ${section.entryLocations[index]}` : '',
-              line,
+              reading,
+              section.entryPossibleWork?.[index]
+                ? `Possible work: ${section.entryPossibleWork[index]}`
+                : '',
               ...(section.entryReferences?.[index] ?? []).map((reference) => reference.label),
               section.entryPrompts?.[index]
                 ? `${section.entryPromptHeadings?.[index] || 'Suggested adventure'}\n${section.entryPrompts[index]}`
@@ -497,7 +525,9 @@ export function regionToText(
           const { body, hook } = regionHook(line);
           return `${body}${hook ? `\n\nHook:\n\n${hook}` : ''}`;
         }),
-      ].join('\n'),
+      ].join(
+        snapshot.gazetteer?.version === 5 && section.heading === 'Settlements' ? '\n\n' : '\n',
+      ),
     );
   }
 

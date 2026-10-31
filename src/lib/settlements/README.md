@@ -168,3 +168,13 @@ The shared `settlementMaterialSection` serves the page, Markdown, plain text and
 `settlementToDocument` accepts a resolved `regionalMaterials` presentation; when a saved link has
 not been resolved, it emits an unresolved notice. Project PDF export resolves the link in its own
 project before rendering. See the [approved model](../../../docs/region-material-context.md).
+
+## Focused portraits
+
+`settlementPortraitSubject` supplies eligible character and social meanings to the shared narrative
+composer. `composeSettlementPortrait` accepts an explicit RNG and optional batch context; generated
+portraits have at most three sentences without a compulsory statistics checklist. Required features
+need caller-supplied eligibility. The generator persists the final words once in `description` and
+keeps its former five habitation draws, isolating portrait wording from enrichment and later towns.
+Regional generation defers the portrait until its coordinated editorial pass has current evidence.
+Saved and authored descriptions, including blanks, are never recomposed during display or export.
