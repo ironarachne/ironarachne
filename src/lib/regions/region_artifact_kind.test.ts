@@ -31,6 +31,15 @@ snapshot.facts.notables = snapshot.facts.notables.filter(
   (fact) => fact.reason?.ruleId !== 'fantasy:region:dense-forest-landmark:v1',
 );
 
+// These old payloads predate notable reaches supported by raw-source records.
+const rawSourceIds = new Set(snapshot.facts.resourceSources.map((source) => source.id));
+snapshot.facts.notables = snapshot.facts.notables.filter(
+  (fact) =>
+    !fact.reason?.sources.some(
+      (source) => source.kind === 'fact' && rawSourceIds.has(source.factId),
+    ),
+);
+
 const sourceSummaries = new Map(
   snapshot.facts.resourceSources.flatMap((source) => {
     const summary = snapshot.facts.resources.find((entry) => entry.sourceIds?.includes(source.id));

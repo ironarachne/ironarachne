@@ -200,8 +200,9 @@ composition or migration. See [ecology paragraph](../../../docs/region-ecology-p
 ## Notable places
 
 The notable-places pass selects a small set of supported natural and inhabited landmarks plus
-river, terrain or climate obstacles. Each stores a reason, saved-map anchor, compass location and
-suggested adventure hook. The generator, saved view and gazetteer use those stored descriptions.
+river, terrain or climate obstacles. Each stores a reason, saved-map anchor and description.
+Version-3 gazetteers select optional, separately saved suggested adventures rather than appending
+universal survey hooks; see the #447 contract below. Legacy saved hooks remain readable.
 
 ### Causal overview (#333)
 
@@ -491,8 +492,8 @@ See [the approved design](../../../docs/region-mountain-ranges.md).
 
 Payload version 13 / facts version 8 adds `denseForests`. A pure geography pass recognizes
 compact forest patches after mountain ranges. The independent `forest-landmark` stream gives
-one selected patch a culturally grounded name; its saved landmark occupies the natural-place
-slot in the existing four-notable budget. Map labels and the regional gazetteer share that
+one selected patch a culturally grounded name; its saved landmark retains a place
+within the four-notable maximum. Map labels and the regional gazetteer share that
 identity and name. No new resource or ecological claim follows from canopy density.
 
 Forests participate in fact validation, dependency review, text editing, and deletion guards.
@@ -629,3 +630,25 @@ Markdown, PDF and project publication. Authored source text and opening override
 including intentional blanks. Snapshots without a gazetteer retain the legacy reading path.
 See [the approved editorial design](../../../docs/region-gazetteer-salience.md) and the historical
 [Belvorn fixture](../../../test_fixtures/region_445_belvorn.md).
+
+## Notable identities and suggested adventures (#447)
+
+New gazetteers use version 3 (region payload version 20). Known settlement-approach rules resolve
+through their current site-role target, giving headings such as “Approach to Cilaamir” in the UI
+and all reading exports. Geographic aliases retain the version-2 landscape registry and owner.
+Explicit artifact-name context is optional; unresolved targets use neutral headings. Authored
+names, descriptions and legacy hooks remain unchanged.
+
+The notable pass selects up to four consequential places without filling category slots. Ordinary
+habitat study sites and unconnected river banks no longer receive generated notables. Generated
+prompts are saved separately as suggested adventures, with their selected wording, versioned rule
+and evidence. A prompt requires a selected place description and a supported decision involving
+passage, gathering danger, collection requirements or travel constraints. At most two different
+prompt families fit within the existing local and 24-sentence global budgets. No patron, bridge,
+ruin, event or history is invented. The editor supports authored notable names, descriptions and
+optional legacy-style hooks; authored overrides suppress generated alternatives.
+
+Reading validates saved choices without RNG or replacement selection. Name observations invalidate
+only generated sentences that spell the changed name; identity labels follow current references.
+Source edits/removals and stale relationships invalidate dependent output. Versions 1 and 2 remain
+readable and migrations preserve saved prose. See [the approved design](../../../docs/region-notable-reading.md).

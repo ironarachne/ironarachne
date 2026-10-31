@@ -434,6 +434,11 @@ describe('bounded ecological relationships', () => {
 describe('ecological gathering hazards', () => {
   it('reuses a saved material-use relation and an explicit crocodilian overlap, with no danger from a wisp or heron', () => {
     const region = fixture();
+    region.facts!.areas[0].reason = {
+      ruleId: 'fixture:v1',
+      status: 'current',
+      sources: [{ kind: 'map-node', nodeId: 10, property: 'isWater', observedValue: 'false' }],
+    };
     river(region);
     settlement(region, 10);
     inhabitant(region, 'reeds', ['producer'], 'flora');
@@ -449,7 +454,7 @@ describe('ecological gathering hazards', () => {
       (entry) => entry.reason!.ruleId === 'fantasy:region:ecology-bank-gathering:v1',
     )!;
     expect(hazard.description).toContain('alligator');
-    expect(hazard.description).toContain('Hook:');
+    expect(hazard.description).not.toContain('Hook:');
     expect(hazard.anchor!.nodeIds).toEqual([10]);
     expect(hazard.reason!.sources).toContainEqual({ kind: 'fact', factId: use.id });
     use.reason!.status = 'stale';

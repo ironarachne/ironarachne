@@ -1,4 +1,8 @@
 import type {
+  RegionNotableReading,
+  RegionNotableNameObservation,
+} from './region_notable_reading_types';
+import type {
   LandscapeFootprintObservation,
   RegionLandscapePlace,
 } from './region_landscape_reading_types';
@@ -18,6 +22,7 @@ export type RegionEditorialDestination = {
   section: RegionEditorialSection;
   settlement?: SettlementTarget;
   landscapePlaceId?: string;
+  notableId?: string;
 };
 export type RegionEditorialPriority = {
   residentConsequence: boolean;
@@ -26,6 +31,7 @@ export type RegionEditorialPriority = {
   peerSupportCount: number;
 };
 export type RegionEditorialObservation =
+  | RegionNotableNameObservation
   | LandscapeFootprintObservation
   | {
       kind: 'settlement-populations';
@@ -74,4 +80,10 @@ export type RegionGazetteerBlock = {
 };
 export type RegionGazetteer =
   | { version: 1; blocks: RegionGazetteerBlock[] }
-  | { version: 2; blocks: RegionGazetteerBlock[]; landscapePlaces: RegionLandscapePlace[] };
+  | { version: 2; blocks: RegionGazetteerBlock[]; landscapePlaces: RegionLandscapePlace[] }
+  | {
+      version: 3;
+      blocks: RegionGazetteerBlock[];
+      landscapePlaces: RegionLandscapePlace[];
+      notableReadings: RegionNotableReading[];
+    };

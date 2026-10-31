@@ -1,3 +1,4 @@
+import { notableHeading } from './region_notable_identity';
 import { regionHook } from './region_prose';
 import { typographyRiverFixture } from '../../../test_fixtures/region_typography';
 import type { RegionSnapshot } from './region_snapshot';
@@ -177,15 +178,15 @@ describe('exporting a region (6.3)', () => {
     expect(markdown.endsWith('\n')).toBe(true);
   });
 
-  it('includes stored landmarks and hazards with hooks in both gazetteer formats', () => {
+  it('includes stored notable descriptions without forcing generated hooks in either format', () => {
     expect(snapshot.facts.notables.length).toBeGreaterThan(0);
     for (const fact of snapshot.facts.notables) {
       const { body, hook } = regionHook(fact.description);
       for (const text of [regionToMarkdown(snapshot), regionToText(snapshot)]) {
-        expect(text).toContain(`${fact.name}: ${body}`);
-        expect(text).toContain(hook);
+        expect(text).toContain(`${notableHeading(snapshot, fact)}: ${body}`);
+        if (hook) expect(text).toContain(hook);
       }
-      expect(fact.description).toContain('Hook:');
+      expect(fact.description).not.toContain('Hook:');
     }
     const legacy = { ...snapshot, facts: { ...snapshot.facts, notables: [] } };
     expect(
@@ -546,7 +547,7 @@ describe('sourcebook gazetteer', () => {
       expect(exported.lines.some((line) => line.includes(route.description))).toBe(true);
       for (const text of [regionToMarkdown(saved), regionToText(saved)]) {
         expect(text).toContain(body);
-        expect(text).toContain(hook);
+        if (hook) expect(text).toContain(hook);
       }
     }
     expect(saved).toEqual(before);

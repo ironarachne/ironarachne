@@ -44,7 +44,7 @@ export function regionFactsNeedingReview(snapshot: RegionSnapshot): RegionSemant
 }
 
 /** Settlement text can contradict its site, uses, routes and downstream economic assertions. */
-function staleSettlementExplanations(snapshot: RegionSnapshot, index: number) {
+function staleSettlementExplanations(snapshot: RegionSnapshot, index: number, nameOnly = false) {
   const settlementId = snapshot.settlements[index].id;
   const isTarget = (target: { kind: string; settlementId?: string }) =>
     target.kind === 'embedded' && target.settlementId === settlementId;
@@ -52,14 +52,15 @@ function staleSettlementExplanations(snapshot: RegionSnapshot, index: number) {
     .flatMap<RegionSemanticFact>((list) => snapshot.facts[list])
     .filter(
       (fact) =>
-        ('settlement' in fact && isTarget(fact.settlement)) ||
-        ('endpoints' in fact &&
-          fact.endpoints.some(
-            (endpoint) => endpoint.kind === 'settlement' && isTarget(endpoint.settlement),
-          )) ||
-        ('relation' in fact &&
-          fact.relation.kind === 'used-by' &&
-          isTarget(fact.relation.settlement)),
+        !(nameOnly && fact.id.startsWith('role:site:')) &&
+        (('settlement' in fact && isTarget(fact.settlement)) ||
+          ('endpoints' in fact &&
+            fact.endpoints.some(
+              (endpoint) => endpoint.kind === 'settlement' && isTarget(endpoint.settlement),
+            )) ||
+          ('relation' in fact &&
+            fact.relation.kind === 'used-by' &&
+            isTarget(fact.relation.settlement))),
     );
   return staleRegionFactDependents(snapshot.facts, new Set(affected.map((fact) => fact.id)));
 }
@@ -253,7 +254,7 @@ export function setRegionPlaceText(
     return hasIndex(snapshot.settlements.length, index)
       ? withRegionOverviewEvidence({
           ...snapshot,
-          facts: staleSettlementExplanations(snapshot, index),
+          facts: staleSettlementExplanations(snapshot, index, field === 'name'),
           settlements: replaceAt(snapshot.settlements, index, {
             ...snapshot.settlements[index],
             ...(field === 'description' ? { descriptionReason: undefined } : {}),

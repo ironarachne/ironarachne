@@ -29,6 +29,7 @@ export type ResourceCatalogSource =
   | { kind: 'plant-product'; plantName: string; resourceName: string };
 
 export type RegionResourceFactList =
+  | 'notables'
   | 'activities'
   | 'managedProduction'
   | 'resourceSources'

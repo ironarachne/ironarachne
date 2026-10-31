@@ -45,10 +45,16 @@
         <pre>{JSON.stringify(entry.descriptionReason, null, 2)}</pre>
       </details>
     {/each}
-    {#if snapshot.gazetteer?.version === 2 && snapshot.gazetteer.landscapePlaces.length}
+    {#if snapshot.gazetteer && snapshot.gazetteer.version !== 1 && snapshot.gazetteer.landscapePlaces.length}
       <details>
         <summary>Landscape reading identities and aliases</summary>
         <pre>{JSON.stringify(snapshot.gazetteer.landscapePlaces, null, 2)}</pre>
+      </details>
+    {/if}
+    {#if snapshot.gazetteer?.version === 3 && snapshot.gazetteer.notableReadings.length}
+      <details>
+        <summary>Notable reading identities and suggested adventures</summary>
+        <pre>{JSON.stringify(snapshot.gazetteer.notableReadings, null, 2)}</pre>
       </details>
     {/if}
     {#each facts as fact (fact.id)}

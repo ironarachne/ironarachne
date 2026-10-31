@@ -1,3 +1,5 @@
+import { notableHeading, legacyNotableForestAliases } from './region_notable_identity';
+import type { RegionNotableReferenceContext } from './region_notable_reading_types';
 import type { RegionLandscapeReference } from './region_landscape_reading_types';
 import { landscapePlaceAnchor, landscapeOwnerHeading } from './region_landscape_reading';
 import { regionEditorialDocument } from './region_editorial_presentation';
@@ -33,6 +35,9 @@ export type RegionSection = {
   entryAnchors?: string[];
   inspectionFactIds?: string[][];
   landscapeReferences?: RegionLandscapeReference[];
+  entryPrompts?: string[];
+  entryPromptHeadings?: string[];
+  entryLocations?: string[];
 };
 
 /** A region arranged for reading, independent of the format it is finally written in. */
@@ -268,8 +273,11 @@ function ecologySections(snapshot: RegionSnapshot): RegionSection[] {
 }
 
 /** Arrange a region for reading. */
-export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
-  if (snapshot.gazetteer) return regionEditorialDocument(snapshot);
+export function regionToDocument(
+  snapshot: RegionSnapshot,
+  references: RegionNotableReferenceContext = {},
+): RegionDocument {
+  if (snapshot.gazetteer) return regionEditorialDocument(snapshot, references);
   const overview = regionOverviewCurrent(snapshot, snapshot.overviewReason)
     ? snapshot.description
     : '';
@@ -295,6 +303,7 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
     isPrintable,
   );
 
+  const aliasedForests = legacyNotableForestAliases(snapshot);
   const realmLines = snapshot.realms.map((realm, index) => realmLine(realm, snapshot, index));
 
   return {
@@ -314,7 +323,7 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
       ...factSections('Landscape', [
         ...snapshot.facts.areas,
         ...snapshot.facts.mountainRanges,
-        ...snapshot.facts.denseForests,
+        ...snapshot.facts.denseForests.filter((forest) => !aliasedForests.has(forest.id)),
         ...snapshot.facts.habitats
           .filter((fact) => isPrintable(fact.name) || isPrintable(fact.description))
           .map((fact) => ({
@@ -347,7 +356,9 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
       ),
       ...factSections(
         'Notable places',
-        snapshot.facts.notables.filter((fact) => fact.kind === 'landmark'),
+        snapshot.facts.notables
+          .filter((fact) => fact.kind === 'landmark')
+          .map((fact) => ({ ...fact, name: notableHeading(snapshot, fact, references) })),
       ),
       ...factSections(
         'Travel',
@@ -360,7 +371,9 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
       ),
       ...factSections(
         'Hazards',
-        snapshot.facts.notables.filter((fact) => fact.kind === 'hazard'),
+        snapshot.facts.notables
+          .filter((fact) => fact.kind === 'hazard')
+          .map((fact) => ({ ...fact, name: notableHeading(snapshot, fact, references) })),
       ),
       ...(realmLines.length === 0 ? [] : [{ heading: 'Realms', lines: realmLines }]),
       ...settlementSections(snapshot),
@@ -370,13 +383,19 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
 }
 
 /** Exports use the same concise narrative as the page, without an evidence appendix. */
-export function regionToExportDocument(snapshot: RegionSnapshot): RegionDocument {
-  return regionToDocument(snapshot);
+export function regionToExportDocument(
+  snapshot: RegionSnapshot,
+  references: RegionNotableReferenceContext = {},
+): RegionDocument {
+  return regionToDocument(snapshot, references);
 }
 
 /** A complete region as Markdown; the illustrative map remains a separate SVG export. */
-export function regionToMarkdown(snapshot: RegionSnapshot): string {
-  const document = regionToExportDocument(snapshot);
+export function regionToMarkdown(
+  snapshot: RegionSnapshot,
+  references: RegionNotableReferenceContext = {},
+): string {
+  const document = regionToExportDocument(snapshot, references);
   const blocks = [`# ${document.title}`, ...document.paragraphs];
 
   for (const section of document.sections) {
@@ -403,7 +422,14 @@ export function regionToMarkdown(snapshot: RegionSnapshot): string {
             : line === heading
               ? ''
               : line;
+        if (section.entryLocations?.[index])
+          blocks.push(`Location: ${section.entryLocations[index]}`);
         if (text) blocks.push(text);
+        if (section.entryPrompts?.[index])
+          blocks.push(
+            `#### ${section.entryPromptHeadings?.[index] || 'Suggested adventure'}`,
+            section.entryPrompts[index],
+          );
       }
     } else if (section.heading === 'Settlements') {
       for (const entry of regionSettlementEntries(snapshot)) {
@@ -433,8 +459,11 @@ export function regionToMarkdown(snapshot: RegionSnapshot): string {
 }
 
 /** The body of the PDF: the same document as plain text, without the title the PDF draws itself. */
-export function regionToText(snapshot: RegionSnapshot): string {
-  const document = regionToExportDocument(snapshot);
+export function regionToText(
+  snapshot: RegionSnapshot,
+  references: RegionNotableReferenceContext = {},
+): string {
+  const document = regionToExportDocument(snapshot, references);
   const blocks = [...document.paragraphs];
 
   for (const section of document.sections) {
@@ -449,7 +478,17 @@ export function regionToText(snapshot: RegionSnapshot): string {
               ),
             ]
           : []),
-        ...section.lines.map((line) => {
+        ...section.lines.map((line, index) => {
+          if (snapshot.gazetteer?.version === 3)
+            return [
+              section.entryLocations?.[index] ? `Location: ${section.entryLocations[index]}` : '',
+              line,
+              section.entryPrompts?.[index]
+                ? `${section.entryPromptHeadings?.[index] || 'Suggested adventure'}\n${section.entryPrompts[index]}`
+                : '',
+            ]
+              .filter(Boolean)
+              .join('\n\n');
           if (!REGION_HOOK_SECTIONS.includes(section.heading)) return line;
           const { body, hook } = regionHook(line);
           return `${body}${hook ? `\n\nHook:\n\n${hook}` : ''}`;

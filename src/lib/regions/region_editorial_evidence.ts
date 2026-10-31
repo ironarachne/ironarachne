@@ -1,4 +1,6 @@
 import { landscapeObservationCurrent } from './region_landscape_extent';
+import { notableSubjectName, notableEvidenceKey } from './region_notable_identity';
+import type { RegionNotableReferenceContext } from './region_notable_reading_types';
 import type { FactBase } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
 import type { RegionEditorialObservation, RegionGazetteerSentence } from './region_editorial_types';
@@ -63,7 +65,10 @@ export function roadObservation(
 }
 
 /** Reading validates saved choices; it never replaces a stale sentence with a new selection. */
-export function editorialSentenceChecker(snapshot: RegionSnapshot) {
+export function editorialSentenceChecker(
+  snapshot: RegionSnapshot,
+  references: RegionNotableReferenceContext = {},
+) {
   const current = createRegionEvidenceChecker(snapshot);
   const facts = new Map<string, FactBase>(
     regionSemanticFactLists.flatMap((key) =>
@@ -101,6 +106,10 @@ export function editorialSentenceChecker(snapshot: RegionSnapshot) {
     )
       return false;
     return sentence.observations.every((observation) => {
+      if (observation.kind === 'notable-name')
+        return (
+          notableSubjectName(snapshot, observation.subject, references) === observation.observedName
+        );
       if (observation.kind === 'landscape-footprint')
         return landscapeObservationCurrent(snapshot, observation);
       const key =
@@ -110,7 +119,7 @@ export function editorialSentenceChecker(snapshot: RegionSnapshot) {
       if (!observations.has(key))
         observations.set(
           key,
-          JSON.stringify(
+          notableEvidenceKey(
             observation.kind === 'settlement-populations'
               ? populationObservation(snapshot)
               : roadObservation(
@@ -120,7 +129,7 @@ export function editorialSentenceChecker(snapshot: RegionSnapshot) {
                 ),
           ),
         );
-      return observations.get(key) === JSON.stringify(observation);
+      return observations.get(key) === notableEvidenceKey(observation);
     });
   };
 }

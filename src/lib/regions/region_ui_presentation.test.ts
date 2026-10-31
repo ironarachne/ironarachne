@@ -42,7 +42,7 @@ describe('region entry headings', () => {
         for (const entry of section.entries) {
           if (entry.factId === 'area:land' || section.heading === 'Flora and fauna')
             expect(entry.heading).toBe('');
-          else if (section.heading !== 'Landscape')
+          else if (!['Landscape', 'Notable places', 'Hazards'].includes(section.heading))
             expect(entry.heading).toMatch(/^(The |A Review |An Adventure )/);
           else expect(entry.heading).not.toContain('The Landscape of');
           if (entry.body) expect(markdown).toContain(entry.body);
@@ -230,9 +230,9 @@ describe('region entry headings', () => {
     const entry = regionToUiDocument(edited)
       .sections.find((section) => section.heading === 'Notable places')!
       .entries.find((entry) => entry.factId === landmark.id)!;
-    expect(entry.heading).toBe('The Landmark of Old Ford');
+    expect(entry.heading).toBe('Old Ford');
     expect(entry.body).toBe('Travelers meet at this crossing.');
-    expect(entry.hookHeading).toBe('An Adventure Hook for The Landmark of Old Ford');
+    expect(entry.hookHeading).toBe('An Adventure Hook for Old Ford');
     expect(entry.hook).toBe('Escort a caravan across the river.');
   });
 });

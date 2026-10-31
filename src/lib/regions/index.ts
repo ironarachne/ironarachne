@@ -79,3 +79,5 @@ export { generateRegionGazetteer, composeRegionGazetteer } from './region_editor
 
 export { landscapePlaceAnchor, landscapeOwnerHeading } from './region_landscape_reading';
 export type * from './region_landscape_reading_types';
+
+export type * from './region_notable_reading_types';

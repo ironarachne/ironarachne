@@ -62,7 +62,7 @@ function derive(region: Region, seed = 'notables') {
   expect({ ...region.facts, notables: [] }).toEqual(before.facts);
   expect(regionFactsError(region.facts, region.map, [])).toBeNull();
   for (const fact of region.facts!.notables) {
-    expect(fact.description).toContain('Hook:');
+    expect(fact.description).not.toContain('Hook:');
     expect(fact.description).toContain('part of the region');
     expect(fact.reason?.status).toBe('current');
     for (const source of fact.reason!.sources) {
@@ -115,6 +115,10 @@ describe('grounded regional places', () => {
     'uses incident river IDs on either side and records road evidence %s',
     (road) => {
       const places = derive(fixture([node(8)], [river(road)]));
+      if (!road) {
+        expect(places).toEqual([]);
+        return;
+      }
       expect(places).toHaveLength(1);
       expect(places[0].name).toBe(road ? 'Road and river meeting' : 'River banks');
       expect(places[0].anchor).toEqual({ nodeIds: [8], edgeIds: [77] });
@@ -141,7 +145,7 @@ describe('grounded regional places', () => {
     ).toEqual([]);
   });
 
-  it('cites habitat and resource identities for natural landmarks', () => {
+  it('omits ordinary habitat study sites and cites limited resource reaches', () => {
     const region = fixture([node(8)]);
     region.facts!.habitats.push({
       id: 'habitat:forest',
@@ -151,8 +155,7 @@ describe('grounded regional places', () => {
       anchor: { nodeIds: [8], edgeIds: [] },
       origin: 'generated',
     });
-    const habitat = derive(structuredClone(region))[0];
-    expect(habitat.reason!.sources).toEqual([{ kind: 'fact', factId: 'habitat:forest' }]);
+    expect(derive(structuredClone(region))).toEqual([]);
     region.facts!.habitats[0].anchor = undefined;
     region.facts!.resources.push({
       id: 'resource:water',
@@ -161,6 +164,11 @@ describe('grounded regional places', () => {
       depositIds: [],
       name: 'Water',
       description: 'A freshwater source.',
+      reason: {
+        ruleId: 'fixture:v1',
+        status: 'current',
+        sources: [{ kind: 'map-node', nodeId: 8, property: 'isWater', observedValue: 'false' }],
+      },
       areaIds: ['area:land'],
       habitatIds: [],
       anchor: { nodeIds: [8], edgeIds: [] },
@@ -208,6 +216,7 @@ describe('grounded regional places', () => {
       [
         node(8, { elevation: 0.8 }),
         node(9, { temperature: -5 }),
+        node(10, { elevation: 0.8 }),
         node(99, { temperature: 30, moisture: 0.1 }),
       ],
       [river(1)],
@@ -232,11 +241,10 @@ describe('grounded regional places', () => {
       });
     const places = derive(structuredClone(region));
     expect(places).toHaveLength(4);
-    expect(places.filter((place) => place.kind === 'landmark')).toHaveLength(3);
-    expect(
-      places.find((place) => place.reason!.ruleId.includes('settlement-approach'))!.reason!
-        .sources[0].kind,
-    ).toBe('fact');
+    expect(places.filter((place) => place.kind === 'landmark')).toHaveLength(1);
+    expect(places.some((place) => place.reason!.ruleId.includes('settlement-approach'))).toBe(
+      false,
+    );
     const reversed = structuredClone(region);
     reversed.map.nodes.reverse();
     reversed.map.edges.reverse();
@@ -283,7 +291,7 @@ describe('seasonal climate hazards', () => {
     const places = derive(region);
     expect(places.map((place) => place.name)).toContain('Cold travel country');
     expect(places.find((place) => place.name === 'Cold travel country')!.description).toContain(
-      'Freezing temperatures during winter make exposure a travel concern. Hook: Arrange',
+      'Freezing temperatures during winter make exposure a travel concern.',
     );
     expect(places.map((place) => place.name)).not.toContain('Hot dry traverse');
   });

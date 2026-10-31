@@ -1,3 +1,5 @@
+import { notableHeading, notableApproachRole } from './region_notable_identity';
+import type { RegionNotableReferenceContext } from './region_notable_reading_types';
 import { sentenceCase, regionHook, REGION_HOOK_SECTIONS } from './region_prose';
 import { title, getOrdinal } from '@ironarachne/words';
 import {
@@ -96,6 +98,10 @@ function factHeading(snapshot: RegionSnapshot, section: string, fact: FactBase):
     const route = snapshot.facts.routes.find((entry) => entry.id === fact.id)!;
     return `The ${name} from ${endpointName(snapshot, route.endpoints[0])} to ${endpointName(snapshot, route.endpoints[1])}`;
   }
+  if (section === 'Notable places' || section === 'Hazards') {
+    const notable = snapshot.facts.notables.find((entry) => entry.id === fact.id);
+    if (notable) return notableHeading(snapshot, notable);
+  }
   const qualifiers: Record<string, string> = {
     Landscape: 'Landscape',
     'Notable places': 'Landmark',
@@ -117,8 +123,11 @@ function factEntry(snapshot: RegionSnapshot, section: string, fact: FactBase): R
 }
 
 /** Build heading/body pairs from source fields, never by splitting names or prose at a colon. */
-export function regionToUiDocument(snapshot: RegionSnapshot): RegionUiDocument {
-  const document = regionToDocument(snapshot);
+export function regionToUiDocument(
+  snapshot: RegionSnapshot,
+  references: RegionNotableReferenceContext = {},
+): RegionUiDocument {
+  const document = regionToDocument(snapshot, references);
   if (snapshot.gazetteer) {
     const used = new Set([document.title.toLowerCase(), 'region generator']);
     const facts = new Map(regionSupportingFacts(snapshot).map((fact) => [fact.id, fact]));
@@ -143,6 +152,22 @@ export function regionToUiDocument(snapshot: RegionSnapshot): RegionUiDocument {
                     ? ''
                     : body,
               anchorId,
+              location: section.entryLocations?.[index],
+              relatedAnchorId: (() => {
+                const notable = snapshot.facts.notables.find(
+                  (fact) => fact.id === section.factIds?.[index],
+                );
+                const role = notable && notableApproachRole(snapshot, notable);
+                const target = role?.settlement;
+                return target?.kind === 'embedded' &&
+                  snapshot.settlements.some((entry) => entry.id === target.settlementId)
+                  ? `settlement-${encodeURIComponent(target.settlementId)}`
+                  : undefined;
+              })(),
+              hook: section.entryPrompts?.[index] || undefined,
+              hookHeading: section.entryPrompts?.[index]
+                ? section.entryPromptHeadings?.[index] || 'Suggested adventure'
+                : undefined,
               factId: section.factIds?.[index],
               inspectionFactIds: section.inspectionFactIds?.[index],
             };
@@ -200,8 +225,11 @@ export function regionToUiDocument(snapshot: RegionSnapshot): RegionUiDocument {
     entries: section.lines.map((_line, index): RegionUiEntry => {
       const factId = section.factIds?.[index];
       let entry: RegionUiEntry;
-      if (factId) entry = factEntry(snapshot, section.heading, facts.get(factId)!);
-      else if (section.heading === 'Flora and fauna') entry = { heading: '', body: _line };
+      if (factId) {
+        entry = factEntry(snapshot, section.heading, facts.get(factId)!);
+        const notable = snapshot.facts.notables.find((fact) => fact.id === factId);
+        if (notable) entry.heading = notableHeading(snapshot, notable, references);
+      } else if (section.heading === 'Flora and fauna') entry = { heading: '', body: _line };
       else if (section.heading === 'Facts needing review') {
         entry = {
           heading: `A Review of ${displayName(review[index].name, 'an Unnamed Fact')}`,
