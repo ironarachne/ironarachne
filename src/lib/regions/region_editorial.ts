@@ -1,3 +1,8 @@
+import { notableEditorialCandidates } from './region_notable_candidates';
+import type {
+  RegionNotableReading,
+  RegionNotablePromptCandidate,
+} from './region_notable_reading_types';
 import type { RegionLandscapePlace } from './region_landscape_reading_types';
 import { buildLandscapePlaces, landscapeReadingCandidates } from './region_landscape_reading';
 import { editorialSentenceCount, editorialSingleSentence } from './region_editorial_policy';
@@ -17,6 +22,7 @@ import type {
   RegionEditorialSection,
   RegionGazetteer,
   RegionGazetteerBlock,
+  RegionGazetteerSentence,
 } from './region_editorial_types';
 import { toRegionSnapshot } from './region_snapshot';
 import { createRegionEvidenceChecker } from './region_context_evidence';
@@ -36,7 +42,7 @@ const destination = (
   settlement?: SettlementTarget,
 ): RegionEditorialDestination => ({ section, ...(settlement ? { settlement } : {}) });
 export const editorialDestinationKey = (value: RegionEditorialDestination) =>
-  `${value.section}:${JSON.stringify(value.settlement ?? null)}${value.landscapePlaceId ? `:${value.landscapePlaceId}` : ''}`;
+  `${value.section}:${JSON.stringify(value.settlement ?? null)}${value.landscapePlaceId ? `:${value.landscapePlaceId}` : ''}${value.notableId ? `:${value.notableId}` : ''}`;
 const weight = { defining: 0, distinctive: 1, supporting: 2 };
 const meaningKey = (entry: RegionEditorialCandidate) => entry.narrative.templates[0].id;
 const targetKey = (target: SettlementTarget) =>
@@ -306,6 +312,7 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
   for (const entry of ecologyCandidates(snapshot, false)) {
     const support = entry.sourceIds.flatMap((id) => allFacts.filter((fact) => fact.id === id));
     const hazard = facts.notables.some((fact) => fact.id === entry.id && fact.kind === 'hazard');
+    if (hazard) continue; // Notable descriptions and their suggestions share one local owner.
     const relation = facts.ecologyRelationships.find((fact) => fact.id === entry.id);
     const significantUse =
       relation?.relation.kind === 'used-by' &&
@@ -467,19 +474,7 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
       },
     );
   }
-  for (const hazard of facts.notables.filter((fact) => fact.kind === 'hazard')) {
-    if (candidates.some((entry) => entry.narrative.sourceIds.includes(hazard.id))) continue;
-    add(
-      `editorial:hazard:${hazard.id}`,
-      'hazard',
-      'distinctive',
-      hazard.id,
-      [hazard.description.split(' Hook:')[0].trim()],
-      [hazard],
-      [destination('hazards'), destination('opening')],
-      { consequence: true, located: true },
-    );
-  }
+  candidates.push(...notableEditorialCandidates(snapshot).descriptions);
   candidates.push(...landscapeReadingCandidates(snapshot, buildLandscapePlaces(snapshot)));
   return candidates
     .filter((entry) => entry.narrative.templates[0].parts[0].options.every((text) => text.trim()))
@@ -492,6 +487,8 @@ export function composeRegionGazetteer(
   rng: RNG,
   context: RegionEditorialContext = { wording: { recentSelections: [] }, recentMeaningKeys: [] },
   landscapePlaces: RegionLandscapePlace[] = [],
+  notableReadings: RegionNotableReading[] = [],
+  promptCandidates: RegionNotablePromptCandidate[] = [],
 ): { gazetteer: RegionGazetteer; nextContext: RegionEditorialContext } {
   const token = rng.int(0, 2147483647);
   const selectionRng = new RNG(JSON.stringify(['gazetteer-selection-v1', token]));
@@ -503,10 +500,30 @@ export function composeRegionGazetteer(
   const blockTopics = new Set<string>();
   const selected: { entry: RegionEditorialCandidate; destination: RegionEditorialDestination }[] =
     [];
-  const remaining = [...candidates].sort((a, b) => lexical(a.narrative.id, b.narrative.id));
+  const readings = structuredClone(notableReadings);
+  const promptById = new Map(
+    promptCandidates.map((candidate) => [candidate.editorial.narrative.id, candidate]),
+  );
+  const usedFamilies = new Set<string>();
+  const remaining = [
+    ...candidates,
+    ...promptCandidates.map((candidate) => candidate.editorial),
+  ].sort((a, b) => lexical(a.narrative.id, b.narrative.id));
   let sentences = 0;
   const counts = new Map<string, number>();
   const chooseDestination = (entry: RegionEditorialCandidate) => {
+    const prompt = promptById.get(entry.narrative.id);
+    if (
+      prompt &&
+      (usedFamilies.size >= 2 ||
+        usedFamilies.has(prompt.familyId) ||
+        !readings.some((reading) => reading.notableId === prompt.notableId) ||
+        !selected.some(
+          ({ destination, entry }) =>
+            destination.notableId === prompt.notableId && !promptById.has(entry.narrative.id),
+        ))
+    )
+      return undefined;
     const sections = [...entry.destinations];
     // Connected meanings follow the leading subject where their importance permits it.
     sections.sort(
@@ -523,14 +540,22 @@ export function composeRegionGazetteer(
       )
         return false;
       const key = editorialDestinationKey(dest);
-      const geographic = dest.section === 'landscape' || dest.section === 'notable-place';
+      const geographic = dest.section === 'landscape' || !!dest.landscapePlaceId;
       if (
         geographic &&
         (selected.filter(
           ({ destination }) =>
-            destination.section === 'landscape' || destination.section === 'notable-place',
+            destination.section === 'landscape' || !!destination.landscapePlaceId,
         ).length >= 3 ||
-          (counts.get(key) ?? 0) >= 1)
+          (counts.get(key) ?? 0) >= (prompt ? 2 : 1))
+      )
+        return false;
+      if (
+        (dest.section === 'hazards' || (dest.section === 'notable-place' && !geographic)) &&
+        selected.filter(
+          ({ destination }) =>
+            destination.section === dest.section && !destination.landscapePlaceId,
+        ).length >= 3
       )
         return false;
       const cost = Math.max(
@@ -564,6 +589,9 @@ export function composeRegionGazetteer(
       right = b.priority;
     return (
       weight[a.narrative.importance] - weight[b.narrative.importance] ||
+      (a.narrative.importance === 'defining'
+        ? Number(promptById.has(a.narrative.id)) - Number(promptById.has(b.narrative.id))
+        : 0) ||
       Number(right.residentConsequence) - Number(left.residentConsequence) ||
       Number(right.connectsSubjects) - Number(left.connectsSubjects) ||
       Number(right.locatedDetail) - Number(left.locatedDetail)
@@ -602,6 +630,8 @@ export function composeRegionGazetteer(
     const entry = selectionRng.item(equal);
     const dest = chooseDestination(entry)!;
     selected.push({ entry, destination: dest });
+    const prompt = promptById.get(entry.narrative.id);
+    if (prompt) usedFamilies.add(prompt.familyId);
     const cost = Math.max(
       ...entry.narrative.templates[0].parts[0].options.map(editorialSentenceCount),
     );
@@ -651,9 +681,8 @@ export function composeRegionGazetteer(
     nextContext.wording = {
       recentSelections: [...nextContext.wording.recentSelections, ...result.selections].slice(-8),
     };
-    const key = editorialDestinationKey(dest);
-    if (!blocks.has(key)) blocks.set(key, { id: key, destination: dest, sentences: [] });
-    blocks.get(key)!.sentences.push({
+    const prompt = promptById.get(entry.narrative.id);
+    const sentence: RegionGazetteerSentence = {
       id: entry.narrative.id,
       text: result.text,
       candidateId: entry.narrative.id,
@@ -661,27 +690,48 @@ export function composeRegionGazetteer(
       repeatedOrientation: false,
       selection: result.selections[0],
       reason: {
-        ruleId: 'fantasy:region:gazetteer-editorial:v2',
+        ruleId: prompt
+          ? `fantasy:region:adventure-prompt:${prompt.familyId}:v1`
+          : 'fantasy:region:gazetteer-editorial:v2',
         status: 'current',
         sources: entry.sources,
       },
       observations: entry.observations,
-    });
+    };
+    if (prompt)
+      readings.find((reading) => reading.notableId === prompt.notableId)!.prompt = {
+        familyId: prompt.familyId,
+        sentence,
+      };
+    else {
+      const key = editorialDestinationKey(dest);
+      if (!blocks.has(key)) blocks.set(key, { id: key, destination: dest, sentences: [] });
+      blocks.get(key)!.sentences.push(sentence);
+    }
   }
   return {
-    gazetteer: { version: 2, blocks: [...blocks.values()], landscapePlaces },
+    gazetteer: {
+      version: 3,
+      blocks: [...blocks.values()],
+      landscapePlaces,
+      notableReadings: readings,
+    },
     nextContext,
   };
 }
 
 export function generateRegionGazetteer(region: Region, rng: RNG): void {
   if (region.gazetteer) return;
-  const landscapePlaces = buildLandscapePlaces(toRegionSnapshot(region));
+  const snapshot = toRegionSnapshot(region);
+  const landscapePlaces = buildLandscapePlaces(snapshot);
+  const notables = notableEditorialCandidates(snapshot);
   region.gazetteer = composeRegionGazetteer(
     regionEditorialCandidates(region),
     rng,
     undefined,
     landscapePlaces,
+    notables.readings,
+    notables.prompts,
   ).gazetteer;
   const opening = region.gazetteer.blocks
     .filter((block) => block.destination.section === 'opening')

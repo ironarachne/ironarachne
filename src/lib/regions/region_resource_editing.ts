@@ -1,3 +1,4 @@
+import { notableReadingCurrent } from './region_notable_identity';
 import { landscapePlaceCurrent } from './region_landscape_reading';
 import { editorialSentenceChecker } from './region_editorial_evidence';
 import { sourceSpecificSummaryIds } from './region_evidence';
@@ -261,13 +262,39 @@ export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnap
       ...snapshot,
       gazetteer: {
         ...snapshot.gazetteer,
-        ...(snapshot.gazetteer.version === 2
+        ...(snapshot.gazetteer.version !== 1
           ? {
               landscapePlaces: snapshot.gazetteer.landscapePlaces.map((place) =>
                 landscapePlaceCurrent(snapshot, place)
                   ? place
                   : { ...place, reason: { ...place.reason, status: 'stale' as const } },
               ),
+            }
+          : {}),
+        ...(snapshot.gazetteer.version === 3
+          ? {
+              notableReadings: snapshot.gazetteer.notableReadings.map((reading) => ({
+                ...reading,
+                reason: notableReadingCurrent(snapshot, reading)
+                  ? reading.reason
+                  : { ...reading.reason, status: 'stale' as const },
+                ...(reading.prompt
+                  ? {
+                      prompt: {
+                        ...reading.prompt,
+                        sentence: editorialCurrent(reading.prompt.sentence)
+                          ? reading.prompt.sentence
+                          : {
+                              ...reading.prompt.sentence,
+                              reason: {
+                                ...reading.prompt.sentence.reason,
+                                status: 'stale' as const,
+                              },
+                            },
+                      },
+                    }
+                  : {}),
+              })),
             }
           : {}),
         blocks: snapshot.gazetteer.blocks.map((block) => ({

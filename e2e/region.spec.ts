@@ -97,6 +97,48 @@ test.describe('a region', () => {
     await createProject(page, 'The Marches');
   });
 
+  test('keeps grounded suggestions through saving and preserves an authored replacement', async ({
+    page,
+  }) => {
+    await openGenerator(page);
+    await page.getByLabel('Seed', { exact: true }).fill('bravo');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    const gazetteer = page.locator('.gazetteer');
+    const place = gazetteer
+      .locator('article')
+      .filter({ has: page.getByRole('heading', { name: 'Suggested adventure', exact: true }) })
+      .first();
+    await expect(place).toBeVisible();
+    const notableId = await place.getAttribute('data-notable-id');
+    expect(notableId).toBeTruthy();
+    const prompt = await place.locator('[data-gazetteer-text]').last().textContent();
+    await expect(place).toContainText('Location:');
+    const markdown = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download Markdown' }).click();
+    const file = await markdown;
+    expect(await new Response(await file.createReadStream()).text()).toContain(prompt);
+    await saveAs(page, 'Grounded Suggestions');
+    const panel = await openInWorkshop(page, 'Grounded Suggestions');
+    await expect(panel.locator('.gazetteer')).toContainText(prompt!);
+    await panel
+      .locator(`textarea[id$="${notableId}-description"]`)
+      .fill('My adventure place. Hook: Keep this authored choice.');
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+    await page.reload({ waitUntil: 'load' });
+    const reopened = await openInWorkshop(page, 'Grounded Suggestions');
+    await expect(reopened.locator('.gazetteer')).toContainText('My adventure place.');
+    await expect(reopened.locator('.gazetteer')).toContainText('Keep this authored choice.');
+    await expect(
+      reopened
+        .locator('.gazetteer')
+        .getByRole('heading', { name: 'Authored adventure', exact: true }),
+    ).toBeVisible();
+    await expect(reopened.locator('.gazetteer')).not.toContainText(prompt!);
+    await expectNoHorizontalOverflow(page);
+  });
+
   test('keeps declared activities and description evidence through editing and reopening', async ({
     page,
   }) => {
@@ -527,6 +569,7 @@ test.describe('a region', () => {
     const evidence = page.locator('details.inspection');
     await expect(evidence).toHaveAttribute('open');
     await expect(evidence).toContainText('Landscape reading identities and aliases');
+    await expect(evidence).toContainText('Notable reading identities and suggested adventures');
     await expect(evidence).toContainText('mapNodeIds');
     const headings = await gazetteer.locator('article h4').allTextContents();
     expect(headings.join(' ')).not.toMatch(/\((?:Second |Third )?Entry\)/);

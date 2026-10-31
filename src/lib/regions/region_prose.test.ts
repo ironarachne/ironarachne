@@ -80,8 +80,8 @@ describe('region prose grammar', () => {
       for (const entry of section.entries) {
         if (entry.hook) {
           expect(entry.hook).toMatch(/^[A-Z]/);
-          expect(markdown).toContain(`Hook:\n\n  ${entry.hook}`);
-          expect(pdfText).toContain(`Hook:\n\n${entry.hook}`);
+          expect(markdown).toContain(`#### Suggested adventure\n\n${entry.hook}`);
+          expect(pdfText).toContain(`Suggested adventure\n${entry.hook}`);
         }
         if (section.heading === 'Landscape' && entry.heading)
           expect(entry.heading).toMatch(/^[A-Z]/);

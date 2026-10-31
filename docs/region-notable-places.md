@@ -4,6 +4,10 @@
 [Regions release contract](regions-release-contract.md). The existing `NotableFact`, `FactReason`
 and `SpatialAnchor` model covers this pass; no domain-model extension or payload migration is needed.
 
+The [#447 notable-reading design](region-notable-reading.md) supersedes this pass's compulsory
+group slots and appended generated hooks. This document records the original #332 behavior;
+legacy saved descriptions and hooks remain intact.
+
 ## Domain model
 
 The accepted [notable fact model](regions-release-contract.md#domain-model) applies unchanged.

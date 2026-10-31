@@ -1,3 +1,4 @@
+import { createRegionEvidenceChecker } from './region_context_evidence';
 import { compassPosition } from './region_prose';
 import { riverAssessments } from './region_resource_narrative';
 import { isUsableRegionResource } from './region_resources';
@@ -55,7 +56,12 @@ function notable(
 
 function naturalPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
   const resources = region.facts!.resources.flatMap((resource) => {
-    if (!isUsableRegionResource(resource) || resource.reason?.status === 'stale') return [];
+    if (
+      !isUsableRegionResource(resource) ||
+      resource.reason?.status === 'stale' ||
+      resource.availability !== 'limited'
+    )
+      return [];
     const node = nodes.find((node) => resource.anchor?.nodeIds.includes(node.id));
     if (!node) return [];
     const edges = region.map.edges.filter((edge) => resource.anchor?.edgeIds.includes(edge.id));
@@ -66,28 +72,29 @@ function naturalPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
         'landmark',
         'resource-reach',
         `${resource.name} reach`,
-        `${resource.description} Hook: Survey access to this source and assess the requirements for its use.`,
+        resource.description,
         [{ kind: 'fact', factId: resource.id }],
         edges,
       ),
     ];
   });
-  const habitats = region.facts!.habitats.flatMap((habitat) => {
-    const node = nodes.find((node) => habitat.anchor?.nodeIds.includes(node.id));
-    if (!node) return [];
+  const opportunities = region.facts!.resourceSources.flatMap((source) => {
+    const node = nodes.find((entry) => source.anchor.nodeIds.includes(entry.id));
+    if (!node || !source.requirements.length || source.reason?.status === 'stale') return [];
     return [
       notable(
         region,
         node,
         'landmark',
-        'habitat-study',
-        `${habitat.name} study site`,
-        `This site lies within the ${habitat.name} habitat. Hook: Guide a survey of this habitat and compare it with nearby terrain.`,
-        [{ kind: 'fact', factId: habitat.id }],
+        'resource-reach',
+        `${source.name} reach`,
+        `Collection here requires ${source.requirements.join(' and ')}.`,
+        [{ kind: 'fact', factId: source.id }],
+        region.map.edges.filter((edge) => source.anchor.edgeIds.includes(edge.id)),
       ),
     ];
   });
-  return [...resources, ...habitats];
+  return [...resources, ...opportunities];
 }
 
 function inhabitedPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
@@ -95,7 +102,19 @@ function inhabitedPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
     .facts!.settlementRoles.filter((role) => role.id.startsWith('role:site:'))
     .flatMap((role) => {
       const node = nodes.find((node) => role.anchor.nodeIds.includes(node.id));
-      if (!node) return [];
+      if (
+        !node ||
+        !role.anchor.edgeIds.some((id) =>
+          region.map.edges.some(
+            (edge) =>
+              edge.id === id &&
+              edge.river > 0 &&
+              (edge.road ?? 0) > 0 &&
+              (edge.d0 === node.id || edge.d1 === node.id),
+          ),
+        )
+      )
+        return [];
       return [
         notable(
           region,
@@ -103,7 +122,7 @@ function inhabitedPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
           'landmark',
           'settlement-approach',
           `${role.name} approach`,
-          `${role.description} Hook: Escort travelers to this inhabited site and survey its approach.`,
+          role.description,
           [{ kind: 'fact', factId: role.id }],
           region.map.edges.filter((edge) => role.anchor.edgeIds.includes(edge.id)),
         ),
@@ -114,7 +133,7 @@ function inhabitedPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
 function riverPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
   return [...region.map.edges]
     .sort((a, b) => a.id - b.id)
-    .filter((edge) => edge.river > 0)
+    .filter((edge) => edge.river > 0 && (edge.road ?? 0) > 0)
     .flatMap((edge) => {
       const node = nodes.find((node) => node.id === edge.d0 || node.id === edge.d1);
       if (!node) return [];
@@ -126,7 +145,7 @@ function riverPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
           'landmark',
           'river-meeting',
           road ? 'Road and river meeting' : 'River banks',
-          `${road ? 'A road meets the river here' : 'A river runs through this country'}. Hook: Explore the banks and look for a crossing.`,
+          'A road meets the river here, making passage a route-planning concern.',
           [
             {
               kind: 'map-edge',
@@ -159,7 +178,7 @@ function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
           'hazard',
           'high-ground-obstacle',
           'High-ground traverse',
-          'High ground complicates overland route planning. Hook: Scout an approach through the high terrain before leading a caravan onward.',
+          'High ground complicates overland route planning.',
           [observation(node, 'elevation')],
         ),
       );
@@ -171,7 +190,7 @@ function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
           'hazard',
           'cold-travel',
           'Cold travel country',
-          `Freezing temperatures${site.coldestSeason.trim() === '' ? '' : ` during ${site.coldestSeason}`} make exposure a travel concern. Hook: Arrange shelter and supplies for a journey through the cold country.`,
+          `Freezing temperatures${site.coldestSeason.trim() === '' ? '' : ` during ${site.coldestSeason}`} make exposure a travel concern.`,
           [observation(node, 'temperature'), climateObservation(region)],
         ),
       );
@@ -183,7 +202,7 @@ function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
           'hazard',
           'hot-dry-travel',
           'Hot dry traverse',
-          'Heat and dry conditions make water planning a travel concern. Hook: Survey water access before attempting this traverse.',
+          'Heat and dry conditions make water planning a travel concern.',
           [
             observation(node, 'temperature'),
             observation(node, 'moisture'),
@@ -203,7 +222,7 @@ function ecologyGatheringHazards(region: Region): NotableFact[] {
       'hazard',
       'ecology-bank-gathering',
       'Hazardous bank gathering',
-      `The freshwater patch used for ${risk.use.name} also supports the local ${risk.inhabitant.name} population. Gathering here calls for care. Hook: Scout the banks before bringing gatherers to this site.`,
+      `The freshwater patch used for ${risk.use.name} also supports the local ${risk.inhabitant.name} population. Gathering here calls for care.`,
       risk.sources,
     ),
   );
@@ -214,16 +233,51 @@ export function generateNotableFacts(region: Region, rng: RNG, forestLandmark?: 
   const nodes = region.map.nodes
     .filter((node) => !node.isWater && !node.isOcean)
     .sort((a, b) => a.id - b.id);
-  const groups = [
-    forestLandmark ? [forestLandmark] : naturalPlaces(region, nodes),
-    inhabitedPlaces(region, nodes),
-    riverPlaces(region, nodes),
-    [...terrainObstacles(region, nodes), ...ecologyGatheringHazards(region)],
+  const candidates = [
+    ...(forestLandmark ? [forestLandmark] : []),
+    ...naturalPlaces(region, nodes),
+    ...inhabitedPlaces(region, nodes),
+    ...riverPlaces(region, nodes),
+    ...terrainObstacles(region, nodes),
+    ...ecologyGatheringHazards(region),
+  ].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  // Consequential use/danger relationships outrank ordinary travel constraints. Randomize only
+  // canonical equals; no category is entitled to a slot and no wording draw changes this choice.
+  const priority = (fact: NotableFact) => [
+    fact.reason?.ruleId === 'fantasy:region:ecology-bank-gathering:v1' ? 0 : 1,
+    fact === forestLandmark ? 1 : 0,
+    fact.reason?.sources.some((source) => source.kind === 'fact') ||
+    fact.reason?.ruleId === 'fantasy:region:river-meeting:v1'
+      ? 0
+      : 1,
   ];
-  for (const candidates of groups) {
-    candidates.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-    if (candidates.length > 0) region.facts!.notables.push(rng.item(candidates));
+  const compare = (a: NotableFact, b: NotableFact) => {
+    const left = priority(a),
+      right = priority(b);
+    return left[0] - right[0] || left[1] - right[1] || left[2] - right[2];
+  };
+  const current = createRegionEvidenceChecker({
+    facts: region.facts!,
+    map: region.map,
+    environment: region.environment,
+  });
+  const seenRules = new Set<string>();
+  const selected = rng
+    .shuffle(candidates.filter((fact) => current(fact)))
+    .sort(compare)
+    .filter((fact) => {
+      const key = fact.reason!.ruleId;
+      if (seenRules.has(key)) return false;
+      seenRules.add(key);
+      return true;
+    })
+    .slice(0, 4);
+  // A named forest's alias must stay discoverable under the landscape ownership contract.
+  if (forestLandmark && !selected.includes(forestLandmark)) {
+    if (selected.length === 4) selected.pop();
+    selected.push(forestLandmark);
   }
+  region.facts!.notables.push(...selected.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)));
   for (const fact of region.facts!.notables) {
     if (fact.reason?.ruleId === 'fantasy:region:river-meeting:v1') {
       const edge = region.map.edges.find((entry) => fact.anchor?.edgeIds.includes(entry.id));

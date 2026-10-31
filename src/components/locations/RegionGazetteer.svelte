@@ -44,6 +44,9 @@
           data-notable-id={factId && notableIds.has(factId) ? factId : undefined}
         >
           {#if entry.heading}<h4>{entry.heading}</h4>{/if}
+          {#if entry.location}<p>Location: {entry.location}</p>{/if}
+          {#if entry.relatedAnchorId}<a href={`#${uid}-${entry.relatedAnchorId}`}>View settlement</a
+            >{/if}
           {#if entry.body}<p data-gazetteer-text>{entry.body}</p>{/if}
           {#each entry.paragraphs ?? [] as paragraph}
             <p data-gazetteer-text>{paragraph}</p>

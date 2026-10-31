@@ -270,6 +270,43 @@
       </fieldset>
     {/each}
 
+    {#each region.facts.notables as notable, index (notable.id)}
+      <fieldset>
+        <legend>Notable place {index + 1}</legend>
+        {@render textRow(
+          `${uid}-${notable.id}-name`,
+          `Notable place ${index + 1} name`,
+          notable.name,
+          (next) =>
+            edit((current) =>
+              setRegionResourceFactText(current, 'notables', notable.id, 'name', next),
+            ),
+        )}
+        <div class="input-group">
+          <label for={`${uid}-${notable.id}-description`}
+            >Notable place {index + 1} description</label
+          >
+          <textarea
+            id={`${uid}-${notable.id}-description`}
+            value={notable.description}
+            oninput={(event) =>
+              edit((current) =>
+                setRegionResourceFactText(
+                  current,
+                  'notables',
+                  notable.id,
+                  'description',
+                  event.currentTarget.value,
+                ),
+              )}
+          ></textarea>
+          <p class="region-editor__note">
+            To include your own adventure suggestion, add “ Hook:” before its text.
+          </p>
+        </div>
+      </fieldset>
+    {/each}
+
     {#each ['managedProduction', 'resourceSources', 'activities'] as list}
       {#each region.facts[list as 'managedProduction' | 'resourceSources' | 'activities'] as fact, index (fact.id)}
         <fieldset>

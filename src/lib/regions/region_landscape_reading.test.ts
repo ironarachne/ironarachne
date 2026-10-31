@@ -204,11 +204,11 @@ describe('saved landscape reading hierarchy', () => {
   it('gives aliases one owner, keeps all named places discoverable and caps geographic prose', () => {
     const source = fixture();
     const result = generated(source);
-    expect(result.gazetteer?.version).toBe(2);
+    expect(result.gazetteer?.version).toBe(3);
     expect(result.facts).toEqual(source.facts);
     expect(result.map).toEqual(source.map);
     expect(regionGazetteerError(result.gazetteer, result)).toBeNull();
-    if (result.gazetteer?.version !== 2) throw new Error('Missing registry');
+    if (result.gazetteer?.version !== 3) throw new Error('Missing registry');
     expect(
       result.gazetteer.landscapePlaces.find((place) => place.id === 'forest:dense:1'),
     ).toMatchObject({
@@ -304,7 +304,7 @@ describe('saved landscape reading hierarchy', () => {
     'invalidates changed %s without replacement prose',
     (change) => {
       const snapshot = generated();
-      if (snapshot.gazetteer?.version !== 2) throw new Error('Missing registry');
+      if (snapshot.gazetteer?.version !== 3) throw new Error('Missing registry');
       const forest = snapshot.gazetteer.landscapePlaces.find(
         (place) => place.id === 'forest:dense:1',
       )!;
@@ -360,7 +360,7 @@ describe('saved landscape reading hierarchy', () => {
   });
   it('omits stale unnamed descriptors and never restores an authored blank name', () => {
     const snapshot = generated();
-    if (snapshot.gazetteer?.version !== 2) throw new Error('Missing registry');
+    if (snapshot.gazetteer?.version !== 3) throw new Error('Missing registry');
     const place = snapshot.gazetteer.landscapePlaces.find((place) => place.descriptor)!;
     snapshot.map.width++;
     expect(regionToText(snapshot)).not.toContain(place.descriptor);
@@ -384,7 +384,7 @@ describe('saved landscape reading hierarchy', () => {
 
   it('keeps authored aliases readable when a stale primary record is absent', () => {
     const snapshot = generated();
-    if (snapshot.gazetteer?.version !== 2) throw new Error('Missing registry');
+    if (snapshot.gazetteer?.version !== 3) throw new Error('Missing registry');
     snapshot.facts.denseForests[0].origin = 'authored';
     snapshot.facts.denseForests[0].description = 'My retained forest.';
     snapshot.facts.notables = [];
@@ -413,7 +413,9 @@ describe('saved landscape reading hierarchy', () => {
     const old = rollRegionSnapshot('446-legacy');
     old.gazetteer = {
       version: 1,
-      blocks: old.gazetteer!.blocks.filter((block) => !block.destination.landscapePlaceId),
+      blocks: old.gazetteer!.blocks.filter(
+        (block) => !block.destination.landscapePlaceId && !block.destination.notableId,
+      ),
     };
     const before = regionToText(old);
     const migrated = migrateRegionSnapshot(old, 18);
@@ -424,21 +426,21 @@ describe('saved landscape reading hierarchy', () => {
     const source = rollRegionSnapshot('446-import');
     expect(validateRegionSnapshot(source)).toMatchObject({ ok: true });
     const result = generated();
-    if (result.gazetteer?.version !== 2) throw new Error('Missing registry');
+    if (result.gazetteer?.version !== 3) throw new Error('Missing registry');
     for (const mutate of [
       (snapshot: typeof result) => {
-        if (snapshot.gazetteer?.version === 2)
+        if (snapshot.gazetteer?.version === 3)
           snapshot.gazetteer.landscapePlaces.push(snapshot.gazetteer.landscapePlaces[0]);
       },
       (snapshot: typeof result) => {
         snapshot.gazetteer!.blocks[0].destination.landscapePlaceId = 'missing';
       },
       (snapshot: typeof result) => {
-        if (snapshot.gazetteer?.version === 2)
+        if (snapshot.gazetteer?.version === 3)
           snapshot.gazetteer.landscapePlaces[0].observations[0].mapWidth = 0;
       },
       (snapshot: typeof result) => {
-        if (snapshot.gazetteer?.version === 2)
+        if (snapshot.gazetteer?.version === 3)
           snapshot.gazetteer.landscapePlaces[0].aliasFactIds.push(
             snapshot.gazetteer.landscapePlaces[0].primaryFactId,
           );

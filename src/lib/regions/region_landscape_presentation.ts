@@ -11,7 +11,7 @@ import {
 
 /** Arrange saved choices and names. No selection, replacement descriptions or RNG on read. */
 export function appendLandscapeReading(snapshot: RegionSnapshot, document: RegionDocument): void {
-  if (snapshot.gazetteer?.version !== 2) return;
+  if (!snapshot.gazetteer || snapshot.gazetteer.version === 1) return;
   const gazetteer = snapshot.gazetteer;
   const readable = editorialSentenceChecker(snapshot);
   const all = landscapeFacts(snapshot);
@@ -88,6 +88,10 @@ export function appendLandscapeReading(snapshot: RegionSnapshot, document: Regio
   document.sections = document.sections.filter(
     (section) => section.lines.length || section.landscapeReferences?.length,
   );
+  orderRegionReadingSections(document);
+}
+
+export function orderRegionReadingSections(document: RegionDocument): void {
   const order = [
     'Landscape',
     'Notable places',
