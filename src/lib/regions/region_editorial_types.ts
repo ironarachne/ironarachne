@@ -1,4 +1,9 @@
 import type {
+  RegionRoadReading,
+  RegionRoadNetworkObservation,
+  RegionRoadPathObservation,
+} from './region_road_reading_types';
+import type {
   RegionNotableReading,
   RegionNotableNameObservation,
 } from './region_notable_reading_types';
@@ -23,6 +28,7 @@ export type RegionEditorialDestination = {
   settlement?: SettlementTarget;
   landscapePlaceId?: string;
   notableId?: string;
+  routeId?: string;
 };
 export type RegionEditorialPriority = {
   residentConsequence: boolean;
@@ -31,6 +37,8 @@ export type RegionEditorialPriority = {
   peerSupportCount: number;
 };
 export type RegionEditorialObservation =
+  | RegionRoadNetworkObservation
+  | RegionRoadPathObservation
   | RegionNotableNameObservation
   | LandscapeFootprintObservation
   | {
@@ -86,4 +94,11 @@ export type RegionGazetteer =
       blocks: RegionGazetteerBlock[];
       landscapePlaces: RegionLandscapePlace[];
       notableReadings: RegionNotableReading[];
+    }
+  | {
+      version: 4;
+      blocks: RegionGazetteerBlock[];
+      landscapePlaces: RegionLandscapePlace[];
+      notableReadings: RegionNotableReading[];
+      roadReadings: RegionRoadReading[];
     };

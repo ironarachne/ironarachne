@@ -16,7 +16,7 @@ export function appendNotableReading(
   document: RegionDocument,
   references: RegionNotableReferenceContext = {},
 ) {
-  if (snapshot.gazetteer?.version !== 3) return;
+  if (snapshot.gazetteer?.version !== 3 && snapshot.gazetteer?.version !== 4) return;
   const gazetteer = snapshot.gazetteer;
   const readable = editorialSentenceChecker(snapshot, references);
   const candidates = notableEditorialCandidates(snapshot);

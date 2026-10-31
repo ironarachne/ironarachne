@@ -1,3 +1,4 @@
+import { roadReadingsError, roadObservationError } from './region_road_validation';
 import { notableReadingsError, notableSubjectError } from './region_notable_validation';
 import { landscapeObservationError, landscapePlacesError } from './region_landscape_validation';
 import { asRecord } from '$lib/artifact_kinds';
@@ -18,7 +19,10 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
   const gazetteer = asRecord(value);
   if (
     !gazetteer ||
-    (gazetteer.version !== 1 && gazetteer.version !== 2 && gazetteer.version !== 3) ||
+    (gazetteer.version !== 1 &&
+      gazetteer.version !== 2 &&
+      gazetteer.version !== 3 &&
+      gazetteer.version !== 4) ||
     !Array.isArray(gazetteer.blocks)
   )
     return 'invalid region gazetteer';
@@ -29,7 +33,7 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
     const error = landscapePlacesError(gazetteer.landscapePlaces, snapshot, factIds);
     if (error) return error;
   }
-  if (gazetteer.version === 3) {
+  if (gazetteer.version === 3 || gazetteer.version === 4) {
     const error = notableReadingsError(gazetteer.notableReadings, snapshot, factIds, (sentence) =>
       regionGazetteerError(
         {
@@ -42,6 +46,14 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
         },
         snapshot,
       ),
+    );
+    if (error) return error;
+  }
+  if (gazetteer.version === 4) {
+    const error = roadReadingsError(
+      gazetteer.roadReadings,
+      { ...snapshot, gazetteer: value as RegionSnapshot['gazetteer'] },
+      factIds,
     );
     if (error) return error;
   }
@@ -98,7 +110,7 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
       return 'missing landscape place destination';
     if (destination.notableId !== undefined) {
       if (
-        gazetteer.version !== 3 ||
+        (gazetteer.version !== 3 && gazetteer.version !== 4) ||
         destination.landscapePlaceId !== undefined ||
         !['hazards', 'notable-place'].includes(String(destination.section)) ||
         !(gazetteer.notableReadings as { notableId: string }[]).some(
@@ -107,6 +119,18 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
       )
         return 'invalid notable destination';
     }
+    if (
+      destination.routeId !== undefined &&
+      (gazetteer.version !== 4 ||
+        destination.section !== 'travel' ||
+        destination.settlement !== undefined ||
+        destination.notableId !== undefined ||
+        destination.landscapePlaceId !== undefined ||
+        !(gazetteer.roadReadings as { routeId: string }[]).some(
+          (entry) => entry.routeId === destination.routeId,
+        ))
+    )
+      return 'invalid road destination';
     for (const rawSentence of block.sentences) {
       const sentence = asRecord(rawSentence);
       const selection = asRecord(sentence?.selection);
@@ -133,13 +157,36 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
       sentences.add(String(sentence.id));
       const error = regionOverviewReasonError(sentence.reason, snapshot.map, factIds);
       if (error) return error;
+      if (
+        destination.routeId !== undefined &&
+        (!(
+          sentence.reason &&
+          (asRecord(sentence.reason)?.sources as { kind: string; factId?: string }[]).some(
+            (source) => source.kind === 'fact' && source.factId === destination.routeId,
+          )
+        ) ||
+          !sentence.observations.some((raw) => {
+            const observation = asRecord(raw);
+            return observation?.kind === 'road-path' && observation.routeId === destination.routeId;
+          }))
+      )
+        return 'unsupported road sentence destination';
       for (const rawObservation of sentence.observations) {
         const observation = asRecord(rawObservation);
         if (!observation) return 'invalid gazetteer observation';
-        if (observation.kind === 'landscape-footprint' && gazetteer.version !== 1) {
+        if (
+          gazetteer.version === 4 &&
+          ['road-network', 'road-path'].includes(String(observation.kind))
+        ) {
+          const error = roadObservationError(observation);
+          if (error) return error;
+        } else if (observation.kind === 'landscape-footprint' && gazetteer.version !== 1) {
           const error = landscapeObservationError(observation);
           if (error) return error;
-        } else if (observation.kind === 'notable-name' && gazetteer.version === 3) {
+        } else if (
+          observation.kind === 'notable-name' &&
+          (gazetteer.version === 3 || gazetteer.version === 4)
+        ) {
           if (!text(observation.observedName) || notableSubjectError(observation.subject))
             return 'invalid notable name observation';
         } else if (observation.kind === 'settlement-populations') {

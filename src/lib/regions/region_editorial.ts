@@ -1,3 +1,10 @@
+import {
+  buildRoadReadings,
+  roadReadingCandidates,
+  assignRoadReadingOwners,
+} from './region_road_reading';
+import { roadNetworkObservation } from './region_road_evidence';
+import type { RegionRoadReading } from './region_road_reading_types';
 import { notableEditorialCandidates } from './region_notable_candidates';
 import type {
   RegionNotableReading,
@@ -42,7 +49,7 @@ const destination = (
   settlement?: SettlementTarget,
 ): RegionEditorialDestination => ({ section, ...(settlement ? { settlement } : {}) });
 export const editorialDestinationKey = (value: RegionEditorialDestination) =>
-  `${value.section}:${JSON.stringify(value.settlement ?? null)}${value.landscapePlaceId ? `:${value.landscapePlaceId}` : ''}${value.notableId ? `:${value.notableId}` : ''}`;
+  `${value.section}:${JSON.stringify(value.settlement ?? null)}${value.landscapePlaceId ? `:${value.landscapePlaceId}` : ''}${value.notableId ? `:${value.notableId}` : ''}${value.routeId ? `:${value.routeId}` : ''}`;
 const weight = { defining: 0, distinctive: 1, supporting: 2 };
 const meaningKey = (entry: RegionEditorialCandidate) => entry.narrative.templates[0].id;
 const targetKey = (target: SettlementTarget) =>
@@ -181,6 +188,7 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
     );
   }
   for (const entry of identityCandidates(region)) {
+    if (entry.family === 'road-landscape') continue;
     const support = [entry.fact.subjectId, ...entry.fact.relatedIds].flatMap((id) =>
       [
         ...facts.routes,
@@ -193,11 +201,7 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
     );
     add(
       entry.fact.id,
-      entry.family === 'resource-range'
-        ? 'material'
-        : entry.family === 'road-landscape'
-          ? 'access'
-          : 'settlement-role',
+      entry.family === 'resource-range' ? 'material' : 'settlement-role',
       'distinctive',
       (() => {
         const role = facts.settlementRoles.find((fact) => fact.id === entry.fact.subjectId);
@@ -207,13 +211,7 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
       support,
       [
         destination('opening'),
-        destination(
-          entry.family === 'road-landscape'
-            ? 'travel'
-            : entry.family === 'resource-range'
-              ? 'materials-work'
-              : 'landscape',
-        ),
+        destination(entry.family === 'resource-range' ? 'materials-work' : 'landscape'),
       ],
       {
         sources: entry.fact.reason?.sources,
@@ -285,16 +283,24 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
       id,
       tied
         ? [
-            `${settlement.snapshot.name} is one of the region's most connected settlements, with roads to ${maxConnections} other settlements.`,
+            `${settlement.snapshot.name} is one of the region's most connected saved road hubs, with routes linking it to ${maxConnections} other settlements.`,
           ]
         : [
-            `${settlement.snapshot.name} is the region's most connected settlement, a road hub linked to ${maxConnections} other settlements.`,
-            `Roads connect ${settlement.snapshot.name} to ${maxConnections} other settlements, making it the region's most connected road hub.`,
+            `${settlement.snapshot.name} is the region's most connected saved road hub, with routes linking it to ${maxConnections} other settlements.`,
+            `${settlement.snapshot.name} is the region's most connected saved road hub: saved routes link it to ${maxConnections} other settlements.`,
           ],
       roads.map((entry) => entry.route),
-      [destination('opening'), destination('settlement', { kind: 'embedded', settlementId: id })],
+      [destination('opening'), destination('travel')],
       {
-        observations: connections,
+        observations: [
+          ...connections,
+          roadNetworkObservation(snapshot),
+          {
+            kind: 'notable-name',
+            subject: { kind: 'settlement', target: { kind: 'embedded', settlementId: id } },
+            observedName: settlement.snapshot.name,
+          },
+        ],
         sources: roads.flatMap((entry) => entry.road.sources),
         connects: true,
         consequence: true,
@@ -474,6 +480,7 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
       },
     );
   }
+  candidates.push(...roadReadingCandidates(snapshot));
   candidates.push(...notableEditorialCandidates(snapshot).descriptions);
   candidates.push(...landscapeReadingCandidates(snapshot, buildLandscapePlaces(snapshot)));
   return candidates
@@ -489,6 +496,7 @@ export function composeRegionGazetteer(
   landscapePlaces: RegionLandscapePlace[] = [],
   notableReadings: RegionNotableReading[] = [],
   promptCandidates: RegionNotablePromptCandidate[] = [],
+  roadReadings: RegionRoadReading[] = [],
 ): { gazetteer: RegionGazetteer; nextContext: RegionEditorialContext } {
   const token = rng.int(0, 2147483647);
   const selectionRng = new RNG(JSON.stringify(['gazetteer-selection-v1', token]));
@@ -565,6 +573,11 @@ export function composeRegionGazetteer(
       if (
         sentences + cost > 24 ||
         (counts.get(key) ?? 0) + cost > (dest.section === 'opening' ? 4 : 3)
+      )
+        return false;
+      if (
+        dest.section === 'travel' &&
+        selected.filter(({ destination }) => destination.section === 'travel').length >= 3
       )
         return false;
       if (blockTopics.has(`${key}:${entry.narrative.topic}`)) return false;
@@ -711,7 +724,8 @@ export function composeRegionGazetteer(
   }
   return {
     gazetteer: {
-      version: 3,
+      version: 4,
+      roadReadings,
       blocks: [...blocks.values()],
       landscapePlaces,
       notableReadings: readings,
@@ -732,7 +746,9 @@ export function generateRegionGazetteer(region: Region, rng: RNG): void {
     landscapePlaces,
     notables.readings,
     notables.prompts,
+    buildRoadReadings(snapshot),
   ).gazetteer;
+  assignRoadReadingOwners({ ...snapshot, gazetteer: region.gazetteer });
   const opening = region.gazetteer.blocks
     .filter((block) => block.destination.section === 'opening')
     .flatMap((block) => block.sentences);

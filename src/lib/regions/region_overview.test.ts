@@ -38,7 +38,7 @@ describe('evidence-based regional overview', () => {
       expect(region.description).toBe(fixture(seed).description);
       expect(region.overviewReason?.sources.length).toBeGreaterThan(0);
       expect(region.description).not.toMatch(
-        /Hook:|unverified|implied|saved|mapped|assessment|low-altitude/,
+        /Hook:|unverified|implied|mapped|assessment|low-altitude/,
       );
       const saved = toRegionSnapshot(region);
       expect(regionToMarkdown(saved)).toContain(region.description);

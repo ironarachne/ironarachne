@@ -152,6 +152,7 @@ export function regionToUiDocument(
                     ? ''
                     : body,
               anchorId,
+              references: section.entryReferences?.[index],
               location: section.entryLocations?.[index],
               relatedAnchorId: (() => {
                 const notable = snapshot.facts.notables.find(

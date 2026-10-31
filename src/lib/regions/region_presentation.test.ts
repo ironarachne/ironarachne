@@ -531,8 +531,8 @@ describe('sourcebook gazetteer', () => {
     }
   });
 
-  it('retains generated road paragraphs on reopening, display and export', () => {
-    const saved = JSON.parse(JSON.stringify(snapshot)) as typeof snapshot;
+  it('retains the compact road directory on reopening, display and export', () => {
+    const saved = toRegionSnapshot(rollRegion('448-directory-reopening').region);
     const before = structuredClone(saved);
     expect(saved.facts.routes.length).toBeGreaterThan(0);
     const ui = regionToUiDocument(saved).sections.find((section) => section.heading === 'Travel')!;
@@ -540,14 +540,14 @@ describe('sourcebook gazetteer', () => {
       (section) => section.heading === 'Travel',
     )!;
     for (const route of saved.facts.routes) {
-      expect(route.description).toContain('Hook:');
-      const { body, hook } = regionHook(route.description);
-      expect(ui.entries.find((entry) => entry.factId === route.id)?.body).toBe(body);
-      expect(ui.entries.find((entry) => entry.factId === route.id)?.hook).toBe(hook);
-      expect(exported.lines.some((line) => line.includes(route.description))).toBe(true);
+      expect(route.description).toBe('');
+      const entry = ui.entries.find((entry) => entry.factId === route.id)!;
+      expect(entry.heading).toContain(' to ');
+      expect(entry.hook).toBeUndefined();
+      expect(exported.factIds).toContain(route.id);
       for (const text of [regionToMarkdown(saved), regionToText(saved)]) {
-        expect(text).toContain(body);
-        if (hook) expect(text).toContain(hook);
+        expect(text).toContain(entry.heading);
+        if (entry.body) expect(text).toContain(entry.body);
       }
     }
     expect(saved).toEqual(before);

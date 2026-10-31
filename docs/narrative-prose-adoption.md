@@ -16,12 +16,13 @@ pools; candidate/template selections use explicit context across a stable ordere
 
 These consumers prove the engine, not completion of the application-wide goal.
 
-Road descriptions now use the composer under #396. Traced route nodes and edges supply
-eligible river, coastal, woodland, grassland and demanding-weather details. Each road stores
-a three-sentence paragraph with a hook matched to the chosen detail and its supporting evidence.
-Routes without distinctive geographic evidence offer an exploration or escort opportunity.
-An explicit road batch context varies wording and focus; existing saved and authored prose is
-unchanged.
+Road prose first adopted the composer under #396. The approved #448 road-reading design replaces
+compulsory three-sentence route descriptions and hooks with a complete identity directory and
+selected current path/network meanings in the shared saved editorial plan. Ordinary woodland and
+open-country routes receive no filler. Distinctive river, coastal and demanding-weather evidence
+competes under the common budgets; supported notable suggestions have a single saved owner.
+Previously saved descriptions and authored words remain unchanged. See
+[the road-reading design](region-road-reading.md) and [reading review](region-road-reading-review.md).
 
 Region ecology reading paragraphs now use the composer under #395: current local-use,
 gathering-hazard and organism relationships supply bounded candidates, with occasional supported

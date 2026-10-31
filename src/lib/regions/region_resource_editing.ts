@@ -1,3 +1,4 @@
+import { roadPathCurrent, roadReadingRelationsCurrent } from './region_road_evidence';
 import { notableReadingCurrent } from './region_notable_identity';
 import { landscapePlaceCurrent } from './region_landscape_reading';
 import { editorialSentenceChecker } from './region_editorial_evidence';
@@ -271,7 +272,7 @@ export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnap
               ),
             }
           : {}),
-        ...(snapshot.gazetteer.version === 3
+        ...(snapshot.gazetteer.version === 3 || snapshot.gazetteer.version === 4
           ? {
               notableReadings: snapshot.gazetteer.notableReadings.map((reading) => ({
                 ...reading,
@@ -305,6 +306,23 @@ export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnap
               : { ...sentence, reason: { ...sentence.reason, status: 'stale' as const } },
           ),
         })),
+      },
+    };
+  }
+  // Notable sentence invalidation above must settle before dependent road links are checked.
+  if (snapshot.gazetteer?.version === 4) {
+    snapshot = {
+      ...snapshot,
+      gazetteer: {
+        ...snapshot.gazetteer,
+        roadReadings: snapshot.gazetteer.roadReadings.map((reading) =>
+          reading.observations.every(
+            (observation) =>
+              observation.kind === 'road-path' && roadPathCurrent(snapshot, observation),
+          ) && roadReadingRelationsCurrent(snapshot, reading)
+            ? reading
+            : { ...reading, reason: { ...reading.reason, status: 'stale' as const } },
+        ),
       },
     };
   }

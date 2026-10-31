@@ -159,7 +159,7 @@ describe('saved regional mountain ranges', () => {
     });
     expect(regionToMapSvg(migrated.value)).not.toContain('data-range-id=');
     expect(old).toEqual(before);
-    expect(REGION_PAYLOAD_VERSION).toBe(21);
+    expect(REGION_PAYLOAD_VERSION).toBe(22);
     expect(migrateRegionSnapshot(snapshot, 12).ok).toBe(false);
     expect(migrateRegionSnapshot(snapshot, 11).ok).toBe(false);
     expect(validateRegionSnapshot(snapshot).ok).toBe(true);

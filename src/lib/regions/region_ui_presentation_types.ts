@@ -6,6 +6,7 @@ export type RegionUiEntry = {
   heading: string;
   body: string;
   location?: string;
+  references?: { label: string; anchorId: string }[];
   relatedAnchorId?: string;
   anchorId?: string;
   inspectionFactIds?: string[];

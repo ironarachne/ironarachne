@@ -191,14 +191,10 @@ export function notableEditorialCandidates(snapshot: RegionSnapshot): {
         ],
       },
       subjectKey: fact.id,
-      assertionKeys: [
+      assertionKeys:
         family === 'passage'
-          ? `road-river:${meetings
-              .map((edge) => edge.id)
-              .sort((a, b) => a - b)
-              .join(':')}`
-          : `notable:${fact.id}`,
-      ],
+          ? meetings.map((edge) => `road-river:${edge.id}`)
+          : [`notable:${fact.id}`],
       destinations: [
         { section: fact.kind === 'hazard' ? 'hazards' : 'notable-place', notableId: fact.id },
       ],

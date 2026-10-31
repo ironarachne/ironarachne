@@ -97,6 +97,59 @@ test.describe('a region', () => {
     await createProject(page, 'The Marches');
   });
 
+  test('keeps the compact road directory through saving, reopening and exports', async ({
+    page,
+  }) => {
+    await openGenerator(page);
+    await page.getByLabel('Seed', { exact: true }).fill('5wyedz5q272fz');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    const routes = page.locator('.gazetteer article[data-fact-id^="route:road:"]');
+    expect(await routes.count()).toBeGreaterThan(0);
+    const identities = await routes.evaluateAll((entries) =>
+      entries.map((entry) => ({
+        id: entry.getAttribute('data-fact-id'),
+        anchor: entry.id.split('-route-').at(-1),
+        heading: entry.querySelector('h4')!.textContent,
+      })),
+    );
+    for (const route of await routes.all()) {
+      await expect(route.locator('h4')).toContainText(' to ');
+      await expect(route).not.toContainText('Hook:');
+      await expect(route.getByRole('link', { name: 'Inspect facts' })).toBeVisible();
+    }
+    const prose = await routes.locator('[data-gazetteer-text]').allTextContents();
+    const markdown = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download Markdown' }).click();
+    const contents = await new Response(await (await markdown).createReadStream()).text();
+    for (const identity of identities) expect(contents).toContain(identity.heading);
+    for (const sentence of prose) expect(contents).toContain(sentence);
+    const pdf = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download PDF' }).click();
+    const pdfContents = new TextDecoder('latin1').decode(
+      await new Response(await (await pdf).createReadStream()).arrayBuffer(),
+    );
+    expect(pdfContents.startsWith('%PDF')).toBe(true);
+    for (const identity of identities) {
+      // PDF literal strings escape parentheses and backslashes; short endpoint names do not wrap.
+      const endpoint = identity.heading!.split(' to ')[0].replace(/[()\\]/g, '\\$&');
+      expect(pdfContents).toContain(endpoint);
+    }
+    await saveAs(page, 'Road Country');
+    await page.reload({ waitUntil: 'load' });
+    const reopened = await openInWorkshop(page, 'Road Country');
+    for (const identity of identities) {
+      const route = reopened
+        .locator('.gazetteer article')
+        .filter({ has: page.getByRole('heading', { name: identity.heading!, exact: true }) });
+      await expect(route).toHaveAttribute('data-fact-id', identity.id!);
+      expect((await route.getAttribute('id'))!.split('-route-').at(-1)).toBe(identity.anchor);
+    }
+    for (const sentence of prose)
+      await expect(reopened.locator('.gazetteer')).toContainText(sentence);
+    await expectNoHorizontalOverflow(page);
+  });
+
   test('keeps grounded suggestions through saving and preserves an authored replacement', async ({
     page,
   }) => {
@@ -603,7 +656,10 @@ test.describe('a region', () => {
       for (const article of await section.locator('article').all()) {
         const sectionName = await section.locator(':scope > h3').innerText();
         await expect(article.locator(':scope > h4')).toHaveCount(
-          ['Settlements', 'Landscape', 'Notable places'].includes(sectionName) ? 1 : 0,
+          ['Settlements', 'Landscape', 'Notable places'].includes(sectionName) ||
+            (sectionName === 'Travel' && !!(await article.getAttribute('data-fact-id')))
+            ? 1
+            : 0,
         );
       }
     }

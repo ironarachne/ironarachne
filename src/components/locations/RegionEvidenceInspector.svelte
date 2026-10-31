@@ -51,10 +51,25 @@
         <pre>{JSON.stringify(snapshot.gazetteer.landscapePlaces, null, 2)}</pre>
       </details>
     {/if}
-    {#if snapshot.gazetteer?.version === 3 && snapshot.gazetteer.notableReadings.length}
+    {#if (snapshot.gazetteer?.version === 3 || snapshot.gazetteer?.version === 4) && snapshot.gazetteer.notableReadings.length}
       <details>
         <summary>Notable reading identities and suggested adventures</summary>
         <pre>{JSON.stringify(snapshot.gazetteer.notableReadings, null, 2)}</pre>
+      </details>
+    {/if}
+    {#if snapshot.gazetteer?.version === 4 && snapshot.gazetteer.roadReadings.length}
+      <details>
+        <summary>Road reading identities and shared details</summary>
+        <pre>{JSON.stringify(
+            {
+              readings: snapshot.gazetteer.roadReadings,
+              blocks: snapshot.gazetteer.blocks.filter(
+                (block) => block.destination.section === 'travel',
+              ),
+            },
+            null,
+            2,
+          )}</pre>
       </details>
     {/if}
     {#each facts as fact (fact.id)}
