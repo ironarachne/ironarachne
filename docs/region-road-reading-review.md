@@ -2,7 +2,7 @@
 
 Reviewed on 2026-10-31 against the approved [road reading design](region-road-reading.md).
 This review compares saved source evidence with the shared page/export reading document. Browser
-verification is recorded in the design document after the full suite completes.
+verification results are recorded in the design document.
 
 ## Provenance
 

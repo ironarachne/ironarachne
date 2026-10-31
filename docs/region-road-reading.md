@@ -1,6 +1,6 @@
 # Compact regional road networks
 
-**Status:** accepted — policy and domain model approved by Ben on 2026-10-31; implementation in progress.
+**Status:** implemented — policy and domain model approved by Ben on 2026-10-31.
 
 Issue: [#448](https://github.com/ironarachne/ironarachne/issues/448). Extends the implemented
 [editorial policy](region-gazetteer-salience.md) and
@@ -263,3 +263,17 @@ eligibility rules directly rather than relying on forbidden-word checks.
 
 For implementation run `npm run verify` and `npm run verify:all` before merging the presentation
 change, including all configured mobile widths. The proposal received formatting and document review before implementation. The policy and domain model were explicitly approved before implementation.
+
+## Implementation verification
+
+On 2026-10-31, `npm run verify` passed with 7,610 unit tests and all 100 libraries above the
+coverage gate. The full `npm run verify:all` browser stage completed with 676 passes, five
+normal optional golden-image skips and two action timeouts in existing WebGL preview tests.
+Both timed-out tests passed an isolated rerun without code or timeout changes. The full run
+included every configured mobile width (320, 360, 375, 390 and 430px), region saving/reopening,
+route identities and downloaded Markdown/PDF coverage. The final region browser run rebuilds the
+latest code after the review-status and inspection refinements.
+
+The [reading review](region-road-reading-review.md) records the historical/current distinction,
+selected route details, deliberate omissions and determinism audit. The implementation is in
+[PR #469](https://github.com/ironarachne/ironarachne/pull/469).
