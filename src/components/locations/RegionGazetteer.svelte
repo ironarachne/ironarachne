@@ -44,6 +44,7 @@
           data-notable-id={factId && notableIds.has(factId) ? factId : undefined}
         >
           {#if entry.heading}<h4>{entry.heading}</h4>{/if}
+          {#if entry.summary}<p>{entry.summary}</p>{/if}
           {#if entry.location}<p>Location: {entry.location}</p>{/if}
           {#if entry.relatedAnchorId}<a href={`#${uid}-${entry.relatedAnchorId}`}>View settlement</a
             >{/if}
@@ -60,6 +61,10 @@
           {#each entry.references ?? [] as reference}
             <p><a href={`#${uid}-${reference.anchorId}`}>{reference.label}</a></p>
           {/each}
+          {#if entry.possibleWork}
+            <h5>Possible work</h5>
+            <p data-gazetteer-text>{entry.possibleWork}</p>
+          {/if}
           {#if entry.hook}
             <h5>{entry.hookHeading}</h5>
             <p data-gazetteer-text>{entry.hook}</p>

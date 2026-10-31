@@ -1,3 +1,7 @@
+import {
+  settlementReadingsError,
+  settlementCharacterObservationError,
+} from './region_settlement_reading_validation';
 import { roadReadingsError, roadObservationError } from './region_road_validation';
 import { notableReadingsError, notableSubjectError } from './region_notable_validation';
 import { landscapeObservationError, landscapePlacesError } from './region_landscape_validation';
@@ -22,7 +26,8 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
     (gazetteer.version !== 1 &&
       gazetteer.version !== 2 &&
       gazetteer.version !== 3 &&
-      gazetteer.version !== 4) ||
+      gazetteer.version !== 4 &&
+      gazetteer.version !== 5) ||
     !Array.isArray(gazetteer.blocks)
   )
     return 'invalid region gazetteer';
@@ -33,7 +38,7 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
     const error = landscapePlacesError(gazetteer.landscapePlaces, snapshot, factIds);
     if (error) return error;
   }
-  if (gazetteer.version === 3 || gazetteer.version === 4) {
+  if (gazetteer.version === 3 || gazetteer.version === 4 || gazetteer.version === 5) {
     const error = notableReadingsError(gazetteer.notableReadings, snapshot, factIds, (sentence) =>
       regionGazetteerError(
         {
@@ -49,12 +54,16 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
     );
     if (error) return error;
   }
-  if (gazetteer.version === 4) {
+  if (gazetteer.version === 4 || gazetteer.version === 5) {
     const error = roadReadingsError(
       gazetteer.roadReadings,
       { ...snapshot, gazetteer: value as RegionSnapshot['gazetteer'] },
       factIds,
     );
+    if (error) return error;
+  }
+  if (gazetteer.version === 5) {
+    const error = settlementReadingsError(value, snapshot);
     if (error) return error;
   }
   const blocks = new Set<string>();
@@ -110,7 +119,7 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
       return 'missing landscape place destination';
     if (destination.notableId !== undefined) {
       if (
-        (gazetteer.version !== 3 && gazetteer.version !== 4) ||
+        (gazetteer.version !== 3 && gazetteer.version !== 4 && gazetteer.version !== 5) ||
         destination.landscapePlaceId !== undefined ||
         !['hazards', 'notable-place'].includes(String(destination.section)) ||
         !(gazetteer.notableReadings as { notableId: string }[]).some(
@@ -121,7 +130,7 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
     }
     if (
       destination.routeId !== undefined &&
-      (gazetteer.version !== 4 ||
+      ((gazetteer.version !== 4 && gazetteer.version !== 5) ||
         destination.section !== 'travel' ||
         destination.settlement !== undefined ||
         destination.notableId !== undefined ||
@@ -174,8 +183,11 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
       for (const rawObservation of sentence.observations) {
         const observation = asRecord(rawObservation);
         if (!observation) return 'invalid gazetteer observation';
-        if (
-          gazetteer.version === 4 &&
+        if (observation.kind === 'settlement-character' && gazetteer.version === 5) {
+          const error = settlementCharacterObservationError(observation);
+          if (error) return error;
+        } else if (
+          (gazetteer.version === 4 || gazetteer.version === 5) &&
           ['road-network', 'road-path'].includes(String(observation.kind))
         ) {
           const error = roadObservationError(observation);
@@ -185,7 +197,7 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
           if (error) return error;
         } else if (
           observation.kind === 'notable-name' &&
-          (gazetteer.version === 3 || gazetteer.version === 4)
+          (gazetteer.version === 3 || gazetteer.version === 4 || gazetteer.version === 5)
         ) {
           if (!text(observation.observedName) || notableSubjectError(observation.subject))
             return 'invalid notable name observation';

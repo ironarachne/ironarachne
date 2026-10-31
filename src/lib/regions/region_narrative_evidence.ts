@@ -1,3 +1,4 @@
+import { editorialSentenceChecker, settlementPortraitCurrent } from './region_editorial_evidence';
 import { activityEvidenceCurrent } from './region_activity_support';
 import type { RegionSemanticFact } from './region_resource_types';
 import type { FactBase, FactReason } from './region_fact_types';
@@ -62,17 +63,19 @@ export function regionReadingSnapshot(snapshot: RegionSnapshot): RegionSnapshot 
     ((fact.assessments === undefined ||
       fact.assessments.some((entry) => entry.status !== 'unknown')) &&
       current(fact));
+  const editorialCurrent = editorialSentenceChecker(snapshot);
   return {
     ...snapshot,
     settlements: snapshot.settlements.map((entry) =>
       !entry.descriptionReason ||
-      current({
+      (current({
         id: `description:${entry.id}`,
         name: '',
         description: '',
         origin: 'generated',
         reason: entry.descriptionReason,
-      })
+      }) &&
+        settlementPortraitCurrent(snapshot, entry.id, editorialCurrent))
         ? entry
         : { ...entry, snapshot: { ...entry.snapshot, description: '' } },
     ),

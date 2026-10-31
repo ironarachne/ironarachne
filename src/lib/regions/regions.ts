@@ -525,6 +525,7 @@ function randomSettlements(
     environment,
     nameGenerator: nameGeneratorSet.town,
     size: 'large',
+    deferDescription: true,
     rng,
   };
 

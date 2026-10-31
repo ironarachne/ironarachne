@@ -1,3 +1,5 @@
+import { sameSettlement } from './region_livelihood_evidence';
+import { appendSettlementReading } from './region_settlement_presentation';
 import { appendRoadReading } from './region_road_presentation';
 import { regionHook } from './region_prose';
 import { notableEntryAnchor } from './region_notable_identity';
@@ -48,6 +50,7 @@ export function regionEditorialDocument(
     if (
       block.destination.landscapePlaceId ||
       block.destination.notableId ||
+      (snapshot.gazetteer?.version === 5 && block.destination.section === 'settlement') ||
       block.destination.routeId
     )
       continue;
@@ -100,7 +103,16 @@ export function regionEditorialDocument(
     )) {
       if (!fact.description.trim()) continue;
       if (
-        snapshot.gazetteer?.version === 4 &&
+        snapshot.gazetteer?.version === 5 &&
+        ['activities', 'products', 'dailyLife', 'supply'].includes(key) &&
+        'settlement' in fact &&
+        snapshot.gazetteer.settlementReadings.some((reading) =>
+          sameSettlement(reading.settlement, fact.settlement),
+        )
+      )
+        continue;
+      if (
+        (snapshot.gazetteer?.version === 4 || snapshot.gazetteer?.version === 5) &&
         key === 'routes' &&
         'kind' in fact &&
         fact.kind === 'road'
@@ -133,7 +145,10 @@ export function regionEditorialDocument(
     }
   }
   for (const settlement of snapshot.settlements.filter(
-    (entry) => entry.descriptionReason === undefined && entry.snapshot.description.trim(),
+    (entry) =>
+      snapshot.gazetteer?.version !== 5 &&
+      entry.descriptionReason === undefined &&
+      entry.snapshot.description.trim(),
   )) {
     let section = document.sections.find((entry) => entry.heading === 'Settlements');
     if (!section) {
@@ -147,7 +162,7 @@ export function regionEditorialDocument(
     section.lines.push(`${settlement.snapshot.name}\n\n${settlement.snapshot.description}`);
   }
   // A name remains discoverable even when no generated paragraph earns space.
-  for (const settlement of snapshot.settlements) {
+  for (const settlement of snapshot.gazetteer?.version === 5 ? [] : snapshot.settlements) {
     const shown = document.sections.some(
       (section) =>
         section.heading === 'Settlements' &&
@@ -169,6 +184,7 @@ export function regionEditorialDocument(
       section.lines.push(settlement.snapshot.name);
     }
   }
+  appendSettlementReading(snapshot, document, references);
   appendLandscapeReading(snapshot, document);
   appendNotableReading(snapshot, document, references);
   appendRoadReading(snapshot, document, references);

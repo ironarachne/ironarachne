@@ -1,4 +1,8 @@
 import type {
+  RegionSettlementReading,
+  SettlementCharacterObservation,
+} from './region_settlement_reading_types';
+import type {
   RegionRoadReading,
   RegionRoadNetworkObservation,
   RegionRoadPathObservation,
@@ -37,6 +41,7 @@ export type RegionEditorialPriority = {
   peerSupportCount: number;
 };
 export type RegionEditorialObservation =
+  | SettlementCharacterObservation
   | RegionRoadNetworkObservation
   | RegionRoadPathObservation
   | RegionNotableNameObservation
@@ -55,6 +60,7 @@ export type RegionEditorialObservation =
     };
 export type RegionEditorialCandidate = {
   narrative: NarrativeCandidate;
+  settlementReadingRole?: 'portrait' | 'opportunity';
   subjectKey: string;
   assertionKeys: string[];
   destinations: RegionEditorialDestination[];
@@ -87,6 +93,7 @@ export type RegionGazetteerBlock = {
   sentences: RegionGazetteerSentence[];
 };
 export type RegionGazetteer =
+  | RegionGazetteerV5
   | { version: 1; blocks: RegionGazetteerBlock[] }
   | { version: 2; blocks: RegionGazetteerBlock[]; landscapePlaces: RegionLandscapePlace[] }
   | {
@@ -102,3 +109,12 @@ export type RegionGazetteer =
       notableReadings: RegionNotableReading[];
       roadReadings: RegionRoadReading[];
     };
+
+export type RegionGazetteerV5 = {
+  version: 5;
+  blocks: RegionGazetteerBlock[];
+  landscapePlaces: RegionLandscapePlace[];
+  notableReadings: RegionNotableReading[];
+  roadReadings: RegionRoadReading[];
+  settlementReadings: RegionSettlementReading[];
+};

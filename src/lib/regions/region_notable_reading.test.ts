@@ -183,7 +183,7 @@ describe('notable identities and saved suggestions (#447)', () => {
     const source = fixture();
     const before = structuredClone(source);
     const snapshot = generate(source);
-    if (snapshot.gazetteer?.version !== 4) throw new Error('Missing v3 plan');
+    if (snapshot.gazetteer?.version !== 5) throw new Error('Missing v3 plan');
     const reading = snapshot.gazetteer.notableReadings.find(
       (entry) => entry.notableId === 'approach:1',
     )!;
@@ -338,7 +338,7 @@ describe('notable identities and saved suggestions (#447)', () => {
     const suggestions = [cold, high, mineral, gathering]
       .map((entry) => generate(entry).gazetteer)
       .flatMap((gazetteer) =>
-        gazetteer?.version === 4
+        gazetteer?.version === 5
           ? gazetteer.notableReadings.flatMap((reading) =>
               reading.prompt ? [reading.prompt.sentence.text] : [],
             )
@@ -363,7 +363,7 @@ describe('notable identities and saved suggestions (#447)', () => {
     const reordered = structuredClone(source);
     reordered.map.edges.reverse();
     expect(generate(source).gazetteer).toEqual(generate(reordered).gazetteer);
-    if (first.gazetteer?.version !== 4) throw new Error('Missing plan');
+    if (first.gazetteer?.version !== 5) throw new Error('Missing plan');
     const prompts = first.gazetteer.notableReadings.flatMap((reading) =>
       reading.prompt ? [reading.prompt] : [],
     );
@@ -377,7 +377,7 @@ describe('notable identities and saved suggestions (#447)', () => {
 
   it('rejects malformed identities, invented suggestions and duplicate records; preserves version-19 payloads', () => {
     const snapshot = generate(fixture());
-    if (snapshot.gazetteer?.version !== 4) throw new Error('Missing plan');
+    if (snapshot.gazetteer?.version !== 5) throw new Error('Missing plan');
     const original = snapshot.gazetteer;
     const invented = structuredClone(original);
     invented.notableReadings[0].prompt!.sentence.text =

@@ -1,7 +1,7 @@
 import { roadPathCurrent, roadReadingRelationsCurrent } from './region_road_evidence';
 import { notableReadingCurrent } from './region_notable_identity';
 import { landscapePlaceCurrent } from './region_landscape_reading';
-import { editorialSentenceChecker } from './region_editorial_evidence';
+import { editorialSentenceChecker, settlementPortraitCurrent } from './region_editorial_evidence';
 import { sourceSpecificSummaryIds } from './region_evidence';
 import { createRegionEvidenceChecker } from './region_context_evidence';
 import type { RegionFacts } from './region_fact_types';
@@ -246,13 +246,14 @@ export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnap
     settlements: snapshot.settlements.map((entry) => {
       const reason = entry.descriptionReason;
       return !reason ||
-        current({
+        (current({
           id: `description:${entry.id}`,
           name: '',
           description: '',
           origin: 'generated',
           reason,
-        })
+        }) &&
+          settlementPortraitCurrent(snapshot, entry.id))
         ? entry
         : { ...entry, descriptionReason: { ...reason, status: 'stale' } };
     }),
@@ -272,7 +273,9 @@ export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnap
               ),
             }
           : {}),
-        ...(snapshot.gazetteer.version === 3 || snapshot.gazetteer.version === 4
+        ...(snapshot.gazetteer.version === 3 ||
+        snapshot.gazetteer.version === 4 ||
+        snapshot.gazetteer.version === 5
           ? {
               notableReadings: snapshot.gazetteer.notableReadings.map((reading) => ({
                 ...reading,
@@ -310,7 +313,7 @@ export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnap
     };
   }
   // Notable sentence invalidation above must settle before dependent road links are checked.
-  if (snapshot.gazetteer?.version === 4) {
+  if (snapshot.gazetteer?.version === 4 || snapshot.gazetteer?.version === 5) {
     snapshot = {
       ...snapshot,
       gazetteer: {

@@ -152,6 +152,8 @@ export function regionToUiDocument(
                     ? ''
                     : body,
               anchorId,
+              summary: section.entrySummaries?.[index],
+              possibleWork: section.entryPossibleWork?.[index],
               references: section.entryReferences?.[index],
               location: section.entryLocations?.[index],
               relatedAnchorId: (() => {

@@ -675,3 +675,20 @@ facts; the editor does not introduce a partial-regeneration control. Names updat
 name-dependent saved sentences and changed path/network observations become stale independently.
 See [the approved design](../../../docs/region-road-reading.md) and
 [the reading review](../../../docs/region-road-reading-review.md).
+
+## Settlement reading (#449)
+
+Gazetteer version 5 retains version 4's landscape, notable and road records and adds one settlement
+reading record per represented target. Portrait and opportunity sentence IDs point to the existing
+settlement blocks; text is stored once. Each settlement has at most two portrait sentences and one
+possible-work sentence within the common 24-sentence budget. Structured identity statistics remain
+visible even when no paragraph earns space. The embedded description mirrors only the selected
+portrait and its evidence. Facet observations and transitive source checks stale individual sentences.
+
+`region_settlement_reading` builds candidates from eligible features and current complete product
+chains; saved requirements, limited supply and imports stay explicit. Declarations describe actual
+practices, while “Possible work” remains conditional. `region_settlement_presentation` arranges the
+saved roles for UI, Markdown and text/PDF. Authored descriptions override only the portrait, including
+blanks; independent work remains. Payload version 23 migrates earlier payloads without composing or
+inferring roles. Gazetteer versions 1–4 retain their existing reading paths. See
+[the approved policy](../../../docs/region-settlement-reading.md).

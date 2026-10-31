@@ -97,6 +97,67 @@ test.describe('a region', () => {
     await createProject(page, 'The Marches');
   });
 
+  test('keeps settlement portraits and conditional work separate through display and export', async ({
+    page,
+  }, testInfo) => {
+    const pageErrors: string[] = [];
+    page.on('pageerror', (error) => pageErrors.push(error.message));
+    await openGenerator(page);
+    await page.getByLabel('Seed', { exact: true }).fill('449-opportunity');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    const settlements = page
+      .locator('.gazetteer')
+      .getByRole('region', { name: 'Settlements', exact: true });
+    await expect(
+      settlements.getByRole('heading', { name: 'Possible work', exact: true }).first(),
+    ).toBeVisible();
+    const work = await settlements
+      .locator('h5')
+      .evaluateAll((headings) =>
+        headings
+          .filter((heading) => heading.textContent === 'Possible work')
+          .map((heading) => heading.nextElementSibling!.textContent!),
+      );
+    expect(work.length).toBeGreaterThan(0);
+    for (const article of await settlements.locator('article').all()) {
+      await expect(article.locator('h4')).toHaveCount(1);
+      await expect(article).toContainText(/population \d/);
+    }
+    const words = await settlements.locator('[data-gazetteer-text]').allTextContents();
+    const markdown = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download Markdown' }).click();
+    const text = await new Response(await (await markdown).createReadStream()).text();
+    for (const paragraph of words) expect(text).toContain(paragraph);
+    expect(text).toContain('#### Possible work');
+    expect(text).not.toMatch(/drying.*using drying|stone dressing.*using stone dressing/);
+    const pdf = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download PDF' }).click();
+    await (await pdf).saveAs(testInfo.outputPath('settlement-reading.pdf'));
+    await page.setViewportSize({ width: 375, height: 812 });
+    await expectNoHorizontalOverflow(page);
+    await settlements
+      .locator('article')
+      .filter({ has: page.getByRole('heading', { name: 'Possible work', exact: true }) })
+      .first()
+      .screenshot({ path: testInfo.outputPath('settlement-reading.png') });
+    await saveAs(page, 'Settlement Reading');
+    await page.reload({ waitUntil: 'load' });
+    const reopened = await openInWorkshop(page, 'Settlement Reading');
+    await expect(reopened.locator('.gazetteer')).toBeVisible();
+    expect(
+      await reopened
+        .locator('.gazetteer')
+        .getByRole('region', { name: 'Settlements', exact: true })
+        .locator('[data-gazetteer-text]')
+        .allTextContents(),
+    ).toEqual(words);
+    const evidence = reopened.locator('details.inspection');
+    await evidence.locator('summary').first().click();
+    await expect(evidence).toContainText('Settlement portraits and possible work');
+    expect(pageErrors).toEqual([]);
+  });
+
   test('keeps the compact road directory through saving, reopening and exports', async ({
     page,
   }) => {
@@ -646,7 +707,7 @@ test.describe('a region', () => {
     const gazetteer = page.locator('.gazetteer');
     const entryHeadings = gazetteer.locator('article > h4');
     expect(await entryHeadings.count()).toBeGreaterThan(0);
-    const headingTexts = await gazetteer.locator('h2, h3, h4, h5').allTextContents();
+    const headingTexts = await gazetteer.locator('h2, h3, h4').allTextContents();
     const normalizedHeadings = headingTexts.map((text) =>
       text.trim().replace(/\s+/g, ' ').toLowerCase(),
     );

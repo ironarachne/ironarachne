@@ -130,7 +130,7 @@ export function roadReadingRelationsCurrent(
 ): boolean {
   const gazetteer = snapshot.gazetteer;
   const route = snapshot.facts.routes.find((route) => route.id === reading.routeId);
-  if (gazetteer?.version !== 4 || !route) return false;
+  if ((gazetteer?.version !== 4 && gazetteer?.version !== 5) || !route) return false;
   if (reading.detailOwnerRouteId) {
     const owner = gazetteer.roadReadings.find(
       (entry) => entry.routeId === reading.detailOwnerRouteId,
