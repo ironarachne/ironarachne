@@ -1,3 +1,5 @@
+import { readArchitectureOptions } from '$lib/architecture';
+import type { DungeonArchitectureConfig } from './generator/types';
 /**
  * The single path from a seed to a dungeon, and the record of how it was rolled.
  *
@@ -48,6 +50,7 @@ export const DUNGEON_DEFAULT_TREASURE_CHANCE = 0.3;
  * which is the same spelling the organization's config uses for a choice the seed made.
  */
 export type DungeonGeneratorConfigRecord = {
+  architecture?: DungeonArchitectureConfig;
   width?: number;
   height?: number;
   blueprintName?: string;
@@ -105,7 +108,9 @@ export function readDungeonGeneratorConfig(
 ): DungeonGeneratorConfigRecord {
   const blueprintName = readName(config.blueprintName, dungeonBlueprintNames());
   const biomeName = readName(config.biomeName, dungeonBiomeNames());
+  const architecture = readArchitectureOptions(config.architecture);
   return {
+    ...(architecture ? { architecture } : {}),
     width: readDimension(config.width, DUNGEON_DEFAULT_WIDTH),
     height: readDimension(config.height, DUNGEON_DEFAULT_HEIGHT),
     ...(blueprintName === undefined ? {} : { blueprintName }),
@@ -173,6 +178,7 @@ export function rollDungeon(
   const biomeName = config.biomeName ?? rng.item(dungeonBiomeNames());
 
   return generateDungeon({
+    architecture: config.architecture,
     seed,
     width: config.width ?? DUNGEON_DEFAULT_WIDTH,
     height: config.height ?? DUNGEON_DEFAULT_HEIGHT,

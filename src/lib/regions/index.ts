@@ -81,3 +81,5 @@ export { landscapePlaceAnchor, landscapeOwnerHeading } from './region_landscape_
 export type * from './region_landscape_reading_types';
 
 export type * from './region_notable_reading_types';
+
+export { regionArchitectureResources, generateRegionArchitecture } from './region_architecture';

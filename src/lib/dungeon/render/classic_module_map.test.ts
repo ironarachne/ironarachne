@@ -1,3 +1,4 @@
+import { legacyArchitectureState } from '$lib/architecture';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderClassicModuleMapToCanvas } from './classic_module_map';
 import type { EngineeredDungeon, PopulatedRoom } from '../generator/types';
@@ -90,6 +91,7 @@ function dungeonFrom(
   const grid = gridFromRows(rows);
   return {
     name: 'Test Dungeon',
+    architecture: legacyArchitectureState(),
     theme: {} as EngineeredDungeon['theme'],
     layout: { width: grid.width, height: grid.height, grid, rooms: [] },
     rooms: extras.rooms ?? [],

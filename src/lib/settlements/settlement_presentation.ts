@@ -162,6 +162,9 @@ export function settlementToDocument(
         `Public health: ${settlement.publicHealth}`,
       ],
     ),
+    ...(settlement.architecture?.summary
+      ? [section('Architecture', [settlement.architecture.summary])]
+      : []),
     section('Environment', [settlement.environment.description], settlement.settlementTags),
     ...faithSection(options.religion),
     ...(options.regionalMaterials

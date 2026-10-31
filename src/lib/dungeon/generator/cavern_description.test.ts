@@ -1,30 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { generateDungeon } from './generator';
-import type Environment from '../../environment/environment.js';
+import { buildDungeonEnvironment } from '../dungeon_roll';
 
-const mockCavernEnvironment: Environment = {
-  biome: {
-    name: 'cave',
-    temperature: 50,
-    altitude: 0,
-    humidity: 90,
-    isAquatic: false,
-    descriptions: ['A dark, damp cave.'],
-    features: ['stalactites', 'fungi'],
-  },
-  climate: {
-    name: 'subterranean',
-    temperature: 50,
-    humidity: 90,
-    descriptions: ['Always damp and cool.'],
-    adjective: 'subterranean',
-  },
-  terrain: { name: 'underground', isWater: false },
-  waterSystem: { name: 'underground river' },
-  dominantEcosystem: { name: 'cave' },
-  ecosystems: [],
-  description: 'A vast network of natural caverns.',
-} as unknown as Environment;
+const baseEnvironment = buildDungeonEnvironment(
+  'architecture-fixture',
+  'temperate deciduous forest',
+);
+const mockCavernEnvironment = {
+  ...baseEnvironment,
+  biome: { ...baseEnvironment.biome, name: 'cave', features: ['roots', 'moss'] },
+};
 
 describe('Cavern Room Description', () => {
   it('should not use engineered language for natural caverns', () => {

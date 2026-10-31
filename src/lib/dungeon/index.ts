@@ -26,3 +26,8 @@ export * from './dungeon_presentation';
 export * from './dungeon_rehydrate';
 export * from './dungeon_roll';
 export * from './dungeon_snapshot';
+
+export {
+  applyDungeonArchitecture,
+  defaultDungeonArchitectureContext,
+} from './dungeon_architecture';

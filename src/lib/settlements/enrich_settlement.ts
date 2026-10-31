@@ -1,3 +1,4 @@
+import { legacyArchitectureState } from '$lib/architecture';
 import type { RNG } from '@ironarachne/rng';
 import type { Settlement, SettlementEnrichmentConfig } from './settlement_types.js';
 import { deriveSettlementFacets } from './derive_settlement_facets.js';
@@ -14,8 +15,14 @@ import {
 
 type BaseForFacets = Omit<
   Settlement,
-  'lawAndOrder' | 'commerce' | 'foodSecurity' | 'publicHealth' | 'settlementTags' | 'economicRole'
->;
+  | 'architecture'
+  | 'lawAndOrder'
+  | 'commerce'
+  | 'foodSecurity'
+  | 'publicHealth'
+  | 'settlementTags'
+  | 'economicRole'
+> & { architecture?: Settlement['architecture'] };
 
 /**
  * Merges derived facets into a settlement (deterministic; no enrichment).
@@ -27,7 +34,12 @@ export function buildSettlementWithFacets(base: BaseForFacets): Settlement {
     prosperity: base.prosperity,
     environment: base.environment,
   });
-  return { ...base, ...f, regionalMaterialContext: base.regionalMaterialContext ?? null };
+  return {
+    ...base,
+    ...f,
+    architecture: base.architecture ?? legacyArchitectureState(),
+    regionalMaterialContext: base.regionalMaterialContext ?? null,
+  };
 }
 
 function countInRange(

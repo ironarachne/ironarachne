@@ -1,57 +1,88 @@
 # Architecture
 
-This library generates an **architectural style** — what the buildings of a place look like and why
-— from the materials actually available there, the site's climate and terrain, how densely it is
-settled, and what the buildings are for. It is the bridge between a region's resources and its
-settlements' appearance: a peat bog with no stone and heavy rain produces a different vernacular
-than a dry, rocky, quarry-rich hillside, without either being written down anywhere.
+Shared, serializable architectural facts for settlement text, settlement illustrations, and dungeon
+interiors. The approved model and ownership decisions are in
+[`docs/architectural-styles.md`](../../../docs/architectural-styles.md).
 
-Generation is deterministic: `generateArchitecturalStyle` takes a seed in its config and builds its
-own `RNG`, so the same inputs always produce the same style.
-
-## Features
-
-- **`generateArchitecturalStyle`** — score the available `Resource`s against the site and purposes,
-  then choose structural system, massing, roof, openings, windowing, additions, and the decorative
-  vocabularies that survive material and site filtering.
-- **`describeArchitecturalStyle`** — prose description of a finished style;
-  `fragmentsForArchitecturalStyle` returns the individual sentences instead, for callers assembling
-  their own text.
-- **Pieces of the pipeline**, exported for reuse and testing: `buildWindowingStyle`,
-  `buildBuildingAdditions`, and `populationDensityToBand`.
-- **Catalogs** — `DECORATIVE_STYLE_ENTRIES` and `BUILDING_ADDITION_CATALOG`, each entry carrying the
-  material requirements that decide whether it is available at all.
-- **Types** — `ArchitecturalStyle`, `GenerateArchitecturalStyleConfig`, `ArchitecturalSiteContext`,
-  and the vocabularies they draw on (`StructuralSystem`, `MassingStyle`, `RoofStyle`,
-  `OpeningStyle`, `WindowingStyle`, `BuildingAddition`, `DecorativeStyleId`, `BuildingPurpose`).
-
-## Usage
+`generateArchitecturalStyle` requires a seed, an existing `Biome`, explicit resource knowledge,
+structured site evidence, requested contexts, and optional cultural preferences. It returns a
+`complete`, `partial`, `unavailable`, or `invalid` result. Empty known resources are different from
+unknown resources. Neither permits invented timber, glass, metal roofing, or finished stone products.
 
 ```typescript
-import { describeArchitecturalStyle, generateArchitecturalStyle } from '$lib/architecture';
+import {
+  generateArchitectureState,
+  architectureResourcesFromCatalog,
+  UNKNOWN_ARCHITECTURAL_SITE,
+} from '$lib/architecture';
 
-const style = generateArchitecturalStyle({
-  seed: 'riverport',
-  availableResources: region.resources,
-  purposes: ['residential', 'civic'],
-  populationDensity: 0.7, // or populationDensityBand: 'high'
-  decorativeStyles: ['geometric_interlace'],
-  site: {
-    substrate: 'clay_rich',
-    relief: 'flat',
-    // ...the rest of the site context
+const architecture = generateArchitectureState(
+  {
+    seed: 'riverport',
+    biome: environment.biome,
+    climate: environment.climate,
+    resources: architectureResourcesFromCatalog(selectedBuildingMaterials),
+    site: UNKNOWN_ARCHITECTURAL_SITE,
+    contexts: [
+      {
+        id: 'houses',
+        construction: 'built',
+        exposure: 'exposed',
+        purpose: 'residential',
+        density: 'medium',
+        exteriorWindowsAllowed: true,
+      },
+    ],
+    culturalPreferences: [],
   },
-});
-
-style.primaryMaterials; // what the walls are made of
-style.roof; // the roof form those materials and that climate imply
-
-const description = describeArchitecturalStyle(style);
+  12,
+);
 ```
 
-`populationDensity` is a 0–1 scale; pass `populationDensityBand` instead when you already have a
-band. If `purposes` is empty the generator assumes `residential`.
+The state contains a saved style, up to twelve building examples, diagnostics, and final prose.
+Both illustration compositions must reuse these saved facts; rendering never rolls another roof or
+material. The settlement image renderer itself is follow-up work in #250.
 
-`ArchitecturalStyle.generatorHints` (preferred storey count, courtyard likelihood, vertical
-emphasis) exists for a future building generator — nothing consumes it yet, and it is safe to
-ignore.
+A style has context profiles, each with one to four compatible variants. Instances reference a
+profile/variant rather than copying a complete style into every room. `instantiateArchitecture`
+accepts a stable subject ID, purpose, shape, actual width/depth ratio, explicit condition and placement
+evidence, and existing connection IDs. It never generates layout, places a door, or changes its state.
+
+Construction (`built`, `rock_cut`, `natural`) is independent of exposure (`exposed`, `sheltered`,
+`buried`). Buried rooms have no exterior roof or facade window scheme. Rock-cut spaces require an
+explicit native host-rock resource. Natural spaces can retain unknown substrate without pretending
+to be manufactured buildings. A mixed complex requests multiple contexts and assigns rooms to them.
+
+Material inputs carry stable IDs, actual `Resource` records, typed forms, availability, origin, and
+evidence IDs. `architectureResourcesFromCatalog` accepts only a caller-selected subset; provide
+explicit ID/form mappings for custom resources. It does not discover regional materials or execute
+processing recipes. Region adapters project current structured construction evidence instead of
+parsing narrative descriptions. Unrecognized forms remain unsupported.
+
+Use `architectureNarrativeSubject` with `$lib/narrative` for factual, budgeted prose. Instance prose
+never claims unplaced supports or additions. Owners persist the composed text once and preserve user
+edits on reads and exports. `generateArchitectureState` provides the generation-time composition
+helper; `legacyArchitectureState` represents older results without regeneration.
+
+All random operations use versioned tuple seeds through `architectureOperationSeed`. Profile and
+instance operations own their RNG and thread it through helpers. Connection and door-leaf child
+operations use stable connection IDs so opposite rooms agree about one door. Inputs are ordered by stable IDs;
+provenance uses a canonical 64-bit fingerprint. It is a change detector, not a security hash.
+
+`validateArchitecturalStyle`, `validateArchitecturalInstance`, and `validateArchitectureState` check
+runtime/saved boundaries. `validation.ts` is the synchronous, catalog-free entry for artifact
+metadata; normal consumers import `$lib/architecture`. Schema and generator versions are separate.
+Legacy helpers remain exported as `generateLegacyArchitecturalStyle`, `LegacyArchitecturalStyle`,
+`LegacyGenerateArchitecturalStyleConfig`, `describeArchitecturalStyle`, and
+`fragmentsForArchitecturalStyle`; they do not convert old strings into new supported material facts.
+
+Preview a supported surface palette:
+
+```sh
+npm run arch:style -- --seed demo --biome 'temperate deciduous forest' --materials 'oak timber,granite ashlar,reed thatch'
+npm run arch:style -- --seed cave --biome 'temperate deciduous forest' --context natural --exposure buried --json
+```
+
+The CLI requires an explicit seed and biome fixture. Omit `--materials` for unknown knowledge or pass
+an empty string for a known empty palette. Aquatic and supernatural construction are unsupported.
+The vocabulary does not constitute an engineering or manufacturing simulation.

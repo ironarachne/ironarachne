@@ -1,3 +1,5 @@
+import { readArchitectureOptions } from '$lib/architecture';
+import type { SettlementArchitectureConfig } from './settlement_types';
 import { RNG } from '@ironarachne/rng';
 
 import { getCharacterGenerationConfigForNameSet } from '$lib/characters';
@@ -23,6 +25,7 @@ export type SettlementGeneratorConfigRecord = {
    * reaching back into the store for an artifact it has no way to ask for — the same bargain
    * `$lib/religion` makes for a pantheon named from a borrowed culture.
    */
+  architecture?: Omit<SettlementArchitectureConfig, 'seed'>;
   nameGeneratorSet?: string;
   size?: SettlementSizeFilter;
   includeTrade?: boolean;
@@ -64,7 +67,9 @@ function readBoolean(value: unknown, key: string): Record<string, boolean> {
 export function readSettlementGeneratorConfig(
   config: Record<string, unknown>,
 ): SettlementGeneratorConfigRecord {
+  const architecture = readArchitectureOptions(config.architecture);
   return {
+    ...(architecture ? { architecture } : {}),
     ...(typeof config.nameGeneratorSet === 'string' && config.nameGeneratorSet !== ''
       ? { nameGeneratorSet: config.nameGeneratorSet }
       : {}),
@@ -127,6 +132,11 @@ export function rollSettlement(
 
   const settlement = generate({
     ...base,
+    architecture: {
+      seed,
+      resources: config.architecture?.resources ?? { knowledge: 'unknown', entries: [] },
+      ...config.architecture,
+    },
     size: config.size ?? 'any',
     nameGenerator: nameSet.town,
     enrichment: enriched

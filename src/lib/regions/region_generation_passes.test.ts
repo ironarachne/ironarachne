@@ -123,7 +123,26 @@ describe('dependent generation passes', () => {
       expect(after.facts.dailyLife).toEqual(before.facts.dailyLife);
     if (['generateNotableFacts', 'generateRegionGazetteer'].includes(name))
       expect(after.facts.supply).toEqual(before.facts.supply);
-    expect(after.settlements).toEqual(before.settlements);
+    const coreSettlements = (value: typeof before) =>
+      value.settlements.map((entry) => ({
+        ...entry,
+        snapshot: { ...entry.snapshot, architecture: null },
+      }));
+    expect(coreSettlements(after)).toEqual(coreSettlements(before));
+    // Architecture consumes construction evidence; changing that evidence may change the style.
+    if (
+      ![
+        'generateProcessingFacts',
+        'generateLivelihoodFacts',
+        'generateResourceFacts',
+        'generateEcologyInhabitants',
+        'generateGeologyFacts',
+        'generateHabitatFacts',
+      ].includes(name)
+    )
+      expect(after.settlements.map((e) => e.snapshot.architecture)).toEqual(
+        before.settlements.map((e) => e.snapshot.architecture),
+      );
     expect(after.realms).toEqual(before.realms);
     if (name === 'generateEcologyNarrative') {
       expect(after.description).toEqual(before.description);

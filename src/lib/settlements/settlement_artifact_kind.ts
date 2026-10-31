@@ -1,3 +1,5 @@
+// The synchronous artifact boundary excludes architecture generation and resource catalogs.
+import { legacyArchitectureState, validateArchitectureState } from '$lib/architecture/validation';
 import house from '$lib/assets/icons/set1/house.svg?raw';
 import {
   acceptedPayload,
@@ -21,6 +23,7 @@ import { isRegionalMaterialLink } from './settlement_material_link';
 export const SETTLEMENT_ARTIFACT_KIND = 'settlement' as const;
 
 /**
+ * Version 5 adds saved architecture without inferring it during migration.
  * Version 4 adds nullable regional material context. Version 3 qualifies every embedded actor's compatibility mechanics. Version 2 changed a
  * notable's character to store `speciesName` where version 1 embedded a whole `Species`.
  *
@@ -33,7 +36,7 @@ export const SETTLEMENT_ARTIFACT_KIND = 'settlement' as const;
  * It also drops a whole `Species` record per notable, which was the bulk of what a stored notable
  * was.
  */
-export const SETTLEMENT_PAYLOAD_VERSION = 4 as const;
+export const SETTLEMENT_PAYLOAD_VERSION = 5 as const;
 
 const SETTLEMENT_STRING_FIELDS = ['name', 'description', 'economicRole'];
 
@@ -214,6 +217,8 @@ export function validateSettlementSnapshot(payload: unknown): PayloadResult<Sett
     );
   }
 
+  if (!validateArchitectureState(record.architecture).ok)
+    return rejectedPayload('invalid-payload', 'settlement architecture is invalid');
   const checks: PayloadResult<unknown>[] = [
     validateSettlementCategory(record.category),
     validateSettlementEnvironment(record.environment),
@@ -304,10 +309,10 @@ export function migrateSettlementSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<SettlementSnapshot> {
-  if (from !== 1 && from !== 2 && from !== 3) {
+  if (from !== 1 && from !== 2 && from !== 3 && from !== 4) {
     return rejectedPayload(
       'unsupported-version',
-      `settlement has no migration from payload version ${from}; versions 1–3 are the older shapes`,
+      `settlement has no migration from payload version ${from}; versions 1–4 are the older shapes`,
     );
   }
   const convertSpecies = from === 1;
@@ -315,10 +320,18 @@ export function migrateSettlementSnapshot(
   if (record === null) {
     return rejectedPayload('invalid-payload', 'settlement payload is not an object');
   }
-  if (from === 3) return validateSettlementSnapshot({ ...record, regionalMaterialContext: null });
+  if (from === 4)
+    return validateSettlementSnapshot({ ...record, architecture: legacyArchitectureState() });
+  if (from === 3)
+    return validateSettlementSnapshot({
+      ...record,
+      architecture: legacyArchitectureState(),
+      regionalMaterialContext: null,
+    });
 
   return validateSettlementSnapshot({
     ...record,
+    architecture: legacyArchitectureState(),
     regionalMaterialContext: null,
     ...(Array.isArray(record.importantPeople)
       ? {

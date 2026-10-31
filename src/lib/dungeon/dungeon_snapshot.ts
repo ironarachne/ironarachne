@@ -45,6 +45,7 @@ function toStoredRoom(room: PopulatedRoom): StoredPopulatedRoom {
 
 export function toDungeonSnapshot(dungeon: EngineeredDungeon): DungeonSnapshot {
   const converted: DungeonSnapshot = {
+    architecture: dungeon.architecture,
     name: dungeon.name,
     theme: dungeon.theme,
     layout: dungeon.layout,

@@ -1,3 +1,4 @@
+import { generateRegionArchitecture } from './region_architecture';
 import { generateManagedProduction, finalizeResourceInventory } from './region_managed_production';
 import { generateDenseForestFacts, generateDenseForestLandmark } from './region_dense_forests';
 import { generateMountainRangeFacts } from './region_mountain_ranges';
@@ -342,6 +343,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   generateLivelihoodFacts(region, createRegionStageRng(seed, 'livelihoods'));
   generateSettlementActivities(region, createRegionStageRng(seed, 'settlement-activities'));
   generateSupplyFacts(region, createRegionStageRng(seed, 'supply'));
+  generateRegionArchitecture(region, seed);
   generateNotableFacts(region, createRegionStageRng(seed, 'notable-places'), forestLandmark);
   generateEcologyNarrative(region, createRegionStageRng(seed, 'ecology-narrative'));
   generateRegionIdentity(region, createRegionStageRng(seed, 'regional-identity'));

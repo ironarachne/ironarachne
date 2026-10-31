@@ -1,3 +1,4 @@
+import { generateSettlementArchitecture } from './settlement_architecture';
 import { Environments } from '$lib/environment';
 import * as Names from '$lib/names';
 import * as RNG from '@ironarachne/rng';
@@ -27,7 +28,10 @@ export function generate(config: SettlementGeneratorConfig): Settlement {
   if (config.enrichment) {
     settlement = applySettlementEnrichment(settlement, config.enrichment, config.rng);
   }
-  return settlement;
+  return {
+    ...settlement,
+    architecture: generateSettlementArchitecture(settlement, config.architecture),
+  };
 }
 
 export function getDefaultConfig(

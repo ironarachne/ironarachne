@@ -1,8 +1,12 @@
+import { doorsOnRoomWalls } from '../dungeon_room_doors';
+import { legacyArchitectureState } from '$lib/architecture';
+import { composeNarrative } from '$lib/narrative';
+import { applyDungeonArchitecture } from '../dungeon_architecture';
+import type { DungeonArchitectureConfig } from './types';
 import * as RNG from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 import { getFantasyNameGeneratorSet } from '../../names';
 import type Environment from '../../environment/environment.js';
-import { getTile } from '../grid/grid';
 import type { DungeonLayout, PlacedRoom } from '../layout/types';
 import type { Door } from '../interactive/types';
 import { buildTheme } from '../theme/theme';
@@ -20,6 +24,7 @@ import type { Encounter, EncounterTemplate } from '../../encounters/encounter_ty
 import type { Item } from '../../equipment';
 
 export type DungeonGeneratorConfig = {
+  architecture?: DungeonArchitectureConfig;
   seed: string;
   width: number;
   height: number;
@@ -38,82 +43,53 @@ function generateRoomDescription(
   style: string,
   blueprintName: string,
   purpose: string,
-  biomeFeatures: string[],
+  _biomeFeatures: string[],
 ): string {
   const area = width * height;
-  let sizeAdjectives: string[] = [];
-
-  if (area <= 25) {
-    sizeAdjectives = ['small', 'cramped', 'tight', 'narrow', 'claustrophobic'];
-  } else if (area <= 64) {
-    sizeAdjectives = ['modest', 'average-sized', 'standard', 'fair-sized'];
-  } else if (area <= 144) {
-    sizeAdjectives = ['large', 'spacious', 'roomy', 'broad'];
-  } else {
-    sizeAdjectives = ['cavernous', 'vast', 'enormous', 'massive', 'colossal'];
-  }
-
-  const size = rng.item(sizeAdjectives);
-
-  const roomTypes: Record<string, string> = {
-    rectangle: 'chamber',
-    circle: 'circular room',
-    'l-shape': 'angled hall',
-    blob: 'cavern',
-  };
-
-  const roomType = roomTypes[style] || 'room';
-  const article = Words.article(size);
-  const capitalizedArticle = article.charAt(0).toUpperCase() + article.slice(1);
-  let description = '';
-  if (blueprintName.toLowerCase() === 'natural caverns') {
-    description = `${capitalizedArticle} ${size} ${roomType} known as the ${purpose.toLowerCase()}.`;
-  } else {
-    description = `${capitalizedArticle} ${size} ${roomType}, originally designed as a ${purpose.toLowerCase()}.`;
-  }
-
-  const flavors: Record<string, string[]> = {
-    tomb: [
-      'Dust covers the stone floor.',
-      'The air is stale and silent.',
-      'Faded carvings line the walls.',
-      'Cobwebs hang from the ceiling.',
-    ],
-    stronghold: [
-      'The stone walls are reinforced and sturdy.',
-      'Signs of old patrols are visible.',
-      'Weapon racks stand empty in the corners.',
-      'The acoustics carry echoes from afar.',
-    ],
-    'arcane library': [
-      'The faint smell of ozone lingers.',
-      'Strange markings are burned into the floor.',
-      'Broken glass from old vials crunches underfoot.',
-      'The air feels unnaturally cold.',
-    ],
-    'natural caverns': [
-      'Moisture drips from stalactites.',
-      'The uneven floor is treacherous.',
-      'Patches of strange fungi grow in the corners.',
-      'A low breeze whistles through cracks in the stone.',
-    ],
-  };
-
-  const blueprintKey = blueprintName.toLowerCase();
-  if (flavors[blueprintKey]) {
-    description += ` ${rng.item(flavors[blueprintKey])}`;
-  }
-
-  // Occasionally mix in a biome feature (which is already a complete sentence)
-  if (biomeFeatures.length > 0 && rng.float(0, 1) > 0.5) {
-    let randomFeature = rng.item(biomeFeatures);
-    // Adjust outward-facing biome text to make sense inside a room
-    randomFeature = randomFeature.replace(/The area is/g, `The ${roomType} is`);
-    randomFeature = randomFeature.replace(/There are/g, 'There are traces of');
-    description += ` ${randomFeature}`;
-  }
-
-  return description;
+  const size = area <= 25 ? 'small' : area <= 64 ? 'modest' : area <= 144 ? 'large' : 'vast';
+  const roomType =
+    style === 'blob'
+      ? 'cavern'
+      : style === 'circle'
+        ? 'circular room'
+        : style === 'l-shape'
+          ? 'angled hall'
+          : 'chamber';
+  const identity =
+    blueprintName === 'Natural Caverns'
+      ? `known as the ${purpose.toLowerCase()}`
+      : `originally designed as a ${purpose.toLowerCase()}`;
+  return composeNarrative(
+    {
+      id: purpose,
+      kind: 'dungeon-room',
+      candidates: [
+        {
+          id: 'room:geometry',
+          topic: 'geometry',
+          importance: 'defining',
+          sourceIds: [],
+          templates: [
+            {
+              id: 'room:geometry:plain',
+              parts: [
+                {
+                  id: 'sentence',
+                  options: [
+                    `A ${size} ${roomType}, ${identity}.`,
+                    `This ${size} ${roomType} is ${identity}.`,
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    { maxSentences: 1, maxPerTopic: 1, repetitionWindow: 0 },
+    { recentSelections: [] },
+    rng,
+  ).text;
 }
 
 /** The first room touching the map border, and which border it touches. */
@@ -205,44 +181,6 @@ function selectEncounterTemplates(theme: DungeonTheme): EncounterTemplate[] {
   });
 
   return validEncounterTemplates.length > 0 ? validEncounterTemplates : allTemplates;
-}
-
-/**
- * Which wall of this room each door sits in, for the doors that border it at all.
- *
- * A door is on a room's wall when the room's floor lies on exactly one side of it; a door
- * between two rooms therefore belongs to both, once from each side.
- */
-function doorsOnRoomWalls(room: PlacedRoom, doors: Door[]): { door: Door; wall: string }[] {
-  const inRoom = (x: number, y: number) => {
-    const rx = x - room.x;
-    const ry = y - room.y;
-    if (rx >= 0 && rx < room.primitive.width && ry >= 0 && ry < room.primitive.height) {
-      return getTile(room.primitive.shape, rx, ry);
-    }
-    return false;
-  };
-
-  const roomDoors: { door: Door; wall: string }[] = [];
-
-  for (const door of doors) {
-    let wall = '';
-    if (inRoom(door.x, door.y + 1) && !inRoom(door.x, door.y - 1)) {
-      wall = 'north';
-    } else if (inRoom(door.x, door.y - 1) && !inRoom(door.x, door.y + 1)) {
-      wall = 'south';
-    } else if (inRoom(door.x + 1, door.y) && !inRoom(door.x - 1, door.y)) {
-      wall = 'west';
-    } else if (inRoom(door.x - 1, door.y) && !inRoom(door.x + 1, door.y)) {
-      wall = 'east';
-    }
-
-    if (wall) {
-      roomDoors.push({ door, wall });
-    }
-  }
-
-  return roomDoors;
 }
 
 /**
@@ -344,6 +282,7 @@ function populateRoom(
 
   return {
     ...room, // includes x, y, primitive
+    architecture: null,
     id: roomId,
     name: roomName(purpose, encounter, treasure),
     purpose,
@@ -400,13 +339,19 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
 
   const populatedRooms = layout.rooms.map((room, index) => populateRoom(room, index, context));
 
-  return {
-    name: generateDungeonName(config.seed, theme),
-    theme,
-    layout,
-    rooms: populatedRooms,
-    doors,
-    keys,
-    entrances,
-  };
+  return applyDungeonArchitecture(
+    {
+      architecture: legacyArchitectureState(),
+      name: generateDungeonName(config.seed, theme),
+      theme,
+      layout,
+      rooms: populatedRooms,
+      doors,
+      keys,
+      entrances,
+    },
+    config.seed,
+    config.architecture,
+    true,
+  );
 }

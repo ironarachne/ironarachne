@@ -1,32 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { generateDungeon } from './generator';
-import type Environment from '../../environment/environment.js';
+import { buildDungeonEnvironment } from '../dungeon_roll';
 
 describe('Master Dungeon Generator', () => {
   // Stub a mock environment mimicking the existing ironarachne structure
-  const mockForestEnvironment: Environment = {
-    biome: {
-      name: 'forest',
-      temperature: 65,
-      altitude: 100,
-      humidity: 60,
-      isAquatic: false,
-      descriptions: ['A dense canopy of ancient trees.'],
-      features: ['roots', 'moss'],
-    },
-    climate: {
-      name: 'temperate',
-      temperature: 60,
-      humidity: 50,
-      descriptions: ['Mild seasons.'],
-      adjective: 'mild',
-    },
-    terrain: { name: 'hills', isWater: false },
-    waterSystem: { name: 'river' },
-    dominantEcosystem: { name: 'woodland' },
-    ecosystems: [],
-    description: 'A temperate forest environment.',
-  } as unknown as Environment;
+  const baseEnvironment = buildDungeonEnvironment(
+    'architecture-fixture',
+    'temperate deciduous forest',
+  );
+  const mockForestEnvironment = {
+    ...baseEnvironment,
+    biome: { ...baseEnvironment.biome, name: 'forest', features: ['roots', 'moss'] },
+  };
 
   it('should run end-to-end generating a complete functional dungeon blueprint', () => {
     const dungeon = generateDungeon({

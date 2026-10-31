@@ -26,6 +26,7 @@ function roomFromStored(stored: StoredPopulatedRoom): PopulatedRoom {
 
 export function dungeonFromSnapshot(snapshot: DungeonSnapshot): EngineeredDungeon {
   return {
+    architecture: snapshot.architecture,
     name: snapshot.name,
     theme: snapshot.theme,
     layout: snapshot.layout,

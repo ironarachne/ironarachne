@@ -1,3 +1,5 @@
+// The synchronous artifact boundary excludes architecture generation and resource catalogs.
+import { legacyArchitectureState } from '$lib/architecture/validation';
 import { regionGazetteerError } from './region_editorial_validation';
 import map from '$lib/assets/icons/set1/map.svg?raw';
 import { legacyRiverNetwork, riverNetworkError } from '$lib/map';
@@ -37,8 +39,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 20 adds notable reading identities and separately saved suggested adventures. */
-export const REGION_PAYLOAD_VERSION = 20 as const;
+/** Version 21 adds saved architecture to embedded settlement snapshots without regeneration. */
+export const REGION_PAYLOAD_VERSION = 21 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -407,12 +409,31 @@ function withEmptyDenseForests(payload: unknown): unknown {
 
 /** Upgrade the prior current payload without inventing source or food metadata. */
 function validateMigratedRegionSnapshot(payload: unknown): PayloadResult<RegionSnapshot> {
-  const record = asRecord(payload);
+  const original = asRecord(payload);
+  const record =
+    original && Array.isArray(original.settlements)
+      ? {
+          ...original,
+          settlements: original.settlements.map((value) => {
+            const entry = asRecord(value);
+            const snapshot = asRecord(entry?.snapshot);
+            return entry && snapshot
+              ? {
+                  ...entry,
+                  snapshot: {
+                    ...snapshot,
+                    architecture: snapshot.architecture ?? legacyArchitectureState(),
+                  },
+                }
+              : value;
+          }),
+        }
+      : original;
   const facts = asRecord(record?.facts);
   const upgraded =
     record && facts?.version === 9
       ? { ...record, facts: { ...facts, version: 10, managedProduction: [], resourceSources: [] } }
-      : payload;
+      : (record ?? payload);
   const next = asRecord(upgraded);
   const nextFacts = asRecord(next?.facts);
   const withProducts =
@@ -433,7 +454,7 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (!Number.isInteger(from) || from < 1 || from > 19)
+  if (!Number.isInteger(from) || from < 1 || from > 20)
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,

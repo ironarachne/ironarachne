@@ -1,3 +1,4 @@
+import { roomArchitecturalPurpose } from './dungeon_architecture';
 /**
  * Editing a saved dungeon, one field at a time.
  *
@@ -117,7 +118,16 @@ export function setRoomPurpose(
   roomIndex: number,
   purpose: string,
 ): DungeonSnapshot {
-  return editRoom(snapshot, roomIndex, (room) => ({ ...room, purpose }));
+  return editRoom(snapshot, roomIndex, (room) => ({
+    ...room,
+    purpose,
+    architecture: room.architecture
+      ? {
+          ...room.architecture,
+          currentPurpose: roomArchitecturalPurpose(purpose, room.architecture.currentPurpose),
+        }
+      : null,
+  }));
 }
 
 export function setRoomDescription(

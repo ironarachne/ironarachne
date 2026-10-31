@@ -20,7 +20,7 @@ export type ResourceDepositFact = FactBase & {
   extraction: ExtractionMethod;
   anchor: SpatialAnchor;
 };
-export type ResourceAvailability = 'available' | 'limited' | 'not-observed' | 'unknown';
+export type { ResourceAvailability } from '$lib/resources';
 export type ResourceCatalogSource =
   | { kind: 'raw-resource'; resourceId: string }
   | { kind: 'building-material'; resourceName: string }
