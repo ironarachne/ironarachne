@@ -119,13 +119,19 @@ test.describe('a Stars Without Number starship', () => {
 
     const panel = await openInWorkshop(page, 'The Long Haul');
     const usedMass = panel.getByRole('spinbutton', { name: 'Mass used' });
+    const recalculate = panel.getByRole('button', {
+      name: 'Recalculate the budget from what is fitted',
+    });
+    // Establish the fitted baseline before changing it: generated totals may include hull multipliers.
+    await recalculate.click();
     const before = await usedMass.inputValue();
 
     const driveMass = panel.getByRole('spinbutton', { name: 'Drive mass' });
-    await driveMass.fill('9');
+    const fittedDriveMass = Number(await driveMass.inputValue());
+    await driveMass.fill(String(fittedDriveMass + 1));
     await expect(usedMass).toHaveValue(before);
 
-    await panel.getByRole('button', { name: 'Recalculate the budget from what is fitted' }).click();
+    await recalculate.click();
     await expect(usedMass).not.toHaveValue(before);
   });
 

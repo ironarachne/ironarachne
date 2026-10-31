@@ -81,3 +81,13 @@ statistics beneath their names, work remains explicitly conditional, and no text
 overlapping. The focused mobile save/reopen/export browser test passes. The saved-editor regression
 also checks for browser errors: reading source food metadata must copy its small data union rather
 than passing reactive editor proxies to `structuredClone`.
+
+## Final validation
+
+`npm run verify` passes all 7,628 unit tests, type checks, lint and the coverage gate: all 100
+libraries meet the 80% threshold. The full Playwright run exercised 684 cases: 678 passed, five
+golden-image cases were intentionally skipped, and one existing SWN starship budget test failed.
+Its fixed-value edit could coincide with the existing fitted budget. The test now establishes a
+fitted baseline and increases drive mass by one; no starship application behavior changed.
+The corrected test passed five fresh runs and the suite's `--last-failed` retry. Together these
+runs validate all 679 non-skipped browser cases, including every route at five mobile widths.
