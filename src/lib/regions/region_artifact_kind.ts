@@ -1,3 +1,9 @@
+import {
+  emptyRegionHistory,
+  initialRegionRealmIds,
+  regionRealmIdentityError,
+} from './region_realm_identity';
+import { regionHistoryError } from './region_history_validation';
 // The synchronous artifact boundary excludes architecture generation and resource catalogs.
 import { legacyArchitectureState } from '$lib/architecture/validation';
 import { regionGazetteerError } from './region_editorial_validation';
@@ -39,8 +45,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 24 adds organization reading roles; older plans and descriptions are preserved. */
-export const REGION_PAYLOAD_VERSION = 24 as const;
+/** Version 25 adds stable realm identities and unrecorded history without inventing a past. */
+export const REGION_PAYLOAD_VERSION = 25 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -221,7 +227,12 @@ export function validateRegionSnapshot(payload: unknown): PayloadResult<RegionSn
     if (error) return rejectedPayload('invalid-payload', `settlement description: ${error}`);
   }
 
-  return acceptedPayload(record as unknown as RegionSnapshot);
+  const snapshot = record as unknown as RegionSnapshot;
+  const identityError = regionRealmIdentityError(snapshot);
+  if (identityError) return rejectedPayload('invalid-payload', identityError);
+  const historyError = regionHistoryError(record.history, snapshot);
+  if (historyError) return rejectedPayload('invalid-payload', historyError);
+  return acceptedPayload(snapshot);
 }
 
 /** Adds semantic identities without inventing absent facts; version 1 also migrates actors. */
@@ -442,10 +453,19 @@ function validateMigratedRegionSnapshot(payload: unknown): PayloadResult<RegionS
       : upgraded;
   const latest = asRecord(withProducts);
   const latestFacts = asRecord(latest?.facts);
-  return validateRegionSnapshot(
+  const historyRecord = asRecord(
     latest && latestFacts?.version === 11
       ? { ...latest, facts: { ...latestFacts, version: 12, activities: [] } }
       : withProducts,
+  );
+  return validateRegionSnapshot(
+    historyRecord && Array.isArray(historyRecord.realms)
+      ? {
+          ...historyRecord,
+          realmIds: initialRegionRealmIds(historyRecord.realms.length),
+          history: emptyRegionHistory(),
+        }
+      : historyRecord,
   );
 }
 
@@ -454,7 +474,7 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (!Number.isInteger(from) || from < 1 || from > 23)
+  if (!Number.isInteger(from) || from < 1 || from > 24)
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,

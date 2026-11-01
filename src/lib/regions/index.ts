@@ -89,3 +89,14 @@ export type * from './region_road_reading_types';
 export type * from './region_settlement_reading_types';
 
 export type * from './region_organization_reading_types';
+
+export type * from './region_history_types';
+export {
+  initialRegionRealmIds,
+  nextRegionRealmId,
+  emptyRegionHistory,
+  regionRealmIdentityError,
+  retainRegionRealms,
+} from './region_realm_identity';
+export { regionHistoryError } from './region_history_validation';
+export { historyObservation, historyEvidenceCurrent } from './region_history_evidence';

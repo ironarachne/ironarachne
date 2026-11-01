@@ -707,3 +707,25 @@ including when blank. Name edits stale dependent generated prose; removal cleans
 records. The embedded standalone description remains available for extraction. Payload version 24
 preserves older saved words and gazetteers without composing new metadata. See
 [the approved model](../../../docs/region-organization-reading.md).
+
+## History foundation (#481)
+
+Payload version 25 adds `realmIds` and a version-1 `history` aggregate. New generation and all
+legacy migrations initialize history as empty and `unrecorded`; no events are generated yet.
+Facts version 12 and gazetteer version 6 are unchanged. Snapshot and rehydration preserve saved
+history without selecting dates, actors or wording.
+
+`retainRegionRealms` reorders/removes realms atomically with existing positional seat, parent and
+claim links. IDs travel with their realms. It protects the seat and history-linked removals until
+the dependency-aware editing work in #483; callers must not splice realm arrays directly.
+`historyObservation` projects saved institutional, settlement and semantic-fact support, while
+`historyEvidenceCurrent` checks those observations and transitive evidence without generating.
+Only the existing `unpressed` political claim status is recognized for history; unknown statuses
+remain stored but are ineligible. Legacy realm tile coordinates must resolve exactly to saved map
+node centers, otherwise no positive realm observation is available.
+
+`regionHistoryError` validates references, chronological and lifecycle invariants, outcome/consequence
+compatibility, and positive observations. Current compatibility is checked separately so old saved
+words can survive stale support. Disaster and migration outcomes remain unavailable until approved
+typed evidence adapters exist. See [the accepted design](../../../docs/region-history.md) and the
+pre-change regression fixture in `test_fixtures/region_history_481.json.gz`.

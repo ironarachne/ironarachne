@@ -1,3 +1,4 @@
+import type { RegionHistory } from './region_history_types';
 import type { RegionGazetteer } from './region_editorial_types';
 import type { RegionAffiliation } from './region_affiliation_types';
 import { type Character } from '$lib/characters';
@@ -33,6 +34,8 @@ export default interface Region {
   affiliation: RegionAffiliation;
   mainRealm: number | null;
   realms: Realm[];
+  realmIds?: string[];
+  history?: RegionHistory;
   authority: Character | null;
   organizations: Organization[];
   map: RegionMap;

@@ -95,6 +95,8 @@ export function regionFromSnapshot(snapshot: RegionSnapshot, rng: RNG): Region {
     facts: snapshot.facts,
     mainRealm: snapshot.mainRealm,
     realms: snapshot.realms.map(realmFromStored),
+    realmIds: [...snapshot.realmIds],
+    history: structuredClone(snapshot.history),
     authority: snapshot.authority === null ? null : characterFromStored(snapshot.authority),
     organizations: snapshot.organizations.map(organizationFromStored),
     map: snapshot.map,
