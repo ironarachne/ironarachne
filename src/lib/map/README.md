@@ -99,7 +99,13 @@ map, climate observations, and descriptions, including authored text; it does no
   variant choice, and styling use separate deterministic streams; changing the catalog does not
   consume candidate-placement draws. No terrain glyph record is persisted. Text uses conservative serif bounds
   including halo and rounding clearance. Labels stay within the sheet and outside marker footprints
-  and the title cartouche; only other-label overlap is best-effort. Names that cannot fit are omitted.
+  and the title cartouche. If any settlement name cannot fit, the renderer reserves visible
+  numeric keys, retries nearby full names, and adds a complete settlement index below the map.
+  Keys and index rows retain saved settlement IDs and literal names. Keys that cannot fit beside
+  their building cluster use an external gutter and a collision-free leader to the saved site.
+  Measured index rows wrap long authored names without shrinking text. The standalone SVG grows
+  its parchment, frame, and natural dimensions to include this index at the existing map scale.
+  See [settlement map references](../../../docs/region-settlement-map-references.md).
   New maps save a versioned `RiverNetwork`, with directed reaches, actual local spring supplies,
   channel samples and widths, island polygons, and conserving terminal deltas. Narrow streams are
   solid tapered ink; larger channels have pale blue interiors and fine banks. Terrain-constrained
@@ -116,7 +122,7 @@ map, climate observations, and descriptions, including authored text; it does no
   label/marker reservations and routes. Its plain, ringed, or eight-point artwork and occasional
   tilt (within three degrees) derive deterministically from saved map geometry; its reservation
   includes the rotated artwork. It has no paper fill. No physical distance is defined,
-  so the renderer omits a scale bar; the glyphs need no legend.
+  so the renderer omits a scale bar; terrain glyphs need no legend.
   Browser tests check actual font geometry against the emitted `data-text-box` reservations.
 
 ## Usage

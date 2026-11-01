@@ -68,6 +68,13 @@ import {
   resolveSettlementIconCategory,
 } from './settlement_icons';
 import type { PlacedSettlementIcon } from './settlement_icon_types';
+import {
+  settlementMapReferences,
+  placeSettlementKeys,
+  settlementLeaderBoxes,
+  settlementIndexLines,
+} from './settlement_references';
+import type { SettlementReferenceLayout } from './settlement_reference_types';
 import type {
   PlacedTerrainGlyph,
   TerrainGlyphAssignment,
@@ -1698,11 +1705,16 @@ ${ring}${diagonals}
 }
 
 /** Two quiet ruled lines surround the clipped drawing, entirely inside the parchment margin. */
-function mapFrame(map: RegionMap, marginX: number, marginY: number): string {
+function mapFrame(
+  map: RegionMap,
+  marginX: number,
+  marginY: number,
+  bounds: TextBox = { minX: 0, minY: 0, maxX: map.width, maxY: map.height },
+): string {
   return `<g id="map-frame" fill="none" stroke="${CARTOGRAPHY.palette.body.color}">${[0, 0.35]
     .map(
       (fraction, i) =>
-        `<rect x="${n(-marginX * fraction)}" y="${n(-marginY * fraction)}" width="${n(map.width + marginX * fraction * 2)}" height="${n(map.height + marginY * fraction * 2)}" stroke-width="${n(((i === 0 ? STROKE_WIDTHS.fine : STROKE_WIDTHS.hairline) * Math.min(map.width, map.height)) / 35)}"/>`,
+        `<rect x="${n(bounds.minX - marginX * fraction)}" y="${n(bounds.minY - marginY * fraction)}" width="${n(bounds.maxX - bounds.minX + marginX * fraction * 2)}" height="${n(bounds.maxY - bounds.minY + marginY * fraction * 2)}" stroke-width="${n(((i === 0 ? STROKE_WIDTHS.fine : STROKE_WIDTHS.hairline) * Math.min(map.width, map.height)) / 35)}"/>`,
     )
     .join('')}</g>`;
 }
@@ -1908,6 +1920,7 @@ function layoutSettlementLabels(
   icons: PlacedSettlementIcon[],
   titleFontSize: number,
   occupied: TextBox[],
+  nearbyOnly = false,
 ): TextParts[] {
   const taken: TextBox[] = [];
   const parts: TextParts[] = [];
@@ -1915,6 +1928,18 @@ function layoutSettlementLabels(
   for (const label of listPlaceableLabels(icons, titleFontSize)) {
     const placement = bestLabelPlacement(label, map, taken, occupied);
     if (placement === null) continue;
+    // Once a key is available, a distant name adds ambiguity rather than useful information.
+    const dx = Math.max(
+      0,
+      placement.box.minX - label.markerBounds.maxX,
+      label.markerBounds.minX - placement.box.maxX,
+    );
+    const dy = Math.max(
+      0,
+      placement.box.minY - label.markerBounds.maxY,
+      label.markerBounds.minY - placement.box.maxY,
+    );
+    if (nearbyOnly && Math.hypot(dx, dy) > label.fontSize * 1.5) continue;
 
     taken.push(placement.box);
     parts.push(
@@ -1936,6 +1961,156 @@ function layoutSettlementLabels(
   }
 
   return parts;
+}
+
+/** The index and keys use the same literal saved ID as the gazetteer and road endpoints. */
+function referenceText(
+  parts: TextParts,
+  id: string,
+  key: number,
+  kind: 'key' | 'index',
+  name: string,
+): TextParts {
+  const attributes = `${featureIdentity(id, 'settlement')} data-settlement-${kind}="${key}" data-settlement-name="${escapeXml(name)}"`;
+  return {
+    ...parts,
+    halo: `<g ${attributes}>${parts.halo}</g>`,
+    ink: `<g ${attributes}>${parts.ink}</g>`,
+  };
+}
+
+function layoutSettlementReferences(
+  map: RegionMap,
+  icons: PlacedSettlementIcon[],
+  titleFontSize: number,
+  reserved: TextBox[],
+): {
+  layout: SettlementReferenceLayout;
+  texts: TextParts[];
+  indexTexts: TextParts[];
+  leaders: string;
+} {
+  const references = settlementMapReferences(map, icons);
+  const sheetBounds = { minX: 0, minY: 0, maxX: map.width, maxY: map.height };
+  const names = layoutSettlementLabels(map, icons, titleFontSize, reserved);
+  if (names.length === references.length)
+    return {
+      layout: { mode: 'names', references, keys: [], sheetBounds },
+      texts: names,
+      indexTexts: [],
+      leaders: '',
+    };
+
+  // Readable constant scale, independent of title shrinkage and individual name length.
+  const fontSize = mapTitleFontSize(map) * 0.36;
+  const keys = placeSettlementKeys(map, references, reserved, fontSize);
+  const texts = keys.map((key) =>
+    referenceText(
+      textElement(
+        String(key.key),
+        key.origin.x,
+        key.origin.y,
+        fontSize,
+        'middle',
+        LABEL_HALO_EMS,
+        undefined,
+        `settlement-key:${key.key}`,
+      ),
+      key.settlementId,
+      key.key,
+      'key',
+      references.find((r) => r.key === key.key)!.name,
+    ),
+  );
+  reserved.push(
+    ...keys.map((key) => key.bounds),
+    ...keys.flatMap((key) => settlementLeaderBoxes(key.leader, fontSize * 0.03)),
+  );
+  texts.push(...layoutSettlementLabels(map, icons, titleFontSize, reserved, true));
+
+  for (const box of reserved) {
+    sheetBounds.minX = Math.min(sheetBounds.minX, box.minX - fontSize);
+    sheetBounds.minY = Math.min(sheetBounds.minY, box.minY - fontSize);
+    sheetBounds.maxX = Math.max(sheetBounds.maxX, box.maxX + fontSize);
+    sheetBounds.maxY = Math.max(sheetBounds.maxY, box.maxY + fontSize);
+  }
+  const indexTop = sheetBounds.maxY + fontSize;
+  const padding = textClearance(mapTextStyle(fontSize));
+  const headerSize = fontSize * 1.2;
+  const x = sheetBounds.minX + fontSize + padding;
+  const header = textElement(
+    'Settlements',
+    x,
+    indexTop + headerSize + textClearance(mapTextStyle(headerSize)),
+    headerSize,
+    'start',
+    LABEL_HALO_EMS,
+  );
+  const indexTexts = [header];
+  const keyColumn =
+    Math.max(...references.map((r) => mapTextWidth(String(r.key), mapTextStyle(fontSize)))) +
+    padding * 2 +
+    fontSize * 0.6;
+  const nameX = x + keyColumn;
+  // Include both glyph and halo reservations; fixed em leading is too tight at small map scales.
+  const nameWidth = Math.max(fontSize * 12, sheetBounds.maxX - nameX - padding - fontSize);
+  sheetBounds.maxX = Math.max(
+    sheetBounds.maxX,
+    nameX + nameWidth + padding + fontSize,
+    header.box.maxX + fontSize,
+  );
+  const lineHeight = fontSize * 1.35 + padding * 2 + fontSize * 0.3;
+  let cursor = header.box.maxY + fontSize * 0.6;
+  for (const reference of references) {
+    let baseline = cursor + fontSize + padding;
+    indexTexts.push(
+      referenceText(
+        textElement(String(reference.key), x, baseline, fontSize, 'start', LABEL_HALO_EMS),
+        reference.settlementId,
+        reference.key,
+        'index',
+        reference.name,
+      ),
+    );
+    const lines = settlementIndexLines(reference.name, nameWidth, fontSize);
+    for (const [i, line] of lines.entries()) {
+      if (i > 0) baseline += lineHeight;
+      indexTexts.push(
+        referenceText(
+          textElement(line, nameX, baseline, fontSize, 'start', LABEL_HALO_EMS),
+          reference.settlementId,
+          reference.key,
+          'index',
+          reference.name,
+        ),
+      );
+    }
+    cursor = baseline + fontSize * 0.35 + padding + fontSize * 0.6;
+  }
+  sheetBounds.maxX = Math.max(
+    sheetBounds.maxX,
+    ...indexTexts.map((part) => part.box.maxX + fontSize),
+  );
+  sheetBounds.maxY = Math.max(...indexTexts.map((part) => part.box.maxY)) + fontSize;
+  const indexBounds = {
+    minX: sheetBounds.minX,
+    minY: indexTop,
+    maxX: sheetBounds.maxX,
+    maxY: sheetBounds.maxY,
+  };
+  const leaders = keys
+    .filter((key) => key.leader.length > 0)
+    .map(
+      (key) =>
+        `<path ${featureIdentity(key.settlementId, 'settlement')} data-settlement-leader="${key.key}" d="${openRoadPolylinePathD(key.leader)}" fill="none" stroke="${MAP_TEXT_INK}" stroke-width="${n(Math.min(0.04, fontSize * 0.05))}"/>`,
+    )
+    .join('');
+  return {
+    layout: { mode: 'indexed', references, keys, sheetBounds, indexBounds },
+    texts,
+    indexTexts,
+    leaders,
+  };
 }
 
 function boxOutline(box: TextBox): Vertex[] {
@@ -2253,12 +2428,22 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   const w = map.width;
   const h = map.height;
   const title = options?.title ?? '';
-  const settlements = options?.settlements ?? [];
+  const settlements = [...(options?.settlements ?? [])].sort(
+    (a, b) =>
+      (a.id ?? `map-node:${a.mapNodeId}`).localeCompare(b.id ?? `map-node:${b.mapNodeId}`) ||
+      (a.name ?? '').localeCompare(b.name ?? ''),
+  );
   const forests = (options?.denseForests ?? []).filter(
     (forest) => denseForestGeometryError(map, forest) === null,
   );
   const forestLandmarkIds = new Set(forests.map((forest) => `landmark:${forest.id}`));
-  const icons = placeSettlementIcons(map, settlements);
+  const icons = placeSettlementIcons(map, settlements).map((icon) => ({
+    ...icon,
+    settlement: {
+      ...icon.settlement,
+      id: icon.settlement.id ?? `map-node:${icon.settlement.mapNodeId}`,
+    },
+  }));
   const reserved = icons.map((icon) => icon.bounds);
   const titleLayout = layoutMapTitle(title, map, reserved);
 
@@ -2286,7 +2471,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   appendSettlements(map, icons, body);
 
   // The sheet, scroll, marker, and previously placed label boundaries are all hard obstacles.
-  const textParts = layoutSettlementLabels(
+  const settlementReferences = layoutSettlementReferences(
     map,
     icons,
     titleLayout === null
@@ -2294,6 +2479,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
       : Math.min(mapTitleFontSize(map), (titleLayout.fontSize * 0.9) / MAX_LABEL_FRACTION_OF_TITLE),
     reserved,
   );
+  const textParts = settlementReferences.texts;
   const featureBoxStart = reserved.length;
   appendRegionalFeatures(
     map,
@@ -2430,12 +2616,23 @@ ${textParts.map((t) => t.halo).join('\n')}
 ${textParts.map((t) => t.ink).join('\n')}
 </g>`;
 
-  const marginX = w * 0.05,
-    marginY = h * 0.05;
-  const sheetW = w + marginX * 2,
-    sheetH = h + marginY * 2;
+  const minimumMargin =
+    settlementReferences.layout.mode === 'indexed' ? mapTitleFontSize(map) * 0.36 : 0;
+  const marginX = Math.max(w * 0.05, minimumMargin),
+    marginY = Math.max(h * 0.05, minimumMargin);
+  const sheet = settlementReferences.layout.sheetBounds;
+  const sheetW = sheet.maxX - sheet.minX + marginX * 2,
+    sheetH = sheet.maxY - sheet.minY + marginY * 2;
+  const indexLayer =
+    settlementReferences.indexTexts.length === 0
+      ? ''
+      : `<g id="settlement-index" aria-label="Settlement index">${settlementReferences.indexTexts.map((t) => t.halo).join('')}${settlementReferences.indexTexts.map((t) => t.ink).join('')}</g>`;
+  // Browser image dimensions round to whole pixels. Bleed paper beyond an indexed sheet so
+  // subpixel letterboxing cannot leave a transparent edge in a standalone raster export.
+  const paperBleed =
+    settlementReferences.layout.mode === 'indexed' ? Math.max(marginX, marginY) : 0;
   const inner = `${svgDefs(map, symbols, icons)}
-<g transform="translate(${n(-marginX)} ${n(-marginY)})">${parchmentRect(sheetW, sheetH)}</g>
+<g transform="translate(${n(sheet.minX - marginX - paperBleed)} ${n(sheet.minY - marginY - paperBleed)})">${parchmentRect(sheetW + paperBleed * 2, sheetH + paperBleed * 2)}</g>
 <defs><clipPath id="map-content-clip"><rect width="${w}" height="${h}"/></clipPath></defs>
 <g id="map-content" clip-path="url(#map-content-clip)">
 <g id="map-layers">
@@ -2443,16 +2640,20 @@ ${body.join('\n')}
 </g>
 ${titleLayout?.panel ?? ''}
 ${compass === null ? '' : compassRose(compass, map)}
-${textLayer}
 </g>
-${mapFrame(map, marginX, marginY)}`;
+${settlementReferences.leaders}
+${textLayer}
+${indexLayer}
+${mapFrame(map, marginX, marginY, sheet)}`;
 
   const scale = Math.min(DEFAULT_SVG_MAX_WIDTH / w, DEFAULT_SVG_MAX_HEIGHT / h);
-  const pixelW = w * scale;
-  const pixelH = h * scale;
+  // Keep the geographical scale unchanged when an index adds paper to the export.
+  const indexed = settlementReferences.layout.mode === 'indexed';
+  const pixelW = indexed ? Math.ceil((sheetW * scale) / 1.1) : w * scale;
+  const pixelH = indexed ? Math.ceil((sheetH * scale) / 1.1) : h * scale;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="${n(-marginX)} ${n(-marginY)} ${n(sheetW)} ${n(sheetH)}" width="${n(pixelW)}" height="${n(pixelH)}">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="${n(sheet.minX - marginX)} ${n(sheet.minY - marginY)} ${n(sheetW)} ${n(sheetH)}" width="${n(pixelW)}" height="${n(pixelH)}">
 ${inner}
 </svg>`;
 }

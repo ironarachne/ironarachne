@@ -1,3 +1,7 @@
+import {
+  settlementReferencesFixture,
+  settlementGutterFixture,
+} from '../test_fixtures/region_settlement_references';
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import {
   typographyRiverFixture,
@@ -24,6 +28,8 @@ for (const [name, fixture] of [
   ['river', typographyRiverFixture()],
   ['legacy-river', typographyRiverFixture(false)],
   ['places', typographyPlacesFixture()],
+  ['settlement-references', settlementReferencesFixture()],
+  ['settlement-gutter', settlementGutterFixture()],
   ['range', typographyRangeFixture()],
   ['forest', typographyForestFixture()],
 ] as const) {
