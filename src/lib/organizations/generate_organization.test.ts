@@ -92,7 +92,7 @@ describe('generateOrganization', () => {
     expect(org.hierarchy.childToParent.size).toBe(4);
   });
 
-  it('embeds organization profile labels in the composed description', () => {
+  it('selects purpose and tension rather than embedding every profile label', () => {
     const rng = new RNG('unit-test-profile-embed-001');
     const org = generateOrganization({
       rng,
@@ -104,15 +104,12 @@ describe('generateOrganization', () => {
     expect(org.profile.personalityTraits.length).toBeLessThanOrEqual(3);
     expect(org.profile.goal.label.length).toBeGreaterThan(0);
     expect(org.profile.weakness.label.length).toBeGreaterThan(0);
-    for (const t of org.profile.personalityTraits) {
-      expect(org.description).toContain(t.label);
-    }
-    expect(org.description).toContain(org.profile.goal.label);
-    expect(org.description).toContain(org.profile.weakness.label);
-    expect(org.description).toContain(org.profile.publicStanding.label);
+    expect(org.description).toMatch(/aims? (?:is )?to/);
+    expect(org.description.split('. ').length).toBeLessThanOrEqual(3);
+    expect(org.description).not.toContain('Public standing:');
   });
 
-  it('adds environment narrative from worldContext preset and matches the description', () => {
+  it('preserves explicit world context in inspectable detail', () => {
     const rng = new RNG('unit-test-env-preset-001');
     const org = generateOrganization({
       rng,
@@ -123,6 +120,7 @@ describe('generateOrganization', () => {
     });
     expect(org.profile.environmentNarrative?.id).toBe('desert_route');
     const label = org.profile.environmentNarrative!.shortLabel;
-    expect(org.description).toContain(label);
+    expect(label).toContain('trade routes');
+    expect(org.description).not.toContain(label);
   });
 });

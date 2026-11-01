@@ -13,7 +13,7 @@ export function appendSettlementReading(
   references: RegionNotableReferenceContext,
 ): void {
   const gazetteer = snapshot.gazetteer;
-  if (gazetteer?.version !== 5) return;
+  if (gazetteer?.version !== 5 && gazetteer?.version !== 6) return;
   const readable = editorialSentenceChecker(snapshot, references);
   const sentences = gazetteer.blocks.flatMap((block) => block.sentences);
   const section = {

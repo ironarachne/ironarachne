@@ -506,7 +506,8 @@ export function regionToText(
           if (
             snapshot.gazetteer?.version === 3 ||
             snapshot.gazetteer?.version === 4 ||
-            snapshot.gazetteer?.version === 5
+            snapshot.gazetteer?.version === 5 ||
+            snapshot.gazetteer?.version === 6
           )
             return [
               section.entryLocations?.[index] ? `Location: ${section.entryLocations[index]}` : '',
@@ -526,7 +527,10 @@ export function regionToText(
           return `${body}${hook ? `\n\nHook:\n\n${hook}` : ''}`;
         }),
       ].join(
-        snapshot.gazetteer?.version === 5 && section.heading === 'Settlements' ? '\n\n' : '\n',
+        (snapshot.gazetteer?.version === 5 || snapshot.gazetteer?.version === 6) &&
+          section.heading === 'Settlements'
+          ? '\n\n'
+          : '\n',
       ),
     );
   }

@@ -116,8 +116,8 @@ describe('saved settlement reading', () => {
     expect(settlementWorkOptions(source, product)).toEqual([]);
   });
   it('stores each sentence once with one role, bounded across the whole region', () => {
-    expect(base.gazetteer?.version).toBe(5);
-    if (base.gazetteer?.version !== 5) throw new Error('Missing reading');
+    expect(base.gazetteer?.version).toBe(6);
+    if (base.gazetteer?.version !== 6) throw new Error('Missing reading');
     const all = base.gazetteer.blocks.flatMap((block) => block.sentences);
     expect(all.length).toBeLessThanOrEqual(24);
     expect(base.gazetteer.settlementReadings).toHaveLength(base.settlements.length);
@@ -217,7 +217,7 @@ describe('saved settlement reading', () => {
     expect(validateRegionSnapshot(removed).ok).toBe(true);
   });
   it('rejects foreign roles, duplicate roles, missing identities and malformed observations', () => {
-    if (base.gazetteer?.version !== 5) throw new Error('Missing reading');
+    if (base.gazetteer?.version !== 6) throw new Error('Missing reading');
     const plan = structuredClone(base.gazetteer);
     const nonempty = plan.settlementReadings.find((reading) => reading.portraitSentenceIds.length)!;
     const id = nonempty.portraitSentenceIds[0];

@@ -87,3 +87,5 @@ export { regionArchitectureResources, generateRegionArchitecture } from './regio
 export type * from './region_road_reading_types';
 
 export type * from './region_settlement_reading_types';
+
+export type * from './region_organization_reading_types';

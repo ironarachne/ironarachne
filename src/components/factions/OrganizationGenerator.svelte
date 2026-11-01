@@ -392,25 +392,28 @@
         <p class="motto">"{shown.visualIdentity.motto}"</p>
       {/if}
 
+      <p>{Organizations.organizationSummaryLine(Organizations.toOrganizationSnapshot(shown))}</p>
       <p>{shown.description}</p>
 
-      <h3>Profile</h3>
-      <ul class="org-profile">
-        <li>
-          <strong>Traits</strong>
-          {shown.profile.personalityTraits.map((t) => t.label).join(' · ')}
-        </li>
-        <li><strong>Goal</strong> {shown.profile.goal.label}</li>
-        <li><strong>Weakness</strong> {shown.profile.weakness.label}</li>
-        <li><strong>Public standing</strong> {shown.profile.publicStanding.label}</li>
-        {#if shown.profile.environmentNarrative}
+      <details>
+        <summary>Profile details</summary>
+        <ul class="org-profile">
           <li>
-            <strong>Environment</strong>
-            {shown.profile.environmentNarrative.shortLabel}
+            <strong>Traits</strong>
+            {shown.profile.personalityTraits.map((t) => t.label).join(' · ')}
           </li>
-        {/if}
-      </ul>
-      <p class="org-hook"><strong>Hook</strong> {shown.profile.hook}</p>
+          <li><strong>Goal</strong> {shown.profile.goal.label}</li>
+          <li><strong>Weakness</strong> {shown.profile.weakness.label}</li>
+          <li><strong>Public standing</strong> {shown.profile.publicStanding.label}</li>
+          {#if shown.profile.environmentNarrative}
+            <li>
+              <strong>Environment</strong>
+              {shown.profile.environmentNarrative.shortLabel}
+            </li>
+          {/if}
+        </ul>
+        <p class="org-hook"><strong>Hook</strong> {shown.profile.hook}</p>
+      </details>
 
       <p>{shown.leader.description}</p>
 

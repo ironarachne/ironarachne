@@ -60,13 +60,13 @@ export type OrganizationEnvironmentNarrative = {
  * (no separate RNG for reputation or environment after the fact).
  */
 export type OrganizationProfile = {
-  /** 2–3 items; each `label` appears in {@link Organization.description}. */
+  /** Inspectable traits; narrative selection may omit them. */
   personalityTraits: LabeledOrgFacet[];
   goal: LabeledOrgFacet;
   weakness: LabeledOrgFacet;
   publicStanding: LabeledOrgFacet;
   /**
-   * Opening line with the organization name already substituted (replaces legacy one-line hooks).
+   * A saved identity hook. Fresh profiles use explicit group subjects independent of their names.
    */
   hook: string;
   environmentNarrative?: OrganizationEnvironmentNarrative;
@@ -77,7 +77,7 @@ export type Organization = {
   name: string;
   description: string;
   memberCount: number;
-  /** Structured traits, goal, weakness, and standing; aligned with `description`. */
+  /** Structured traits, goal, weakness, and standing; descriptions select supported meanings. */
   profile: OrganizationProfile;
   visualIdentity: VisualIdentity;
   hierarchy: OrganizationHierarchy;

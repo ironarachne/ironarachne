@@ -1,3 +1,4 @@
+import { appendOrganizationReading } from './region_organization_presentation';
 import { sameSettlement } from './region_livelihood_evidence';
 import { appendSettlementReading } from './region_settlement_presentation';
 import { appendRoadReading } from './region_road_presentation';
@@ -26,6 +27,7 @@ const headings: Record<RegionEditorialSection, string> = {
   travel: 'Travel',
   hazards: 'Hazards',
   settlement: 'Settlements',
+  organization: 'Organizations',
 };
 /** The UI and every export consume these exact saved sentences and authored overrides. */
 export function regionEditorialDocument(
@@ -48,9 +50,11 @@ export function regionEditorialDocument(
   );
   for (const block of snapshot.gazetteer?.blocks ?? []) {
     if (
+      block.destination.section === 'organization' ||
       block.destination.landscapePlaceId ||
       block.destination.notableId ||
-      (snapshot.gazetteer?.version === 5 && block.destination.section === 'settlement') ||
+      ((snapshot.gazetteer?.version === 5 || snapshot.gazetteer?.version === 6) &&
+        block.destination.section === 'settlement') ||
       block.destination.routeId
     )
       continue;
@@ -103,7 +107,7 @@ export function regionEditorialDocument(
     )) {
       if (!fact.description.trim()) continue;
       if (
-        snapshot.gazetteer?.version === 5 &&
+        (snapshot.gazetteer?.version === 5 || snapshot.gazetteer?.version === 6) &&
         ['activities', 'products', 'dailyLife', 'supply'].includes(key) &&
         'settlement' in fact &&
         snapshot.gazetteer.settlementReadings.some((reading) =>
@@ -112,7 +116,9 @@ export function regionEditorialDocument(
       )
         continue;
       if (
-        (snapshot.gazetteer?.version === 4 || snapshot.gazetteer?.version === 5) &&
+        (snapshot.gazetteer?.version === 4 ||
+          snapshot.gazetteer?.version === 5 ||
+          snapshot.gazetteer?.version === 6) &&
         key === 'routes' &&
         'kind' in fact &&
         fact.kind === 'road'
@@ -147,6 +153,7 @@ export function regionEditorialDocument(
   for (const settlement of snapshot.settlements.filter(
     (entry) =>
       snapshot.gazetteer?.version !== 5 &&
+      snapshot.gazetteer?.version !== 6 &&
       entry.descriptionReason === undefined &&
       entry.snapshot.description.trim(),
   )) {
@@ -162,7 +169,9 @@ export function regionEditorialDocument(
     section.lines.push(`${settlement.snapshot.name}\n\n${settlement.snapshot.description}`);
   }
   // A name remains discoverable even when no generated paragraph earns space.
-  for (const settlement of snapshot.gazetteer?.version === 5 ? [] : snapshot.settlements) {
+  for (const settlement of snapshot.gazetteer?.version === 5 || snapshot.gazetteer?.version === 6
+    ? []
+    : snapshot.settlements) {
     const shown = document.sections.some(
       (section) =>
         section.heading === 'Settlements' &&
@@ -184,6 +193,7 @@ export function regionEditorialDocument(
       section.lines.push(settlement.snapshot.name);
     }
   }
+  appendOrganizationReading(snapshot, document);
   appendSettlementReading(snapshot, document, references);
   appendLandscapeReading(snapshot, document);
   appendNotableReading(snapshot, document, references);

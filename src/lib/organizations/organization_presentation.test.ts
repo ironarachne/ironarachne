@@ -85,10 +85,12 @@ describe('organizationPersonHeading', () => {
 describe('organizationToMarkdown', () => {
   const markdown = organizationToMarkdown(house);
 
-  it('leads with the organization, lists the profile, heads the leader and the members', () => {
+  it('leads with the organization and contact without duplicating the profile', () => {
     expect(markdown.startsWith(`# ${house.name}`)).toBe(true);
-    expect(markdown).toContain('- Goal: ');
-    expect(markdown).toContain('**Hook** ');
+    expect(markdown).not.toContain('- Goal: ');
+    expect(organizationToMarkdown(house, true)).toContain('- Goal: ');
+    expect(markdown).not.toContain('**Hook** ');
+    expect(organizationToMarkdown(house, true)).toContain('**Hook** ');
     expect(markdown).toContain(`## ${organizationToDocument(house).leader.heading}`);
     expect(markdown).toContain('## Notable members');
     expect(markdown).toContain('Arms: ');
@@ -110,7 +112,8 @@ describe('organizationToText', () => {
     const text = organizationToText(house);
 
     expect(text.startsWith('#')).toBe(false);
-    expect(text).toContain('Goal: ');
+    expect(text).not.toContain('Goal: ');
+    expect(organizationToText(house, true)).toContain('Goal: ');
     expect(text).toContain('NOTABLE MEMBERS');
     expect(text).toContain(organizationToDocument(house).leader.heading.toUpperCase());
   });

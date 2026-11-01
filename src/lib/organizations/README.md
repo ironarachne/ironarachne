@@ -4,7 +4,7 @@ This library models **factions and institutions** in world-building: trading com
 
 ## What is in scope
 
-- **`Organization` instances** with `id`, `name`, `description`, `profile`, `memberCount`, `visualIdentity`, `hierarchy`, `leader`, `notableMembers`, `relationships`, and metadata `genre` + `kindId`. The structured **`profile`** holds personality traits, goal, weakness, public standing, hook line, and optional **`environmentNarrative`**, all aligned with the composed `description`.
+- **`Organization` instances** with `id`, `name`, `description`, `profile`, `memberCount`, `visualIdentity`, `hierarchy`, `leader`, `notableMembers`, `relationships`, and metadata `genre` + `kindId`. The structured **`profile`** holds personality traits, goal, weakness, public standing, hook line, and optional **`environmentNarrative`**, available for inspection while prose selects supported meanings.
 - **`OrganizationKindDefinition`**: a registered kind (e.g. `mercenary_company`) with static hierarchy, mutators, heraldry config, `generateName`, and default size bounds. Flavor and narrative come from `organization_profile.ts` (archetypes per `kindId`), not from the kind module.
 - **`generateOrganization(options)`** with control over `genre`, `kindId`, `size`, optional `environment` (from region/simulation), and optional **`worldContext`** (preset or freeform hint; overrides `environment` for environment narrative when both are set).
 - **Inter-organization links** via `OrganizationRelationship` (`addRandomRivalryBetweenPairs` for small batches, e.g. region generation).
@@ -19,7 +19,7 @@ This library models **factions and institutions** in world-building: trading com
 
 - **`OrganizationHierarchy`**: `childToParent` + `idToOrder` (larger order = **higher** standing) + `roleById` for display names. Validated in generation.
 - **Mutators**: `ReadonlyMap<roleId, (ctx) => Character>` applied **after** `Characters.generate` (typically to push a role title from `createTitleFromCore`).
-- **Naming**: each kind’s `namingProfile` in `organization_naming.ts` documents the style; `generateName` provides the name. **Description** is built in `organization_profile.ts` from coherent archetype bundles so traits, goals, weaknesses, and public standing match the paragraph.
+- **Naming**: each kind’s `namingProfile` in `organization_naming.ts` documents the style; `generateName` provides the name. **Description** uses supported purpose and tension candidates from `organization_profile.ts` through the shared composer. Other profile facets remain inspectable.
 
 ## Usage
 
@@ -126,3 +126,19 @@ The generator is Release-ready (issue #56), which means a rolled organization ca
 The organization can be named from a saved culture and bear a saved coat of arms, both recorded as
 artifact references (5.1). A saved character as leader is not offered: the leader is shaped by the
 kind's role mutators, and a character rolled elsewhere would not fit the role.
+
+## Organization reading (#450)
+
+Fresh profiles use explicit subjects independent of the proper name. `organizationReadingSubject`
+selects eligible built-in purpose and tension meanings only when the saved facet IDs and labels
+match current templates. Custom edits remain detail rather than being paraphrased from an ID.
+`composeOrganizationReading` uses the shared narrative composer and explicit batch context.
+Generation composes after the complete organization exists, from a stream named for its stable ID,
+so wording draws cannot move its leader, members or visual identity.
+
+Descriptions are stored once. Standalone reading and default exports show concise prose and a
+structured kind/count/leader line; profile details remain in a disclosure, and exports can opt in
+with `includeProfile`. Authored descriptions and blanks are never recomposed. Automatic biome
+context is omitted; explicit presets and hints retain their inspectable values. Regional reading
+uses supported candidates but excludes environmental claims without organization-location evidence.
+See [the approved design](../../../docs/region-organization-reading.md).

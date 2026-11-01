@@ -51,13 +51,13 @@
         <pre>{JSON.stringify(snapshot.gazetteer.landscapePlaces, null, 2)}</pre>
       </details>
     {/if}
-    {#if (snapshot.gazetteer?.version === 3 || snapshot.gazetteer?.version === 4 || snapshot.gazetteer?.version === 5) && snapshot.gazetteer.notableReadings.length}
+    {#if (snapshot.gazetteer?.version === 3 || snapshot.gazetteer?.version === 4 || snapshot.gazetteer?.version === 5 || snapshot.gazetteer?.version === 6) && snapshot.gazetteer.notableReadings.length}
       <details>
         <summary>Notable reading identities and suggested adventures</summary>
         <pre>{JSON.stringify(snapshot.gazetteer.notableReadings, null, 2)}</pre>
       </details>
     {/if}
-    {#if (snapshot.gazetteer?.version === 4 || snapshot.gazetteer?.version === 5) && snapshot.gazetteer.roadReadings.length}
+    {#if (snapshot.gazetteer?.version === 4 || snapshot.gazetteer?.version === 5 || snapshot.gazetteer?.version === 6) && snapshot.gazetteer.roadReadings.length}
       <details>
         <summary>Road reading identities and shared details</summary>
         <pre>{JSON.stringify(
@@ -72,7 +72,7 @@
           )}</pre>
       </details>
     {/if}
-    {#if snapshot.gazetteer?.version === 5}
+    {#if snapshot.gazetteer?.version === 5 || snapshot.gazetteer?.version === 6}
       <details>
         <summary>Settlement portraits and possible work</summary>
         <pre>{JSON.stringify(
@@ -80,6 +80,21 @@
               readings: snapshot.gazetteer.settlementReadings,
               blocks: snapshot.gazetteer.blocks.filter(
                 (block) => block.destination.section === 'settlement',
+              ),
+            },
+            null,
+            2,
+          )}</pre>
+      </details>
+    {/if}
+    {#if snapshot.gazetteer?.version === 6}
+      <details>
+        <summary>Organization contacts and supported profiles</summary>
+        <pre>{JSON.stringify(
+            {
+              readings: snapshot.gazetteer.organizationReadings,
+              blocks: snapshot.gazetteer.blocks.filter(
+                (block) => block.destination.section === 'organization',
               ),
             },
             null,
