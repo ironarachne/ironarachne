@@ -763,6 +763,7 @@ test.describe('a region', () => {
         const sectionName = await section.locator(':scope > h3').innerText();
         await expect(article.locator(':scope > h4')).toHaveCount(
           ['Settlements', 'Landscape', 'Notable places', 'Organizations'].includes(sectionName) ||
+            !!(await article.getAttribute('data-history-event')) ||
             (sectionName === 'Travel' && !!(await article.getAttribute('data-fact-id')))
             ? 1
             : 0,
@@ -790,12 +791,28 @@ test.describe('a region', () => {
     });
     expect(await settlementCharacter.locator('h4').count()).toBeGreaterThan(0);
     // Editorial prose is bounded and selected; source inventories remain in inspection.
-    const generatedParagraphs = await gazetteer.locator('[data-gazetteer-text]').allTextContents();
+    const generatedParagraphs = await gazetteer
+      .locator('[data-gazetteer-text]')
+      .evaluateAll((paragraphs) =>
+        paragraphs
+          .filter(
+            (paragraph) => paragraph.closest('section')?.getAttribute('aria-label') !== 'History',
+          )
+          .map((paragraph) => paragraph.textContent ?? ''),
+      );
     const sentenceCount = generatedParagraphs.reduce(
       (sum, text) => sum + (text.match(/[.!?](?:\s|$)/g)?.length ?? 0),
       0,
     );
     expect(sentenceCount).toBeLessThanOrEqual(24);
+    const historyParagraphs = await gazetteer
+      .getByRole('region', { name: 'History', exact: true })
+      .locator('[data-history-event] > [data-gazetteer-text]')
+      .allTextContents();
+    expect(historyParagraphs.length).toBeLessThanOrEqual(6);
+    expect(
+      historyParagraphs.reduce((sum, text) => sum + (text.match(/[.!?](?:\s|$)/g)?.length ?? 0), 0),
+    ).toBeLessThanOrEqual(6);
     await expect(
       gazetteer.getByRole('heading', { name: 'Regional identity', exact: true }),
     ).toHaveCount(0);
