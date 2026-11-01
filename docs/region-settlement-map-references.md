@@ -1,7 +1,8 @@
 # Settlement references on regional maps
 
-**Status:** accepted — the human reviewer approved the domain model on 2026-11-01.
-Implementation and validation are in progress.
+**Status:** implemented — the human reviewer approved the domain model on 2026-11-01.
+The renderer, standalone export, and regression fixtures are implemented in
+[PR #480](https://github.com/ironarachne/ironarachne/pull/480), which records final verification results.
 
 Tracked by [#451](https://github.com/ironarachne/ironarachne/issues/451).
 
@@ -19,7 +20,7 @@ names. Retain the reported names in explicit renderer fixtures, alongside curren
 The existing renderer test that expects impossible names to disappear confirms the general
 failure mode remains.
 
-## Proposed behavior
+## Behavior
 
 Keep full settlement names on the map wherever they fit. If any named, mapped settlement
 cannot receive its full name, render a numbered settlement index on additional parchment
@@ -133,26 +134,31 @@ fields and compatibility behavior remain intact.
    cartography decision to omit a legend only for settlement cross-references. It does not
    add a scale bar or a terrain-symbol glossary.
 
-## Validation required after approval
+## Validation
 
-- Explicitly named fixtures for Ilistair’s Folly and Maenas, plus current default-option
-  output for the reported seed. Assert every named mapped settlement has either its full
-  name at the site or a visible key resolving to the same ID and literal name in the index.
+- Explicitly named fixtures cover Ilistair’s Folly and Maenas, plus current default-option
+  output for the reported seed. Every named mapped settlement has either its full name at
+  the site or a visible key resolving to the same ID and literal name in the index.
 - Dense fixtures, edge sites, long authored names, reordered inputs, and duplicate names
-  with distinct IDs. Check deterministic SVG, unchanged site coordinates, glyph containment,
-  disjoint reservations, and traceable gutter leaders.
-- Browser measurements of real SVG text and exported image pixels, including the new paper
-  extent, frame, index, and gutters. Inspect screenshots at desktop and all five mobile
-  widths; check the map can be enlarged enough to read the index.
-- Run `npm run verify:all` before merging the implementation. No application behavior has
-  changed in this proposal, so the full implementation gate has not been run yet.
+  with distinct IDs check deterministic SVG, unchanged artwork and site coordinates, glyph
+  containment, disjoint reservations, grapheme-safe wrapping, and traceable gutter leaders.
+- Browser tests measure real SVG text and exported image pixels, including the new paper
+  extent, frame, index, and gutters. Both controlled fixtures are checked at desktop and all
+  five mobile widths, with enlarged, scrollable inspection and complete screenshot review.
+- Indexed exports use whole-pixel native dimensions and a bleeding paper background to
+  avoid transparent edge pixels from fractional viewport clipping. Ordinary exports retain
+  their existing aspect ratios and native dimensions.
+- `npm run verify:all` is required before merging. PR #480 records its outcome.
 
-## Implementation work items
+Reproduce the controlled SVGs with
+`npx vite-node scripts/render_region_typography_review.ts /tmp/settlement-references-451 after --controlled-only`.
+The relevant outputs are `settlement-references-after.svg` and `settlement-gutter-after.svg`.
 
-1. Add derived reference types, deterministic key assignment, measured wrapping, and key/leader
-   placement within the map library.
-2. Integrate the second layout pass, measured index, expanded parchment/frame, and standalone
-   SVG export without changing saved region data or settlement artwork.
-3. Add unit and browser regressions for identity, long names, crowded/edge locations, actual
-   glyph bounds, export pixels, and all supported mobile widths.
-4. Run the full verification gate and record the results here before proposing a merge.
+## Implementation
+
+- `settlement_reference_types.ts` holds the derived model. `settlement_references.ts` owns
+  stable keys, measured name wrapping, adjacent placements, and backtracking gutter routing.
+- `region_map_svg.ts` integrates the second layout pass, measured index, expanded paper/frame,
+  and export sizing without changing saved region data or settlement artwork.
+- Co-located legacy inputs without IDs share a node locator but retain every supplied name
+  in separate index rows. Normal snapshot IDs remain distinct even when names are identical.
