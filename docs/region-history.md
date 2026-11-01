@@ -1,9 +1,10 @@
 # A regional past that explains the present
 
-**Status:** accepted — domain model and policy approved by Ben on 2026-11-01.
-Foundation (#481) and generation (#482) are merged. Editing (#483) is implemented for review
-under the approved [actor-name evidence amendment](region-history-actor-name-evidence.md);
-presentation remains pending in #484.
+**Status:** implemented — domain model and policy approved by Ben on 2026-11-01.
+Foundation (#481), generation (#482), editing (#483) and reading/UI/exports (#484) are merged,
+including the approved [actor-name evidence amendment](region-history-actor-name-evidence.md).
+#485 records [cross-subsystem acceptance evidence](region-history-acceptance.md), Ben's editorial
+acceptance and the [downstream query contract](region-history-queries.md).
 
 Issue: [#470](https://github.com/ironarachne/ironarachne/issues/470).
 Related designs: [regional authoring](region-authoring.md),
@@ -100,7 +101,7 @@ No promise is made that every region contains a war, extinct realm or ruin.
 
 ## Domain model
 
-These are proposed TypeScript shapes for `region_history_types.ts`. Existing types keep their
+These are the implemented TypeScript shapes for `region_history_types.ts`. Existing types keep their
 owning modules. Arrays in the diagrams mean ordered TypeScript arrays; string IDs are locally
 scoped. The variant definitions below are normative alongside the diagrams.
 
@@ -214,7 +215,7 @@ participant set, and consequences must match the outcome's supported family.
 
 Observation records use a `kind` discriminant and the following exact projections:
 
-| Record                         | Proposed fields beyond `kind`                                                                                                                  |
+| Record                         | Implemented fields beyond `kind`                                                                                                               |
 | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | RealmHistoryObservation        | `realmId: string`, `name: string`, `parentRealmId: string \| null`, `tiles: number[]`, `claims: { claimantRealmId: string; status: string }[]` |
 | OrganizationHistoryObservation | `organizationId: string`, `name: string`, `relationships: { relatedOrganizationId: string; kind: OrganizationRelationKind }[]`                 |
@@ -391,8 +392,10 @@ its recorded abandonment; the generator cannot create that ruin merely to make h
 
 ## Verification and acceptance
 
-The worktree was clean before this design was drafted. This design changes documentation only; no generator
-behavior was executed or claimed verified. Implementation acceptance requires the following tests.
+The following acceptance boundaries are implemented and exercised by the linked suites. The
+[acceptance record](region-history-acceptance.md) identifies frozen regression fixtures, cross-subsystem
+checks, human editorial review and final verification results. The original design approval was
+documentation-only; implementation and verification followed in #481–#485.
 
 | Boundary           | Required evidence                                                                                                                                                                                                                                     |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -403,7 +406,7 @@ behavior was executed or claimed verified. Implementation acceptance requires th
 | Determinism        | Same seed/config produces identical snapshots; another seed can vary eligible histories; canonicalized input ordering preserves selection; no clock or hidden naming RNG.                                                                             |
 | Upstream isolation | Freeze representative pre-change snapshots. Project away only new history/realm ID fields and version metadata; deep-compare all old fields including gazetteer text and claims. Also prove adding history RNG draws leaves all old output unchanged. |
 | Editing            | No-op edits, name/relationship/claim/fact edits, transitive staleness, stale-on-read imports, source removal closure, authored protection and blank overrides; unrelated events remain current.                                                       |
-| Persistence        | All supported old payload versions migrate with empty unrecorded history; existing prose and gazetteers remain unchanged. Reject malformed variants/references; round-trip current/authored/stale histories.                                          |
+| Persistence        | Pre-history payloads 1–24 migrate with empty unrecorded history; payload 25 preserves existing history; prose and gazetteers remain unchanged. Reject malformed variants/references; round-trip current/authored/stale histories.                     |
 | Reading            | Page, Markdown, text/PDF and publication agree; empty/stale-only/authored entries follow policy; no RNG or replacement wording on read.                                                                                                               |
 | Browser            | Generate/save/reopen/edit/export in standalone and workshop; inspect support; remove a source; keyboard navigation and wrapping at existing mobile widths.                                                                                            |
 
@@ -424,7 +427,7 @@ Implementation is split across identity/persistence, generation, dependency/edit
 shared reading/UI/export, and final acceptance. The linked implementation issues below carry
 explicit dependencies and acceptance criteria. Related political, site and rumour work retains
 #472, #476 and #474; none is a prerequisite for the initial history implementation. #470 remains
-the parent acceptance contract. Foundation and generation now implement this model; remaining work retains its linked ownership.
+the parent acceptance contract. The complete implementation and acceptance record follow this model; #485 closes the parent contract only with that evidence.
 
 | Implementation issue                                                                                                                       | Depends on |
 | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |

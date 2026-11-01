@@ -1012,3 +1012,104 @@ test.describe('regional history', () => {
     expect(errors).toEqual([]);
   });
 });
+
+test.describe('history release acceptance', () => {
+  test.slow();
+  test('confirms source-removal impact from a workshop roll and keeps the change after reopening', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await openEmpty(page);
+    await createProject(page, 'History acceptance');
+    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await page
+      .locator('section.tool-browser')
+      .getByRole('button', { name: /^Region(?: |$)/ })
+      .click();
+    const tool = page
+      .locator('section.workshop-panel')
+      .filter({ has: page.getByRole('heading', { name: 'Region Generator', exact: true }) });
+    await expect(tool.locator('img.region-map')).toBeVisible({ timeout: 30_000 });
+    await tool.getByLabel('Affiliation', { exact: true }).selectOption('affiliated');
+    await tool.getByLabel('Seed', { exact: true }).fill('5wyedz5q272fz');
+    await tool.getByLabel('Lock Seed').check();
+    await tool.getByRole('button', { name: 'Generate', exact: true }).click();
+    const history = tool
+      .locator('.gazetteer')
+      .getByRole('region', { name: 'History', exact: true });
+    await expect(history).toBeVisible();
+    const generatedWords = await history
+      .locator('[data-history-event] > [data-gazetteer-text]')
+      .allTextContents();
+    expect(generatedWords.length).toBeGreaterThan(0);
+    await saveAs(page, 'History removal');
+    const panel = await openInWorkshop(page, 'History removal');
+    const reading = panel
+      .locator('.gazetteer')
+      .getByRole('region', { name: 'History', exact: true });
+    await expect(reading).toBeVisible();
+    const organizationInputs = panel.getByLabel(/^Organization \d+ name$/);
+    let selectedIndex = -1;
+    for (let index = 0; index < (await organizationInputs.count()); index++) {
+      const name = await organizationInputs.nth(index).inputValue();
+      if (await reading.getByRole('link', { name: `Explains: ${name}`, exact: true }).count()) {
+        selectedIndex = index;
+        break;
+      }
+    }
+    expect(selectedIndex).toBeGreaterThanOrEqual(0);
+    const name = await organizationInputs.nth(selectedIndex).inputValue();
+    const removedWords = await reading
+      .locator('article')
+      .filter({ has: page.getByRole('link', { name: `Explains: ${name}`, exact: true }) })
+      .locator('[data-gazetteer-text]')
+      .allTextContents();
+    const remove = panel.getByRole('button', {
+      name: `Remove organization ${selectedIndex + 1} from this region`,
+      exact: true,
+    });
+    await remove.focus();
+    await page.keyboard.press('Enter');
+    const confirmation = page.getByRole('alertdialog', { name: 'Remove from region', exact: true });
+    await expect(confirmation).toContainText('History events to remove:');
+    await expect(confirmation).toContainText(name);
+    await confirmation.getByRole('button', { name: 'Cancel', exact: true }).click();
+    expect(await organizationInputs.nth(selectedIndex).inputValue()).toBe(name);
+    expect(
+      await reading.locator('[data-history-event] > [data-gazetteer-text]').allTextContents(),
+    ).toEqual(generatedWords);
+    await remove.click();
+    await confirmation.getByRole('button', { name: 'Remove from region', exact: true }).click();
+    await expect(reading.getByRole('link', { name: `Explains: ${name}`, exact: true })).toHaveCount(
+      0,
+    );
+    const retainedWords = await reading
+      .locator('[data-history-event] > [data-gazetteer-text]')
+      .allTextContents();
+    expect(retainedWords.length).toBeGreaterThan(0);
+    for (const words of removedWords) expect(retainedWords).not.toContain(words);
+    await panel.getByRole('button', { name: 'Save changes', exact: true }).click();
+    await expect(panel.getByRole('button', { name: 'Save changes', exact: true })).toBeDisabled();
+    await page.reload({ waitUntil: 'load' });
+    const reopened = await openInWorkshop(page, 'History removal');
+    const retained = reopened
+      .locator('.gazetteer')
+      .getByRole('region', { name: 'History', exact: true });
+    await expect(retained).toBeVisible();
+    expect(
+      await retained.locator('[data-history-event] > [data-gazetteer-text]').allTextContents(),
+    ).toEqual(retainedWords);
+    for (const width of [320, 360, 375, 390, 430]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expectNoHorizontalOverflow(page);
+    }
+    const download = page.waitForEvent('download');
+    await reopened.getByRole('button', { name: 'Download Markdown', exact: true }).click();
+    const markdown = await new Response(await (await download).createReadStream()).text();
+    for (const words of retainedWords) expect(markdown).toContain(words);
+    for (const words of removedWords) expect(markdown).not.toContain(words);
+    expect(errors).toEqual([]);
+  });
+});

@@ -87,12 +87,12 @@ The modules the readiness pass gives every Release-ready tool
   charge art. Writing, listing and validating reach none of it. Almost no conversion work is here:
   every part of a region already had a stored form by the time this tool reached the front of the
   pass, which is the whole point of the ordering.
-- **`region_artifact_kind.ts`** — kind `region`, payload version 11. Its validator composes the
+- **`region_artifact_kind.ts`** — kind `region`, payload version 26. Its validator composes the
   culture, settlement, organization and character validators rather than reimplementing them.
 - **`region_fact_types.ts`** / **`region_facts.ts`** — the versioned semantic fact vocabulary and
   graph validation. Embedded settlements have region-local IDs; areas, habitats, settlement roles,
   notable places, resources, routes and causal claims cite those IDs or IDs in the saved map.
-  Current facts are version 6, independently of payload version 11. Migration initializes missing
+  Current facts are version 12, independently of payload version 26. Migration initializes missing
   lists without generating causes; payloads 1–2 receive empty `legacy` facts. See the
   [migration table](../../../docs/region-authoring.md#migrations-and-authored-content) for each
   supported version. Existing map, environment, identities and authored text are preserved.
@@ -114,8 +114,9 @@ The modules the readiness pass gives every Release-ready tool
   settlement-character subsection. Generated livelihoods use one representative per settlement/topic and
   supply one per settlement; all authored narrative entries remain. Stale assertions are marked
   in all formats. Realms (including saved descriptions), settlements and organizations remain
-  in the entry. The page and exports omit supporting-explanation links, disclosures and evidence
-  appendices; supporting facts remain stored for editing and validation.
+  in the entry. Non-history reading omits supporting-explanation appendices; supporting facts remain
+  stored for editing and validation. History adds identity-resolved Explains links to scoped evidence
+  inspection on the page; exports carry readable target names and the same review notices.
   `regionToExportDocument` shares the concise reading entry for Markdown, standalone PDF text
   and project PDF publication.
   `regionToUiDocument` projects qualified entry headings and descriptive paragraphs for the page:
@@ -156,8 +157,8 @@ map is derived from the saved `RegionMap` and stays outside the payload.
 ## Dependent passes
 
 New rolls run physical geography, geology, habitats, ecology inhabitants, resources, habitation,
-ecology relationships, processing, livelihoods, supply, notable places, and presentation
-with separate named RNG streams. Name generators are rebuilt from their pattern inputs for
+ecology relationships, processing, livelihoods, supply, notable places, saved reading, neighbors
+and regional history with separate named RNG streams. Name generators are rebuilt from their pattern inputs for
 habitation, so their internal RNG does not couple names to geography. Generated semantic facts carry
 saved map evidence and versioned rule IDs. See [generation passes](../../../docs/region-generation-passes.md)
 for stage responsibilities and the recorded terrain-profile limitation. Existing saved maps and facts
@@ -716,8 +717,7 @@ Facts version 12 and gazetteer version 6 are unchanged. Snapshot and rehydration
 history without selecting dates, actors or wording.
 
 `retainRegionRealms` reorders/removes realms atomically with existing positional seat, parent and
-claim links. IDs travel with their realms. It protects the seat and history-linked removals until
-the dependency-aware editing work in #483; callers must not splice realm arrays directly.
+claim links. IDs travel with their realms. It protects the seat and history-linked removals; callers must not splice realm arrays directly.
 `historyObservation` projects saved institutional, settlement and semantic-fact support, while
 `historyEvidenceCurrent` checks those observations and transitive evidence without generating.
 Only the existing `unpressed` political claim status is recognized for history; unknown statuses
@@ -750,7 +750,7 @@ prerequisites determine order separately from saved causal links. Dates remain a
 
 Existing source-removal transactions now remove generated history dependencies and orphaned actors,
 and protect authored history from deletion. This is the minimum referential-integrity boundary
-needed to enable generation; full edit invalidation/authoring is #483 and reading/export UI is #484.
+needed to enable generation; edit invalidation/authoring and reading/export UI are implemented in #483 and #484.
 Old gazetteer blocks and every upstream RNG stream retain their previous behavior. See the
 [reading examples](../../../test_fixtures/region_history_482.md) prepared for #485 editorial review.
 
@@ -783,7 +783,7 @@ Removal-impact APIs expose affected IDs before UI confirmation and share the rem
 existing settlement, organization, realm and semantic-fact removals. Retained evidence requiring
 review is distinct from deleted events. Authored dependents/actors block source deletion; a selected
 authored event can be explicitly deleted while its other authored dependents remain protected.
-These reports are transient and are not new payload fields. History controls and reading remain #484.
+These reports are transient and are not new payload fields. History controls, impact confirmations and shared reading are implemented in #484.
 
 ## Reading and editing saved history
 
@@ -800,3 +800,12 @@ versioned rules, causes and historical actors as compatibility evidence, not his
 The saved editor supports text, optional relative dates, order, removal and actor names through the
 existing pure editing APIs. Removal confirmations describe the history impact; authored dependents
 remain protected. Only a confirmed whole-region reroll generates a replacement account.
+
+## History acceptance and downstream queries (#485)
+
+The [acceptance record](../../../docs/region-history-acceptance.md) links the frozen pre-history
+output comparisons, migration matrix, cross-subsystem fixtures, browser evidence and Ben's editorial
+review. The [query contract](../../../docs/region-history-queries.md) is the integration boundary for
+political tensions (#472), adventure sites (#476) and rumours (#474): consumers read current events
+by stable local identity; downstream explanations never become evidence for the history they cite.
+No political/site/rumour subsystem, disaster adapter or migration adapter is enabled by this work.
