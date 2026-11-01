@@ -1,3 +1,4 @@
+import { emptyRegionHistory } from './region_realm_identity';
 import { describe, expect, it, vi } from 'vitest';
 import * as ResourceNarrative from './region_resource_narrative';
 import { generateResourceFacts } from './region_resources';
@@ -159,6 +160,7 @@ describe('regional evidence and prose', () => {
     const json = JSON.parse(JSON.stringify(saved));
     expect(toRegionSnapshot(regionFromSnapshot(json, new RNG('reopen')))).toEqual(saved);
     const old = structuredClone(saved);
+    old.history = emptyRegionHistory();
     delete old.overviewReason;
     old.facts.activities = [];
     for (const entry of old.settlements) delete entry.descriptionReason;

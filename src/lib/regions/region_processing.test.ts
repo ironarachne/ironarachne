@@ -1,3 +1,4 @@
+import { emptyRegionHistory } from './region_realm_identity';
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import { getProcessingRecipes, type ProcessingRecipe } from '$lib/resources';
@@ -392,6 +393,7 @@ describe('saved local processing chains', () => {
     const region = processed('timber');
     const saved = {
       ...region,
+      history: emptyRegionHistory(),
       settlements: [{ id: 'settlement:home', snapshot: region.settlements[0] }],
     } as unknown as RegionSnapshot;
     const final = saved.facts.products.find(

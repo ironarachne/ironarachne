@@ -1,3 +1,4 @@
+import { emptyRegionHistory } from './region_realm_identity';
 import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import { describe, expect, it, vi } from 'vitest';
@@ -211,6 +212,7 @@ describe('saved settlement reading', () => {
   });
   it('preserves legacy text during migration and the complete new plan through round trips', () => {
     const old = { ...structuredClone(base), gazetteer: undefined };
+    old.history = emptyRegionHistory();
     expect(migrateRegionSnapshot(old, 22)).toEqual({ ok: true, value: old });
     expect(toRegionSnapshot(regionFromSnapshot(base, new RNG('reopen')))).toEqual(base);
     const removed = removeRegionPlace(base, 'settlements', 0);

@@ -1,3 +1,4 @@
+import { toRegionSnapshot } from './region_snapshot';
 import { initialRegionRealmIds, emptyRegionHistory } from './region_realm_identity';
 import { generateRegionArchitecture } from './region_architecture';
 import { generateManagedProduction, finalizeResourceInventory } from './region_managed_production';
@@ -25,6 +26,7 @@ import type Region from './region.js';
 import {
   createRegionStageRng,
   generateRegionGazetteer,
+  generateRegionHistory,
   generateHabitatFacts,
   generateLandscapeNames,
   generateEcologyInhabitants,
@@ -352,6 +354,10 @@ export function generate(config: RegionGeneratorConfig): Region {
   addNeighborsToRegion(region, stageConfig('neighbors'));
   region.realmIds = initialRegionRealmIds(region.realms.length);
   region.history = emptyRegionHistory();
+  region.history = generateRegionHistory(
+    toRegionSnapshot(region),
+    createRegionStageRng(seed, 'regional-history'),
+  );
   return region;
 }
 

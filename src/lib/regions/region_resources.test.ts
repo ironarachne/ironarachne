@@ -1,3 +1,4 @@
+import { emptyRegionHistory } from './region_realm_identity';
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import { BiomeClassifications, Terrain, type Environment } from '$lib/environment';
@@ -309,7 +310,11 @@ describe('resource editing dependencies', () => {
       const region = prepared();
       generateResourceFacts(region, new RNG(`edit:${i}`));
       if (region.facts!.resources.some((entry) => entry.depositIds.length))
-        return { ...region, settlements: [] } as unknown as RegionSnapshot;
+        return {
+          ...region,
+          settlements: [],
+          history: emptyRegionHistory(),
+        } as unknown as RegionSnapshot;
     }
     throw new Error('No usable fixture');
   }

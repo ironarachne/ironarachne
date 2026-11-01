@@ -28,5 +28,6 @@ export type RegionGenerationStage =
   | 'notable-places'
   | 'regional-identity'
   | 'presentation'
-  | 'gazetteer-editorial';
+  | 'gazetteer-editorial'
+  | 'regional-history';
 export type RegionTerrainProfile = { altitude: AltitudeBand; relief: ReliefClass };
