@@ -1,7 +1,8 @@
 # Region regeneration and edit consistency
 
-**Status:** implemented for #347 using the accepted Regions release model. No new persisted fields,
-types or payload version are introduced.
+**Status:** implemented — the #347 regeneration policy, extended by #483/#484 history editing
+and reading, and verified by #485. Current storage is region payload 26, facts 12, gazetteer 6 and
+history 1/2 under the accepted [history model](region-history.md).
 
 ## Decision
 

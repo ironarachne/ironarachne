@@ -1,7 +1,9 @@
 # Deterministic region generation passes
 
-**Status:** implemented under the accepted [Regions release contract](regions-release-contract.md),
-for #329. This uses the existing approved semantic model; it adds no persisted types or payload version.
+**Status:** implemented under the accepted [Regions release contract](regions-release-contract.md)
+and [history model](region-history.md). The original #329 stream boundary is extended by the later
+passes below; #485 records final history acceptance. Current region storage is payload 26,
+facts 12, gazetteer 6 and history 1/2.
 
 ## Problem and decisions
 

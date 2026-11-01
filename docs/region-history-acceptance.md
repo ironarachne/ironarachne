@@ -1,6 +1,7 @@
 # Regional history acceptance (#485)
 
-**Status:** implementation and editorial evidence recorded; final verification in progress.
+**Status:** implemented — editorial review accepted and complete verification passed on 2026-11-01.
+This is the final acceptance record for #470; the parent closes when the #485 PR is merged.
 Parent: [#470](https://github.com/ironarachne/ironarachne/issues/470).
 Design: [regional history](region-history.md), including the approved
 [historical-name observation amendment](region-history-actor-name-evidence.md).
@@ -56,6 +57,19 @@ review; do not regenerate accepted specimens or frozen baselines merely to make 
 
 ## Verification
 
-Final commands/results will be recorded here after execution. Parent acceptance is not marked
-complete until the unit/coverage gate and complete browser suite have passed and this review is
-included in the repository PR.
+Verified with Node **24.22.2**, matching CI:
+
+- Focused history acceptance/generation/publication suites: **54 tests passed** across three files.
+- Focused workshop source-removal browser scenario: **passed**, including cancellation,
+  confirmation, save/reopen, export and widths 320/360/375/390/430px.
+- `npm run verify:all`: **passed**. Svelte/TypeScript: zero errors and warnings. Formatting and
+  ESLint: passed. Unit tests: **7,775 passed** across **561 files**. Per-library coverage:
+  **100 libraries passed**, no baselined debt or added exclusions. Full browser suite:
+  **694 passed**, **five intentionally skipped**, in **15.7 minutes**.
+- `npx vite-node scripts/render_region_history_review.ts` reproduced the accepted packet byte for
+  byte when compared with `cmp`; no frozen regression fixture was rewritten.
+
+The complete parent contract is supported by the evidence above, including Ben's explicit editorial
+review. No acceptance item is deferred to political tensions, adventure sites, rumours, disaster or
+migration functionality. The #485 PR is the final repository acceptance change and closes #470 on
+merge; normal required GitHub CI still applies to that merge.

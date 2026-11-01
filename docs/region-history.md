@@ -215,7 +215,7 @@ participant set, and consequences must match the outcome's supported family.
 
 Observation records use a `kind` discriminant and the following exact projections:
 
-| Record                         | Proposed fields beyond `kind`                                                                                                                  |
+| Record                         | Implemented fields beyond `kind`                                                                                                               |
 | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | RealmHistoryObservation        | `realmId: string`, `name: string`, `parentRealmId: string \| null`, `tiles: number[]`, `claims: { claimantRealmId: string; status: string }[]` |
 | OrganizationHistoryObservation | `organizationId: string`, `name: string`, `relationships: { relatedOrganizationId: string; kind: OrganizationRelationKind }[]`                 |
