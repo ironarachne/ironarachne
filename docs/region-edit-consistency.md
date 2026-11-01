@@ -14,7 +14,7 @@ explicitly unavailable on `/region`, in its workshop panel and in the saved regi
 Generate replaces the displayed result, including heraldry edits. Save first to keep it. Saved
 artifact Roll again uses the original seed and configuration and requires the existing destructive
 confirmation before replacing all contents, including saved and unsaved edits. The editor names
-the affected sections: map, environment, realms, settlements, organizations, regional facts and
+the affected sections: map, environment, realms, settlements, organizations, history, regional facts and
 descriptions. A repeated seed is reproducible; it is not a request to preserve hand edits.
 
 ## Dependencies and editing
@@ -99,5 +99,12 @@ deletion may delete that selected authored event, as resource deletion already d
 silently delete another authored event or orphan an authored actor. Remaining order gaps persist.
 Removing every event records an authored empty chronology and does not enable regeneration.
 
-This issue supplies library APIs; the History controls, confirmations, review notices, and shared
-page/export reading are #484. Only whole-region Roll again regenerates user work.
+The History controls, impact confirmations, review notices and shared page/export reading are
+implemented by #484. Only whole-region Roll again regenerates user work.
+
+The #485 cross-subsystem acceptance cases take generated histories through JSON persistence,
+rehydration, imported source-name changes, no-op edits, blank authored accounts, protected source
+removal and reading/export adapters. The workshop browser case confirms both cancellation and
+acceptance of a source-removal impact report and verifies the surviving account after reopening.
+Review status is never cleared by saving, reading or exporting. See [acceptance evidence](region-history-acceptance.md)
+and the [downstream query contract](region-history-queries.md).
