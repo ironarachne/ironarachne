@@ -67,7 +67,71 @@ const history = (...events: HistoryEvent[]): RegionHistory => ({
   events,
 });
 
+// The baseline is persisted JSON captured on macOS/Node 22; CI runs Linux/Node 24.
+// Math-library rounding can differ by a few machine epsilons. Normalize JSON-only
+// omissions first, then tolerate that roundoff without changing strings, integers or order.
+function portableBaseline(actual: unknown, expected: unknown): unknown {
+  const close = (a: number, b: number) =>
+    Number.isFinite(a) &&
+    Number.isFinite(b) &&
+    Math.abs(a - b) <= 4 * Number.EPSILON * Math.max(1, Math.abs(a), Math.abs(b));
+  const align = (a: unknown, b: unknown): unknown => {
+    if (typeof a === 'number' && typeof b === 'number')
+      return !Number.isInteger(b) && close(a, b) ? b : a;
+    if (Array.isArray(a))
+      return a.map((entry, index) => align(entry, Array.isArray(b) ? b[index] : undefined));
+    if (a === null || typeof a !== 'object' || b === null || typeof b !== 'object') return a;
+    const observed = a as Record<string, unknown>,
+      baseline = b as Record<string, unknown>;
+    return Object.fromEntries(
+      Object.entries(observed).map(([key, value]) => {
+        if (
+          key === 'observedValue' &&
+          observed.kind === 'map-node' &&
+          baseline.kind === 'map-node' &&
+          observed.property === baseline.property &&
+          ['elevation', 'temperature', 'moisture'].includes(String(observed.property)) &&
+          typeof value === 'string' &&
+          typeof baseline[key] === 'string' &&
+          value.trim() &&
+          baseline[key].trim() &&
+          close(Number(value), Number(baseline[key]))
+        )
+          return [key, baseline[key]];
+        return [key, align(value, baseline[key])];
+      }),
+    );
+  };
+  return align(JSON.parse(JSON.stringify(actual)), expected);
+}
+
 describe('history foundation persistence and upstream compatibility', () => {
+  it('limits portable baseline normalization to serialization and numerical roundoff', () => {
+    const baseline = {
+      coordinate: 1.4266218411561222,
+      source: { kind: 'map-node', property: 'elevation', observedValue: '1.4266218411561222' },
+      name: 'Saved',
+      count: 12,
+      ids: [1, 2],
+    };
+    const rounded = {
+      ...baseline,
+      coordinate: 1.426621841156122,
+      source: { ...baseline.source, observedValue: '1.426621841156122' },
+      omitted: undefined,
+    };
+    expect(portableBaseline(rounded, baseline)).toEqual(baseline);
+    for (const changed of [
+      { ...rounded, coordinate: 1.426621841166122 },
+      { ...rounded, name: 'Changed' },
+      { ...rounded, count: 13 },
+      { ...rounded, count: 12 + Number.EPSILON * 12 },
+      { ...rounded, ids: [2, 1] },
+      { ...rounded, source: { ...rounded.source, observedValue: '1.426621841166122' } },
+      { ...rounded, source: { ...rounded.source, property: 'biomeId' } },
+    ])
+      expect(portableBaseline(changed, baseline)).not.toEqual(baseline);
+  });
   it('uses payload 25 without changing facts or gazetteer schemas', () => {
     expect(REGION_PAYLOAD_VERSION).toBe(25);
     expect(base.facts.version).toBe(12);
@@ -77,7 +141,9 @@ describe('history foundation persistence and upstream compatibility', () => {
     it(`preserves every old seeded field: ${fixture.seed}`, () => {
       const generated = rollRegionSnapshot(fixture.seed, fixture.config);
       const { realmIds, history: stored, ...prior } = generated;
-      expect(prior).toEqual(fixture.snapshot);
+      expect(portableBaseline(prior, fixture.snapshot)).toEqual(fixture.snapshot);
+      // Same-runtime reproducibility still requires exact values, with no tolerance.
+      expect(rollRegionSnapshot(fixture.seed, fixture.config)).toEqual(generated);
       expect(realmIds).toEqual(initialRegionRealmIds(generated.realms.length));
       expect(stored).toEqual({ version: 1, state: 'unrecorded', actors: [], events: [] });
       expect(validateRegionSnapshot(generated).ok).toBe(true);
