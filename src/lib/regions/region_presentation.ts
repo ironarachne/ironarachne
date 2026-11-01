@@ -1,3 +1,8 @@
+import {
+  historySection,
+  historyEventAnchor,
+  type RegionHistoryReading,
+} from './region_history_presentation';
 import { notableHeading, legacyNotableForestAliases } from './region_notable_identity';
 import type { RegionNotableReferenceContext } from './region_notable_reading_types';
 import type { RegionLandscapeReference } from './region_landscape_reading_types';
@@ -28,6 +33,7 @@ import type { DailyLifeCategory } from './region_livelihood_types';
 export type RegionSection = {
   heading: string;
   lines: string[];
+  history?: RegionHistoryReading;
   /** Optional semantic identities for entries and map features on screen. */
   factIds?: string[];
   /** Explicit entry titles for saved editorial paragraphs; never parsed out of prose. */
@@ -281,6 +287,7 @@ export function regionToDocument(
   references: RegionNotableReferenceContext = {},
 ): RegionDocument {
   if (snapshot.gazetteer) return regionEditorialDocument(snapshot, references);
+  const history = historySection(snapshot);
   const overview = regionOverviewCurrent(snapshot, snapshot.overviewReason)
     ? snapshot.description
     : '';
@@ -323,6 +330,7 @@ export function regionToDocument(
               : fact.description,
         })),
       ),
+      ...history,
       ...factSections('Landscape', [
         ...snapshot.facts.areas,
         ...snapshot.facts.mountainRanges,
@@ -403,6 +411,16 @@ export function regionToMarkdown(
 
   for (const section of document.sections) {
     blocks.push(`## ${section.heading}`);
+    if (section.history) {
+      if (section.history.notice) blocks.push(section.history.notice);
+      for (const entry of section.history.entries) {
+        blocks.push(`<a id="${historyEventAnchor(entry.eventId)}"></a>`, `### ${entry.heading}`);
+        if (entry.body) blocks.push(entry.body);
+        if (entry.warning) blocks.push(entry.warning);
+        blocks.push(...entry.references.map((ref) => ref.label));
+      }
+      continue;
+    }
     if (snapshot.gazetteer) {
       if (section.landscapeReferences?.length)
         blocks.push(

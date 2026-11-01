@@ -5,6 +5,7 @@ import type { RegionDocument } from './region_presentation';
 export type RegionUiEntry = {
   heading: string;
   body: string;
+  historyEventId?: string;
   summary?: string;
   possibleWork?: string;
   location?: string;

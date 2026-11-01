@@ -310,9 +310,13 @@
     }
     const confirmed = await showConfirmModal({
       title: 'Roll again',
-      message: dirty
-        ? 'Rolling again replaces these contents with a fresh roll from the seed this artifact was made with. Your unsaved changes go too, and neither can be brought back.'
-        : 'Rolling again replaces these contents with a fresh roll from the seed this artifact was made with. What is stored now cannot be brought back.',
+      message:
+        (dirty
+          ? 'Rolling again replaces these contents with a fresh roll from the seed this artifact was made with. Your unsaved changes go too, and neither can be brought back.'
+          : 'Rolling again replaces these contents with a fresh roll from the seed this artifact was made with. What is stored now cannot be brought back.') +
+        (target.summary.kind === 'region'
+          ? ' For this region, that includes its map, environment, realms, settlements, organizations, history, facts and descriptions.'
+          : ''),
       okLabel: 'Roll again',
       dangerous: true,
     });

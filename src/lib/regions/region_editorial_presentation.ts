@@ -1,3 +1,4 @@
+import { appendHistoryReading } from './region_history_presentation';
 import { appendOrganizationReading } from './region_organization_presentation';
 import { sameSettlement } from './region_livelihood_evidence';
 import { appendSettlementReading } from './region_settlement_presentation';
@@ -216,5 +217,6 @@ export function regionEditorialDocument(
     }
   }
   orderRegionReadingSections(document);
+  appendHistoryReading(snapshot, document);
   return document;
 }

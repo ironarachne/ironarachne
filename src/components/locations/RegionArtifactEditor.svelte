@@ -1,4 +1,6 @@
 <script lang="ts">
+  import RegionHistoryEditor from '$components/locations/RegionHistoryEditor.svelte';
+  import { showConfirmModal, showAlertModal } from '$lib/ui';
   import Notice from '$components/common/Notice.svelte';
   import RegionExports from '$components/locations/RegionExports.svelte';
   import RegionMapInspection from '$components/locations/RegionMapInspection.svelte';
@@ -6,6 +8,11 @@
   import BaseButton from '$components/common/BaseButton.svelte';
   import {
     canRemoveRegionSettlement,
+    getRegionPlaceHistoryRemovalImpact,
+    getRegionResourceHistoryRemovalImpact,
+    historyRemovalMessage,
+    type HistoryRemovalImpact,
+    type RegionResourceFactList,
     ECOLOGY_SUMMARY_ID,
     setRegionResourceFactText,
     removeRegionPlace,
@@ -69,6 +76,48 @@
     onChange(change(region));
   }
 
+  async function confirmHistoryRemoval(impact: HistoryRemovalImpact | null): Promise<boolean> {
+    if (!region || !impact) return false;
+    const message = historyRemovalMessage(region, impact);
+    if (impact.protectedEventIds.length || impact.protectedActorIds.length) {
+      await showAlertModal({ title: 'History is protected', message });
+      return false;
+    }
+    return (
+      !message ||
+      showConfirmModal({
+        title: 'Remove from region',
+        message: `${message} Saved history is not regenerated.`,
+        okLabel: 'Remove from region',
+        dangerous: true,
+      })
+    );
+  }
+  async function removePlace(list: RegionPlaceList, index: number) {
+    if (!region) return;
+    const id =
+      list === 'settlements' ? region.settlements[index].id : region.organizations[index].id;
+    if (await confirmHistoryRemoval(getRegionPlaceHistoryRemovalImpact(region, list, index)))
+      edit((current) => {
+        const position = (
+          list === 'settlements' ? current.settlements : current.organizations
+        ).findIndex((place) => place.id === id);
+        return position < 0 ? current : removeRegionPlace(current, list, position);
+      });
+  }
+  async function removeFact(list: RegionResourceFactList, id: string) {
+    if (
+      region &&
+      (await confirmHistoryRemoval(getRegionResourceHistoryRemovalImpact(region, list, id)))
+    )
+      edit((current) => removeRegionResourceFact(current, list, id));
+  }
+  function organizationProtected(index: number): boolean {
+    if (!region) return true;
+    const impact = getRegionPlaceHistoryRemovalImpact(region, 'organizations', index);
+    return !!impact && (impact.protectedEventIds.length > 0 || impact.protectedActorIds.length > 0);
+  }
+
   const PLACE_LISTS: { list: RegionPlaceList; noun: string }[] = [
     { list: 'settlements', noun: 'Settlement' },
     { list: 'organizations', noun: 'Organization' },
@@ -97,8 +146,8 @@
   <div class="region-editor">
     <Notice>
       Only whole-region reroll is available. Roll again replaces the map, environment, realms,
-      settlements, organizations, regional facts and descriptions, including saved and unsaved
-      edits, after confirmation. It uses the original seed and settings.
+      settlements, organizations, history, regional facts and descriptions, including saved and
+      unsaved edits, after confirmation. It uses the original seed and settings.
     </Notice>
     <p class="region-editor__note">
       Editing a field keeps the rest of the region. Review the overview and other saved prose after
@@ -211,14 +260,13 @@
         <BaseButton
           aria-label="Remove mountain range {index + 1} from this region"
           disabled={!canRemoveRegionResourceFact(region, 'mountainRanges', range.id)}
-          onclick={() =>
-            edit((current) => removeRegionResourceFact(current, 'mountainRanges', range.id))}
+          onclick={() => removeFact('mountainRanges', range.id)}
         >
           Remove mountain range {index + 1}
         </BaseButton>
         {#if !canRemoveRegionResourceFact(region, 'mountainRanges', range.id)}
           <p class="region-editor__note">
-            Authored regional facts refer to this range, so it cannot be removed here.
+            Authored regional facts or history refer to this range, so it cannot be removed here.
           </p>
         {/if}
       </fieldset>
@@ -257,14 +305,13 @@
         <BaseButton
           aria-label="Remove dense forest {index + 1} from this region"
           disabled={!canRemoveRegionResourceFact(region, 'denseForests', forest.id)}
-          onclick={() =>
-            edit((current) => removeRegionResourceFact(current, 'denseForests', forest.id))}
+          onclick={() => removeFact('denseForests', forest.id)}
         >
           Remove dense forest {index + 1}
         </BaseButton>
         {#if !canRemoveRegionResourceFact(region, 'denseForests', forest.id)}
           <p class="region-editor__note">
-            Authored regional facts refer to this forest, so it cannot be removed here.
+            Authored regional facts or history refer to this forest, so it cannot be removed here.
           </p>
         {/if}
       </fieldset>
@@ -363,13 +410,7 @@
               fact.id,
             )}
             onclick={() =>
-              edit((current) =>
-                removeRegionResourceFact(
-                  current,
-                  list as 'managedProduction' | 'resourceSources' | 'activities',
-                  fact.id,
-                ),
-              )}
+              removeFact(list as 'managedProduction' | 'resourceSources' | 'activities', fact.id)}
             >Remove {list === 'managedProduction'
               ? 'managed production'
               : list === 'activities'
@@ -476,20 +517,29 @@
 
           <BaseButton
             aria-label="Remove {group.noun.toLowerCase()} {index + 1} from this region"
-            disabled={group.list === 'settlements' && !canRemoveRegionSettlement(region, index)}
-            onclick={() => edit((current) => removeRegionPlace(current, group.list, index))}
+            disabled={group.list === 'settlements'
+              ? !canRemoveRegionSettlement(region, index)
+              : organizationProtected(index)}
+            onclick={() => removePlace(group.list, index)}
           >
             Remove {group.noun.toLowerCase()}
             {index + 1}
           </BaseButton>
           {#if group.list === 'settlements' && !canRemoveRegionSettlement(region, index)}
             <p class="region-editor__note">
-              Authored region facts refer to this settlement, so it cannot be removed here.
+              Authored regional facts or history refer to this settlement, so it cannot be removed
+              here.
+            </p>
+          {/if}
+          {#if group.list === 'organizations' && organizationProtected(index)}
+            <p class="region-editor__note">
+              Authored history refers to this organization, so it cannot be removed here.
             </p>
           {/if}
         </fieldset>
       {/each}
     {/each}
+    <RegionHistoryEditor snapshot={region} onChange={(next) => onChange(next)} />
     <RegionGazetteer snapshot={region} />
   </div>
 {/if}
