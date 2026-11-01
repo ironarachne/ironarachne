@@ -94,7 +94,7 @@ function roll(snapshot: RegionSnapshot, seed = 'history-test'): RegionHistory {
   expect(regionHistoryError(result, snapshot)).toBeNull();
   expect(result.events.length).toBeLessThanOrEqual(6);
   for (const event of result.events) {
-    expect(historyEvidenceCurrent(snapshot, event.evidence)).toBe(true);
+    expect(historyEvidenceCurrent({ ...snapshot, history: result }, event.evidence)).toBe(true);
     expect(event.time.yearsBeforePresent).toBeUndefined();
     expect(event.description).not.toBe('');
     expect(event.evidence.reason.ruleId).toMatch(/^fantasy:region:history:.*:v1$/);
@@ -106,7 +106,7 @@ function roll(snapshot: RegionSnapshot, seed = 'history-test'): RegionHistory {
 
 describe('seeded regional history generation', () => {
   it('records an empty history when nothing has eligible support', () => {
-    expect(roll(context())).toEqual({ version: 1, state: 'generated', events: [], actors: [] });
+    expect(roll(context())).toEqual({ version: 2, state: 'generated', events: [], actors: [] });
   });
   it('gives a sparse unaffiliated settlement one grounded founding without filler', () => {
     const snapshot = context();

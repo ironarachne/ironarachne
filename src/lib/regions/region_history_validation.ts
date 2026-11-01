@@ -36,7 +36,7 @@ export function regionHistoryError(value: unknown, snapshot: RegionSnapshot): st
   const history = asRecord(value);
   if (
     !history ||
-    history.version !== 1 ||
+    (history.version !== 1 && history.version !== 2) ||
     !['unrecorded', 'generated', 'authored'].includes(String(history.state)) ||
     !Array.isArray(history.actors) ||
     !Array.isArray(history.events)
@@ -86,7 +86,10 @@ export function regionHistoryError(value: unknown, snapshot: RegionSnapshot): st
   };
   const observationValid = (v: unknown): v is HistoryObservation => {
     const obs = asRecord(v);
-    if (!obs || !refValid({ ...obs }, true)) return false;
+    if (!obs) return false;
+    if (obs.kind === 'historicalActor')
+      return history.version === 2 && refValid({ ...obs }) && typeof obs.name === 'string';
+    if (!refValid({ ...obs }, true)) return false;
     if (obs.kind === 'fact') {
       if (!text(obs.observed)) return false;
       try {
@@ -163,7 +166,7 @@ export function regionHistoryError(value: unknown, snapshot: RegionSnapshot): st
       !text(reason.ruleId) ||
       !['current', 'stale'].includes(String(reason.status)) ||
       !Array.isArray(evidence?.observations) ||
-      !evidence.observations.length ||
+      !evidence.observations.some((obs) => asRecord(obs)?.kind !== 'historicalActor') ||
       !evidence.observations.every(observationValid)
     )
       return 'history has an invalid event, time, participant or observation';
@@ -273,6 +276,24 @@ export function regionHistoryError(value: unknown, snapshot: RegionSnapshot): st
       typed.participants.some((ref) => ref.kind !== 'historicalActor' && !observedTarget(ref))
     )
       return 'history consequence needs a positive observation';
+    if (
+      history.version === 2 &&
+      (typed.participants.some(
+        (ref) =>
+          ref.kind === 'historicalActor' &&
+          !typed.evidence.observations.some(
+            (obs) => obs.kind === 'historicalActor' && obs.actorId === ref.actorId,
+          ),
+      ) ||
+        typed.evidence.observations.some(
+          (obs) =>
+            obs.kind === 'historicalActor' &&
+            !typed.participants.some(
+              (ref) => ref.kind === 'historicalActor' && ref.actorId === obs.actorId,
+            ),
+        ))
+    )
+      return 'history actor names need observations matching their participants';
     const outcomeValue = typed.outcome;
     if (
       outcomeValue.kind === 'founding' &&

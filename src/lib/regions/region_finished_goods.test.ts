@@ -1,3 +1,4 @@
+import { emptyRegionHistory } from './region_realm_identity';
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import {
@@ -166,6 +167,7 @@ function saved(region: ReturnType<typeof fixture>): RegionSnapshot {
   return {
     ...region,
     environment: {},
+    history: emptyRegionHistory(),
     settlements: [{ id: 'home', snapshot: region.settlements[0] }],
   } as unknown as RegionSnapshot;
 }

@@ -421,7 +421,7 @@ describe('coordinated regional editorial policy', () => {
   });
   it('round trips version 20 and migrates version 17 without creating editorial prose', () => {
     const snapshot = rollRegionSnapshot('445-persistence');
-    expect(REGION_PAYLOAD_VERSION).toBe(25);
+    expect(REGION_PAYLOAD_VERSION).toBe(26);
     expect(validateRegionSnapshot(snapshot)).toMatchObject({ ok: true });
     expect(toRegionSnapshot(regionFromSnapshot(snapshot, new RNG('restore'))).gazetteer).toEqual(
       snapshot.gazetteer,

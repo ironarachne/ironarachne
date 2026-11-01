@@ -45,8 +45,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 25 adds stable realm identities and unrecorded history without inventing a past. */
-export const REGION_PAYLOAD_VERSION = 25 as const;
+/** Version 26 records historical actor names; version-1 saved histories remain unchanged. */
+export const REGION_PAYLOAD_VERSION = 26 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -474,12 +474,13 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (!Number.isInteger(from) || from < 1 || from > 24)
+  if (!Number.isInteger(from) || from < 1 || from > 25)
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,
     );
   const record = asRecord(payload);
+  if (from === 25) return validateRegionSnapshot(payload);
   const adopted =
     record === null ? payload : { ...record, ...(from < 11 ? { affiliation: 'affiliated' } : {}) };
   if (from === 12 && asRecord(record?.facts)?.version !== 7)

@@ -1,3 +1,5 @@
+import { historyAfterSourceRemoval } from './region_history_removal';
+import { withRegionHistoryEvidence } from './region_history_dependencies';
 import type { RegionSnapshot } from './region_snapshot';
 import type { RegionHistory } from './region_history_types';
 
@@ -45,7 +47,7 @@ export function regionRealmIdentityError(
 }
 
 /** Reorder or remove realms and translate all old positional links in one immutable operation.
- * History-linked removals await the dependency-aware editing API; never leave dangling evidence.
+ * Generated history dependencies are removed atomically; authored history is protected.
  */
 export function retainRegionRealms(
   snapshot: RegionSnapshot,
@@ -57,27 +59,22 @@ export function retainRegionRealms(
     throw new Error('Realm order must contain unique existing IDs.');
   const removed = snapshot.realmIds.filter((id) => !ids.includes(id));
   if (
-    snapshot.history.events.some(
-      (event) =>
-        event.participants.some((ref) => ref.kind === 'realm' && removed.includes(ref.realmId)) ||
-        event.consequences.some(
-          (c) => c.target.kind === 'realm' && removed.includes(c.target.realmId),
-        ) ||
-        event.evidence.observations.some(
-          (o) =>
-            o.kind === 'realm' &&
-            (removed.includes(o.realmId) ||
-              (o.parentRealmId !== null && removed.includes(o.parentRealmId)) ||
-              o.claims.some((c) => removed.includes(c.claimantRealmId))),
-        ),
-    )
+    ids.every((id, index) => id === snapshot.realmIds[index]) &&
+    ids.length === snapshot.realmIds.length
   )
-    throw new Error('Realm removal would damage saved history.');
+    return snapshot;
+  const history = historyAfterSourceRemoval(
+    snapshot.history,
+    new Set(),
+    removed.map((realmId) => ({ kind: 'realm', realmId })),
+  );
+  if (history === null) throw new Error('Realm removal would damage authored history.');
   const remap = (index: number) => (index === -1 ? -1 : ids.indexOf(snapshot.realmIds[index]));
   if (snapshot.mainRealm !== null && remap(snapshot.mainRealm) < 0)
     throw new Error('Change the regional seat before removing its realm.');
-  return {
+  return withRegionHistoryEvidence({
     ...snapshot,
+    history,
     realmIds: [...ids],
     mainRealm: snapshot.mainRealm === null ? null : remap(snapshot.mainRealm),
     realms: ids.map((id) => {
@@ -90,5 +87,5 @@ export function retainRegionRealms(
           .map((claim) => ({ ...claim, claimantId: remap(claim.claimantId) })),
       };
     }),
-  };
+  });
 }
