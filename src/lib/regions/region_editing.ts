@@ -1,3 +1,4 @@
+import { withRegionHistoryEvidence } from './region_history_dependencies';
 /**
  * Editing a saved region, one field at a time.
  *
@@ -26,7 +27,7 @@
  * regenerating over the user's work.
  */
 
-import { historyAfterSourceRemoval } from './region_history_removal';
+import { historyAfterSourceRemoval, historyRemovalImpact } from './region_history_removal';
 import type { RegionSnapshot, StoredRealm } from './region_snapshot.js';
 import type { RegionSemanticFact } from './region_resource_types';
 import {
@@ -34,6 +35,7 @@ import {
   regionFactTargets,
   removeRegionFactIds,
   staleRegionFactDependents,
+  regionRemovalReviewFacts,
   withRegionOverviewEvidence,
 } from './region_resource_editing';
 
@@ -95,6 +97,7 @@ function replaceAt<T>(list: T[], index: number, value: T): T[] {
 function settlementRemovalDependencies(
   snapshot: RegionSnapshot,
   index: number,
+  protectHistory = true,
 ): Set<string> | null {
   const settlementId = snapshot.settlements[index].id;
   const roles = snapshot.facts.settlementRoles.filter(
@@ -184,14 +187,41 @@ function settlementRemovalDependencies(
         ),
     );
     if (authoredInbound || dependents.some((fact) => fact.origin === 'authored')) return null;
-    if (dependents.length === 0)
-      return historyAfterSourceRemoval(snapshot.history, removedIds, [
-        { kind: 'settlement', settlementId },
-      ]) === null
+    if (dependents.length === 0) {
+      const changed = regionRemovalReviewFacts(snapshot.facts, removedIds);
+      return protectHistory &&
+        historyAfterSourceRemoval(
+          snapshot.history,
+          removedIds,
+          [{ kind: 'settlement', settlementId }],
+          changed,
+        ) === null
         ? null
         : removedIds;
+    }
     for (const fact of dependents) removedIds.add(fact.id);
   }
+}
+
+/** History-specific confirmation details; existing authored semantic protection returns null. */
+export function getRegionPlaceHistoryRemovalImpact(
+  snapshot: RegionSnapshot,
+  list: RegionPlaceList,
+  index: number,
+) {
+  if (!hasIndex(snapshot[list].length, index)) return null;
+  if (list === 'organizations')
+    return historyRemovalImpact(snapshot.history, {
+      targets: [{ kind: 'organization', organizationId: snapshot.organizations[index].id }],
+    });
+  const removed = settlementRemovalDependencies(snapshot, index, false);
+  if (removed === null) return null;
+  const changed = regionRemovalReviewFacts(snapshot.facts, removed);
+  return historyRemovalImpact(snapshot.history, {
+    facts: removed,
+    targets: [{ kind: 'settlement', settlementId: snapshot.settlements[index].id }],
+    reviewFacts: changed,
+  });
 }
 
 export function canRemoveRegionSettlement(snapshot: RegionSnapshot, index: number): boolean {
@@ -206,6 +236,7 @@ export function setRegionText(
   field: RegionTextField,
   value: string,
 ): RegionSnapshot {
+  if (snapshot[field] === value) return snapshot;
   const result = { ...snapshot, [field]: value };
   if (field === 'description') delete result.overviewReason;
   return result;
@@ -219,7 +250,9 @@ export function setRegionText(
  * worse than one whose seat is unchanged.
  */
 export function setRegionMainRealm(snapshot: RegionSnapshot, index: number): RegionSnapshot {
-  return snapshot.affiliation === 'affiliated' && hasIndex(snapshot.realms.length, index)
+  return snapshot.affiliation === 'affiliated' &&
+    snapshot.mainRealm !== index &&
+    hasIndex(snapshot.realms.length, index)
     ? { ...snapshot, mainRealm: index, authority: snapshot.realms[index].authority }
     : snapshot;
 }
@@ -230,7 +263,10 @@ function editRealm(
   change: (realm: StoredRealm) => StoredRealm,
 ): RegionSnapshot {
   return hasIndex(snapshot.realms.length, index)
-    ? { ...snapshot, realms: replaceAt(snapshot.realms, index, change(snapshot.realms[index])) }
+    ? withRegionHistoryEvidence({
+        ...snapshot,
+        realms: replaceAt(snapshot.realms, index, change(snapshot.realms[index])),
+      })
     : snapshot;
 }
 
@@ -240,6 +276,7 @@ export function setRealmText(
   field: RealmTextField,
   value: string,
 ): RegionSnapshot {
+  if (snapshot.realms[index]?.[field] === value) return snapshot;
   return editRealm(snapshot, index, (realm) => ({ ...realm, [field]: value }));
 }
 
@@ -259,6 +296,7 @@ export function setRegionPlaceText(
   value: string,
 ): RegionSnapshot {
   const places = snapshot[list];
+  if (list === 'organizations' && snapshot.organizations[index]?.[field] === value) return snapshot;
   if (list === 'settlements') {
     if (
       hasIndex(snapshot.settlements.length, index) &&
@@ -282,7 +320,7 @@ export function setRegionPlaceText(
       : snapshot;
   }
   return hasIndex(places.length, index)
-    ? {
+    ? withRegionHistoryEvidence({
         ...snapshot,
         ...(field === 'description' &&
         snapshot.gazetteer?.version === 6 &&
@@ -305,7 +343,7 @@ export function setRegionPlaceText(
           ...snapshot.organizations[index],
           [field]: value,
         }),
-      }
+      })
     : snapshot;
 }
 
@@ -320,20 +358,24 @@ export function removeRegionPlace(
   if (list === 'settlements') {
     const removedIds = settlementRemovalDependencies(snapshot, index);
     if (removedIds === null) return snapshot;
+    const changed = regionRemovalReviewFacts(snapshot.facts, removedIds);
     return withRegionOverviewEvidence({
       ...snapshot,
-      history: historyAfterSourceRemoval(snapshot.history, removedIds, [
-        { kind: 'settlement', settlementId: snapshot.settlements[index].id },
-      ])!,
+      history: historyAfterSourceRemoval(
+        snapshot.history,
+        removedIds,
+        [{ kind: 'settlement', settlementId: snapshot.settlements[index].id }],
+        changed,
+      )!,
       settlements: snapshot.settlements.filter((_place, position) => position !== index),
-      facts: removeRegionFactIds(snapshot.facts, removedIds),
+      facts: removeRegionFactIds(snapshot.facts, new Set(removedIds)),
     });
   }
   const history = historyAfterSourceRemoval(snapshot.history, new Set(), [
     { kind: 'organization', organizationId: snapshot.organizations[index].id },
   ]);
   if (history === null) return snapshot;
-  return {
+  return withRegionHistoryEvidence({
     ...snapshot,
     history,
     ...(snapshot.gazetteer?.version === 6
@@ -350,5 +392,5 @@ export function removeRegionPlace(
         }
       : {}),
     organizations: snapshot.organizations.filter((_place, position) => position !== index),
-  };
+  });
 }

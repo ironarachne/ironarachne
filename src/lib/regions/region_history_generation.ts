@@ -7,7 +7,11 @@ import type {
   HistoryReference,
   RegionHistory,
 } from './region_history_types';
-import { historyEvidenceCurrent, historyEvidenceKey } from './region_history_evidence';
+import {
+  historyEvidenceCurrent,
+  historyEvidenceKey,
+  historyObservation,
+} from './region_history_evidence';
 import { regionHistoryError } from './region_history_validation';
 import {
   historyLexical,
@@ -15,8 +19,12 @@ import {
   type RegionHistoryCandidate,
 } from './region_history_candidates';
 
-const generatedHistory = (events: HistoryEvent[], actors: HistoricalActor[]): RegionHistory => ({
-  version: 1,
+const generatedHistory = (
+  events: HistoryEvent[],
+  actors: HistoricalActor[],
+  version: 1 | 2 = 1,
+): RegionHistory => ({
+  version,
   state: 'generated',
   events,
   actors,
@@ -258,9 +266,23 @@ export function generateRegionHistory(snapshot: RegionSnapshot, rng: RNG): Regio
   const history = generatedHistory(
     ordered.map((event) => writeEvent(snapshot, actors, event, rng)),
     actors,
+    2,
   );
-  const error = regionHistoryError(history, snapshot);
-  if (error || history.events.some((event) => !historyEvidenceCurrent(snapshot, event.evidence)))
+  const context = { ...snapshot, history };
+  history.events = history.events.map((event) => ({
+    ...event,
+    evidence: {
+      ...event.evidence,
+      observations: [
+        ...event.evidence.observations,
+        ...event.participants.flatMap((ref) =>
+          ref.kind === 'historicalActor' ? [historyObservation(context, ref)!] : [],
+        ),
+      ],
+    },
+  }));
+  const error = regionHistoryError(history, context);
+  if (error || history.events.some((event) => !historyEvidenceCurrent(context, event.evidence)))
     throw new Error(error ?? 'Generated history has incompatible present support.');
   return history;
 }

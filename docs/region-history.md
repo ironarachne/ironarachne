@@ -1,8 +1,9 @@
 # A regional past that explains the present
 
 **Status:** accepted — domain model and policy approved by Ben on 2026-11-01.
-Foundation (#481) is merged. Generation (#482) is implemented for review; editing and
-presentation remain pending in the linked work items below.
+Foundation (#481) and generation (#482) are merged. Editing (#483) is implemented for review
+under the approved [actor-name evidence amendment](region-history-actor-name-evidence.md);
+presentation remains pending in #484.
 
 Issue: [#470](https://github.com/ironarachne/ironarachne/issues/470).
 Related designs: [regional authoring](region-authoring.md),
@@ -29,7 +30,7 @@ library own identity, evidence, chronology, event rules, editing and presentatio
 
 ## Verified starting point
 
-The inspected checkout has region payload **24**, facts **12**, and gazetteer **6**. Some older
+The design audit started at region payload **24**, facts **12**, and gazetteer **6**. Some older
 architecture documents still describe earlier versions; implementation must use current constants.
 
 - `region_generation_passes.ts` derives RNGs by stage name from one root token. The orchestrator
@@ -110,7 +111,7 @@ classDiagram
         +RegionHistory history
     }
     class RegionHistory {
-        +1 version
+        +HistoryVersion version
         +HistoryState state
         +HistoricalActor[] actors
         +HistoryEvent[] events
@@ -144,6 +145,9 @@ classDiagram
     HistoryEvent "*" --> "*" HistoryEvent : caused by earlier
     HistoryEvent "*" --> "*" HistoricalActor : may involve
 ```
+
+`HistoryVersion = 1 | 2`: version 1 remains readable; version 2 records historical actor names
+under the [approved amendment](region-history-actor-name-evidence.md).
 
 `HistoryState = 'unrecorded' | 'generated' | 'authored'`. Unrecorded means no chronology was
 supplied; generated with zero events means generation found no eligible account. Origin on each
@@ -179,6 +183,7 @@ classDiagram
         +organization: OrganizationHistoryObservation
         +settlement: SettlementHistoryObservation
         +fact: FactHistoryObservation
+        +historicalActor: HistoricalActorNameObservation
     }
     class HistoryOutcome {
         <<union>>
@@ -215,6 +220,10 @@ Observation records use a `kind` discriminant and the following exact projection
 | OrganizationHistoryObservation | `organizationId: string`, `name: string`, `relationships: { relatedOrganizationId: string; kind: OrganizationRelationKind }[]`                 |
 | SettlementHistoryObservation   | `settlementId: string`, `name: string`, `mapNodeId: number`                                                                                    |
 | FactHistoryObservation         | `factId: string`, `observed: string`                                                                                                           |
+
+`HistoricalActorNameObservation = { kind: 'historicalActor'; actorId: string; name: string }`
+is the additional version-2 variant. Every historical participant has a matching saved name witness;
+it does not replace positive present support. Version-1 events lacking that witness need review.
 
 `observed` is canonical JSON of the selected saved fact, excluding mutable review-status metadata;
 it is compared as data, never executed or used as a hash-only proof. Linked fact support is also
@@ -342,13 +351,13 @@ saving, exporting or renaming a participant.
 
 ## Persistence, migration and presentation
 
-Propose the next payload version (25 if still free), with required `realmIds` and `history` fields.
-`RegionHistory.version` starts at 1. Facts version 12 and gazetteer version 6 need not change:
-history is a separate aggregate, not a disguised resource/causal fact or an editorial sentence.
-The runtime region and snapshot converters must carry the aggregate losslessly. Use the actual
-next available payload version when implementing; parallel work may have consumed 25.
+Region payload **26** accepts history versions **1 and 2**. New generation records version 2
+with historical actor name observations; payload 25 migrates losslessly with version-1 history and
+stable realm IDs preserved. Facts remain version 12 and gazetteer version 6. History is a separate
+aggregate, not a disguised resource/causal fact or an editorial sentence. The runtime region and
+snapshot converters carry it losslessly.
 
-Every supported old migration path ends with deterministic realm ID allocation and
+Every pre-history migration path (payloads 1–24) ends with deterministic realm ID allocation and
 `{ version: 1, state: 'unrecorded', actors: [], events: [] }`. Add no dates, actors, events,
 reasons or gazetteer sentences. Preserve old strings, intentional blanks, claims, map geometry
 and existing gazetteer versions. Rehydration never generates. JSON round trips contain no RNG,

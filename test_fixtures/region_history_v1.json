@@ -1,0 +1,340 @@
+{
+  "sourceCommit": "5ee27a2e",
+  "inputFixture": "region_history_481.json.gz",
+  "inputRecord": 0,
+  "seed": "history-amendment-compatibility",
+  "history": {
+    "version": 1,
+    "state": "generated",
+    "events": [
+      {
+        "id": "history:[\"organization-founding\",\"region-0-i6ao4h0ruzjct56u\"]",
+        "name": "Founding of The Silent Kites",
+        "description": "The Silent Kites came into being.",
+        "origin": "generated",
+        "time": {
+          "order": 0
+        },
+        "outcome": {
+          "kind": "founding",
+          "founded": {
+            "kind": "organization",
+            "organizationId": "region-0-i6ao4h0ruzjct56u"
+          }
+        },
+        "participants": [
+          {
+            "kind": "organization",
+            "organizationId": "region-0-i6ao4h0ruzjct56u"
+          }
+        ],
+        "consequences": [
+          {
+            "kind": "existence",
+            "target": {
+              "kind": "organization",
+              "organizationId": "region-0-i6ao4h0ruzjct56u"
+            }
+          }
+        ],
+        "causedByEventIds": [],
+        "evidence": {
+          "reason": {
+            "ruleId": "fantasy:region:history:organization-founding:v1",
+            "status": "current",
+            "sources": []
+          },
+          "observations": [
+            {
+              "kind": "organization",
+              "organizationId": "region-0-i6ao4h0ruzjct56u",
+              "name": "The Silent Kites",
+              "relationships": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "history:[\"predecessor-founding\",\"realm:0\"]",
+        "name": "Founding of the Former Realm of Maurruwind",
+        "description": "This period saw the founding of the Former Realm of Maurruwind.",
+        "origin": "generated",
+        "time": {
+          "order": 1
+        },
+        "outcome": {
+          "kind": "founding",
+          "founded": {
+            "kind": "historicalActor",
+            "actorId": "history:[\"predecessor\",\"realm:0\"]"
+          }
+        },
+        "participants": [
+          {
+            "kind": "historicalActor",
+            "actorId": "history:[\"predecessor\",\"realm:0\"]"
+          }
+        ],
+        "consequences": [
+          {
+            "kind": "existence",
+            "target": {
+              "kind": "realm",
+              "realmId": "realm:0"
+            }
+          }
+        ],
+        "causedByEventIds": [],
+        "evidence": {
+          "reason": {
+            "ruleId": "fantasy:region:history:predecessor-founding:v1",
+            "status": "current",
+            "sources": []
+          },
+          "observations": [
+            {
+              "kind": "realm",
+              "realmId": "realm:0",
+              "name": "the Duchy of Aedaern",
+              "parentRealmId": "realm:1",
+              "tiles": [],
+              "claims": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "history:[\"realm-founding\",\"realm:0\"]",
+        "name": "Founding of the Duchy of Aedaern",
+        "description": "The Duchy of Aedaern came into being.",
+        "origin": "generated",
+        "time": {
+          "order": 2
+        },
+        "outcome": {
+          "kind": "founding",
+          "founded": {
+            "kind": "realm",
+            "realmId": "realm:0"
+          }
+        },
+        "participants": [
+          {
+            "kind": "realm",
+            "realmId": "realm:0"
+          }
+        ],
+        "consequences": [
+          {
+            "kind": "existence",
+            "target": {
+              "kind": "realm",
+              "realmId": "realm:0"
+            }
+          }
+        ],
+        "causedByEventIds": [],
+        "evidence": {
+          "reason": {
+            "ruleId": "fantasy:region:history:realm-founding:v1",
+            "status": "current",
+            "sources": []
+          },
+          "observations": [
+            {
+              "kind": "realm",
+              "realmId": "realm:0",
+              "name": "the Duchy of Aedaern",
+              "parentRealmId": "realm:1",
+              "tiles": [],
+              "claims": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "history:[\"predecessor-fall\",\"realm:0\"]",
+        "name": "Fall of the Former Realm of Maurruwind",
+        "description": "The Duchy of Aedaern succeeded the Former Realm of Maurruwind after the older polity came to an end.",
+        "origin": "generated",
+        "time": {
+          "order": 3
+        },
+        "outcome": {
+          "kind": "fall",
+          "historicalRealmId": "history:[\"predecessor\",\"realm:0\"]",
+          "successorRealmId": "realm:0"
+        },
+        "participants": [
+          {
+            "kind": "historicalActor",
+            "actorId": "history:[\"predecessor\",\"realm:0\"]"
+          },
+          {
+            "kind": "realm",
+            "realmId": "realm:0"
+          }
+        ],
+        "consequences": [
+          {
+            "kind": "claim-continuity",
+            "target": {
+              "kind": "realm",
+              "realmId": "realm:0"
+            }
+          }
+        ],
+        "causedByEventIds": ["history:[\"predecessor-founding\",\"realm:0\"]"],
+        "evidence": {
+          "reason": {
+            "ruleId": "fantasy:region:history:predecessor-fall:v1",
+            "status": "current",
+            "sources": []
+          },
+          "observations": [
+            {
+              "kind": "realm",
+              "realmId": "realm:0",
+              "name": "the Duchy of Aedaern",
+              "parentRealmId": "realm:1",
+              "tiles": [],
+              "claims": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "history:[\"subordination\",\"realm:0\",\"realm:1\"]",
+        "name": "Incorporation of the Duchy of Aedaern",
+        "description": "The Duchy of Aedaern entered the authority of the Kingdom of Aedaern, a relationship that continues today.",
+        "origin": "generated",
+        "time": {
+          "order": 4
+        },
+        "outcome": {
+          "kind": "incorporation",
+          "predecessor": {
+            "kind": "realm",
+            "realmId": "realm:0"
+          },
+          "successorRealmId": "realm:1"
+        },
+        "participants": [
+          {
+            "kind": "realm",
+            "realmId": "realm:0"
+          },
+          {
+            "kind": "realm",
+            "realmId": "realm:1"
+          }
+        ],
+        "consequences": [
+          {
+            "kind": "subordination",
+            "target": {
+              "kind": "realm",
+              "realmId": "realm:0"
+            }
+          }
+        ],
+        "causedByEventIds": [],
+        "evidence": {
+          "reason": {
+            "ruleId": "fantasy:region:history:subordination:v1",
+            "status": "current",
+            "sources": []
+          },
+          "observations": [
+            {
+              "kind": "realm",
+              "realmId": "realm:0",
+              "name": "the Duchy of Aedaern",
+              "parentRealmId": "realm:1",
+              "tiles": [],
+              "claims": []
+            },
+            {
+              "kind": "realm",
+              "realmId": "realm:1",
+              "name": "the Kingdom of Aedaern",
+              "parentRealmId": null,
+              "tiles": [],
+              "claims": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "history:[\"subordination\",\"realm:2\",\"realm:1\"]",
+        "name": "Incorporation of the County of Rehin",
+        "description": "The County of Rehin became subordinate to the Kingdom of Aedaern and remains so today.",
+        "origin": "generated",
+        "time": {
+          "order": 5
+        },
+        "outcome": {
+          "kind": "incorporation",
+          "predecessor": {
+            "kind": "realm",
+            "realmId": "realm:2"
+          },
+          "successorRealmId": "realm:1"
+        },
+        "participants": [
+          {
+            "kind": "realm",
+            "realmId": "realm:2"
+          },
+          {
+            "kind": "realm",
+            "realmId": "realm:1"
+          }
+        ],
+        "consequences": [
+          {
+            "kind": "subordination",
+            "target": {
+              "kind": "realm",
+              "realmId": "realm:2"
+            }
+          }
+        ],
+        "causedByEventIds": [],
+        "evidence": {
+          "reason": {
+            "ruleId": "fantasy:region:history:subordination:v1",
+            "status": "current",
+            "sources": []
+          },
+          "observations": [
+            {
+              "kind": "realm",
+              "realmId": "realm:2",
+              "name": "the County of Rehin",
+              "parentRealmId": "realm:1",
+              "tiles": [],
+              "claims": []
+            },
+            {
+              "kind": "realm",
+              "realmId": "realm:1",
+              "name": "the Kingdom of Aedaern",
+              "parentRealmId": null,
+              "tiles": [],
+              "claims": []
+            }
+          ]
+        }
+      }
+    ],
+    "actors": [
+      {
+        "id": "history:[\"predecessor\",\"realm:0\"]",
+        "name": "the Former Realm of Maurruwind",
+        "kind": "realm",
+        "origin": "generated"
+      }
+    ]
+  }
+}

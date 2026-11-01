@@ -147,8 +147,8 @@ describe('history foundation persistence and upstream compatibility', () => {
       ).not.toEqual({ waterWidth: expected });
     }
   });
-  it('uses payload 25 without changing facts or gazetteer schemas', () => {
-    expect(REGION_PAYLOAD_VERSION).toBe(25);
+  it('uses payload 26 without changing facts or gazetteer schemas', () => {
+    expect(REGION_PAYLOAD_VERSION).toBe(26);
     expect(base.facts.version).toBe(12);
     expect(base.gazetteer?.version).toBe(6);
   });
@@ -226,6 +226,7 @@ describe('stable realm identities', () => {
     expect(() => retainRegionRealms(base, [base.realmIds[0], base.realmIds[0]])).toThrow();
     const snapshot = structuredClone(base);
     snapshot.history = history(founding());
+    snapshot.history.events[0].origin = 'authored';
     expect(() => retainRegionRealms(snapshot, [])).toThrow('history');
     snapshot.realmIds = [];
     expect(() => retainRegionRealms(snapshot, [])).toThrow('unique local IDs');
@@ -391,7 +392,7 @@ describe('history schema, chronology and lifecycle', () => {
     for (const value of [
       null,
       {},
-      { ...history(), version: 2 },
+      { ...history(), version: 3 },
       { ...history(), actors: [null] },
       { ...history(), events: [null] },
     ])

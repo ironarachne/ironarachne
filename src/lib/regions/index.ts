@@ -102,3 +102,24 @@ export { regionHistoryError } from './region_history_validation';
 export { historyObservation, historyEvidenceCurrent } from './region_history_evidence';
 
 export { generateRegionHistory } from './region_history_generation';
+
+export {
+  getCurrentHistoryEvents,
+  getHistoryEventsNeedingReview,
+  withRegionHistoryEvidence,
+} from './region_history_dependencies';
+export {
+  setRegionHistoryEventText,
+  setRegionHistoryEventDate,
+  reorderRegionHistoryEvents,
+  setRegionHistoricalActorName,
+  getHistoryEventRemovalImpact,
+  removeRegionHistoryEvent,
+} from './region_history_editing';
+export { historyRemovalImpact } from './region_history_removal';
+export type { HistoryRemovalImpact, HistoryRemovalRequest } from './region_history_removal';
+
+export { getRegionPlaceHistoryRemovalImpact } from './region_editing';
+export { getRegionResourceHistoryRemovalImpact } from './region_resource_editing';
+
+export { withRegionOverviewEvidence } from './region_resource_editing';

@@ -48,7 +48,10 @@ export function historyObservation(
   snapshot: RegionSnapshot,
   ref: HistoryReference,
 ): HistoryObservation | null {
-  if (ref.kind === 'historicalActor') return null;
+  if (ref.kind === 'historicalActor') {
+    const actor = snapshot.history.actors.find((actor) => actor.id === ref.actorId);
+    return actor ? { kind: 'historicalActor', actorId: actor.id, name: actor.name } : null;
+  }
   if (ref.kind === 'realm') {
     const index = snapshot.realmIds.indexOf(ref.realmId);
     const realm = snapshot.realms[index];

@@ -1,4 +1,6 @@
-import { historyAfterSourceRemoval } from './region_history_removal';
+import { historyEvidenceKey } from './region_history_evidence';
+import { withRegionHistoryEvidence } from './region_history_dependencies';
+import { historyAfterSourceRemoval, historyRemovalImpact } from './region_history_removal';
 import { roadPathCurrent, roadReadingRelationsCurrent } from './region_road_evidence';
 import { notableReadingCurrent } from './region_notable_identity';
 import { landscapePlaceCurrent } from './region_landscape_reading';
@@ -159,6 +161,23 @@ export function removeRegionFactIds(facts: RegionFacts, removed: Set<string>): R
   );
 }
 
+/** Review the actual retained graph, including partial-source recomputation, before removal.
+ * Reuse the fact service rather than traversing a second, approximate dependency graph.
+ */
+export function regionRemovalReviewFacts(
+  facts: RegionFacts,
+  removed: ReadonlySet<string>,
+): Set<string> {
+  const changed = new Set(removed),
+    future = removeRegionFactIds(facts, changed);
+  const before = new Map(
+    lists.flatMap<RegionSemanticFact>((list) => facts[list]).map((fact) => [fact.id, fact]),
+  );
+  for (const fact of lists.flatMap<RegionSemanticFact>((list) => future[list]))
+    if (historyEvidenceKey(fact) !== historyEvidenceKey(before.get(fact.id))) changed.add(fact.id);
+  return changed;
+}
+
 /** Text edits preserve semantic links and conservatively stale dependent explanations. */
 export function setRegionResourceFactText(
   snapshot: RegionSnapshot,
@@ -167,7 +186,8 @@ export function setRegionResourceFactText(
   field: 'name' | 'description',
   value: string,
 ): RegionSnapshot {
-  if (!snapshot.facts[list].some((fact) => fact.id === id)) return snapshot;
+  if (!snapshot.facts[list].some((fact) => fact.id === id && fact[field] !== value))
+    return snapshot;
   const facts = {
     ...snapshot.facts,
     [list]: snapshot.facts[list].map((fact) =>
@@ -185,6 +205,7 @@ function regionResourceRemovalIds(
   snapshot: RegionSnapshot,
   list: RegionResourceFactList,
   id: string,
+  protectHistory = true,
 ): Set<string> | null {
   if (!snapshot.facts[list].some((fact) => fact.id === id)) return null;
   const removed = new Set([id]);
@@ -214,10 +235,28 @@ function regionResourceRemovalIds(
       }
     }
   }
-  return historyAfterSourceRemoval(snapshot.history, removed) === null ? null : removed;
+  const changed = regionRemovalReviewFacts(snapshot.facts, removed);
+  return protectHistory &&
+    historyAfterSourceRemoval(snapshot.history, removed, [], changed) === null
+    ? null
+    : removed;
 }
 
-/** Query removal protection without constructing hypothetical snapshots or composing evidence. */
+/** Preview history loss/review before a source-removal confirmation. null means the source
+ * is missing or existing authored semantic facts already block the operation.
+ */
+export function getRegionResourceHistoryRemovalImpact(
+  snapshot: RegionSnapshot,
+  list: RegionResourceFactList,
+  id: string,
+) {
+  const removed = regionResourceRemovalIds(snapshot, list, id, false);
+  if (removed === null) return null;
+  const changed = regionRemovalReviewFacts(snapshot.facts, removed);
+  return historyRemovalImpact(snapshot.history, { facts: removed, reviewFacts: changed });
+}
+
+/** Query authored protection with the same retained-graph and history impact policy as removal. */
 export function canRemoveRegionResourceFact(
   snapshot: RegionSnapshot,
   list: RegionResourceFactList,
@@ -232,16 +271,18 @@ export function removeRegionResourceFact(
   id: string,
 ): RegionSnapshot {
   const removed = regionResourceRemovalIds(snapshot, list, id);
-  return removed === null
-    ? snapshot
-    : withRegionOverviewEvidence({
-        ...snapshot,
-        history: historyAfterSourceRemoval(snapshot.history, removed)!,
-        facts: removeRegionFactIds(snapshot.facts, removed),
-      });
+  if (removed === null) return snapshot;
+  const changed = regionRemovalReviewFacts(snapshot.facts, removed);
+  return withRegionOverviewEvidence({
+    ...snapshot,
+    history: historyAfterSourceRemoval(snapshot.history, removed, [], changed)!,
+    facts: removeRegionFactIds(snapshot.facts, new Set(removed)),
+  });
 }
 
+/** Shared edit finalizer for fact-backed prose and history; no generation or wording repair. */
 export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnapshot {
+  snapshot = withRegionHistoryEvidence(snapshot);
   const current = createRegionEvidenceChecker(snapshot);
   snapshot = {
     ...snapshot,

@@ -45,11 +45,17 @@ export type SettlementHistoryObservation = {
   mapNodeId: number;
 };
 export type FactHistoryObservation = { kind: 'fact'; factId: string; observed: string };
+export type HistoricalActorNameObservation = {
+  kind: 'historicalActor';
+  actorId: string;
+  name: string;
+};
 export type HistoryObservation =
   | RealmHistoryObservation
   | OrganizationHistoryObservation
   | SettlementHistoryObservation
-  | FactHistoryObservation;
+  | FactHistoryObservation
+  | HistoricalActorNameObservation;
 export type HistoryEvidence = { reason: FactReason; observations: HistoryObservation[] };
 export type HistoryConsequence = { target: HistoryPresentReference; kind: HistoryConsequenceKind };
 export type HistoryTime = { order: number; yearsBeforePresent?: number };
@@ -73,8 +79,9 @@ export type HistoricalActor = {
   origin: FactOrigin;
 };
 export type HistoryState = 'unrecorded' | 'generated' | 'authored';
+export type HistoryVersion = 1 | 2;
 export type RegionHistory = {
-  version: 1;
+  version: HistoryVersion;
   state: HistoryState;
   actors: HistoricalActor[];
   events: HistoryEvent[];

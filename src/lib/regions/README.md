@@ -753,3 +753,34 @@ and protect authored history from deletion. This is the minimum referential-inte
 needed to enable generation; full edit invalidation/authoring is #483 and reading/export UI is #484.
 Old gazetteer blocks and every upstream RNG stream retain their previous behavior. See the
 [reading examples](../../../test_fixtures/region_history_482.md) prepared for #485 editorial review.
+
+## History editing and currentness (#483)
+
+Payload 26 accepts legacy history version 1 and new version 2. New events observe historical actor
+names after naming, without additional RNG draws. Payload 25 migration preserves IDs, events and
+words exactly; no old name evidence is inferred. A missing legacy witness needs review, while an
+empty unrecorded history stays empty. See the [approved amendment](../../../docs/region-history-actor-name-evidence.md).
+
+Use `getCurrentHistoryEvents` for downstream historical support and
+`getHistoryEventsNeedingReview` for warning/inspection views on the complete stored snapshot.
+Both recheck observed current facts and causal/lifecycle prerequisites without RNG or mutable
+cross-read caches. Schema-invalid histories cannot supply current events. Authored stale text is
+still available in the saved records for the #484 presentation policy.
+
+`withRegionOverviewEvidence` now finalizes history evidence alongside existing prose evidence.
+`withRegionHistoryEvidence` is available for history-only boundaries. New source mutations must
+use these APIs; supported field setters already do. Observed changes persist stale status
+transitively, even when a relationship or claim was added rather than removed. Warnings are never
+automatically cleared when an edit is reversed.
+
+Pure history helpers edit names/descriptions and optional relative dates, rename historical actors,
+reorder stable event IDs and remove events. Text/date edits and actor renames stale their event
+dependents. Changed event fields become authored; unchanged requests return the original snapshot.
+Invalid chronology throws before a result is published. Reorders reuse existing order slots;
+removals leave gaps. Explicitly empty authored history cannot be repopulated by generation on read.
+
+Removal-impact APIs expose affected IDs before UI confirmation and share the removal closure with
+existing settlement, organization, realm and semantic-fact removals. Retained evidence requiring
+review is distinct from deleted events. Authored dependents/actors block source deletion; a selected
+authored event can be explicitly deleted while its other authored dependents remain protected.
+These reports are transient and are not new payload fields. History controls and reading remain #484.

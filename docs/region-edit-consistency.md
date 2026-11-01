@@ -64,3 +64,40 @@ The implementation changes their editing behavior without changing their shape.
 Unit tests cover field isolation, unchanged values, settlement dependency invalidation, transitive
 authored claims, immutable inputs, validation and JSON round trips, map name updates and exported
 review warnings. Existing removal tests cover generated dependency closure and authored protection.
+
+## History editing and dependency review (#483)
+
+History uses the same edit finalizer, `withRegionOverviewEvidence`, to persist review status after
+observed source changes. Realm and organization name setters, settlement edits and resource/fact
+edits preserve all history words while staling dependent events. Future structured changes to
+claims, parents, relationships or sites must pass through the same finalizer. Complete saved
+observations also detect additions to relationship/claim sets. No-op field edits retain the
+original snapshot and do not change authored origin or existing warnings.
+
+`getCurrentHistoryEvents` rechecks saved observations and transitive fact support on every read.
+Explicit causal parents and a historical actor's required founding are event dependencies; events
+that merely share a present-day target are independent. `getHistoryEventsNeedingReview` includes
+both persisted warnings and newly detected import mismatches. The queries do not rewrite or
+replenish history. Version-2 actor name observations catch imported renames; older histories keep
+their text without fabricated witnesses and review affected events. See the accepted
+[actor-name amendment](region-history-actor-name-evidence.md).
+
+History text/date edits mark the selected event authored and stale its dependents. Actor renames
+mark the actor authored and stale direct and transitive dependent events without renaming copied
+prose. Reordering retains stable IDs and existing order slots, marks moved events authored, and
+validates causal, lifecycle and date order before returning a new snapshot. Invalid dates/reorders
+throw without publishing a partial edit. Blank descriptions remain intentional; no edit clears an
+existing stale flag. Authored free prose still requires manual consistency review.
+
+`historyRemovalImpact`, event/place/resource preview helpers, and the removal operations share
+one event closure. Reports list events/actors to remove, retained events needing review, and
+protected authored work. Historical foundations also retain lifecycle edges when an imported
+record omits its explicit causal link. Source-removal previews reuse the existing semantic fact
+service on the actual retained graph, including partial-source recomputation, instead of treating
+every sibling source as lost. Source removal blocks damage to authored dependents. Explicit event
+deletion may delete that selected authored event, as resource deletion already does, but cannot
+silently delete another authored event or orphan an authored actor. Remaining order gaps persist.
+Removing every event records an authored empty chronology and does not enable regeneration.
+
+This issue supplies library APIs; the History controls, confirmations, review notices, and shared
+page/export reading are #484. Only whole-region Roll again regenerates user work.
