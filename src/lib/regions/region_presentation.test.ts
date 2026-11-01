@@ -758,3 +758,28 @@ describe('editorial introduction goldens (#423)', () => {
     ).toHaveLength(1);
   });
 });
+
+it('keeps every reported-seed settlement identifiable after authored names are edited', () => {
+  const saved = toRegionSnapshot(rollRegion('5wyedz5q272fz').region);
+  const generatedSvg = regionToMapSvg(saved);
+  for (const { snapshot: settlement } of saved.settlements)
+    expect(generatedSvg).toContain(settlement.name);
+  // Generation has evolved since the report: retain its exact names as authored edits.
+  saved.settlements[0].snapshot.name = 'Ilistair’s Folly';
+  saved.settlements[1].snapshot.name = 'Maenas';
+  saved.settlements[2].snapshot.name = 'An authored settlement ' + 'W'.repeat(120);
+  const before = structuredClone(saved);
+  const svg = regionToMapSvg(saved);
+  expect(svg).toContain('id="settlement-index"');
+  for (const { id, snapshot: settlement } of saved.settlements) {
+    expect(svg).toContain(
+      `data-feature-id="${id}" data-feature-kind="settlement" data-settlement-key=`,
+    );
+    expect(svg).toContain(
+      `data-feature-id="${id}" data-feature-kind="settlement" data-settlement-index=`,
+    );
+    expect(svg).toContain(settlement.name);
+  }
+  expect(regionToMapSvg(saved)).toBe(svg);
+  expect(saved).toEqual(before);
+});

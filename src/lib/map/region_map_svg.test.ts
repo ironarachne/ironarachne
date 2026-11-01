@@ -64,7 +64,7 @@ const MAP_LABEL_PATTERN =
 /** Every label the text layer emits: the title plus any placed settlement names. */
 function parseMapLabels(svg: string): MapLabel[] {
   const out: MapLabel[] = [];
-  for (const m of svg.matchAll(MAP_LABEL_PATTERN)) {
+  for (const m of svg.split('<g id="settlement-index"')[0].matchAll(MAP_LABEL_PATTERN)) {
     out.push({
       x: Number(m[1]),
       baselineY: Number(m[2]),
@@ -903,7 +903,7 @@ describe('buildRegionMapSvgString', () => {
     },
   );
 
-  it('drops impossible names and contains long titles and edge labels', () => {
+  it('indexes impossible names and contains long titles and edge labels', () => {
     const map: RegionMap = {
       width: 20,
       height: 12,
@@ -922,15 +922,20 @@ describe('buildRegionMapSvgString', () => {
         { mapNodeId: 0, name: 'W'.repeat(500), population: 100000 },
       ],
     });
-    expect(svg).not.toContain('W'.repeat(500));
+    expect(svg).toContain('W'.repeat(500));
+    expect(svg).toContain('id="settlement-index"');
     const labels = parseMapLabels(svg);
-    expect(labels).toHaveLength(3);
+    expect(labels.length).toBeGreaterThanOrEqual(3);
+    const [vx, vy, vw, vh] = svg
+      .match(/viewBox="([^"]+)"/)![1]
+      .split(' ')
+      .map(Number);
     for (const label of labels) {
       const box = labelBox(label);
-      expect(box.minX).toBeGreaterThanOrEqual(-0.001);
-      expect(box.minY).toBeGreaterThanOrEqual(-0.001);
-      expect(box.maxX).toBeLessThanOrEqual(map.width + 0.001);
-      expect(box.maxY).toBeLessThanOrEqual(map.height + 0.001);
+      expect(box.minX).toBeGreaterThanOrEqual(vx - 0.001);
+      expect(box.minY).toBeGreaterThanOrEqual(vy - 0.001);
+      expect(box.maxX).toBeLessThanOrEqual(vx + vw + 0.001);
+      expect(box.maxY).toBeLessThanOrEqual(vy + vh + 0.001);
     }
   });
 

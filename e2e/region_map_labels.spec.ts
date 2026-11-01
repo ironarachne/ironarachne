@@ -30,6 +30,8 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
           ),
         ].map((marker) => marker.getBBox());
         const labels = [...root.querySelectorAll<SVGTextElement>('text[data-text-box]')];
+        // Indexed exports append their reference text after the map's title layer.
+        const titleText = [...root.querySelectorAll('#map-text text[data-text-box]')].at(-1);
         const errors: string[] = [];
         const icons = [...root.querySelectorAll<SVGGraphicsElement>('[data-settlement-icon]')];
         if (!icons.length) errors.push('Missing settlement building clusters');
@@ -109,7 +111,7 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
           }
         }
         if (labels.length < 2) errors.push('Expected a title and settlement labels');
-        for (const [index, text] of labels.entries()) {
+        for (const text of labels) {
           const bounds = text.getAttribute('data-text-box')!.split(' ').map(Number);
           const actual = text.getBBox();
           for (const marker of markers) {
@@ -137,7 +139,7 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
           )
             errors.push(`Text leaves viewBox: ${text.textContent}`);
           if (
-            index < labels.length - 1 &&
+            text !== titleText &&
             bounds[0] < panelBox.x + panelBox.width &&
             bounds[2] > panelBox.x &&
             bounds[1] < panelBox.y + panelBox.height &&
