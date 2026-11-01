@@ -76,7 +76,10 @@ describe('region affiliation', () => {
       expect(roll('neighbor-isolation', affiliation, true)).toEqual(withNeighbors);
       expect(withNeighbors.realms.length).toBeGreaterThan(without.realms.length);
       expect(withNeighbors.realms.slice(0, without.realms.length)).toEqual(without.realms);
-      expect({ ...withNeighbors, realms: without.realms }).toEqual(without);
+      expect(withNeighbors.realmIds.slice(0, without.realmIds.length)).toEqual(without.realmIds);
+      expect({ ...withNeighbors, realms: without.realms, realmIds: without.realmIds }).toEqual(
+        without,
+      );
       for (const realm of withNeighbors.realms) {
         expect(
           realm.parent === -1 || (realm.parent >= 0 && realm.parent < withNeighbors.realms.length),

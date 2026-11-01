@@ -1,3 +1,5 @@
+import type { RegionHistory } from './region_history_types';
+import { emptyRegionHistory, initialRegionRealmIds } from './region_realm_identity';
 import type { RegionGazetteer } from './region_editorial_types';
 /**
  * Writing a region for storage. Reading one back is `region_rehydrate.ts`.
@@ -62,6 +64,8 @@ export type RegionSnapshot = {
   affiliation: RegionAffiliation;
   mainRealm: number | null;
   realms: StoredRealm[];
+  realmIds: string[];
+  history: RegionHistory;
   authority: StoredCharacter | null;
   organizations: StoredOrganization[];
   map: RegionMap;
@@ -126,6 +130,8 @@ export function toRegionSnapshot(
     facts: region.facts ?? emptyRegionFacts('current'),
     mainRealm: region.mainRealm,
     realms: region.realms.map(toStoredRealm),
+    realmIds: region.realmIds ?? initialRegionRealmIds(region.realms.length),
+    history: region.history ?? emptyRegionHistory(),
     authority: region.authority === null ? null : toStoredCharacter(region.authority),
     organizations: region.organizations.map((organization) => toStoredOrganization(organization)),
     map: region.map,

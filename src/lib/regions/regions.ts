@@ -1,3 +1,4 @@
+import { initialRegionRealmIds, emptyRegionHistory } from './region_realm_identity';
 import { generateRegionArchitecture } from './region_architecture';
 import { generateManagedProduction, finalizeResourceInventory } from './region_managed_production';
 import { generateDenseForestFacts, generateDenseForestLandmark } from './region_dense_forests';
@@ -349,6 +350,8 @@ export function generate(config: RegionGeneratorConfig): Region {
   generateRegionIdentity(region, createRegionStageRng(seed, 'regional-identity'));
   generateRegionGazetteer(region, createRegionStageRng(seed, 'gazetteer-editorial'));
   addNeighborsToRegion(region, stageConfig('neighbors'));
+  region.realmIds = initialRegionRealmIds(region.realms.length);
+  region.history = emptyRegionHistory();
   return region;
 }
 
