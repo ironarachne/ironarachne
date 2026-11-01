@@ -15,6 +15,8 @@ code to make an upstream regression pass. Future history generation must preserv
 The baseline was serialized on macOS with Node 22; CI uses Linux with Node 24. The cross-runtime
 comparison uses JSON serialization (omitting undefined fields and normalizing negative zero),
 then allows at most four scaled machine epsilons for floating-point numbers and their numeric
-map-node elevation/temperature/moisture observations. Integer identities/counts, text, object
+map-node elevation/temperature/moisture observations. Interpolated river `waterWidth` values allow
+eight scaled epsilons: local Node 24 reproduction identified roughly five epsilons of accumulated
+distance/interpolation roundoff compared with Node 22. Integer identities/counts, text, object
 membership and array order remain exact. Same-runtime seeded reproducibility remains an exact
 comparison. Sensitivity tests ensure changes beyond numerical roundoff still fail.

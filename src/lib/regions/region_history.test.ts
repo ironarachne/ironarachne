@@ -71,13 +71,15 @@ const history = (...events: HistoryEvent[]): RegionHistory => ({
 // Math-library rounding can differ by a few machine epsilons. Normalize JSON-only
 // omissions first, then tolerate that roundoff without changing strings, integers or order.
 function portableBaseline(actual: unknown, expected: unknown): unknown {
-  const close = (a: number, b: number) =>
+  const close = (a: number, b: number, epsilons = 4) =>
     Number.isFinite(a) &&
     Number.isFinite(b) &&
-    Math.abs(a - b) <= 4 * Number.EPSILON * Math.max(1, Math.abs(a), Math.abs(b));
-  const align = (a: unknown, b: unknown): unknown => {
+    Math.abs(a - b) <= epsilons * Number.EPSILON * Math.max(1, Math.abs(a), Math.abs(b));
+  // River widths accumulate Math.hypot and interpolation roundoff; Node 24
+  // differs from the baseline by about five epsilons at unit scale.
+  const align = (a: unknown, b: unknown, field = ''): unknown => {
     if (typeof a === 'number' && typeof b === 'number')
-      return !Number.isInteger(b) && close(a, b) ? b : a;
+      return !Number.isInteger(b) && close(a, b, field === 'waterWidth' ? 8 : 4) ? b : a;
     if (Array.isArray(a))
       return a.map((entry, index) => align(entry, Array.isArray(b) ? b[index] : undefined));
     if (a === null || typeof a !== 'object' || b === null || typeof b !== 'object') return a;
@@ -98,7 +100,7 @@ function portableBaseline(actual: unknown, expected: unknown): unknown {
           close(Number(value), Number(baseline[key]))
         )
           return [key, baseline[key]];
-        return [key, align(value, baseline[key])];
+        return [key, align(value, baseline[key], key)];
       }),
     );
   };
@@ -131,6 +133,19 @@ describe('history foundation persistence and upstream compatibility', () => {
       { ...rounded, source: { ...rounded.source, property: 'biomeId' } },
     ])
       expect(portableBaseline(changed, baseline)).not.toEqual(baseline);
+  });
+  it('handles the observed Node 24 river-width rounding while rejecting larger changes', () => {
+    for (const [actual, expected] of [
+      [0.05388742314701832, 0.05388742314701937],
+      [0.05274520091527091, 0.05274520091527197],
+    ]) {
+      expect(portableBaseline({ waterWidth: actual }, { waterWidth: expected })).toEqual({
+        waterWidth: expected,
+      });
+      expect(
+        portableBaseline({ waterWidth: actual + 1e-12 }, { waterWidth: expected }),
+      ).not.toEqual({ waterWidth: expected });
+    }
   });
   it('uses payload 25 without changing facts or gazetteer schemas', () => {
     expect(REGION_PAYLOAD_VERSION).toBe(25);
