@@ -1,4 +1,6 @@
 import type { RNG } from '@ironarachne/rng';
+import type { NarrativeCandidate } from '$lib/narrative';
+import type { OrganizationReadingSubject } from './organization_reading_types';
 import type { Environment } from '$lib/environment';
 import type {
   LabeledOrgFacet,
@@ -11,8 +13,10 @@ import type {
 
 type OrgArchetype = {
   id: string;
-  /** Template with `{name}` placeholder. */
+  /** Uses an explicit singular subject, independent of the proper name. */
   hook: string;
+  purpose: string;
+  tension: string;
   personalityTraits: LabeledOrgFacet[];
   goal: LabeledOrgFacet;
   weakness: LabeledOrgFacet;
@@ -29,7 +33,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'vicious',
-        hook: '{name} is a vicious mercenary company with a reputation for excessive violence.',
+        purpose: 'intimidate rivals into compliance',
+        tension: 'The company often exceeds the violence a contract calls for.',
+        hook: '{subject} is a vicious mercenary company with a reputation for excessive violence.',
         personalityTraits: [
           facet('ruthless', 'ruthless in pursuit of victory'),
           facet('fearsome', 'fearsome in the field'),
@@ -40,7 +46,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'professional',
-        hook: '{name} is a merc company that prides itself on its professionalism and integrity.',
+        purpose: 'protect its reputation for reliable service',
+        tension: 'The company sticks to rigid methods even when a softer approach would work.',
+        hook: '{subject} is a merc company that prides itself on its professionalism and integrity.',
         personalityTraits: [
           facet('methodical', 'methodical in planning'),
           facet('discreet', 'discreet with employers'),
@@ -54,7 +62,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'reliable_riot',
-        hook: '{name}, as mercenaries go, are pretty reliable, though their celebrations are infamous.',
+        purpose: 'secure its next contract and its next cask of wine',
+        tension: 'Its members lose discipline as soon as the fighting stops.',
+        hook: '{subject} is reliable on the job, though its members are infamous for their celebrations.',
         personalityTraits: [
           facet('dependable', 'dependable on a timeline'),
           facet('loud', 'loud after the coin lands'),
@@ -70,7 +80,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'quality',
-        hook: 'The {name} is noted for the quality of their goods.',
+        purpose: 'keep premium prices for trusted goods',
+        tension: 'The company is slow to drop goods that have fallen out of fashion.',
+        hook: '{subject} is noted for the quality of its goods.',
         personalityTraits: [
           facet('meticulous', 'meticulous about provenance'),
           facet('cautious', 'cautious with debt'),
@@ -84,7 +96,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'reliable_routes',
-        hook: 'The {name} has a reputation for always delivering goods to their intended destination.',
+        purpose: 'deliver reliably against strict deadlines',
+        tension: 'The company resists detours even when that costs goodwill.',
+        hook: '{subject} has a reputation for always delivering goods to the intended destination.',
         personalityTraits: [
           facet('punctual', 'punctual on caravans'),
           facet('tight_lipped', 'tight-lipped about routes'),
@@ -98,7 +112,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'shady',
-        hook: 'The {name} appears reputable on the surface, but is rumored to be involved in underhanded dealings.',
+        purpose: 'place people who owe it favors in influential positions',
+        tension: 'The company relies too heavily on blackmail and quiet threats.',
+        hook: '{subject} appears reputable on the surface, but is rumored to be involved in underhanded dealings.',
         personalityTraits: [
           facet('two_faced', 'careful in public, calculating in private'),
           facet('shrewd', 'shrewd with tariffs and favors'),
@@ -109,7 +125,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'rough',
-        hook: 'The {name} often openly uses bullying and strong-arming in their dealings.',
+        purpose: 'control routes before rivals can undercut it',
+        tension: 'Its bullying creates vendettas that last beyond a trading season.',
+        hook: '{subject} often openly uses bullying and strong-arming in its dealings.',
         personalityTraits: [
           facet('intimidating', 'intimidating to smaller traders'),
           facet('pragmatic', 'pragmatic about paperwork'),
@@ -123,7 +141,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'variety',
-        hook: 'The {name} deals in a wide variety of goods.',
+        purpose: 'build many small markets from a broad catalog',
+        tension: 'The company lacks depth when a customer needs specialist knowledge.',
+        hook: '{subject} deals in a wide variety of goods.',
         personalityTraits: [
           facet('diverse', 'eclectic in inventory'),
           facet('networked', 'connected in many markets'),
@@ -139,7 +159,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'apprentice',
-        hook: '{name} is known for its patterned goods and long apprenticeships.',
+        purpose: 'pass unwritten weaving recipes to new apprentices',
+        tension: "The collective's secrecy invites rumors.",
+        hook: '{subject} is known for its patterned goods and long apprenticeships.',
         personalityTraits: [
           facet('patient', 'patient with the loom'),
           facet('proud', 'proud of family patterns'),
@@ -153,7 +175,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'dye_secrets',
-        hook: 'Some merchants who deal with {name} never ask where the dyes really come from.',
+        purpose: 'build a reputation for colors rivals cannot copy',
+        tension: 'Its ties to dye suppliers could embarrass the collective.',
+        hook: 'Some merchants who deal with {subject} never ask where the dyes really come from.',
         personalityTraits: [
           facet('secretive', 'secretive with dye books'),
           facet('fierce', 'fierce about color fastness'),
@@ -164,7 +188,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'communal',
-        hook: '{name} runs communal looms; outsiders pay double for the same thread.',
+        purpose: 'keep thread and profit within the collective',
+        tension: 'The collective opens its doors only to kin and sponsored newcomers.',
+        hook: '{subject} runs communal looms; outsiders pay double for the same thread.',
         personalityTraits: [
           facet('communal', 'communal in production'),
           facet('sharp', 'sharp on pricing for strangers'),
@@ -175,7 +201,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'dyers_paper',
-        hook: '{name} trains dyers to keep secret recipes off paper.',
+        purpose: 'protect its dye recipes as trade secrets',
+        tension: 'A single elder forgetting a step could mean losing a recipe.',
+        hook: '{subject} trains dyers to keep secret recipes off paper.',
         personalityTraits: [
           facet('disciplined', 'disciplined in oral tradition'),
           facet('cunning', 'cunning in contracts'),
@@ -194,7 +222,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'oaths',
-        hook: '{name} marks oaths and letters with a single, unmistakable round seal.',
+        purpose: 'make its seal the authority courts trust',
+        tension: "The circle's rigid ceremonies frustrate people in a hurry.",
+        hook: '{subject} marks oaths and letters with a single, unmistakable round seal.',
         personalityTraits: [
           facet('formal', 'formal in ceremony'),
           facet('uncompromising', 'uncompromising about a clean impression'),
@@ -205,7 +235,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'brass_dies',
-        hook: '{name} keeps its sigil on brass dies, never in paint alone.',
+        purpose: 'defeat forgery through the craft and weight of its seals',
+        tension: 'Its brass dies are difficult to move in danger.',
+        hook: '{subject} keeps its sigil on brass dies, never in paint alone.',
         personalityTraits: [
           facet('material', 'insistent on physical seals'),
           facet('proud', 'proud of weight and ring'),
@@ -216,7 +248,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'trade_courts',
-        hook: '{name} meets under modest roofs but speaks with old authority in trade courts.',
+        purpose: 'use legal precedent to settle new trade agreements',
+        tension: "The circle's insularity baffles ordinary traders.",
+        hook: '{subject} meets under modest roofs but speaks with old authority in trade courts.',
         personalityTraits: [
           facet('understated', 'understated in dress'),
           facet('learned', 'learned in precedent'),
@@ -227,7 +261,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'initiates',
-        hook: '{name} teaches initiates the difference between a mark and a blazon.',
+        purpose: 'keep heraldic literacy alive beyond noble halls',
+        tension: 'The circle insists on distinctions the wider world does not always respect.',
+        hook: '{subject} teaches initiates the difference between a mark and a blazon.',
         personalityTraits: [
           facet('pedagogical', 'patient with students'),
           facet('stern', 'stern on sloppy strokes'),
@@ -243,7 +279,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'hidden',
-        hook: '{name} is a hidden wizard school that avoids contact with the outside world.',
+        purpose: 'keep dangerous magical knowledge from unprepared minds',
+        tension: 'The school has become an echo chamber for dangerous theories.',
+        hook: '{subject} is a hidden wizard school that avoids contact with the outside world.',
         personalityTraits: [
           facet('reclusive', 'reclusive in policy'),
           facet('guarded', 'guarded in correspondence'),
@@ -254,7 +292,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'noble',
-        hook: '{name} is a proud institution whose students primarily come from the nobility.',
+        purpose: 'place its alumni on thrones and in ministries',
+        tension: 'The school overlooks talent that cannot pay its fees.',
+        hook: '{subject} is a proud institution whose students primarily come from the nobility.',
         personalityTraits: [
           facet('hierarchical', 'hierarchical in seating'),
           facet('groomed', 'groomed for pageantry'),
@@ -265,7 +305,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'experimentation',
-        hook: 'There are rumors that {name} sometimes experiments in ways that worry even its own faculty.',
+        purpose: 'achieve breakthroughs at any cost its charter allows',
+        tension: 'A containment accident could bring scandal to the school.',
+        hook: 'There are rumors that {subject} sometimes experiments in ways that worry even its own faculty.',
         personalityTraits: [
           facet('inquisitive', 'restlessly inquisitive'),
           facet('ruthless', 'ruthless in ethical lines'),
@@ -276,7 +318,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'egalitarian',
-        hook: '{name} is an egalitarian wizard school that accepts new students from every walk of life.',
+        purpose: 'prove that magical genius is not confined to noble bloodlines',
+        tension: "Funding and political pressure repeatedly test the school's open admissions.",
+        hook: '{subject} is an egalitarian wizard school that accepts new students from every walk of life.',
         personalityTraits: [
           facet('open', 'open in admissions once talent appears'),
           facet('loud', 'loud in debate'),
@@ -292,21 +336,25 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'alms',
-        hook: '{name} marches in glittering processions, collecting tithes and distributing alms in equal measure.',
+        purpose: "protect the church's reputation and feed the poor",
+        tension: "The order's ceremonial pomp distracts from decay within the institution.",
+        hook: '{subject} marches in glittering processions, collecting tithes and distributing alms in equal measure.',
         personalityTraits: [
           facet('ceremonial', 'ceremonial in public'),
           facet('orderly', 'orderly in ledgers of mercy'),
         ],
-        goal: facet('souls', 'saving face for the church and bread for the poor'),
+        goal: facet('souls', 'protecting the church’s reputation and feeding the poor'),
         weakness: facet('pomp', 'pomp that distracts from rot in the vestry'),
         publicStanding: facet(
           'beloved_suspected',
-          'beloved in market squares, analyzed in taverns',
+          'beloved in market squares, viewed with suspicion in taverns',
         ),
       },
       {
         id: 'inquisition_mercy',
-        hook: '{name} is whispered to hunt heretics in the night while publicly preaching mercy.',
+        purpose: 'bring every soul in the kingdom to its faith',
+        tension: 'The order is divided over what mercy permits.',
+        hook: '{subject} is whispered to hunt heretics in the night while publicly preaching mercy.',
         personalityTraits: [
           facet('zealous', 'zealous in doctrine'),
           facet('strategic', 'strategic in silence'),
@@ -317,7 +365,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'relics',
-        hook: '{name} keeps ancient relics in vaults the laity are forbidden to see.',
+        purpose: 'keep the power of its relics safely contained',
+        tension: 'Some acolytes would trade their piety for a glimpse of the guarded relics.',
+        hook: '{subject} keeps ancient relics in vaults the laity are forbidden to see.',
         personalityTraits: [
           facet('custodial', 'devoted to guarded objects'),
           facet('hierarchical', 'hierarchical in who may approach'),
@@ -328,7 +378,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'poor_fearful',
-        hook: '{name} is beloved by the poor and feared by the powerful in equal measure.',
+        purpose: 'make the palace answer for the suffering of the poor',
+        tension: 'Powerful opponents are quietly looking for a pretext to break the order.',
+        hook: '{subject} is beloved by the poor and feared by the powerful in equal measure.',
         personalityTraits: [
           facet('charitable', 'charitable in street kitchens'),
           facet('challenging', 'challenging in sermons to the gilded'),
@@ -347,7 +399,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'stone_rings',
-        hook: '{name} convenes at stone rings older than the oldest kingdoms.',
+        purpose: 'bind communities to covenants that outlast kingdoms',
+        tension: 'The circle responds slowly to crises in cities.',
+        hook: '{subject} convenes at stone rings older than the oldest kingdoms.',
         personalityTraits: [
           facet('ancient', 'grounded in old places'),
           facet('intolerant', 'intolerant of casual trespass'),
@@ -361,7 +415,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'rangers',
-        hook: 'Rangers trust {name} with secrets; most merchants find them a hard neighbor.',
+        purpose: 'protect boundaries that outsiders do not recognize',
+        tension: 'The circle refuses payment from those it associates with forest destruction.',
+        hook: 'Rangers trust {subject} with secrets; most merchants find the circle a difficult neighbor.',
         personalityTraits: [
           facet('wild', 'wild in sympathy'),
           facet('suspicious', 'suspicious of axes and plows'),
@@ -375,7 +431,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'rivers_roots',
-        hook: '{name} speaks for rivers and roots with equal authority.',
+        purpose: 'teach communities that rivers and fields depend on each other',
+        tension: 'Its allies want slogans rather than the slow work of repair.',
+        hook: '{subject} speaks for rivers and roots with equal authority.',
         personalityTraits: [
           facet('holistic', 'refusing to split water from loam in judgment'),
           facet('fierce', 'fierce when a spring is for sale'),
@@ -392,7 +450,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'rites',
-        hook: '{name} keeps the old rites, even when the cities forget their names.',
+        purpose: 'keep old rituals alive as living practices',
+        tension: "Fewer people learn the circle's ritual songs with each generation.",
+        hook: '{subject} keeps the old rites, even when the cities forget their names.',
         personalityTraits: [
           facet('stubborn', 'stubborn in calendar'),
           facet('literate', 'literate in songs instead of text'),
@@ -408,7 +468,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'bloodline',
-        hook: '{name} answers only to the bloodline that feeds it.',
+        purpose: 'ensure its bloodline outlasts its rivals',
+        tension: 'The house excludes talented people who lack the right family name.',
+        hook: '{subject} answers only to the bloodline that feeds it.',
         personalityTraits: [
           facet('loyal', 'loyal to a name above a code'),
           facet('hierarchical', 'hierarchical in every nod'),
@@ -422,7 +484,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'courtyard',
-        hook: '{name} drills in the courtyard while poets compose ballads in their name.',
+        purpose: 'make its family a legend others will risk their lives for',
+        tension: 'Its members would rather die for honor than retreat.',
+        hook: '{subject} drills in the courtyard while poets compose ballads in its name.',
         personalityTraits: [
           facet('performative', 'performative in steel'),
           facet('proud', 'proud in pennants'),
@@ -436,7 +500,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'hedge',
-        hook: '{name} is a hedge against rivals who would prefer the line extinct.',
+        purpose: 'make attacks on its bloodline too costly to attempt',
+        tension: 'The house sustains feuds long after the original affront.',
+        hook: '{subject} is a hedge against rivals who would prefer the line extinct.',
         personalityTraits: [
           facet('paranoid', 'sensible paranoia in treaties'),
           facet('sharp', 'sharp in the lists'),
@@ -450,7 +516,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'proud',
-        hook: '{name} is expensive, proud, and unfailing in public.',
+        purpose: 'outshine rival houses in public',
+        tension: "The house's reputation protects it only while no cracks show.",
+        hook: '{subject} is expensive, proud, and unfailing in public.',
         personalityTraits: [
           facet('proud', 'proud in every receipt'),
           facet('punctilious', 'punctilious in appearances'),
@@ -469,7 +537,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'eyes',
-        hook: 'Stories say {name} has eyes in every back room of the city.',
+        purpose: 'gather information before the guard can buy it',
+        tension: "The guild's trade in rumors can turn against it over a bad debt.",
+        hook: 'Stories say {subject} has eyes in every back room of the city.',
         personalityTraits: [
           facet('networked', 'networked in alleys and kitchens'),
           facet('invisible', 'careful in what name they leave'),
@@ -480,7 +550,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'cruel',
-        hook: '{name} is said to steal from the cruel and corrupt—or at least that is the version told in public.',
+        purpose: 'turn its reputation for justice into freedom to steal',
+        tension: 'The guild risks exposure when its members steal from the poor.',
+        hook: '{subject} is said to steal from the cruel and corrupt—or at least that is the version told in public.',
         personalityTraits: [
           facet('cynical', 'cynical about altruism in their line'),
           facet('agile', 'agile in alibis'),
@@ -494,7 +566,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'racket',
-        hook: '{name} runs protection with one hand and quiet charity with the other.',
+        purpose: 'control streets that the law neglects',
+        tension: 'The guild risks uniting the city against its rackets.',
+        hook: '{subject} runs protection with one hand and quiet charity with the other.',
         personalityTraits: [
           facet('pragmatic', 'pragmatic about which sin funds which virtue'),
           facet('muscular', 'muscular in collection'),
@@ -508,7 +582,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'rumor',
-        hook: '{name} is more rumor than institution, and that suits them well.',
+        purpose: 'profit from a balance of fear and curiosity',
+        tension: "The guild's reliance on myth leaves it little legal protection when cornered.",
+        hook: '{subject} is more rumor than institution, and that suits the guild well.',
         personalityTraits: [
           facet('mysterious', 'mysterious by policy'),
           facet('entertaining', 'entertaining in the tale'),
@@ -527,7 +603,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'blockades',
-        hook: '{name} negotiates in boardrooms and blockades with the same cold patience.',
+        purpose: 'outperform its rivals in every jurisdiction',
+        tension: 'The division ignores problems it cannot yet measure.',
+        hook: '{subject} negotiates in boardrooms and blockades with the same cold patience.',
         personalityTraits: [
           facet('patient', 'patient in process'),
           facet('ruthless', 'ruthless in leverage'),
@@ -538,18 +616,22 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'unforgiving',
-        hook: '{name} is the polite face of a parent company that will not forgive a missed quarter.',
+        purpose: 'maintain relentless annual growth',
+        tension: "Aggressive hiring conceals the division's difficulty retaining staff.",
+        hook: '{subject} is the polite face of a parent company that will not forgive a missed quarter.',
         personalityTraits: [
           facet('polished', 'polished in public statements'),
           facet('cruel', 'cruel in internal reviews'),
         ],
-        goal: facet('growth', 'infinite year-on-year, or heads roll'),
+        goal: facet('growth', 'relentless annual growth'),
         weakness: facet('churn', 'retention problems masked by aggressive hiring'),
         publicStanding: facet('dread_employees', 'a badge to wear, a shiver in the canteen'),
       },
       {
         id: 'vertical',
-        hook: '{name} is tasked with a vertical no rival has cracked yet; failures vanish from the org chart.',
+        purpose: 'secure a patent and fleet that rivals cannot bypass',
+        tension: "The division's isolated specialists struggle with wider emergencies.",
+        hook: '{subject} is tasked with a vertical no rival has cracked yet; failures vanish from the org chart.',
         personalityTraits: [
           facet('ambitious', 'hungry for first mover advantage'),
           facet('sterile', 'sterile in empathy'),
@@ -563,7 +645,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'labor_law',
-        hook: '{name} has outbid multiple worlds for a narrow lease on local labor law.',
+        purpose: 'make its control of labor law an accepted custom',
+        tension: "Public resentment focuses on the division's visible representatives.",
+        hook: '{subject} has outbid multiple worlds for a narrow lease on local labor law.',
         personalityTraits: [
           facet('legalistic', 'legalistic in fine print'),
           facet('arrogant', 'arrogant in footprint'),
@@ -579,7 +663,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'policy',
-        hook: '{name} writes policy on napkins and enforces it with contractors.',
+        purpose: "keep control of the dome's air-bill politics",
+        tension: 'The syndicate changes its rules to suit the latest decision.',
+        hook: '{subject} writes policy on napkins and enforces it with contractors.',
         personalityTraits: [
           facet('improvisational', 'fast with rules'),
           facet('muscular', 'muscular in enforcement'),
@@ -590,7 +676,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'hoa',
-        hook: 'Depending on who asks, {name} is either a homeowners body or a black market, often both.',
+        purpose: 'collect fees from legal and illegal trade alike',
+        tension: 'The syndicate could face a united populace.',
+        hook: 'Depending on who asks, {subject} is either a homeowners body or a black market, often both.',
         personalityTraits: [
           facet('duplicitous', 'two faces, one keycard'),
           facet('savvy', 'savvy in fees'),
@@ -601,7 +689,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'air',
-        hook: '{name} securitizes every breath of air; late fees have real teeth here.',
+        purpose: 'charge subscriptions for breathable air',
+        tension: 'A cracked seal could turn resentment of the syndicate into a riot.',
+        hook: '{subject} securitizes every breath of air; late fees have real teeth here.',
         personalityTraits: [
           facet('extractive', 'extractive in calm voices'),
           facet('bureaucratic', 'bureaucratic in oxygen'),
@@ -615,7 +705,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'referendum',
-        hook: '{name} is building a world one referendum and one bribe at a time.',
+        purpose: 'expand its jurisdiction to encompass every vice',
+        tension: "The syndicate's constant voting stalls its work.",
+        hook: '{subject} is building a world one referendum and one bribe at a time.',
         personalityTraits: [
           facet('political', 'political in hallways and tunnels'),
           facet('cunning', 'cunning in compromise'),
@@ -631,7 +723,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'decode',
-        hook: '{name} publishes in journals most species cannot decode without help.',
+        purpose: 'advance research faster than regulators can follow',
+        tension: 'Its funders demand headlines before the proofs are ready.',
+        hook: '{subject} publishes in journals most species cannot decode without help.',
         personalityTraits: [
           facet('alien_leaning', 'at home with strange notation'),
           facet('proud', 'proud in impact factors'),
@@ -642,7 +736,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'citations',
-        hook: '{name} runs grant seasons like harvests, with citation counts as the weather report.',
+        purpose: 'secure a leading place in academic rankings',
+        tension: 'The institute risks following fashionable research into a dead end.',
+        hook: '{subject} runs grant seasons like harvests, with citation counts as the weather report.',
         personalityTraits: [
           facet('competitive', 'competitive in lab coats'),
           facet('networked', 'networked in review boards'),
@@ -656,7 +752,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'trust',
-        hook: '{name} is funded by a trust that predates the last three local governments on this rock.',
+        purpose: 'preserve knowledge beyond the life of any government',
+        tension: "The institute's independence lets it pursue work no one wants to hear about.",
+        hook: '{subject} is funded by a trust that predates the last three local governments on this rock.',
         personalityTraits: [
           facet('independent', 'independent in charter'),
           facet('eccentric', 'eccentric in taste'),
@@ -667,7 +765,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'bunker',
-        hook: '{name} is half a university, half a bunker, and the tours end at a painted door.',
+        purpose: 'produce findings more valuable in secret than in public',
+        tension: 'The institute keeps a troubling containment incident out of its tours.',
+        hook: '{subject} is half a university, half a bunker, and the tours end at a painted door.',
         personalityTraits: [
           facet('secretive', 'careful in what visitors may photograph'),
           facet('daring', 'daring in sublevels'),
@@ -686,7 +786,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'customs',
-        hook: '{name} can land where customs is only a polite suggestion.',
+        purpose: 'carry cargo that stays off official ledgers',
+        tension: 'A thorough patrol inspection could expose the outfit.',
+        hook: '{subject} can land where customs is only a polite suggestion.',
         personalityTraits: [
           facet('bold', 'bold on approach vectors'),
           facet('polite', 'polite in bribes phrased as tips'),
@@ -700,7 +802,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'grain_genes',
-        hook: '{name} moves grain, genes, and guilt with the same hold manifest.',
+        purpose: 'fill every available cubic meter with paying cargo',
+        tension: 'One mislabeled crate could end a run.',
+        hook: '{subject} moves grain, genes, and guilt with the same hold manifest.',
         personalityTraits: [
           facet('pragmatic', 'pragmatic about cargo categories'),
           facet('cynical', 'cynical about customs oaths'),
@@ -711,7 +815,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'docking_fee',
-        hook: '{name} is honest about nothing except the docking fee.',
+        purpose: 'win repeat business from customers who avoid questions',
+        tension: 'A rival can undercut the one price the outfit openly publishes.',
+        hook: '{subject} is honest about nothing except the docking fee.',
         personalityTraits: [
           facet('candid', 'candid about price'),
           facet('slippery', 'slippery about origin'),
@@ -722,7 +828,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'family_bounty',
-        hook: '{name} is family until the bounty clears—then the family gets smaller.',
+        purpose: 'keep its crew wealthy enough to overlook old grudges',
+        tension: "Its members' blood oaths can fail when a bounty is high enough.",
+        hook: '{subject} is family until the bounty clears—then the family gets smaller.',
         personalityTraits: [
           facet('clannish', 'clannish on the deck'),
           facet('ruthless', 'ruthless when the heat lands'),
@@ -738,7 +846,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'credits_silence',
-        hook: '{name} contracts in stellar credits and hard silence.',
+        purpose: 'finish every job with payment rather than a tribunal',
+        tension: 'Clients sometimes demand heroics beyond the contract.',
+        hook: '{subject} contracts in stellar credits and hard silence.',
         personalityTraits: [
           facet('professional', 'professional in contract text'),
           facet('terse', 'terse in combat after'),
@@ -752,7 +862,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'iff',
-        hook: '{name} has no flag but their IFF tags say enough.',
+        purpose: 'make its callsign enough to end a pursuit',
+        tension: 'A forged identification signal could implicate an innocent vessel.',
+        hook: '{subject} has no flag but its IFF tags say enough.',
         personalityTraits: [
           facet('cryptic', 'cryptic in branding'),
           facet('lethal', 'lethal when the tag is questioned'),
@@ -763,7 +875,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'regime_survivor',
-        hook: '{name} survived three regime changes; pay on time and they stay boring.',
+        purpose: 'outlast governments that neglect to pay',
+        tension: "The outfit's reputation follows its ships across political borders.",
+        hook: '{subject} survived three regime changes; pay on time and the outfit stays reliable.',
         personalityTraits: [
           facet('adaptable', 'adaptable in allegiance'),
           facet('loyal', 'loyal to coin first'),
@@ -777,7 +891,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'licensed',
-        hook: '{name} is licensed on six worlds and wanted on a seventh.',
+        purpose: 'play competing jurisdictions against each other for room to work',
+        tension: 'A vote to harmonize warrants could expose the outfit to extradition.',
+        hook: '{subject} is licensed on six worlds and wanted on a seventh.',
         personalityTraits: [
           facet('legalistic', 'clever with papers'),
           facet('bold', 'bold where local law ends'),
@@ -796,7 +912,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
     [
       {
         id: 'simulators',
-        hook: '{name} has simulators that smell like ozone and old coffee.',
+        purpose: 'keep its wing ready to launch and win even when exhausted',
+        tension: 'Poor funding decisions trade simulator practice against time in actual ships.',
+        hook: '{subject} has simulators that smell like ozone and old coffee.',
         personalityTraits: [
           facet('drilled', 'relentlessly drilled'),
           facet('weary', 'weary in a good way'),
@@ -810,7 +928,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'kill_marks',
-        hook: '{name} paints kill marks where chaplains cannot see from the pews.',
+        purpose: 'build a combat record that discourages the next opponent',
+        tension: 'Young pilots mistake simulator experience for combat experience.',
+        hook: '{subject} paints kill marks where chaplains cannot see from the pews.',
         personalityTraits: [
           facet('fatalistic', 'fatalistic about vacuum'),
           facet('proud', 'proud in tally'),
@@ -821,7 +941,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'hull_time',
-        hook: '{name} rotates hull time like farmers rotate fields.',
+        purpose: 'keep aging ships dangerous beyond their expected service life',
+        tension: 'Metal fatigue can defeat that maintenance during a live intercept.',
+        hook: '{subject} rotates hull time like farmers rotate fields.',
         personalityTraits: [
           facet('methodical', 'methodical in maintenance'),
           facet('thrifty', 'thrifty with spall'),
@@ -832,7 +954,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
       },
       {
         id: 'understrength',
-        hook: '{name} is understrength on paper, lethal in vacuum.',
+        purpose: 'win fights that its recorded strength suggests it should lose',
+        tension: 'The squadron has no reserves if a single skirmish goes badly.',
+        hook: '{subject} is understrength on paper, lethal in vacuum.',
         personalityTraits: [facet('lean', 'lean in headcount'), facet('sharp', 'sharp in vector')],
         goal: facet('punch_above', 'making an admiral’s spreadsheet lie about tonnage'),
         weakness: facet('one_loss', 'no depth if a single skirmish goes wrong'),
@@ -845,7 +969,9 @@ const ARCHETYPES: ReadonlyMap<string, readonly OrgArchetype[]> = new Map([
 const DEFAULT_ARCHETYPES: readonly OrgArchetype[] = [
   {
     id: 'default',
-    hook: '{name} pursues its mission with a mix of public ambition and private compromise.',
+    purpose: 'stay useful to the people funding it',
+    tension: 'The organization sometimes takes on more than its command structure can handle.',
+    hook: '{subject} pursues its mission with a mix of public ambition and private compromise.',
     personalityTraits: [
       facet('determined', 'determined in pursuit of its aims'),
       facet('adaptive', 'willing to shift tactics when the ground moves'),
@@ -863,30 +989,15 @@ function getArchetypesForKind(kindId: string): readonly OrgArchetype[] {
   return ARCHETYPES.get(kindId) ?? DEFAULT_ARCHETYPES;
 }
 
-function interleaveTraitLabels(traits: LabeledOrgFacet[]): string {
-  if (traits.length === 0) {
-    return '';
-  }
-  if (traits.length === 1) {
-    return traits[0].label;
-  }
-  if (traits.length === 2) {
-    return `${traits[0].label} and ${traits[1].label}`;
-  }
-  const head = traits.slice(0, -1).map((t) => t.label);
-  const last = traits[traits.length - 1].label;
-  return `${head.join(', ')}, and ${last}`;
-}
-
 /**
  * `worldContext` takes precedence over `environment` for narrative. If both are absent,
  * no environment block is added to the profile or description.
  */
 export function resolveEnvironmentNarrative(
-  genre: OrganizationGenre,
-  kindId: string,
+  _genre: OrganizationGenre,
+  _kindId: string,
   worldContext: OrganizationWorldContext | undefined,
-  environment: Environment | undefined,
+  _environment: Environment | undefined,
 ): OrganizationEnvironmentNarrative | undefined {
   if (worldContext) {
     if (worldContext.kind === 'hint') {
@@ -898,13 +1009,7 @@ export function resolveEnvironmentNarrative(
     }
     return presetToNarrative(worldContext.preset);
   }
-  if (!environment) {
-    return undefined;
-  }
-  if (shouldSkipEnvironmentForSf(genre, kindId, environment)) {
-    return undefined;
-  }
-  return environmentToNarrative(genre, environment);
+  return undefined;
 }
 
 const PRESET_NARRATIVES: Readonly<
@@ -952,102 +1057,10 @@ function presetToNarrative(p: OrganizationWorldContextPreset): OrganizationEnvir
   return PRESET_NARRATIVES[p];
 }
 
-const AQUATIC_BIOMES: ReadonlySet<string> = new Set([
-  'intertidal zone',
-  'kelp forest',
-  'coral reef',
-  'estuary',
-  'pelagic ocean',
-  'abyssal ocean',
-  'freshwater lake',
-  'freshwater river',
-  'freshwater wetland',
-  'mangrove forest',
-]);
-
-function shouldSkipEnvironmentForSf(
-  genre: OrganizationGenre,
-  _kindId: string,
-  environment: Environment,
-): boolean {
-  if (genre !== 'science_fiction') {
-    return false;
-  }
-  return AQUATIC_BIOMES.has(environment.biome.name);
-}
-
-function environmentToNarrative(
-  genre: OrganizationGenre,
-  environment: Environment,
-): OrganizationEnvironmentNarrative | undefined {
-  const n = environment.biome.name;
-  if (genre === 'fantasy') {
-    if (n === 'subtropical desert' || n === 'cold desert') {
-      return {
-        id: 'biome_desert',
-        shortLabel: `arid country shaped by ${n.replace(/ /g, ' ')} heat, wind, and scarce water`,
-      };
-    }
-    if (
-      n === 'tropical savanna' ||
-      n === 'tropical seasonal forest' ||
-      n === 'tropical rainforest'
-    ) {
-      return {
-        id: 'biome_tropical',
-        shortLabel: `seasonal mud, fevers, and routes that follow the dry windows of ${n}`,
-      };
-    }
-    if (n === 'tundra' || n === 'ice cap' || n === 'alpine tundra') {
-      return {
-        id: 'biome_cold',
-        shortLabel: `short summers, long ice, and supply math that punishes every mistake`,
-      };
-    }
-    if (
-      n === 'mediterranean woodland' ||
-      n === 'temperate grassland' ||
-      n === 'flooded grassland'
-    ) {
-      return {
-        id: 'biome_open_ground',
-        shortLabel: `open ground and seasonal grass fires that redraw roads every few years`,
-      };
-    }
-    if (
-      n === 'temperate deciduous forest' ||
-      n === 'temperate rainforest' ||
-      n === 'boreal forest'
-    ) {
-      return {
-        id: 'biome_forest',
-        shortLabel: `road networks carved between crown shade and undergrowth, slow in winter, slick in spring`,
-      };
-    }
-    if (n === 'montane forest' || n === 'montane grassland') {
-      return {
-        id: 'biome_montane',
-        shortLabel: `altitude, thin air, and passes that close without warning`,
-      };
-    }
-    return {
-      id: 'biome_general',
-      shortLabel: `terrain and weather keyed to ${n}`,
-    };
-  }
-  if (AQUATIC_BIOMES.has(n)) {
-    return undefined;
-  }
-  return {
-    id: 'biome_colony',
-    shortLabel: `surface conditions and infrastructure tied to local ${n} biomes`,
-  };
-}
-
 export function buildOrganizationProfile(
   rng: RNG,
   kindId: string,
-  name: string,
+  _name: string,
   options: {
     genre: OrganizationGenre;
     worldContext?: OrganizationWorldContext;
@@ -1063,30 +1076,102 @@ export function buildOrganizationProfile(
     options.environment,
   );
   return {
-    personalityTraits: arch.personalityTraits,
-    goal: arch.goal,
-    weakness: arch.weakness,
-    publicStanding: arch.publicStanding,
-    hook: substituteName(arch.hook, name),
+    personalityTraits: arch.personalityTraits.map((trait) => ({ ...trait })),
+    goal: { ...arch.goal },
+    weakness: { ...arch.weakness },
+    publicStanding: { ...arch.publicStanding },
+    hook: profileHook(arch, kindId),
     environmentNarrative,
   };
 }
 
-function substituteName(template: string, name: string): string {
-  return template.split('{name}').join(name);
+const SUBJECTS: Readonly<Record<string, string>> = {
+  mercenary_company: 'The company',
+  trading_company: 'The company',
+  weavers_collective: 'The collective',
+  signet_circle: 'The circle',
+  wizard_school: 'The school',
+  holy_order: 'The order',
+  druid_circle: 'The circle',
+  noble_house: 'The house',
+  thieves_guild: 'The guild',
+  corporate_division: 'The division',
+  colonial_syndicate: 'The syndicate',
+  research_institute: 'The institute',
+  smuggler_outfit: 'The outfit',
+  sf_mercenary_outfit: 'The outfit',
+  starship_squadron: 'The squadron',
+};
+
+function profileHook(arch: OrgArchetype, kindId: string): string {
+  const subject = SUBJECTS[kindId] ?? 'The organization';
+  // Embedded noun phrases use lower case; proper names are never verb subjects.
+  return arch.hook.startsWith('{subject}')
+    ? arch.hook.replace('{subject}', subject)
+    : arch.hook.replace('{subject}', subject.toLowerCase());
 }
 
+/** Only exact current built-in meanings authorize paraphrase; edited labels remain authored detail. */
+export function organizationReadingSubject(
+  id: string,
+  kindId: string,
+  profile: OrganizationProfile,
+): OrganizationReadingSubject {
+  const subject = SUBJECTS[kindId] ?? 'The organization';
+  const candidates: NarrativeCandidate[] = [];
+  for (const arch of getArchetypesForKind(kindId)) {
+    const add = (
+      topic: string,
+      importance: NarrativeCandidate['importance'],
+      options: string[],
+      meaning = topic,
+    ) => {
+      candidates.push({
+        id: `organization:${id}:${arch.id}:${meaning}`,
+        topic,
+        importance,
+        sourceIds: [id],
+        templates: [
+          {
+            id: `organization:${kindId}:${arch.id}:${meaning}`,
+            parts: [{ id: 'sentence', options }],
+          },
+        ],
+      });
+    };
+    if (profile.goal.id === arch.goal.id && profile.goal.label === arch.goal.label)
+      add('purpose', 'defining', [
+        `${subject} aims to ${arch.purpose}.`,
+        `${subject}'s aim is to ${arch.purpose}.`,
+      ]);
+    if (profile.weakness.id === arch.weakness.id && profile.weakness.label === arch.weakness.label)
+      add('tension', 'distinctive', [arch.tension]);
+    if (profile.hook === profileHook(arch, kindId))
+      add('purpose', 'supporting', [profile.hook], 'hook');
+  }
+  return { id, candidates };
+}
+
+/** Compatibility entry point: no random decisions on read and no syntactic guesses from facet text. */
 export function composeOrganizationDescription(
-  memberCount: number,
+  _memberCount: number,
   profile: OrganizationProfile,
 ): string {
-  const hook = profile.hook;
-  const traits = interleaveTraitLabels(profile.personalityTraits);
-  const mid = `They are widely seen as ${traits}. They aim at ${profile.goal.label}. Their most telling liability is ${profile.weakness.label}.`;
-  const env = profile.environmentNarrative
-    ? ` In practice their work is tied to ${profile.environmentNarrative.shortLabel}.`
-    : '';
-  const size = ` It has ${memberCount} members.`;
-  const outro = ` Public standing: ${profile.publicStanding.label}.`;
-  return `${hook} ${mid}${env}${size}${outro}`;
+  const kindId =
+    [...ARCHETYPES].find(([, archetypes]) =>
+      archetypes.some(
+        (arch) =>
+          arch.goal.id === profile.goal.id &&
+          arch.goal.label === profile.goal.label &&
+          arch.weakness.id === profile.weakness.id &&
+          arch.weakness.label === profile.weakness.label,
+      ),
+    )?.[0] ?? 'unknown';
+  const subject = organizationReadingSubject('compatibility', kindId, profile);
+  return ['purpose', 'tension']
+    .flatMap((topic) => {
+      const candidate = subject.candidates.find((entry) => entry.topic === topic);
+      return candidate ? [candidate.templates[0].parts[0].options[0]] : [];
+    })
+    .join(' ');
 }

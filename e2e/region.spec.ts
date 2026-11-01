@@ -97,6 +97,51 @@ test.describe('a region', () => {
     await createProject(page, 'The Marches');
   });
 
+  test('keeps organization contacts and saved prose through export and reopening', async ({
+    page,
+  }, testInfo) => {
+    await openGenerator(page);
+    await page.getByLabel('Seed', { exact: true }).fill('5wyedz5q272fz');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    const organizations = page
+      .locator('.gazetteer')
+      .getByRole('region', { name: 'Organizations', exact: true });
+    await expect(organizations).toBeVisible();
+    const words = await organizations.locator('[data-gazetteer-text]').allTextContents();
+    expect(await organizations.locator('article').count()).toBeGreaterThan(0);
+    for (const article of await organizations.locator('article').all()) {
+      await expect(article.locator('h4')).toHaveCount(1);
+      await expect(article).toContainText('Leader:');
+      await expect(article).toContainText(/members?/);
+      await expect(article).not.toContainText(
+        /Their most telling liability|Public standing:|crown shade/,
+      );
+    }
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download Markdown' }).click();
+    const markdown = await new Response(await (await download).createReadStream()).text();
+    for (const paragraph of words) expect(markdown).toContain(paragraph);
+    await page.setViewportSize({ width: 375, height: 812 });
+    await expectNoHorizontalOverflow(page);
+    await organizations.screenshot({
+      path: testInfo.outputPath('organization-reading.png'),
+      animations: 'disabled',
+    });
+    await page.locator('details.inspection > summary').click();
+    await expect(page.locator('details.inspection')).toContainText(
+      'Organization contacts and supported profiles',
+    );
+    await saveAs(page, 'Organization Reading');
+    await page.reload({ waitUntil: 'load' });
+    const reopened = await openInWorkshop(page, 'Organization Reading');
+    const saved = reopened
+      .locator('.gazetteer')
+      .getByRole('region', { name: 'Organizations', exact: true });
+    await expect(saved).toBeVisible();
+    expect(await saved.locator('[data-gazetteer-text]').allTextContents()).toEqual(words);
+  });
+
   test('keeps settlement portraits and conditional work separate through display and export', async ({
     page,
   }, testInfo) => {
@@ -717,7 +762,7 @@ test.describe('a region', () => {
       for (const article of await section.locator('article').all()) {
         const sectionName = await section.locator(':scope > h3').innerText();
         await expect(article.locator(':scope > h4')).toHaveCount(
-          ['Settlements', 'Landscape', 'Notable places'].includes(sectionName) ||
+          ['Settlements', 'Landscape', 'Notable places', 'Organizations'].includes(sectionName) ||
             (sectionName === 'Travel' && !!(await article.getAttribute('data-fact-id')))
             ? 1
             : 0,

@@ -30,6 +30,7 @@ export type OrganizationDocument = {
   /** The motto, quoted, when there is one. */
   motto?: string;
   paragraphs: string[];
+  summary: string;
   /** "Traits: …", "Goal: …" — the profile as the page lists it. */
   profile: string[];
   hook: string;
@@ -66,6 +67,21 @@ export function organizationPersonHeading(person: StoredCharacter): string {
   return honorific === '' ? named : `${honorific} ${named}`;
 }
 
+/** Structured identity stays readable even when a narrative budget omits this group. */
+export function organizationSummaryLine(organization: OrganizationSnapshot): string {
+  return [
+    organization.kindId.replace(/_/g, ' '),
+    Number.isFinite(organization.memberCount)
+      ? `${organization.memberCount} ${organization.memberCount === 1 ? 'member' : 'members'}`
+      : '',
+    organization.leader.firstName.trim() || organization.leader.lastName.trim()
+      ? `Leader: ${organizationPersonHeading(organization.leader)}`
+      : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}
+
 function personSection(person: StoredCharacter): OrganizationMemberSection {
   return {
     heading: organizationPersonHeading(person),
@@ -93,6 +109,7 @@ export function organizationToDocument(organization: OrganizationSnapshot): Orga
     title: organizationDisplayName(organization),
     ...(motto === '' ? {} : { motto: `“${motto}”` }),
     paragraphs: [organization.description].filter(isPrintable),
+    summary: organizationSummaryLine(organization),
     profile: lines,
     hook: profile.hook.trim(),
     emblem: describeOrganizationEmblem(visualIdentity.emblem),
@@ -105,17 +122,20 @@ export function organizationToDocument(organization: OrganizationSnapshot): Orga
 }
 
 /** An organization as Markdown, for a GM who wants it in their own notes. */
-export function organizationToMarkdown(organization: OrganizationSnapshot): string {
+export function organizationToMarkdown(
+  organization: OrganizationSnapshot,
+  includeProfile = false,
+): string {
   const document = organizationToDocument(organization);
   const blocks = [`# ${document.title}`];
   if (document.motto !== undefined) {
     blocks.push(`*${document.motto}*`);
   }
-  blocks.push(...document.paragraphs);
-  if (document.profile.length > 0) {
+  blocks.push(document.summary, ...document.paragraphs);
+  if (includeProfile && document.profile.length > 0) {
     blocks.push(document.profile.map((line) => `- ${line}`).join('\n'));
   }
-  if (isPrintable(document.hook)) {
+  if (includeProfile && isPrintable(document.hook)) {
     blocks.push(`**Hook** ${document.hook}`);
   }
   if (isPrintable(document.emblem)) {
@@ -135,17 +155,20 @@ export function organizationToMarkdown(organization: OrganizationSnapshot): stri
 }
 
 /** The body of the PDF: the same document as plain text, without the title the PDF draws itself. */
-export function organizationToText(organization: OrganizationSnapshot): string {
+export function organizationToText(
+  organization: OrganizationSnapshot,
+  includeProfile = false,
+): string {
   const document = organizationToDocument(organization);
   const blocks: string[] = [];
   if (document.motto !== undefined) {
     blocks.push(document.motto);
   }
-  blocks.push(...document.paragraphs);
-  if (document.profile.length > 0) {
+  blocks.push(document.summary, ...document.paragraphs);
+  if (includeProfile && document.profile.length > 0) {
     blocks.push(document.profile.join('\n'));
   }
-  if (isPrintable(document.hook)) {
+  if (includeProfile && isPrintable(document.hook)) {
     blocks.push(`Hook: ${document.hook}`);
   }
   if (isPrintable(document.emblem)) {

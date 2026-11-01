@@ -275,7 +275,8 @@ export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnap
           : {}),
         ...(snapshot.gazetteer.version === 3 ||
         snapshot.gazetteer.version === 4 ||
-        snapshot.gazetteer.version === 5
+        snapshot.gazetteer.version === 5 ||
+        snapshot.gazetteer.version === 6
           ? {
               notableReadings: snapshot.gazetteer.notableReadings.map((reading) => ({
                 ...reading,
@@ -313,7 +314,11 @@ export function withRegionOverviewEvidence(snapshot: RegionSnapshot): RegionSnap
     };
   }
   // Notable sentence invalidation above must settle before dependent road links are checked.
-  if (snapshot.gazetteer?.version === 4 || snapshot.gazetteer?.version === 5) {
+  if (
+    snapshot.gazetteer?.version === 4 ||
+    snapshot.gazetteer?.version === 5 ||
+    snapshot.gazetteer?.version === 6
+  ) {
     snapshot = {
       ...snapshot,
       gazetteer: {

@@ -39,8 +39,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 23 adds settlement reading roles; older plans and descriptions are preserved. */
-export const REGION_PAYLOAD_VERSION = 23 as const;
+/** Version 24 adds organization reading roles; older plans and descriptions are preserved. */
+export const REGION_PAYLOAD_VERSION = 24 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -454,7 +454,7 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (!Number.isInteger(from) || from < 1 || from > 22)
+  if (!Number.isInteger(from) || from < 1 || from > 23)
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,

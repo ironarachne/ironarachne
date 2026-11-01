@@ -1,3 +1,4 @@
+import { organizationObservationCurrent } from './region_organization_evidence';
 import {
   settlementCharacterObservation,
   settlementWorkOptions,
@@ -103,6 +104,8 @@ export function editorialSentenceChecker(
       if (!product || !settlementWorkOptions(snapshot, product).length) return false;
     }
     return sentence.observations.every((observation) => {
+      if (observation.kind === 'organization-profile')
+        return organizationObservationCurrent(snapshot, observation);
       if (observation.kind === 'settlement-character') {
         const entry = snapshot.settlements.find((entry) => entry.id === observation.settlementId);
         return (
@@ -151,7 +154,7 @@ export function settlementPortraitCurrent(
   readable = editorialSentenceChecker(snapshot),
 ): boolean {
   const gazetteer = snapshot.gazetteer;
-  if (gazetteer?.version !== 5) return true;
+  if (gazetteer?.version !== 5 && gazetteer?.version !== 6) return true;
   const reading = gazetteer.settlementReadings.find(
     (reading) =>
       reading.settlement.kind === 'embedded' && reading.settlement.settlementId === settlementId,

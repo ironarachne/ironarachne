@@ -19,7 +19,8 @@ export function appendNotableReading(
   if (
     snapshot.gazetteer?.version !== 3 &&
     snapshot.gazetteer?.version !== 4 &&
-    snapshot.gazetteer?.version !== 5
+    snapshot.gazetteer?.version !== 5 &&
+    snapshot.gazetteer?.version !== 6
   )
     return;
   const gazetteer = snapshot.gazetteer;

@@ -100,6 +100,7 @@ export function orderRegionReadingSections(document: RegionDocument): void {
     'Travel',
     'Hazards',
     'Settlements',
+    'Organizations',
   ];
   document.sections.sort((a, b) => {
     const left = order.indexOf(a.heading),

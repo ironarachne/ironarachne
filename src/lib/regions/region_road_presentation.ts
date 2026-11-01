@@ -14,7 +14,12 @@ export function appendRoadReading(
   document: RegionDocument,
   references: RegionNotableReferenceContext = {},
 ) {
-  if (snapshot.gazetteer?.version !== 4 && snapshot.gazetteer?.version !== 5) return;
+  if (
+    snapshot.gazetteer?.version !== 4 &&
+    snapshot.gazetteer?.version !== 5 &&
+    snapshot.gazetteer?.version !== 6
+  )
+    return;
   const gazetteer = snapshot.gazetteer;
   const readable = editorialSentenceChecker(snapshot, references);
   for (const route of [...snapshot.facts.routes]

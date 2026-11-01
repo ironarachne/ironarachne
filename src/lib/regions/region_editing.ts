@@ -55,7 +55,9 @@ function staleSettlementExplanations(snapshot: RegionSnapshot, index: number, na
         !(
           nameOnly &&
           (fact.id.startsWith('role:site:') ||
-            ((snapshot.gazetteer?.version === 4 || snapshot.gazetteer?.version === 5) &&
+            ((snapshot.gazetteer?.version === 4 ||
+              snapshot.gazetteer?.version === 5 ||
+              snapshot.gazetteer?.version === 6) &&
               'endpoints' in fact &&
               fact.kind === 'road'))
         ) &&
@@ -261,7 +263,8 @@ export function setRegionPlaceText(
       ? withRegionOverviewEvidence({
           ...snapshot,
           facts:
-            snapshot.gazetteer?.version === 5 && field === 'description'
+            (snapshot.gazetteer?.version === 5 || snapshot.gazetteer?.version === 6) &&
+            field === 'description'
               ? snapshot.facts
               : staleSettlementExplanations(snapshot, index, field === 'name'),
           settlements: replaceAt(snapshot.settlements, index, {
@@ -275,6 +278,23 @@ export function setRegionPlaceText(
   return hasIndex(places.length, index)
     ? {
         ...snapshot,
+        ...(field === 'description' &&
+        snapshot.gazetteer?.version === 6 &&
+        snapshot.organizations[index].description !== value
+          ? {
+              gazetteer: {
+                ...snapshot.gazetteer,
+                blocks: snapshot.gazetteer.blocks.filter(
+                  (block) => block.destination.organizationId !== snapshot.organizations[index].id,
+                ),
+                organizationReadings: snapshot.gazetteer.organizationReadings.map((reading) =>
+                  reading.organizationId === snapshot.organizations[index].id
+                    ? { ...reading, origin: 'authored' as const, sentenceIds: [] }
+                    : reading,
+                ),
+              },
+            }
+          : {}),
         organizations: replaceAt(snapshot.organizations, index, {
           ...snapshot.organizations[index],
           [field]: value,
@@ -302,6 +322,19 @@ export function removeRegionPlace(
   }
   return {
     ...snapshot,
+    ...(snapshot.gazetteer?.version === 6
+      ? {
+          gazetteer: {
+            ...snapshot.gazetteer,
+            blocks: snapshot.gazetteer.blocks.filter(
+              (block) => block.destination.organizationId !== snapshot.organizations[index].id,
+            ),
+            organizationReadings: snapshot.gazetteer.organizationReadings.filter(
+              (reading) => reading.organizationId !== snapshot.organizations[index].id,
+            ),
+          },
+        }
+      : {}),
     organizations: snapshot.organizations.filter((_place, position) => position !== index),
   };
 }

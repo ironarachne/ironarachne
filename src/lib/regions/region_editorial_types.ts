@@ -1,4 +1,8 @@
 import type {
+  RegionOrganizationReading,
+  OrganizationProfileObservation,
+} from './region_organization_reading_types';
+import type {
   RegionSettlementReading,
   SettlementCharacterObservation,
 } from './region_settlement_reading_types';
@@ -26,13 +30,15 @@ export type RegionEditorialSection =
   | 'materials-work'
   | 'travel'
   | 'hazards'
-  | 'settlement';
+  | 'settlement'
+  | 'organization';
 export type RegionEditorialDestination = {
   section: RegionEditorialSection;
   settlement?: SettlementTarget;
   landscapePlaceId?: string;
   notableId?: string;
   routeId?: string;
+  organizationId?: string;
 };
 export type RegionEditorialPriority = {
   residentConsequence: boolean;
@@ -41,6 +47,7 @@ export type RegionEditorialPriority = {
   peerSupportCount: number;
 };
 export type RegionEditorialObservation =
+  | OrganizationProfileObservation
   | SettlementCharacterObservation
   | RegionRoadNetworkObservation
   | RegionRoadPathObservation
@@ -93,6 +100,7 @@ export type RegionGazetteerBlock = {
   sentences: RegionGazetteerSentence[];
 };
 export type RegionGazetteer =
+  | RegionGazetteerV6
   | RegionGazetteerV5
   | { version: 1; blocks: RegionGazetteerBlock[] }
   | { version: 2; blocks: RegionGazetteerBlock[]; landscapePlaces: RegionLandscapePlace[] }
@@ -117,4 +125,9 @@ export type RegionGazetteerV5 = {
   notableReadings: RegionNotableReading[];
   roadReadings: RegionRoadReading[];
   settlementReadings: RegionSettlementReading[];
+};
+
+export type RegionGazetteerV6 = Omit<RegionGazetteerV5, 'version'> & {
+  version: 6;
+  organizationReadings: RegionOrganizationReading[];
 };

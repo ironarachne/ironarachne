@@ -1,3 +1,8 @@
+import {
+  emptyOrganizationReadings,
+  organizationReadingCandidates,
+} from './region_organization_reading';
+import type { RegionOrganizationReading } from './region_organization_reading_types';
 import { settlementReadingCandidates, emptySettlementReadings } from './region_settlement_reading';
 import type { RegionSettlementReading } from './region_settlement_reading_types';
 import { sameSettlement } from './region_livelihood_evidence';
@@ -52,7 +57,7 @@ const destination = (
   settlement?: SettlementTarget,
 ): RegionEditorialDestination => ({ section, ...(settlement ? { settlement } : {}) });
 export const editorialDestinationKey = (value: RegionEditorialDestination) =>
-  `${value.section}:${JSON.stringify(value.settlement ?? null)}${value.landscapePlaceId ? `:${value.landscapePlaceId}` : ''}${value.notableId ? `:${value.notableId}` : ''}${value.routeId ? `:${value.routeId}` : ''}`;
+  `${value.section}:${JSON.stringify(value.settlement ?? null)}${value.landscapePlaceId ? `:${value.landscapePlaceId}` : ''}${value.notableId ? `:${value.notableId}` : ''}${value.routeId ? `:${value.routeId}` : ''}${value.organizationId ? `:${value.organizationId}` : ''}`;
 const weight = { defining: 0, distinctive: 1, supporting: 2 };
 const meaningKey = (entry: RegionEditorialCandidate) => entry.narrative.templates[0].id;
 const targetKey = (target: SettlementTarget) =>
@@ -467,6 +472,7 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
       },
     );
   }
+  candidates.push(...organizationReadingCandidates(snapshot));
   candidates.push(...settlementReadingCandidates(region, snapshot));
   candidates.push(...roadReadingCandidates(snapshot));
   candidates.push(...notableEditorialCandidates(snapshot).descriptions);
@@ -486,6 +492,7 @@ export function composeRegionGazetteer(
   promptCandidates: RegionNotablePromptCandidate[] = [],
   roadReadings: RegionRoadReading[] = [],
   settlementReadings: RegionSettlementReading[] = [],
+  organizationReadings: RegionOrganizationReading[] = [],
 ): { gazetteer: RegionGazetteer; nextContext: RegionEditorialContext } {
   const token = rng.int(0, 2147483647);
   const selectionRng = new RNG(JSON.stringify(['gazetteer-selection-v1', token]));
@@ -499,6 +506,7 @@ export function composeRegionGazetteer(
     [];
   const readings = structuredClone(notableReadings);
   const settlementEntries = structuredClone(settlementReadings);
+  const organizationEntries = structuredClone(organizationReadings);
   const promptById = new Map(
     promptCandidates.map((candidate) => [candidate.editorial.narrative.id, candidate]),
   );
@@ -547,6 +555,7 @@ export function composeRegionGazetteer(
         ).length;
         if (roleCount >= (role === 'portrait' ? 2 : 1)) return false;
       }
+      if (dest.section === 'organization' && (counts.get(key) ?? 0) >= 2) return false;
       const geographic = dest.section === 'landscape' || !!dest.landscapePlaceId;
       if (
         geographic &&
@@ -669,6 +678,7 @@ export function composeRegionGazetteer(
     'travel',
     'hazards',
     'settlement',
+    'organization',
   ];
   selected.sort(
     (a, b) =>
@@ -703,9 +713,12 @@ export function composeRegionGazetteer(
       repeatedOrientation: false,
       selection: result.selections[0],
       reason: {
-        ruleId: prompt
-          ? `fantasy:region:adventure-prompt:${prompt.familyId}:v1`
-          : 'fantasy:region:gazetteer-editorial:v2',
+        ruleId:
+          dest.section === 'organization'
+            ? 'fantasy:region:organization-reading:v1'
+            : prompt
+              ? `fantasy:region:adventure-prompt:${prompt.familyId}:v1`
+              : 'fantasy:region:gazetteer-editorial:v2',
         status: 'current',
         sources: entry.sources,
       },
@@ -720,6 +733,16 @@ export function composeRegionGazetteer(
       const key = editorialDestinationKey(dest);
       if (!blocks.has(key)) blocks.set(key, { id: key, destination: dest, sentences: [] });
       blocks.get(key)!.sentences.push(sentence);
+      if (dest.section === 'organization' && dest.organizationId) {
+        let reading = organizationEntries.find(
+          (reading) => reading.organizationId === dest.organizationId,
+        );
+        if (!reading) {
+          reading = { organizationId: dest.organizationId, origin: 'generated', sentenceIds: [] };
+          organizationEntries.push(reading);
+        }
+        reading.sentenceIds.push(sentence.id);
+      }
       if (dest.section === 'settlement' && dest.settlement) {
         let reading = settlementEntries.find((reading) =>
           sameSettlement(reading.settlement, dest.settlement!),
@@ -742,7 +765,8 @@ export function composeRegionGazetteer(
   }
   return {
     gazetteer: {
-      version: 5,
+      version: 6,
+      organizationReadings: organizationEntries,
       settlementReadings: settlementEntries,
       roadReadings,
       blocks: [...blocks.values()],
@@ -767,9 +791,10 @@ export function generateRegionGazetteer(region: Region, rng: RNG): void {
     notables.prompts,
     buildRoadReadings(snapshot),
     emptySettlementReadings(snapshot),
+    emptyOrganizationReadings(snapshot),
   ).gazetteer;
   assignRoadReadingOwners({ ...snapshot, gazetteer: region.gazetteer });
-  if (region.gazetteer.version === 5) {
+  if (region.gazetteer.version === 5 || region.gazetteer.version === 6) {
     for (const reading of region.gazetteer.settlementReadings) {
       if (reading.settlement.kind !== 'embedded') continue;
       const index = region.settlementIds?.indexOf(reading.settlement.settlementId) ?? -1;

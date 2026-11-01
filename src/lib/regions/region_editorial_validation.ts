@@ -1,4 +1,8 @@
 import {
+  organizationReadingsError,
+  organizationObservationError,
+} from './region_organization_validation';
+import {
   settlementReadingsError,
   settlementCharacterObservationError,
 } from './region_settlement_reading_validation';
@@ -27,7 +31,8 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
       gazetteer.version !== 2 &&
       gazetteer.version !== 3 &&
       gazetteer.version !== 4 &&
-      gazetteer.version !== 5) ||
+      gazetteer.version !== 5 &&
+      gazetteer.version !== 6) ||
     !Array.isArray(gazetteer.blocks)
   )
     return 'invalid region gazetteer';
@@ -38,7 +43,12 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
     const error = landscapePlacesError(gazetteer.landscapePlaces, snapshot, factIds);
     if (error) return error;
   }
-  if (gazetteer.version === 3 || gazetteer.version === 4 || gazetteer.version === 5) {
+  if (
+    gazetteer.version === 3 ||
+    gazetteer.version === 4 ||
+    gazetteer.version === 5 ||
+    gazetteer.version === 6
+  ) {
     const error = notableReadingsError(gazetteer.notableReadings, snapshot, factIds, (sentence) =>
       regionGazetteerError(
         {
@@ -54,7 +64,7 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
     );
     if (error) return error;
   }
-  if (gazetteer.version === 4 || gazetteer.version === 5) {
+  if (gazetteer.version === 4 || gazetteer.version === 5 || gazetteer.version === 6) {
     const error = roadReadingsError(
       gazetteer.roadReadings,
       { ...snapshot, gazetteer: value as RegionSnapshot['gazetteer'] },
@@ -62,8 +72,12 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
     );
     if (error) return error;
   }
-  if (gazetteer.version === 5) {
+  if (gazetteer.version === 5 || gazetteer.version === 6) {
     const error = settlementReadingsError(value, snapshot);
+    if (error) return error;
+  }
+  if (gazetteer.version === 6) {
+    const error = organizationReadingsError(value, snapshot);
     if (error) return error;
   }
   const blocks = new Set<string>();
@@ -85,12 +99,18 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
         'travel',
         'hazards',
         'settlement',
+        ...(gazetteer.version === 6 ? ['organization'] : []),
       ].includes(String(destination.section)) ||
       !Array.isArray(block.sentences) ||
       !block.sentences.length
     )
       return 'invalid gazetteer block';
     blocks.add(String(block.id));
+    if (
+      destination.organizationId !== undefined &&
+      (gazetteer.version !== 6 || destination.section !== 'organization')
+    )
+      return 'unexpected organization destination';
     if (destination.section === 'settlement') {
       const target = asRecord(destination.settlement);
       if (
@@ -119,7 +139,10 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
       return 'missing landscape place destination';
     if (destination.notableId !== undefined) {
       if (
-        (gazetteer.version !== 3 && gazetteer.version !== 4 && gazetteer.version !== 5) ||
+        (gazetteer.version !== 3 &&
+          gazetteer.version !== 4 &&
+          gazetteer.version !== 5 &&
+          gazetteer.version !== 6) ||
         destination.landscapePlaceId !== undefined ||
         !['hazards', 'notable-place'].includes(String(destination.section)) ||
         !(gazetteer.notableReadings as { notableId: string }[]).some(
@@ -130,7 +153,7 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
     }
     if (
       destination.routeId !== undefined &&
-      ((gazetteer.version !== 4 && gazetteer.version !== 5) ||
+      ((gazetteer.version !== 4 && gazetteer.version !== 5 && gazetteer.version !== 6) ||
         destination.section !== 'travel' ||
         destination.settlement !== undefined ||
         destination.notableId !== undefined ||
@@ -164,7 +187,17 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
       )
         return 'invalid gazetteer sentence';
       sentences.add(String(sentence.id));
-      const error = regionOverviewReasonError(sentence.reason, snapshot.map, factIds);
+      const reason = asRecord(sentence.reason);
+      const profileOnly =
+        gazetteer.version === 6 &&
+        destination.section === 'organization' &&
+        reason?.ruleId === 'fantasy:region:organization-reading:v1' &&
+        ['current', 'stale'].includes(String(reason.status)) &&
+        Array.isArray(reason.sources) &&
+        reason.sources.length === 0;
+      const error = profileOnly
+        ? null
+        : regionOverviewReasonError(sentence.reason, snapshot.map, factIds);
       if (error) return error;
       if (
         destination.routeId !== undefined &&
@@ -183,11 +216,17 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
       for (const rawObservation of sentence.observations) {
         const observation = asRecord(rawObservation);
         if (!observation) return 'invalid gazetteer observation';
-        if (observation.kind === 'settlement-character' && gazetteer.version === 5) {
+        if (observation.kind === 'organization-profile' && gazetteer.version === 6) {
+          const error = organizationObservationError(observation);
+          if (error) return error;
+        } else if (
+          observation.kind === 'settlement-character' &&
+          (gazetteer.version === 5 || gazetteer.version === 6)
+        ) {
           const error = settlementCharacterObservationError(observation);
           if (error) return error;
         } else if (
-          (gazetteer.version === 4 || gazetteer.version === 5) &&
+          (gazetteer.version === 4 || gazetteer.version === 5 || gazetteer.version === 6) &&
           ['road-network', 'road-path'].includes(String(observation.kind))
         ) {
           const error = roadObservationError(observation);
@@ -197,7 +236,10 @@ export function regionGazetteerError(value: unknown, snapshot: RegionSnapshot): 
           if (error) return error;
         } else if (
           observation.kind === 'notable-name' &&
-          (gazetteer.version === 3 || gazetteer.version === 4 || gazetteer.version === 5)
+          (gazetteer.version === 3 ||
+            gazetteer.version === 4 ||
+            gazetteer.version === 5 ||
+            gazetteer.version === 6)
         ) {
           if (!text(observation.observedName) || notableSubjectError(observation.subject))
             return 'invalid notable name observation';

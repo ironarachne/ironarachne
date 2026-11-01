@@ -1,5 +1,5 @@
 import * as Characters from '$lib/characters';
-import type { RNG } from '@ironarachne/rng';
+import { RNG } from '@ironarachne/rng';
 import { generateDiscEmblem } from '$lib/disc_emblem';
 import { generateHeraldry, mergeHeraldryGeneratorConfig } from '$lib/heraldry';
 import type { CharacterGenerationConfig } from '$lib/characters';
@@ -17,10 +17,8 @@ import type { Environment } from '$lib/environment';
 import { getKindsForGenerator, getOrganizationKindByIdOrLabel } from './kind_registry.js';
 import type { Organization, OrganizationWorldContext, RoleId } from './organization_types.js';
 import type { OrganizationKindDefinition } from './organization_kind.js';
-import {
-  buildOrganizationProfile,
-  composeOrganizationDescription,
-} from './organization_profile.js';
+import { buildOrganizationProfile, organizationReadingSubject } from './organization_profile.js';
+import { composeOrganizationReading } from './organization_reading';
 import {
   assertValidOrganizationHierarchy,
   describeLeaderForOrganization,
@@ -227,7 +225,6 @@ export function generateOrganization(options: GenerateOrganizationOptions): Orga
     worldContext: options.worldContext,
     environment: options.environment,
   });
-  const description = composeOrganizationDescription(memberCount, profile);
   const visualIdentity = buildVisualMaterialization(kind, rng);
   const leaderId = leaderRoleIdFromHierarchy(
     kind.hierarchy.childToParent,
@@ -264,8 +261,13 @@ export function generateOrganization(options: GenerateOrganizationOptions): Orga
       m({ rng, baseCharacter: base, characterConfig: cfg, roleId, organizationName: name }),
     );
   }
+  const id = `${prefix}-${rng.randomString(16)}`;
+  const description = composeOrganizationReading(
+    organizationReadingSubject(id, kind.id, profile),
+    new RNG(JSON.stringify(['organization-reading-v1', id])),
+  ).text;
   return {
-    id: `${prefix}-${rng.randomString(16)}`,
+    id,
     name,
     description,
     memberCount,

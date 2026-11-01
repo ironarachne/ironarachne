@@ -692,3 +692,18 @@ saved roles for UI, Markdown and text/PDF. Authored descriptions override only t
 blanks; independent work remains. Payload version 23 migrates earlier payloads without composing or
 inferring roles. Gazetteer versions 1–4 retain their existing reading paths. See
 [the approved policy](../../../docs/region-settlement-reading.md).
+
+## Organization reading (#450)
+
+Gazetteer version 6 retains all version-5 reading capabilities and adds a complete organization
+directory plus at most two saved sentences per group within the existing 24-sentence budget.
+`region_organization_reading` adapts supported organization meanings; profile/name/kind observations
+stale dependent sentences without inventing a relationship to regional roads or settlements.
+`region_organization_presentation` arranges one document for UI and exports with live structured
+kind, membership and leader details. No wording is chosen on read.
+
+Description edits explicitly mark a group's reading as authored and clear its generated blocks,
+including when blank. Name edits stale dependent generated prose; removal cleans only that group's
+records. The embedded standalone description remains available for extraction. Payload version 24
+preserves older saved words and gazetteers without composing new metadata. See
+[the approved model](../../../docs/region-organization-reading.md).
