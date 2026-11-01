@@ -1,3 +1,5 @@
+import { historyEventAnchor } from './region_history_presentation';
+import type { RegionSection } from './region_presentation';
 import { notableHeading, notableApproachRole } from './region_notable_identity';
 import type { RegionNotableReferenceContext } from './region_notable_reading_types';
 import { sentenceCase, regionHook, REGION_HOOK_SECTIONS } from './region_prose';
@@ -122,6 +124,20 @@ function factEntry(snapshot: RegionSnapshot, section: string, fact: FactBase): R
   return { heading, ...text, factId: fact.id, warning };
 }
 
+function historyEntries(section: RegionSection): RegionUiEntry[] {
+  return [
+    ...(section.history?.notice ? [{ heading: '', body: section.history.notice }] : []),
+    ...(section.history?.entries ?? []).map((entry) => ({
+      heading: entry.heading,
+      body: entry.body,
+      historyEventId: entry.eventId,
+      anchorId: historyEventAnchor(entry.eventId),
+      references: entry.references,
+      warning: entry.warning,
+    })),
+  ];
+}
+
 /** Build heading/body pairs from source fields, never by splitting names or prose at a colon. */
 export function regionToUiDocument(
   snapshot: RegionSnapshot,
@@ -139,68 +155,71 @@ export function regionToUiDocument(
         ...(section.landscapeReferences
           ? { landscapeReferences: section.landscapeReferences }
           : {}),
-        entries: section.lines.map((body, index) => {
-          const anchorId = section.entryAnchors?.[index];
-          if (anchorId) {
-            const heading = section.entryHeadings?.[index] ?? '';
-            return {
-              heading,
-              body:
-                heading && body.startsWith(`${heading}\n\n`)
-                  ? body.slice(heading.length + 2)
-                  : body === heading
-                    ? ''
-                    : body,
-              anchorId,
-              summary: section.entrySummaries?.[index],
-              possibleWork: section.entryPossibleWork?.[index],
-              references: section.entryReferences?.[index],
-              location: section.entryLocations?.[index],
-              relatedAnchorId: (() => {
-                const notable = snapshot.facts.notables.find(
-                  (fact) => fact.id === section.factIds?.[index],
-                );
-                const role = notable && notableApproachRole(snapshot, notable);
-                const target = role?.settlement;
-                return target?.kind === 'embedded' &&
-                  snapshot.settlements.some((entry) => entry.id === target.settlementId)
-                  ? `settlement-${encodeURIComponent(target.settlementId)}`
-                  : undefined;
-              })(),
-              hook: section.entryPrompts?.[index] || undefined,
-              hookHeading: section.entryPrompts?.[index]
-                ? section.entryPromptHeadings?.[index] || 'Suggested adventure'
-                : undefined,
-              factId: section.factIds?.[index],
-              inspectionFactIds: section.inspectionFactIds?.[index],
-            };
-          }
-          const id = section.factIds?.[index];
-          if (!id) {
-            const heading = section.entryHeadings?.[index] ?? '';
-            return {
-              heading: heading ? uniqueHeading(heading, used) : '',
-              body:
-                heading && body.startsWith(`${heading}\n\n`)
-                  ? body.slice(heading.length + 2)
-                  : body === heading
-                    ? ''
-                    : body,
-            };
-          }
-          const fact = facts.get(id)!;
-          const text = REGION_HOOK_SECTIONS.includes(section.heading)
-            ? regionHook(fact.description)
-            : { body: fact.description };
-          return {
-            ...text,
-            heading: section.heading === 'Flora and fauna' ? '' : uniqueHeading(fact.name, used),
-            factId: id,
-            ...('hook' in text && text.hook
-              ? { hookHeading: uniqueHeading(`An Adventure Hook for ${fact.name}`, used) }
-              : {}),
-          };
-        }),
+        entries: section.history
+          ? historyEntries(section)
+          : section.lines.map((body, index) => {
+              const anchorId = section.entryAnchors?.[index];
+              if (anchorId) {
+                const heading = section.entryHeadings?.[index] ?? '';
+                return {
+                  heading,
+                  body:
+                    heading && body.startsWith(`${heading}\n\n`)
+                      ? body.slice(heading.length + 2)
+                      : body === heading
+                        ? ''
+                        : body,
+                  anchorId,
+                  summary: section.entrySummaries?.[index],
+                  possibleWork: section.entryPossibleWork?.[index],
+                  references: section.entryReferences?.[index],
+                  location: section.entryLocations?.[index],
+                  relatedAnchorId: (() => {
+                    const notable = snapshot.facts.notables.find(
+                      (fact) => fact.id === section.factIds?.[index],
+                    );
+                    const role = notable && notableApproachRole(snapshot, notable);
+                    const target = role?.settlement;
+                    return target?.kind === 'embedded' &&
+                      snapshot.settlements.some((entry) => entry.id === target.settlementId)
+                      ? `settlement-${encodeURIComponent(target.settlementId)}`
+                      : undefined;
+                  })(),
+                  hook: section.entryPrompts?.[index] || undefined,
+                  hookHeading: section.entryPrompts?.[index]
+                    ? section.entryPromptHeadings?.[index] || 'Suggested adventure'
+                    : undefined,
+                  factId: section.factIds?.[index],
+                  inspectionFactIds: section.inspectionFactIds?.[index],
+                };
+              }
+              const id = section.factIds?.[index];
+              if (!id) {
+                const heading = section.entryHeadings?.[index] ?? '';
+                return {
+                  heading: heading ? uniqueHeading(heading, used) : '',
+                  body:
+                    heading && body.startsWith(`${heading}\n\n`)
+                      ? body.slice(heading.length + 2)
+                      : body === heading
+                        ? ''
+                        : body,
+                };
+              }
+              const fact = facts.get(id)!;
+              const text = REGION_HOOK_SECTIONS.includes(section.heading)
+                ? regionHook(fact.description)
+                : { body: fact.description };
+              return {
+                ...text,
+                heading:
+                  section.heading === 'Flora and fauna' ? '' : uniqueHeading(fact.name, used),
+                factId: id,
+                ...('hook' in text && text.hook
+                  ? { hookHeading: uniqueHeading(`An Adventure Hook for ${fact.name}`, used) }
+                  : {}),
+              };
+            }),
       })),
     };
   }
@@ -225,58 +244,64 @@ export function regionToUiDocument(
   );
   const sections = document.sections.map((section) => ({
     heading: sectionHeadings.get(section.heading)!,
-    entries: section.lines.map((_line, index): RegionUiEntry => {
-      const factId = section.factIds?.[index];
-      let entry: RegionUiEntry;
-      if (factId) {
-        entry = factEntry(snapshot, section.heading, facts.get(factId)!);
-        const notable = snapshot.facts.notables.find((fact) => fact.id === factId);
-        if (notable) entry.heading = notableHeading(snapshot, notable, references);
-      } else if (section.heading === 'Flora and fauna') entry = { heading: '', body: _line };
-      else if (section.heading === 'Facts needing review') {
-        entry = {
-          heading: `A Review of ${displayName(review[index].name, 'an Unnamed Fact')}`,
-          body: 'Supporting information changed; saved text has not been recomputed.',
-        };
-      } else if (section.heading === 'Realms') {
-        const realm = snapshot.realms[index];
-        entry = {
-          heading: realmHeading(realm, index, snapshot.mainRealm),
-          body: `${describeRuler(realm.authority)}${index === snapshot.mainRealm ? ' — the seat of this region' : ''}${realm.description.trim() ? `. ${realm.description}` : ''}`,
-        };
-      } else if (section.heading === 'Settlements') {
-        const settlement = settlements[index];
-        const target = settlement.target;
-        const originalIndex =
-          target.kind === 'embedded'
-            ? snapshot.settlements.findIndex((entry) => entry.id === target.settlementId)
-            : -1;
-        entry = {
-          heading:
-            originalIndex >= 0
-              ? settlementHeading(snapshot, snapshot.settlements[originalIndex].id, originalIndex)
-              : `The Settlement of ${settlement.name}`,
-          body: settlement.description,
-          paragraphs: settlement.paragraphs,
-          character: settlement.character,
-        };
-      } else {
-        const organization = organizations[index];
-        entry = {
-          heading: `The Organization Known as ${displayName(organization.name, 'an Unnamed Organization')}`,
-          body: organization.description.trim(),
-        };
-      }
-      if (entry.heading) entry.heading = uniqueHeading(entry.heading, used);
-      if (entry.character?.length)
-        entry.characterHeading = uniqueHeading(
-          `Settlement character of ${settlements[index].name}`,
-          used,
-        );
-      if (entry.hook)
-        entry.hookHeading = uniqueHeading(`An Adventure Hook for ${entry.heading}`, used);
-      return entry;
-    }),
+    entries: section.history
+      ? historyEntries(section)
+      : section.lines.map((_line, index): RegionUiEntry => {
+          const factId = section.factIds?.[index];
+          let entry: RegionUiEntry;
+          if (factId) {
+            entry = factEntry(snapshot, section.heading, facts.get(factId)!);
+            const notable = snapshot.facts.notables.find((fact) => fact.id === factId);
+            if (notable) entry.heading = notableHeading(snapshot, notable, references);
+          } else if (section.heading === 'Flora and fauna') entry = { heading: '', body: _line };
+          else if (section.heading === 'Facts needing review') {
+            entry = {
+              heading: `A Review of ${displayName(review[index].name, 'an Unnamed Fact')}`,
+              body: 'Supporting information changed; saved text has not been recomputed.',
+            };
+          } else if (section.heading === 'Realms') {
+            const realm = snapshot.realms[index];
+            entry = {
+              heading: realmHeading(realm, index, snapshot.mainRealm),
+              body: `${describeRuler(realm.authority)}${index === snapshot.mainRealm ? ' — the seat of this region' : ''}${realm.description.trim() ? `. ${realm.description}` : ''}`,
+            };
+          } else if (section.heading === 'Settlements') {
+            const settlement = settlements[index];
+            const target = settlement.target;
+            const originalIndex =
+              target.kind === 'embedded'
+                ? snapshot.settlements.findIndex((entry) => entry.id === target.settlementId)
+                : -1;
+            entry = {
+              heading:
+                originalIndex >= 0
+                  ? settlementHeading(
+                      snapshot,
+                      snapshot.settlements[originalIndex].id,
+                      originalIndex,
+                    )
+                  : `The Settlement of ${settlement.name}`,
+              body: settlement.description,
+              paragraphs: settlement.paragraphs,
+              character: settlement.character,
+            };
+          } else {
+            const organization = organizations[index];
+            entry = {
+              heading: `The Organization Known as ${displayName(organization.name, 'an Unnamed Organization')}`,
+              body: organization.description.trim(),
+            };
+          }
+          if (entry.heading) entry.heading = uniqueHeading(entry.heading, used);
+          if (entry.character?.length)
+            entry.characterHeading = uniqueHeading(
+              `Settlement character of ${settlements[index].name}`,
+              used,
+            );
+          if (entry.hook)
+            entry.hookHeading = uniqueHeading(`An Adventure Hook for ${entry.heading}`, used);
+          return entry;
+        }),
   }));
   return { title: document.title, paragraphs: document.paragraphs, sections };
 }

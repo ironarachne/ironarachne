@@ -1,6 +1,9 @@
 <script lang="ts">
   import {
     regionInspectionFacts,
+    historySourceEntries,
+    historyEventAnchor,
+    getHistoryEventsNeedingReview,
     activityEvidenceCurrent,
     regionOverviewCurrent,
     regionSourceQualifications,
@@ -10,8 +13,20 @@
     snapshot,
     id,
     expanded = $bindable(false),
-  }: { snapshot: RegionSnapshot; id?: string; expanded?: boolean } = $props();
+    anchorPrefix,
+    focusId,
+  }: {
+    snapshot: RegionSnapshot;
+    id?: string;
+    expanded?: boolean;
+    anchorPrefix?: string;
+    focusId?: string;
+  } = $props();
   const facts = $derived(regionInspectionFacts(snapshot));
+  const historySources = $derived(historySourceEntries(snapshot));
+  const historyReview = $derived(
+    new Set(getHistoryEventsNeedingReview(snapshot).map((event) => event.id)),
+  );
 </script>
 
 <details {id} class="inspection" bind:open={expanded}>
@@ -21,6 +36,72 @@
       These records explain what the generator established, inferred or left unknown. They are
       included in the raw artifact export.
     </p>
+    {#if snapshot.history.events.length}
+      <h4>History evidence</h4>
+      <p>
+        These saved accounts are backstory. Present facts constrain what they may say; they do not
+        prove that an event happened.
+      </p>
+      {#each [...snapshot.history.events].sort((a, b) => a.time.order - b.time.order) as event (event.id)}
+        {@const anchor = `${historyEventAnchor(event.id)}-evidence`}
+        <details
+          id={anchorPrefix ? `${anchorPrefix}-${anchor}` : undefined}
+          open={focusId === anchor}
+        >
+          <summary
+            >{event.name || `Event ${event.time.order + 1}`}{historyReview.has(event.id)
+              ? ' — needs review'
+              : ''}</summary
+          >
+          <p>{event.origin === 'authored' ? 'Authored history' : 'Generated backstory'}</p>
+          {#if event.description}<p>{event.description}</p>{/if}
+          <p>Rule: {event.evidence.reason.ruleId}</p>
+          <p>
+            Causal parents: {event.causedByEventIds
+              .map((id) => snapshot.history.events.find((e) => e.id === id)?.name || id)
+              .join('; ') || 'None recorded'}
+          </p>
+          <h5>Compatibility checked against</h5>
+          <pre>{JSON.stringify(
+              {
+                historyVersion: snapshot.history.version,
+                id: event.id,
+                time: event.time,
+                causedByEventIds: event.causedByEventIds,
+                participants: event.participants,
+                outcome: event.outcome,
+                consequences: event.consequences,
+                evidence: event.evidence,
+              },
+              null,
+              2,
+            )}</pre>
+        </details>
+      {/each}
+      {#if snapshot.history.actors.length}
+        <details>
+          <summary>Historical actors</summary>
+          <p>
+            These are historical polities or communities, separate from the region's current realms
+            and inhabitants.
+          </p>
+          {#each snapshot.history.actors as actor (actor.id)}<p>
+              {actor.name} — historical {actor.kind}, {actor.origin}
+            </p>
+            <pre>{JSON.stringify(actor, null, 2)}</pre>{/each}
+        </details>
+      {/if}
+      <h4>Present facts explained by history</h4>
+      {#each historySources as source (source.anchorId)}
+        <details
+          id={anchorPrefix ? `${anchorPrefix}-${source.anchorId}` : undefined}
+          open={focusId === source.anchorId}
+        >
+          <summary>{source.label}</summary>
+          <pre>{JSON.stringify(source.record ?? 'Source unavailable', null, 2)}</pre>
+        </details>
+      {/each}
+    {/if}
     {#if snapshot.overviewReason}
       <details>
         <summary

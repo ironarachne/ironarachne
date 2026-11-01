@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import RegionEvidenceInspector from '$components/locations/RegionEvidenceInspector.svelte';
   import {
     regionToUiDocument,
+    historyEventAnchor,
     landscapePlaceAnchor,
     landscapeOwnerHeading,
     type RegionSnapshot,
@@ -10,6 +12,16 @@
   const { snapshot }: { snapshot: RegionSnapshot } = $props();
   const uid = $props.id();
   let inspectionOpen = $state(false);
+  let inspectionTarget = $state<string | undefined>();
+  async function inspect(anchorId: string) {
+    inspectionOpen = true;
+    inspectionTarget = anchorId;
+    await tick();
+    const target = globalThis.document.getElementById(`${uid}-${anchorId}`);
+    if (target instanceof HTMLDetailsElement) target.open = true;
+    target?.scrollIntoView({ block: 'nearest' });
+    target?.querySelector<HTMLElement>('summary')?.focus();
+  }
   const document = $derived(regionToUiDocument(snapshot));
   const notableIds = $derived(new Set(snapshot.facts.notables.map((fact) => fact.id)));
 </script>
@@ -40,6 +52,7 @@
         <article
           id={entry.anchorId ? `${uid}-${entry.anchorId}` : undefined}
           data-fact-id={factId}
+          data-history-event={entry.historyEventId}
           data-landscape-place={entry.anchorId}
           data-notable-id={factId && notableIds.has(factId) ? factId : undefined}
         >
@@ -58,8 +71,19 @@
               <p data-gazetteer-text>{paragraph}</p>
             {/each}
           {/if}
+          {#if entry.historyEventId && entry.warning}<p data-gazetteer-text>{entry.warning}</p>{/if}
           {#each entry.references ?? [] as reference}
-            <p><a href={`#${uid}-${reference.anchorId}`}>{reference.label}</a></p>
+            <p>
+              <a
+                href={`#${uid}-${reference.anchorId}`}
+                onclick={entry.historyEventId
+                  ? (event) => {
+                      event.preventDefault();
+                      void inspect(reference.anchorId);
+                    }
+                  : undefined}>{reference.label}</a
+              >
+            </p>
           {/each}
           {#if entry.possibleWork}
             <h5>Possible work</h5>
@@ -69,6 +93,15 @@
             <h5>{entry.hookHeading}</h5>
             <p data-gazetteer-text>{entry.hook}</p>
           {/if}
+          {#if entry.historyEventId}
+            <a
+              href={`#${uid}-${historyEventAnchor(entry.historyEventId)}-evidence`}
+              onclick={(event) => {
+                event.preventDefault();
+                void inspect(`${historyEventAnchor(entry.historyEventId!)}-evidence`);
+              }}>Inspect history</a
+            >
+          {/if}
           {#if entry.inspectionFactIds?.length}
             <a
               class="inspect-place"
@@ -76,13 +109,21 @@
               onclick={() => (inspectionOpen = true)}>Inspect facts</a
             >
           {/if}
-          {#if entry.warning}<p data-gazetteer-text>{entry.warning}</p>{/if}
+          {#if !entry.historyEventId && entry.warning}<p data-gazetteer-text>
+              {entry.warning}
+            </p>{/if}
         </article>
       {/each}
     </section>
   {/each}
 </div>
-<RegionEvidenceInspector {snapshot} id={`${uid}-evidence`} bind:expanded={inspectionOpen} />
+<RegionEvidenceInspector
+  {snapshot}
+  id={`${uid}-evidence`}
+  anchorPrefix={uid}
+  focusId={inspectionTarget}
+  bind:expanded={inspectionOpen}
+/>
 
 <style>
   article {

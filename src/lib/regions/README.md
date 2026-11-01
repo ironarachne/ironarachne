@@ -784,3 +784,19 @@ existing settlement, organization, realm and semantic-fact removals. Retained ev
 review is distinct from deleted events. Authored dependents/actors block source deletion; a selected
 authored event can be explicitly deleted while its other authored dependents remain protected.
 These reports are transient and are not new payload fields. History controls and reading remain #484.
+
+## Reading and editing saved history
+
+`region_history_presentation.ts` builds the shared History section from the complete stored
+snapshot, before reading-only fact filtering. It follows opening/identity material and precedes
+geography in the page, workshop, Markdown, text/PDF and project publication. The original gazetteer
+plan remains intact; history has its own allowance of six saved generated events. Reading and
+exporting never generate wording or resolve external references.
+
+Stale generated events are omitted with a history review notice, even if no events remain readable.
+Authored events retain their saved text (including intentional blanks) and adjacent warnings.
+“Explains” labels resolve current identities; the evidence inspector shows saved observations,
+versioned rules, causes and historical actors as compatibility evidence, not historical proof.
+The saved editor supports text, optional relative dates, order, removal and actor names through the
+existing pure editing APIs. Removal confirmations describe the history impact; authored dependents
+remain protected. Only a confirmed whole-region reroll generates a replacement account.

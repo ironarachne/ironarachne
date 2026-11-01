@@ -865,3 +865,133 @@ test.describe('a region', () => {
     expect(await heading.innerText()).not.toEqual(first);
   });
 });
+
+test.describe('regional history', () => {
+  test.slow();
+  test('reads, inspects, edits and exports the saved account in standalone and workshop', async ({
+    page,
+  }, testInfo) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await openEmpty(page);
+    await createProject(page, 'History project');
+    await openGenerator(page);
+    await page.getByLabel('Affiliation', { exact: true }).selectOption('affiliated');
+    await page.getByLabel('Seed', { exact: true }).fill('5wyedz5q272fz');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    const history = page
+      .locator('.gazetteer')
+      .getByRole('region', { name: 'History', exact: true });
+    await expect(history).toBeVisible();
+    const words = await history.locator('[data-gazetteer-text]').allTextContents();
+    expect(words.length).toBeGreaterThan(0);
+    expect(words.length).toBeLessThanOrEqual(6);
+    const sections = await page.locator('.gazetteer > section > h3').allTextContents();
+    expect(sections.indexOf('History')).toBeLessThan(sections.indexOf('Landscape'));
+    const explains = history.getByRole('link', { name: /^Explains:/ }).first();
+    const href = await explains.getAttribute('href');
+    await explains.focus();
+    await page.keyboard.press('Enter');
+    const source = page.locator(`[id="${href!.slice(1)}"]`);
+    await expect(source.locator(':scope > summary')).toBeFocused();
+    await expect(source).toHaveAttribute('open', '');
+    await history.getByRole('link', { name: 'Inspect history', exact: true }).first().click();
+    await expect(page.locator('details.inspection')).toContainText(
+      'Present facts constrain what they may say',
+    );
+    await expect(page.locator('details.inspection details[open]').first()).toContainText('Rule:');
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download Markdown' }).click();
+    const markdown = await new Response(await (await download).createReadStream()).text();
+    for (const sentence of words) expect(markdown).toContain(sentence);
+    await saveAs(page, 'Saved History');
+    await page.reload({ waitUntil: 'load' });
+    const panel = await openInWorkshop(page, 'Saved History');
+    const savedHistory = panel
+      .locator('.gazetteer')
+      .getByRole('region', { name: 'History', exact: true });
+    await expect(savedHistory).toBeVisible();
+    expect(await savedHistory.locator('[data-gazetteer-text]').allTextContents()).toEqual(words);
+    await panel.locator('.history-editor > summary').focus();
+    await page.keyboard.press('Enter');
+    const editor = panel.locator('.history-editor');
+    const description = editor.getByLabel('History event 1 description', { exact: true });
+    await description.fill('The referee records an uncertain beginning.');
+    await expect(savedHistory).toContainText('The referee records an uncertain beginning.');
+    const firstDate = editor.getByLabel('History event 1 years before present', { exact: true });
+    await firstDate.fill('100');
+    await firstDate.press('Tab');
+    await expect(savedHistory).toContainText('100 years before the present');
+    const secondDate = editor.getByLabel('History event 2 years before present', { exact: true });
+    await secondDate.fill('200');
+    await secondDate.press('Tab');
+    await expect(editor.getByRole('alert')).toBeVisible();
+    await expect(secondDate).toHaveValue('');
+    await firstDate.fill('');
+    await firstDate.press('Tab');
+    await editor.getByRole('button', { name: 'Move history event 2 later', exact: true }).click();
+    await expect(editor.getByLabel('History event 3 name', { exact: true })).toHaveValue(
+      /Founding/,
+    );
+    // The old realm's fall cannot precede its founding, and authored dependents protect it.
+    await editor.getByRole('button', { name: 'Move history event 4 earlier', exact: true }).click();
+    await expect(editor.getByRole('alert')).toBeVisible();
+    await editor
+      .getByLabel('History event 4 description', { exact: true })
+      .fill('An authored account of the former realm falling.');
+    await editor.getByRole('button', { name: 'Remove history event 3', exact: true }).click();
+    await expect(page.getByRole('alertdialog')).toContainText('Authored history prevents removal:');
+    await page.getByRole('alertdialog').getByRole('button', { name: 'OK', exact: true }).click();
+    // An intentional blank remains blank after persistence and export.
+    await description.fill('');
+    await expect(description).toHaveValue('');
+    const actor = editor.getByLabel('Historical actor 1 name', { exact: true });
+    await expect(actor).toBeVisible();
+    {
+      await actor.fill('The Remembered Realm');
+      await actor.press('Tab');
+      await expect(savedHistory).toContainText('History needs review');
+    }
+    for (const width of [320, 360, 375, 390, 430]) {
+      await page.setViewportSize({ width, height: 900 });
+      await description.scrollIntoViewIfNeeded();
+      await expectNoHorizontalOverflow(page);
+      await expect(description).toBeVisible();
+    }
+    await page.screenshot({
+      path: testInfo.outputPath('history-editor-mobile.png'),
+      animations: 'disabled',
+    });
+    await panel.getByRole('button', { name: 'Save changes', exact: true }).click();
+    await expect(panel.getByRole('button', { name: 'Save changes', exact: true })).toBeDisabled();
+    await page.reload({ waitUntil: 'load' });
+    const reopened = await openInWorkshop(page, 'Saved History');
+    await reopened.locator('.history-editor > summary').click();
+    await expect(reopened.getByLabel('History event 1 description', { exact: true })).toHaveValue(
+      '',
+    );
+    // Remove a leaf event: the confirmation describes actual saved impact.
+    const remove = reopened
+      .locator('.history-editor')
+      .getByRole('button', { name: /^Remove history event \d+$/ })
+      .last();
+    const count = await reopened.locator('[data-history-editor-event]').count();
+    await remove.click();
+    const dialog = page.getByRole('alertdialog');
+    await expect(dialog).toContainText('History events to remove:');
+    await dialog.getByRole('button', { name: 'Remove history event', exact: true }).click();
+    await expect(reopened.locator('[data-history-editor-event]')).toHaveCount(count - 1);
+    const pdfDownload = page.waitForEvent('download');
+    await reopened.getByRole('button', { name: 'Download PDF', exact: true }).click();
+    expect((await pdfDownload).suggestedFilename()).toMatch(/\.pdf$/);
+    await reopened.getByRole('button', { name: 'Roll again', exact: true }).click();
+    await expect(page.getByRole('alertdialog')).toContainText('history');
+    await page
+      .getByRole('alertdialog')
+      .getByRole('button', { name: 'Cancel', exact: true })
+      .click();
+    expect(errors).toEqual([]);
+  });
+});

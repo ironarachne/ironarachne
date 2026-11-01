@@ -123,3 +123,11 @@ export { getRegionPlaceHistoryRemovalImpact } from './region_editing';
 export { getRegionResourceHistoryRemovalImpact } from './region_resource_editing';
 
 export { withRegionOverviewEvidence } from './region_resource_editing';
+
+export {
+  regionHistoryReading,
+  historySourceEntries,
+  historyEventAnchor,
+  historySourceAnchor,
+  historyRemovalMessage,
+} from './region_history_presentation';
