@@ -459,8 +459,10 @@ describe('coordinated regional editorial policy', () => {
     expect(region.facts).toEqual(before);
     expect(sentences.every(editorialSentenceChecker(toRegionSnapshot(region)))).toBe(true);
   });
-  it('keeps source data unchanged, deterministic across input ordering and bounded across a seed corpus', () => {
-    for (const seed of ['alpha', 'bravo', 'charlie', 'foxtrot', '5wyedz5q272fz']) {
+  // Each map keeps the standard timeout independently under CI's v8 coverage overhead.
+  it.each(['alpha', 'bravo', 'charlie', 'foxtrot', '5wyedz5q272fz'])(
+    'keeps source data unchanged, deterministic across input ordering and bounded for %s',
+    (seed) => {
       const saved = rollRegionSnapshot(seed);
       const region = regionFromSnapshot(saved, new RNG('restore'));
       delete region.gazetteer;
@@ -486,6 +488,6 @@ describe('coordinated regional editorial policy', () => {
           .every((sentence) => editorialSentenceCount(sentence.text) === 1),
       ).toBe(true);
       expect(rollRegionSnapshot(seed)).toEqual(saved);
-    }
-  });
+    },
+  );
 });
