@@ -1,3 +1,4 @@
+import { emptyRegionHistory } from './region_realm_identity';
 import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import { describe, expect, it, vi } from 'vitest';
@@ -174,6 +175,7 @@ describe('saved regional organization reading', () => {
     );
     expect(regionToMarkdown(sorted)).toBe(regionToMarkdown(snapshot));
     const old = structuredClone(base);
+    old.history = emptyRegionHistory();
     if (old.gazetteer?.version !== 6) throw new Error('Missing reading');
     const { organizationReadings: _readings, ...gazetteer } = old.gazetteer;
     old.gazetteer = {

@@ -9,8 +9,7 @@ import { migrateSettlementSnapshot, validateSettlementSnapshot } from './settlem
 import { toSettlementSnapshot } from './settlement_snapshot';
 import { settlementFromSnapshot } from './settlement_rehydrate';
 import { rollSettlement } from './settlement_roll';
-import { migrateRegionSnapshot } from '$lib/regions';
-import { rollRegionSnapshot } from '$lib/regions';
+import { migrateRegionSnapshot, rollRegionSnapshot, emptyRegionHistory } from '$lib/regions';
 
 const link = {
   regionTargetId: 'region-one',
@@ -77,6 +76,8 @@ describe('material links and migrations', () => {
       affiliation: 'affiliated',
       generateNeighbors: true,
     });
+    // Payload 8 predates the regional history pass.
+    snapshot.history = emptyRegionHistory();
     const old = {
       ...snapshot,
       settlements: snapshot.settlements.map((entry) => {

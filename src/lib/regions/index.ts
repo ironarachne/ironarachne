@@ -100,3 +100,5 @@ export {
 } from './region_realm_identity';
 export { regionHistoryError } from './region_history_validation';
 export { historyObservation, historyEvidenceCurrent } from './region_history_evidence';
+
+export { generateRegionHistory } from './region_history_generation';

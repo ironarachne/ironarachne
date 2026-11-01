@@ -1,3 +1,4 @@
+export { generateRegionHistory } from './region_history_generation';
 export { generateRegionGazetteer } from './region_editorial';
 export { generateSettlementActivities } from './region_activities';
 export { generateSupplyFacts } from './region_supply';

@@ -1,7 +1,8 @@
 # A regional past that explains the present
 
 **Status:** accepted — domain model and policy approved by Ben on 2026-11-01.
-Implementation is pending; linked work items below track delivery.
+Foundation (#481) is merged. Generation (#482) is implemented for review; editing and
+presentation remain pending in the linked work items below.
 
 Issue: [#470](https://github.com/ironarachne/ironarachne/issues/470).
 Related designs: [regional authoring](region-authoring.md),
@@ -414,7 +415,7 @@ Implementation is split across identity/persistence, generation, dependency/edit
 shared reading/UI/export, and final acceptance. The linked implementation issues below carry
 explicit dependencies and acceptance criteria. Related political, site and rumour work retains
 #472, #476 and #474; none is a prerequisite for the initial history implementation. #470 remains
-the parent acceptance contract. Implementation has not started as part of this design approval.
+the parent acceptance contract. Foundation and generation now implement this model; remaining work retains its linked ownership.
 
 | Implementation issue                                                                                                                       | Depends on |
 | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |

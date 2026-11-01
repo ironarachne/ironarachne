@@ -1,3 +1,4 @@
+import { historyAfterSourceRemoval } from './region_history_removal';
 import { roadPathCurrent, roadReadingRelationsCurrent } from './region_road_evidence';
 import { notableReadingCurrent } from './region_notable_identity';
 import { landscapePlaceCurrent } from './region_landscape_reading';
@@ -213,7 +214,7 @@ function regionResourceRemovalIds(
       }
     }
   }
-  return removed;
+  return historyAfterSourceRemoval(snapshot.history, removed) === null ? null : removed;
 }
 
 /** Query removal protection without constructing hypothetical snapshots or composing evidence. */
@@ -235,6 +236,7 @@ export function removeRegionResourceFact(
     ? snapshot
     : withRegionOverviewEvidence({
         ...snapshot,
+        history: historyAfterSourceRemoval(snapshot.history, removed)!,
         facts: removeRegionFactIds(snapshot.facts, removed),
       });
 }

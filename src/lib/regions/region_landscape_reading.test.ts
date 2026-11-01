@@ -1,3 +1,4 @@
+import { emptyRegionHistory } from './region_realm_identity';
 import { describe, expect, it, vi } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import { readFileSync } from 'node:fs';
@@ -411,6 +412,7 @@ describe('saved landscape reading hierarchy', () => {
     });
     expect(regionToDocument(generated(source)).paragraphs).toEqual([]);
     const old = rollRegionSnapshot('446-legacy');
+    old.history = emptyRegionHistory();
     old.gazetteer = {
       version: 1,
       blocks: old.gazetteer!.blocks.filter(

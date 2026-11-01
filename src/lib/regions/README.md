@@ -710,8 +710,8 @@ preserves older saved words and gazetteers without composing new metadata. See
 
 ## History foundation (#481)
 
-Payload version 25 adds `realmIds` and a version-1 `history` aggregate. New generation and all
-legacy migrations initialize history as empty and `unrecorded`; no events are generated yet.
+Payload version 25 adds `realmIds` and a version-1 `history` aggregate. Legacy migrations
+initialize history as empty and `unrecorded`. New generation records history on its own stream.
 Facts version 12 and gazetteer version 6 are unchanged. Snapshot and rehydration preserve saved
 history without selecting dates, actors or wording.
 
@@ -729,3 +729,27 @@ compatibility, and positive observations. Current compatibility is checked separ
 words can survive stale support. Disaster and migration outcomes remain unavailable until approved
 typed evidence adapters exist. See [the accepted design](../../../docs/region-history.md) and the
 pre-change regression fixture in `test_fixtures/region_history_481.json.gz`.
+
+## Compatible regional history (#482)
+
+`generateRegionHistory(snapshot, rng)` produces at most six ordered events after the existing
+present-fact, gazetteer and neighbor passes, using the `regional-history` named RNG. It never
+changes the supplied snapshot or replaces recorded/authored history. No schema bump is needed.
+
+Candidate rules select current embedded-site foundings, institutional foundings, unresolved-rivalry
+or recognized-claim wars, existing subordination, and explicitly invented predecessor succession.
+Predecessor fall/absorption reserves both its founding and dissolution; historical names use only
+the owned RNG after selection. Disaster, migration, unresolved references and unsupported claim
+statuses are ineligible. Present observations and transitive evidence must remain current.
+
+Selection ranks relationships before predecessor accounts and standalone founding, favors different
+meanings and the regional seat within a tier, and uses seeded ties over sorted stable IDs. It
+retains at most two war/incorporation candidates, one predecessor account and one standalone
+founding per institution kind, avoiding a chronology padded with repeated foundings. Lifecycle
+prerequisites determine order separately from saved causal links. Dates remain absent by default.
+
+Existing source-removal transactions now remove generated history dependencies and orphaned actors,
+and protect authored history from deletion. This is the minimum referential-integrity boundary
+needed to enable generation; full edit invalidation/authoring is #483 and reading/export UI is #484.
+Old gazetteer blocks and every upstream RNG stream retain their previous behavior. See the
+[reading examples](../../../test_fixtures/region_history_482.md) prepared for #485 editorial review.

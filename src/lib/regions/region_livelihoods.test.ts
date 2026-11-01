@@ -1,3 +1,4 @@
+import { emptyRegionHistory } from './region_realm_identity';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import * as Resources from '$lib/resources';
@@ -197,6 +198,7 @@ function derive(region = fixture(), seed = 'living') {
 function saved(region = derive()): RegionSnapshot {
   return {
     ...region,
+    history: emptyRegionHistory(),
     settlements: region.settlements.map((snapshot, i) => ({
       id: region.settlementIds![i],
       snapshot,

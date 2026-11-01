@@ -1,3 +1,4 @@
+import { emptyRegionHistory } from './region_realm_identity';
 import { generateProcessingFacts } from './region_processing';
 import { generateLivelihoodFacts } from './region_livelihoods';
 import { accessibleDailyLifeResources } from './region_livelihood_access';
@@ -88,6 +89,7 @@ function error(region: ReturnType<typeof fixture>) {
 function saved(region: ReturnType<typeof fixture>) {
   return {
     ...region,
+    history: emptyRegionHistory(),
     settlements: [{ id: 'settlement:home', snapshot: region.settlements[0] }],
   } as unknown as RegionSnapshot;
 }

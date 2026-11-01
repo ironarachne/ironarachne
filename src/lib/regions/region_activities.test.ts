@@ -1,3 +1,4 @@
+import { emptyRegionHistory } from './region_realm_identity';
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import type { MapNode } from '$lib/map';
@@ -30,7 +31,8 @@ import * as Passes from './region_generation_passes';
 import type { ResourceFact } from './region_fact_types';
 
 const base = rollRegionSnapshot('activity-fixture-base');
-// Custom activity fixtures predate and replace all editorial evidence.
+// Custom activity fixtures predate and replace all editorial and history evidence.
+base.history = emptyRegionHistory();
 delete base.gazetteer;
 const target = { kind: 'embedded', settlementId: 'settlement:home' } as const;
 const node = (id: number, neighbors: number[]): MapNode => ({

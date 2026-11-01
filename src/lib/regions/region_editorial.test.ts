@@ -1,3 +1,4 @@
+import { emptyRegionHistory } from './region_realm_identity';
 import { regionSemanticFactLists } from './region_fact_lists';
 import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
@@ -426,6 +427,7 @@ describe('coordinated regional editorial policy', () => {
       snapshot.gazetteer,
     );
     const historical = structuredClone(snapshot);
+    historical.history = emptyRegionHistory();
     delete historical.gazetteer;
     expect(migrateRegionSnapshot(historical, 17)).toMatchObject({ ok: true, value: historical });
     expect(historical.gazetteer).toBeUndefined();

@@ -26,6 +26,7 @@
  * regenerating over the user's work.
  */
 
+import { historyAfterSourceRemoval } from './region_history_removal';
 import type { RegionSnapshot, StoredRealm } from './region_snapshot.js';
 import type { RegionSemanticFact } from './region_resource_types';
 import {
@@ -183,7 +184,12 @@ function settlementRemovalDependencies(
         ),
     );
     if (authoredInbound || dependents.some((fact) => fact.origin === 'authored')) return null;
-    if (dependents.length === 0) return removedIds;
+    if (dependents.length === 0)
+      return historyAfterSourceRemoval(snapshot.history, removedIds, [
+        { kind: 'settlement', settlementId },
+      ]) === null
+        ? null
+        : removedIds;
     for (const fact of dependents) removedIds.add(fact.id);
   }
 }
@@ -316,12 +322,20 @@ export function removeRegionPlace(
     if (removedIds === null) return snapshot;
     return withRegionOverviewEvidence({
       ...snapshot,
+      history: historyAfterSourceRemoval(snapshot.history, removedIds, [
+        { kind: 'settlement', settlementId: snapshot.settlements[index].id },
+      ])!,
       settlements: snapshot.settlements.filter((_place, position) => position !== index),
       facts: removeRegionFactIds(snapshot.facts, removedIds),
     });
   }
+  const history = historyAfterSourceRemoval(snapshot.history, new Set(), [
+    { kind: 'organization', organizationId: snapshot.organizations[index].id },
+  ]);
+  if (history === null) return snapshot;
   return {
     ...snapshot,
+    history,
     ...(snapshot.gazetteer?.version === 6
       ? {
           gazetteer: {

@@ -1,3 +1,4 @@
+import { emptyRegionHistory } from './region_realm_identity';
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import { getProcessingRecipes, type ProcessingRecipe } from '$lib/resources';
@@ -195,6 +196,7 @@ function generate(region = fixture(), seed = 'supply') {
 function saved(region: ReturnType<typeof fixture>): RegionSnapshot {
   return {
     ...region,
+    history: emptyRegionHistory(),
     settlements: region.settlements.map((snapshot, i) => ({
       id: region.settlementIds![i],
       snapshot,

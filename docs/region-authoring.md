@@ -218,3 +218,23 @@ coastline or label-placement logic in a rule.
 For a rule change, run its focused tests while iterating and `npm run verify` before opening the PR.
 Rendering, component or route changes also require `npm run verify:all` before merging. See
 [coherence verification](region-coherence-verification.md) for representative seeds and round trips.
+
+## Regional history generation (#482)
+
+Region payload 25 carries the history aggregate introduced in #481. At the end of whole-region
+generation, after neighbors and the existing gazetteer, `generateRegionHistory` records a compatible
+backstory on the `regional-history` stream. Its candidate rules read current saved site roles,
+realm identities/parents/recognized claims and organization rivalries; they do not alter them.
+A historical predecessor is explicit generated fiction and its founding/dissolution is selected
+as a complete bundle. The pass emits at most six events, with optional omission and no calendar.
+
+Compatibility observations are saved separately from the choice of fictional past. Present facts
+are constraints, not proof that the selected past happened. All event evidence must be current at
+generation. Input arrays are canonicalized by identity before seeded selection and historical
+naming uses only that pass's RNG. Existing gazetteer sentences are not reselected or reworded.
+
+Opening a save, converting a snapshot and exporting do not invoke history generation. Migrations
+remain empty/unrecorded; a repeated library call preserves any existing recorded history. Existing
+source removals clean generated direct/causal history dependents and block damage to authored work.
+Further edit invalidation and the History reading section remain #483 and #484 respectively.
+See the [accepted design](region-history.md) and [review examples](../test_fixtures/region_history_482.md).
