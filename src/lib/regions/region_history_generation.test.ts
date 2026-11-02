@@ -3,14 +3,11 @@ import { canRemoveRegionSettlement, removeRegionPlace } from './region_editing';
 import { removeRegionResourceFact } from './region_resource_editing';
 import { regionFromSnapshot } from './region_rehydrate';
 import { toRegionSnapshot } from './region_snapshot';
-import { readFileSync } from 'node:fs';
-import { gunzipSync } from 'node:zlib';
 import { describe, expect, it, vi } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import { migrateRegionSnapshot, validateRegionSnapshot } from './region_artifact_kind';
+import { validateRegionSnapshot } from './region_artifact_kind';
 import type { RegionSnapshot } from './region_snapshot';
-import { emptyRegionFacts } from './region_facts';
-import { emptyRegionHistory, retainRegionRealms } from './region_realm_identity';
+import { retainRegionRealms } from './region_realm_identity';
 import { generateRegionHistory } from './region_history_generation';
 import { regionHistoryError } from './region_history_validation';
 import { historyEvidenceCurrent } from './region_history_evidence';
@@ -20,75 +17,13 @@ import * as Names from '$lib/names';
 import * as Passes from './region_generation_passes';
 import { rollRegionSnapshot } from './region_roll';
 
-const captured = JSON.parse(
-  gunzipSync(readFileSync('test_fixtures/region_history_481.json.gz')).toString(),
-)[0].snapshot;
-const migrated = migrateRegionSnapshot(captured, 24);
-if (!migrated.ok) throw new Error(migrated.message);
-const base = migrated.value;
-function context(): RegionSnapshot {
-  const snapshot = structuredClone(base);
-  snapshot.affiliation = 'unaffiliated';
-  snapshot.mainRealm = null;
-  snapshot.authority = null;
-  snapshot.realmIds = [];
-  snapshot.realms = [];
-  snapshot.organizations = [];
-  snapshot.settlements = [];
-  snapshot.facts = emptyRegionFacts('current');
-  snapshot.history = emptyRegionHistory();
-  delete snapshot.gazetteer;
-  delete snapshot.overviewReason;
-  return snapshot;
-}
-function realms(snapshot: RegionSnapshot, count: number) {
-  snapshot.realmIds = Array.from({ length: count }, (_, i) => `realm:${i}`);
-  snapshot.realms = snapshot.realmIds.map((id, i) => ({
-    ...structuredClone(base.realms[0]),
-    name: `the Realm of ${String.fromCharCode(65 + i)}`,
-    parent: -1,
-    claims: [],
-    tiles: [],
-    description: id,
-  }));
-}
-function organizations(snapshot: RegionSnapshot, count: number) {
-  snapshot.organizations = Array.from({ length: count }, (_, i) => ({
-    ...structuredClone(base.organizations[0]),
-    id: `organization:${i}`,
-    name: `Order ${String.fromCharCode(65 + i)}`,
-    relationships: [],
-  }));
-}
-function settlement(snapshot: RegionSnapshot, id = 'settlement:one') {
-  const entry = structuredClone(base.settlements[0]);
-  entry.id = id;
-  entry.snapshot.name = `Town ${id}`;
-  delete entry.descriptionReason;
-  snapshot.settlements.push(entry);
-  const node = snapshot.map.nodes.find((node) => node.id === entry.snapshot.mapNodeId)!;
-  snapshot.facts.settlementRoles.push({
-    id: `role:site:${id}`,
-    name: 'Present site',
-    description: '',
-    origin: 'generated',
-    settlement: { kind: 'embedded', settlementId: id },
-    areaIds: [],
-    anchor: { nodeIds: [node.id], edgeIds: [] },
-    reason: {
-      ruleId: 'fantasy:region:land-placement:v1',
-      status: 'current',
-      sources: [
-        {
-          kind: 'map-node',
-          nodeId: node.id,
-          property: 'isWater',
-          observedValue: String(node.isWater),
-        },
-      ],
-    },
-  });
-}
+import {
+  context,
+  realms,
+  organizations,
+  settlement,
+  historyPresentBase as base,
+} from '../../../test_fixtures/region_history_scenarios';
 function roll(snapshot: RegionSnapshot, seed = 'history-test'): RegionHistory {
   const result = generateRegionHistory(snapshot, new RNG(seed));
   expect(regionHistoryError(result, snapshot)).toBeNull();

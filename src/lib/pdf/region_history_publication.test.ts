@@ -35,3 +35,36 @@ it('publishes saved history in reading order and carries authored review notices
   expect(pdf.type).toBe('application/pdf');
   expect(pdf.size).toBeGreaterThan(100);
 });
+
+import { RNG } from '@ironarachne/rng';
+import { HISTORY_ACCEPTANCE_SCENARIOS } from '../../../test_fixtures/region_history_scenarios';
+import { generateRegionHistory, regionHistoryReading } from '$lib/regions';
+
+it.each(HISTORY_ACCEPTANCE_SCENARIOS)(
+  'publishes the reviewed $key account without selecting replacement words',
+  async ({ build, seed }) => {
+    const snapshot = build();
+    snapshot.history = generateRegionHistory(snapshot, new RNG(seed));
+    const before = structuredClone(snapshot);
+    const reading = regionHistoryReading(snapshot);
+    const blocks = presentationMarkdownToBlocks(
+      await (
+        await PRESENTERS.region()
+      )(snapshot as never),
+    );
+    const printed = blocks
+      .filter((block) => 'text' in block)
+      .map((block) => block.text)
+      .join('\n');
+    let position = -1;
+    for (const entry of reading.entries) {
+      const next = printed.indexOf(entry.body);
+      expect(next).toBeGreaterThan(position);
+      position = next;
+      for (const ref of entry.references) expect(printed).toContain(ref.label);
+    }
+    const pdf = await buildTextPdf(snapshot.name, regionToText(snapshot));
+    expect(pdf.type).toBe('application/pdf');
+    expect(snapshot).toEqual(before);
+  },
+);

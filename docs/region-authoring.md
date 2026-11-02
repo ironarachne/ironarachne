@@ -45,7 +45,15 @@ These names are part of the reproducibility contract:
 | 9     | `livelihoods`           | `region_livelihoods.ts`: supported settlement daily life                                                                 |
 | 10    | `supply`                | `region_supply.ts`: limitations and conditional import suggestions                                                       |
 | 11    | `notable-places`        | `region_notables.ts`: grounded landmarks and hazards                                                                     |
-| 12    | `presentation`          | `region_overview.ts`: saved overview prose                                                                               |
+| 12    | `ecology-narrative`     | Saved flora/fauna paragraph                                                                                              |
+
+The later reading stages are `regional-identity` and `gazetteer-editorial`; the latter saves
+opening prose and the 24-sentence gazetteer plan. `neighbors` completes the present realm inventory,
+then stable `realmIds` are allocated and `regional-history` runs last with its own six-event
+allowance. Other named streams for environment reconciliation, landscape names, ranges, forest
+landmarks, river geometry, managed production, resource inventory, settlement activities and
+architecture remain isolated at their existing orchestration boundaries. The exact order is in
+`regions.ts`; none is replayed by a reading or editing surface.
 
 The habitat pass accepts its stream but currently draws no randomness. Naming generators are
 rebuilt from stored pattern inputs on the habitation stream, including supplied culture patterns;
@@ -95,24 +103,31 @@ stored explanatory text; this does not mean unknown schema variants or versions 
 
 ## Migrations and authored content
 
-The current artifact payload version is **8**; `RegionFacts.version` is **6**. They version
-different layers. `migrateRegionSnapshot` accepts payload versions 1–7 and validates the result:
+The current artifact payload version is **26**; `RegionFacts.version` is **12**. New
+gazetteers are version **6**, new histories version **2**; saved history version **1** remains
+supported. These layers version independently. `migrateRegionSnapshot` accepts payload versions
+1–25 and validates the result; current payloads go directly through `validateRegionSnapshot`.
 
-| Input payload | Migration to the current schema                                                                                                                                       |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1             | Migrate legacy actors, settlements and organizations; wrap settlements with local IDs; add empty `legacy` facts                                                       |
-| 2             | Wrap settlements with local IDs; add empty `legacy` facts                                                                                                             |
-| 3 (facts 1)   | Preserve facts; add empty ecology, geology, deposit, product, daily-life and supply lists; old resources gain `unknown` availability and empty deposit links          |
-| 4 (facts 2)   | Preserve ecology and other facts; add empty geology, deposit, product, daily-life and supply lists; old resources gain `unknown` availability and empty deposit links |
-| 5 (facts 3)   | Preserve geology/resources; add empty product, daily-life and supply lists                                                                                            |
-| 6 (facts 4)   | Preserve products; add empty daily-life and supply lists                                                                                                              |
-| 7 (facts 5)   | Preserve daily life; add an empty supply list                                                                                                                         |
+| Input payload | Migration boundary                                                                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| 1–2           | Adopt legacy actors and wrap settlements with local IDs; empty legacy semantic facts                                                 |
+| 3–7           | Bring facts versions 1–5 forward, adding missing ecology, geology, processing, daily-life and supply lists without inference         |
+| 8–10          | Bring facts version 6 forward; retain geography and adopt a legacy river network only where supported by saved geometry              |
+| 11–13         | Bring facts versions 6–8 forward, including mountain-range and dense-forest lists                                                    |
+| 14–16         | Bring facts versions 9–11 forward, initializing qualified raw-source/managed-production and activity lists without inventing entries |
+| 17–24         | Retain facts version 12 and any saved gazetteer version/words; initialize stable realm IDs and empty unrecorded history              |
+| 25            | Preserve existing realm IDs and history version 1, including words, blanks and absent historical-name witnesses                      |
 
-Every path produces facts version 6. No migration selects inhabitants, discovers deposits, fills
-empty categories, rewrites the map or generates reasons. Preserve text, identity and existing
-evidence. A new persisted shape requires the repository's approved design process, version changes,
-validator changes and migration tests; adding a rule within existing types does not itself require
-a payload bump.
+All pre-history payloads (1–24) end with facts version 12, deterministic realm IDs, and
+`{ version: 1, state: 'unrecorded', actors: [], events: [] }`. They acquire no historical actors,
+events, dates, evidence or replacement gazetteer text. Payload 25 already contained history, so its
+migration preserves that history rather than erasing it or fabricating version-2 witnesses.
+Missing historical-name witnesses make affected old events need review on read. Rehydration
+preserves stored prose and geometry; it never runs generation. Existing migration suites test
+historical fact shapes; the #485 migration matrix independently exercises history adoption through
+every supported pre-history entry point. See [acceptance evidence](region-history-acceptance.md).
+A new persisted shape requires the approved design process, version changes, validator changes and
+migration tests; adding a rule within existing types does not itself require a payload bump.
 
 Saved field edits do not regenerate. Use `region_editing.ts` and `region_resource_editing.ts`
 instead of mutating a snapshot in place. Their dependency traversal protects authored dependencies,
@@ -233,8 +248,12 @@ are constraints, not proof that the selected past happened. All event evidence m
 generation. Input arrays are canonicalized by identity before seeded selection and historical
 naming uses only that pass's RNG. Existing gazetteer sentences are not reselected or reworded.
 
-Opening a save, converting a snapshot and exporting do not invoke history generation. Migrations
+Opening a save, converting a snapshot and exporting do not invoke history generation. Pre-history migrations
 remain empty/unrecorded; a repeated library call preserves any existing recorded history. Existing
 source removals clean generated direct/causal history dependents and block damage to authored work.
-Further edit invalidation and the History reading section remain #483 and #484 respectively.
-See the [accepted design](region-history.md) and [review examples](../test_fixtures/region_history_482.md).
+Editing and read-time checks now apply the approved stale/authored policy through the shared
+History adapter: stale generated accounts are omitted with a global notice; authored accounts and
+blanks remain, with adjacent warnings where necessary. Dates, order and removals must pass saved
+chronology/lifecycle validation. Only whole-region reroll creates a replacement history.
+See the [implemented design](region-history.md), [event-query contract](region-history-queries.md)
+and [accepted review examples](../test_fixtures/region_history_485.md).

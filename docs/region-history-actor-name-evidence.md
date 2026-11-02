@@ -1,6 +1,7 @@
 # Historical actor name evidence
 
-**Status:** accepted — additive domain-model amendment approved by Ben on 2026-11-01 for #483.
+**Status:** implemented — additive domain-model amendment approved by Ben on 2026-11-01 for #483.
+Final acceptance evidence is recorded in [#485 acceptance](region-history-acceptance.md).
 
 Parent design: [regional history](region-history.md). Issue:
 [#483](https://github.com/ironarachne/ironarachne/issues/483).
