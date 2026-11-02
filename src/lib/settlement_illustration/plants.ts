@@ -79,6 +79,6 @@ export function drawPlant(placement: PlantPlacement, rng: RNG): ScenePath[] {
   }
   return [
     path(d, 'none', 'secondary', placement.kind === 'cactus' ? placement.scale * 2 : 0.65),
-    ...(leaves ? [path(leaves, 'light', 'secondary', 0.45)] : []),
+    ...(leaves ? [path(leaves, 'light', 'none', 0)] : []),
   ];
 }

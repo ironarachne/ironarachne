@@ -647,6 +647,13 @@ product, and daily-life evidence. Only current attributable available/limited re
 products enter the palette. A stale `RegionalMaterialLink` yields unknown context and diagnostics,
 not a guessed palette; exporting a detached settlement retains its copied style.
 
+**Regional generation amendment (approved November 2, 2026):**
+[Construction coverage](regional-construction-coverage.md) adds a generation-only completion policy.
+The structured adapter above remains evidence-only. When its palette cannot produce buildings,
+new regional generation may explicitly add imported construction supplies to the saved architecture,
+without inventing local resources or trade facts. Existing complete styles are preserved; reads and
+stale linked contexts do not silently receive this completion.
+
 Standalone generation accepts the same explicit biome and resources. With no regional material
 source, use unknown resource knowledge by default. A caller may deliberately supply a curated palette;
 label that selection as caller input rather than assert that a forest contains every wood product.

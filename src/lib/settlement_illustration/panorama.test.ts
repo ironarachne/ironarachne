@@ -228,6 +228,38 @@ describe('settlement panorama', () => {
       ).toBeGreaterThan(drawBuilding(style, example, 0, 0, 1)!.paths.length);
     }
   });
+  it('draws side-on elevations without exposing depth as side walls or receding roof planes', () => {
+    const style = structuredClone(source.architecture.style!);
+    const example = { ...source.architecture.examples[0], placedFeatureIds: [] };
+    const profile = style.profiles.find((p) => p.id === example.profileId)!;
+    const variant = profile.variants.find((v) => v.id === example.variantId)!;
+    profile.portals = [];
+    variant.windows = null;
+    for (const surface of variant.surfaces) surface.finish = 'smooth';
+    for (const form of [
+      'flat',
+      'shed',
+      'gable',
+      'hip',
+      'gambrel',
+      'mansard',
+      'cross_gable',
+      'dome',
+      'barrel',
+    ] as RoofForm[]) {
+      variant.roof = { ...variant.roof!, form, eaves: 'deep' };
+      const shallow = drawBuilding(style, { ...example, widthDepthRatio: 4 }, 0, 0, 1)!;
+      const deep = drawBuilding(style, { ...example, widthDepthRatio: 0.25 }, 0, 0, 1)!;
+      expect(deep).toEqual(shallow);
+      // One wall face and one roof silhouette; material strokes do not add faces.
+      expect(shallow.paths.filter((p) => p.fill !== 'none')).toHaveLength(2);
+      for (const path of shallow.paths)
+        for (const match of path.d.matchAll(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/g)) {
+          expect(Number(match[1])).toBeGreaterThanOrEqual(-3);
+          expect(Number(match[1])).toBeLessThanOrEqual(27);
+        }
+    }
+  });
   it('expands bounded stochastic grammars and balances turtle branches', () => {
     for (const kind of [
       'broadleaf',

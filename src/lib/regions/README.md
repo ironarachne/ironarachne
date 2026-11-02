@@ -809,3 +809,18 @@ review. The [query contract](../../../docs/region-history-queries.md) is the int
 political tensions (#472), adventure sites (#476) and rumours (#474): consumers read current events
 by stable local identity; downstream explanations never become evidence for the history they cite.
 No political/site/rumour subsystem, disaster adapter or migration adapter is enabled by this work.
+
+### Construction coverage
+
+Newly generated land settlements receive drawable residential architecture. The evidence-only
+`regionArchitectureResources` adapter still reports only current attributable local resources and
+products. `planRegionConstruction` first preserves a complete local palette, then tries the smallest
+supplement from a seeded regional timber/board or masonry/tile supply system. Supplements are stored
+as imported architectural materials with no fabricated regional evidence, routes or trade partners.
+The operation leaves geographical resources and trade facts unchanged and uses an isolated,
+versioned seed. Generic typed timber retains its form; raw rock is not promoted to finished masonry.
+
+Styles and their bounded building examples remain in existing settlement snapshots. Reads, old saves,
+stale material references and standalone defaults do not acquire a supply palette implicitly.
+Explicit authored aquatic settlements remain unsupported. See
+[`regional-construction-coverage.md`](../../../docs/regional-construction-coverage.md).

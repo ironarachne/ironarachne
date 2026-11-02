@@ -7,7 +7,7 @@ import type {
 import { n, path, polygon } from './geometry';
 import type { BuildingPlacement, ScenePath } from './settlement_illustration_types';
 
-/** Geometry is projected from a saved example; this function makes no random choices. */
+/** A side-on elevation of a saved example; this function makes no random choices. */
 export function drawBuilding(
   style: ArchitecturalStyle,
   example: ArchitecturalInstance,
@@ -28,9 +28,6 @@ export function drawBuilding(
   const roof = variant.roof;
   const w = 24;
   const h = w * example.wallHeightWidthRatio;
-  const depth = w / (example.widthDepthRatio ?? 1);
-  const dx = depth * 0.65;
-  const dy = -depth * 0.3;
   const pt = (a: number, b: number) => `${n(x + a * scale)},${n(y + b * scale)}`;
   const poly = (points: number[][], fill: 'paper' | 'light' | 'shade' = 'paper') =>
     polygon(
@@ -44,47 +41,31 @@ export function drawBuilding(
       [w, -h],
       [0, -h],
     ]),
-    poly(
-      [
-        [w, 0],
-        [w + dx, dy],
-        [w + dx, dy - h],
-        [w, -h],
-      ],
-      'shade',
-    ),
   ];
   const e = roof.eaves === 'deep' ? 3 : roof.eaves === 'short' ? 1.2 : 0;
   const rise = w * (roof.pitch === 'steep' ? 0.65 : roof.pitch === 'moderate' ? 0.38 : 0.14);
   const roofPoints = roofOutline(roof.form, w, h, rise, e);
   if (roof.form === 'dome') {
-    // A dome converges to one apex; extruding its section would depict a barrel vault.
-    const center = (w + dx) / 2;
-    const base = -h + dy / 2;
-    const radius = (w + dx) / 2 + e;
+    const center = w / 2;
+    const base = -h;
+    const radius = w / 2 + e;
     const apex = base - w * 0.65;
     paths.push(
       path(
-        `M${pt(center - radius, base)}Q${pt(center - radius, apex)} ${pt(center, apex)}Q${pt(center + radius, apex)} ${pt(center + radius, base)}Q${pt(center, base + 4)} ${pt(center - radius, base)}Z`,
+        `M${pt(center - radius, base)}Q${pt(center - radius, apex)} ${pt(center, apex)}Q${pt(center + radius, apex)} ${pt(center + radius, base)}Z`,
         'light',
       ),
     );
     paths.push(
       path(
-        `M${pt(center, apex)}Q${pt(center - radius * 0.4, base - 8)} ${pt(center - radius * 0.35, base + 2)}M${pt(center, apex)}Q${pt(center + radius * 0.4, base - 8)} ${pt(center + radius * 0.35, base + 2)}`,
+        `M${pt(center, apex)}Q${pt(center - radius * 0.4, base - 8)} ${pt(center - radius * 0.35, base)}M${pt(center, apex)}Q${pt(center + radius * 0.4, base - 8)} ${pt(center + radius * 0.35, base)}`,
         'none',
         'secondary',
         0.4,
       ),
     );
   } else {
-    // Extrude the roof section to its back edge, then draw the front face.
-    for (let i = 0; i < roofPoints.length - 1; i++) {
-      const a = roofPoints[i];
-      const b = roofPoints[i + 1];
-      paths.push(poly([a, b, [b[0] + dx, b[1] + dy], [a[0] + dx, a[1] + dy]], 'light'));
-    }
-    paths.push(poly(roofPoints, 'paper'));
+    paths.push(poly(roofPoints, 'light'));
   }
   // Fine strokes on the visible wall encode actual enclosure material, not biome stereotypes.
   const wall = variant.surfaces.find((s) => s.role === 'outer_wall');
@@ -103,19 +84,26 @@ export function drawBuilding(
   }
   const covering = style.materials.find((m) => m.id === roof.coveringMaterialId);
   if (covering && roof.form !== 'dome') {
-    for (let t = 0.15; t < 1; t += 0.18) {
-      const a = roofPoints[roofPoints.length - 2];
-      const b = roofPoints[roofPoints.length - 1];
-      const u = a[0] + (b[0] - a[0]) * t;
-      const v = a[1] + (b[1] - a[1]) * t;
-      paths.push(
-        path(
-          `M${pt(u, v)}L${pt(u + dx, v + dy)}`,
-          'none',
-          'secondary',
-          covering.form === 'thatch' ? 0.65 : 0.3,
-        ),
-      );
+    // Clip horizontal material courses to the elevation, including separate cross-gable peaks.
+    // There is no receding roof plane or visible side wall in this projection.
+    for (let v = -h - 2; v > Math.min(...roofPoints.map((p) => p[1])); v -= 3) {
+      const crossings = roofPoints
+        .flatMap(([ax, ay], index) => {
+          const [bx, by] = roofPoints[(index + 1) % roofPoints.length];
+          return (ay <= v && by > v) || (by <= v && ay > v)
+            ? [ax + ((v - ay) * (bx - ax)) / (by - ay)]
+            : [];
+        })
+        .sort((a, b) => a - b);
+      for (let i = 0; i + 1 < crossings.length; i += 2)
+        paths.push(
+          path(
+            `M${pt(crossings[i], v)}L${pt(crossings[i + 1], v)}`,
+            'none',
+            'secondary',
+            covering.form === 'thatch' ? 0.65 : 0.3,
+          ),
+        );
     }
   }
   paths.push(...openings(variant, example.storeys, w, h, pt));
@@ -187,6 +175,7 @@ export function roofOutline(
         [left, base - 1],
         [right, base - 1],
         [right, base],
+        [left, base],
       ];
     case 'shed':
       return [

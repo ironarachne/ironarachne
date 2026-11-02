@@ -107,6 +107,18 @@ function portableBaseline(actual: unknown, expected: unknown): unknown {
   return align(JSON.parse(JSON.stringify(actual)), expected);
 }
 
+// Construction completion is an approved post-baseline change, independently covered by
+// region_architecture.test.ts. Keep every other pre-history field under the original baseline.
+function withoutConstruction(snapshot: Omit<RegionSnapshot, 'realmIds' | 'history'>) {
+  return {
+    ...snapshot,
+    settlements: snapshot.settlements.map((entry) => {
+      const { architecture: _architecture, ...settlement } = entry.snapshot;
+      return { ...entry, snapshot: settlement };
+    }),
+  };
+}
+
 describe('history foundation persistence and upstream compatibility', () => {
   it('limits portable baseline normalization to serialization and numerical roundoff', () => {
     const baseline = {
@@ -153,10 +165,14 @@ describe('history foundation persistence and upstream compatibility', () => {
     expect(base.gazetteer?.version).toBe(6);
   });
   for (const fixture of fixtures)
-    it(`preserves every old seeded field: ${fixture.seed}`, () => {
+    it(`preserves old seeded fields apart from approved construction completion: ${fixture.seed}`, () => {
       const generated = rollRegionSnapshot(fixture.seed, fixture.config);
       const { realmIds, history: stored, ...prior } = generated;
-      expect(portableBaseline(prior, fixture.snapshot)).toEqual(fixture.snapshot);
+      const expected = withoutConstruction(fixture.snapshot);
+      expect(portableBaseline(withoutConstruction(prior), expected)).toEqual(expected);
+      expect(
+        generated.settlements.every((entry) => entry.snapshot.architecture.examples.length > 0),
+      ).toBe(true);
       // Same-runtime reproducibility still requires exact values, with no tolerance.
       expect(rollRegionSnapshot(fixture.seed, fixture.config)).toEqual(generated);
       expect(realmIds).toEqual(initialRegionRealmIds(generated.realms.length));

@@ -131,3 +131,6 @@ export {
   historySourceAnchor,
   historyRemovalMessage,
 } from './region_history_presentation';
+
+export type * from './region_construction_types';
+export { planRegionConstruction } from './region_construction';
