@@ -5,6 +5,7 @@ views use the same 1000 × 300 scene. Sky, ridges, ground, vegetation and buildi
 procedural; forests use bounded stochastic L-systems. No external assets or rendering service.
 Buildings are side-on elevations: a single wall face and roof silhouette, with no isometric side
 walls or receding roof planes. Saved roof forms, pitch, eaves, materials and openings remain visible.
+Leaf clusters use flat shading without outlines; trunks, branches and other vegetation retain line work.
 
 `buildSettlementPanorama(input)` owns a local seeded RNG. Helpers share that instance;
 `renderSettlementPanorama(scene)` only serializes. Category population bounds come from the supplied

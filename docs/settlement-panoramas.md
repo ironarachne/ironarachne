@@ -21,6 +21,7 @@ prepainted building sprites, AI image service, or remote assets supply the scene
 **Art direction clarification (November 2, 2026):** Buildings use side-on elevations, not isometric
 projection. Draw one wall face and a roof silhouette, with no extruded side walls or receding roof
 planes. Keep saved architectural forms, proportions, materials and openings in the elevation.
+Leaf clusters use flat shading without contour strokes; retain line work on trunks and branches.
 
 This proposal does not change persisted settlement or architecture schemas. Exports, vault editors,
 and the region map itself are outside this issue. Landscape and weather are illustrative compositions,

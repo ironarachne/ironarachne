@@ -3,13 +3,22 @@
 These samples use the first embedded settlement from actual region generation, with default
 configuration and the indicated root seed. No curated architectural palette is supplied.
 The before snapshots were generated at `fd16a5b3`, before construction completion was added.
-The after images include the requested side-on building elevations.
+The after images include the requested side-on building elevations and flat-shaded leaf clusters.
+
+## Leaf clusters
+
+The same `alpha` settlement before and after removing leaf-cluster outlines. Only leaf shading changes;
+trunks, branches, buildings and landscape line work remain. The lined reference was rendered at
+`7141ad4a`; run the review script at that commit and the current commit to compare.
+
+![Seed alpha: outlined leaf clusters changed to flat shading](foliage-comparison.png)
 
 ## Building projection
 
 The same completed `alpha` settlement is shown before and after the art-direction clarification.
 The buildings now have a single wall face and roof silhouette, without receding side walls or roof
-planes. The architecture, building placements and landscape are identical. The isometric reference
+planes. The architecture, building placements and landscape geometry are identical; the final sample
+also includes the flat-shaded foliage. The isometric reference
 was rendered at `40ee39d0`; run the review script at that commit and the current commit to compare.
 
 ![Seed alpha: isometric projection changed to side-on elevations](projection-comparison.png)
@@ -34,7 +43,9 @@ Run `npx vite-node scripts/render_region_construction_review.ts --seed alpha --o
 to render the current generated region's first settlement. Add `--before /path/to/alpha.json` to
 compare it with a serialized `rollRegionSnapshot('alpha')` captured from the baseline commit.
 Repeat with `charlie`. The script emits standalone SVGs and a comparison sheet; the checked-in PNGs
-are Chromium screenshots of those sheets at 1040 × 785, device scale 1.
+are Chromium screenshots of comparison sheets at 1040 × 785, device scale 1. For rendering changes,
+use the standalone SVG captured at each indicated baseline commit as the before panel, so the old
+renderer is represented faithfully rather than redrawing the baseline snapshot with the new renderer.
 
 The four original problem seeds (`alpha`, `bravo`, `charlie`, `architecture-materials`) improved
 from 2/28 to 28/28 settlements with drawable examples. The two previously complete styles remain
