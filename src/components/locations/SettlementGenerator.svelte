@@ -1,4 +1,5 @@
 <script lang="ts">
+  import SettlementPanorama from '$components/locations/SettlementPanorama.svelte';
   import Stat from '$components/common/Stat.svelte';
   import StatBlock from '$components/common/StatBlock.svelte';
   import { RNG } from '@ironarachne/rng';
@@ -369,6 +370,16 @@
       <p class="settlement-referenced">Naming: <strong>{rolledCultureName}</strong> culture</p>
     {/if}
     <h2>{settlement.name}</h2>
+    <SettlementPanorama
+      input={{
+        name: settlement.name,
+        category: settlement.category,
+        population: settlement.population,
+        biome: settlement.environment.biome,
+        terrain: settlement.environment.terrain,
+        architecture: settlement.architecture,
+      }}
+    />
     <p class="settlement-meta">{settlementSummaryLine(settlement)}</p>
 
     <div class="settlement-exports">
