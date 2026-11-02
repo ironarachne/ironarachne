@@ -8,7 +8,12 @@ complete payload-version-24 snapshots, including saved gazetteer wording and map
 - `history-foundation-unaffiliated`: unaffiliated, neighbors disabled.
 
 `src/lib/regions/region_history.test.ts` decompresses these immutable snapshots and compares them
-to fresh results after projecting away only the additive `realmIds` and `history` fields. The
+to fresh results after projecting away the additive `realmIds` and `history` fields and the
+explicitly approved regional construction-completion change to each settlement's `architecture`.
+The construction policy is documented in `docs/regional-construction-coverage.md`; focused architecture
+tests check valid saved building examples, local-style preservation, supply provenance and exact
+same-runtime reproduction. All other baseline fields, including settlement prose, resources,
+trade facts and map geometry, remain compared. The
 same fixtures check migration from payload 24. Do not regenerate this baseline with newer
 code to make an upstream regression pass. Future history generation must preserve this comparison.
 

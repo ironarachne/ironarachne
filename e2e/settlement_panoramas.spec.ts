@@ -15,6 +15,20 @@ for (const [route, title] of [
     const images = page.locator('img.settlement-panorama');
     await expect(images.first()).toBeVisible({ timeout: 30000 });
     const original = await images.first().getAttribute('src');
+    if (route === '/region') {
+      const buildingPaths = await images.evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const image = node as HTMLImageElement;
+          const svg = decodeURIComponent(image.src.slice(image.src.indexOf(',') + 1));
+          return new DOMParser()
+            .parseFromString(svg, 'image/svg+xml')
+            .querySelectorAll('[data-layer="settlement"] path').length;
+        }),
+      );
+      expect(buildingPaths.length).toBeGreaterThan(0);
+      expect(buildingPaths.every((count) => count > 0)).toBe(true);
+    }
+
     for (const width of [1280, 320]) {
       await page.setViewportSize({ width, height: 900 });
       for (const image of await images.all()) {
