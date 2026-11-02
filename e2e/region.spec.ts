@@ -79,6 +79,7 @@ async function openInWorkshop(page: Page, name: string) {
     .click();
   const panel = page.locator('.artifact-panel');
   await expect(panel).toBeVisible({ timeout: 30_000 });
+  await expect(panel.locator('img.settlement-panorama')).toHaveCount(0);
   return panel;
 }
 

@@ -281,7 +281,7 @@
     {#if presentationSnapshot}
       <RegionExports snapshot={presentationSnapshot} />
       <RegionMapInspection snapshot={presentationSnapshot} />
-      <RegionGazetteer snapshot={presentationSnapshot} />
+      <RegionGazetteer snapshot={presentationSnapshot} showPanoramas />
     {/if}
 
     <p>Affiliation: {region.affiliation === 'unaffiliated' ? 'Unaffiliated' : 'Affiliated'}</p>

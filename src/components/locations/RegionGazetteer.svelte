@@ -7,7 +7,8 @@
     type RegionSnapshot,
   } from '$lib/regions';
 
-  const { snapshot }: { snapshot: RegionSnapshot } = $props();
+  const { snapshot, showPanoramas = false }: { snapshot: RegionSnapshot; showPanoramas?: boolean } =
+    $props();
   const uid = $props.id();
   const bannerSettlements = $derived(
     new Map(
@@ -53,7 +54,7 @@
           data-notable-id={factId && notableIds.has(factId) ? factId : undefined}
         >
           {#if entry.heading}<h4>{entry.heading}</h4>{/if}
-          {#if place}
+          {#if showPanoramas && place}
             <SettlementPanorama
               lazy
               input={{

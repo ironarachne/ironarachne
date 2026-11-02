@@ -51,3 +51,10 @@ roofs.
 lint, and all 101 per-library coverage gates. The focused browser checks pin the seed and use reduced
 motion so sidebar resize transitions do not contaminate the layout measurement. Both routes pass
 at 1280px and 320px.
+
+The clean full browser sweep completed in 16.5 minutes: 693 passed, five opt-in golden cases skipped,
+and three astronomy tests failed (one comparison included a transient loading message; two timed
+out). All three passed on a sequential retry. After the final generator-only opt-in correction,
+a fresh build passed six targeted checks: both panorama routes, regional save/export/reopen with
+no banners in the vault editor, and those three astronomy retries. No astronomy source or test
+expectations were changed. All five mobile projects passed the settlement and region routes.
