@@ -39,5 +39,15 @@ npx vite-node scripts/render_settlement_panoramas.ts --out /tmp/settlement-panor
 
 The default seed is `panorama-review`; `--seed` produces another reproducible specimen set. Open the
 output's `index.html` in a browser. Test coverage includes all current roof forms, window shapes,
-material families, known biome names, unknown-biome fallback, architecture availability states,
+representative wall materials, known biome names, unknown-biome fallback, architecture availability states,
 same-input equality, seed variation, bounded L-system expansion and XML validity.
+
+An alternate `panorama-review-alternate` matrix took 1.15 seconds, with a maximum of 425,281 bytes
+and 19,991 segments. These two measurements bound the reviewed samples, not every possible input.
+The final projection distinguishes domes (a single apex with curved meridians) from extruded barrel
+roofs.
+
+`npm run verify` passes on the final implementation: 562 files, 7,783 tests, zero type errors, clean
+lint, and all 101 per-library coverage gates. The focused browser checks pin the seed and use reduced
+motion so sidebar resize transitions do not contaminate the layout measurement. Both routes pass
+at 1280px and 320px.

@@ -1,6 +1,7 @@
 # Procedural settlement panorama banners
 
-**Status:** Accepted — domain model approved November 2, 2026; implementation in progress.
+**Status:** Implemented — domain model approved November 2, 2026. See the
+[visual review and validation record](settlement-panoramas-250/README.md).
 
 Addresses [#250](https://github.com/ironarachne/ironarachne/issues/250).
 
