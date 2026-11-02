@@ -1,4 +1,5 @@
 <script lang="ts">
+  import SettlementPanorama from '$components/locations/SettlementPanorama.svelte';
   import {
     regionToUiDocument,
     landscapePlaceAnchor,
@@ -6,8 +7,17 @@
     type RegionSnapshot,
   } from '$lib/regions';
 
-  const { snapshot }: { snapshot: RegionSnapshot } = $props();
+  const { snapshot, showPanoramas = false }: { snapshot: RegionSnapshot; showPanoramas?: boolean } =
+    $props();
   const uid = $props.id();
+  const bannerSettlements = $derived(
+    new Map(
+      snapshot.settlements.map((entry) => [
+        `settlement-${encodeURIComponent(entry.id)}`,
+        entry.snapshot,
+      ]),
+    ),
+  );
   const document = $derived(regionToUiDocument(snapshot));
   const notableIds = $derived(new Set(snapshot.facts.notables.map((fact) => fact.id)));
 </script>
@@ -35,6 +45,7 @@
       {/if}
       {#each section.entries as entry}
         {@const factId = entry.factId}
+        {@const place = entry.anchorId ? bannerSettlements.get(entry.anchorId) : undefined}
         <article
           id={entry.anchorId ? `${uid}-${entry.anchorId}` : undefined}
           data-fact-id={factId}
@@ -43,6 +54,19 @@
           data-notable-id={factId && notableIds.has(factId) ? factId : undefined}
         >
           {#if entry.heading}<h4>{entry.heading}</h4>{/if}
+          {#if showPanoramas && place}
+            <SettlementPanorama
+              lazy
+              input={{
+                name: place.name,
+                category: place.category,
+                population: place.population,
+                biome: place.environment.biome,
+                terrain: place.environment.terrain,
+                architecture: place.architecture,
+              }}
+            />
+          {/if}
           {#if entry.summary}<p>{entry.summary}</p>{/if}
           {#if entry.location}<p>Location: {entry.location}</p>{/if}
           {#if entry.relatedAnchorId}<a href={`#${uid}-${entry.relatedAnchorId}`}>View settlement</a
