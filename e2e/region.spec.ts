@@ -128,10 +128,7 @@ test.describe('a region', () => {
       path: testInfo.outputPath('organization-reading.png'),
       animations: 'disabled',
     });
-    await page.locator('details.inspection > summary').click();
-    await expect(page.locator('details.inspection')).toContainText(
-      'Organization contacts and supported profiles',
-    );
+    await expect(page.locator('details.inspection, pre')).toHaveCount(0);
     await saveAs(page, 'Organization Reading');
     await page.reload({ waitUntil: 'load' });
     const reopened = await openInWorkshop(page, 'Organization Reading');
@@ -197,9 +194,7 @@ test.describe('a region', () => {
         .locator('[data-gazetteer-text]')
         .allTextContents(),
     ).toEqual(words);
-    const evidence = reopened.locator('details.inspection');
-    await evidence.locator('summary').first().click();
-    await expect(evidence).toContainText('Settlement portraits and possible work');
+    await expect(reopened.locator('details.inspection, pre')).toHaveCount(0);
     expect(pageErrors).toEqual([]);
   });
 
@@ -222,7 +217,7 @@ test.describe('a region', () => {
     for (const route of await routes.all()) {
       await expect(route.locator('h4')).toContainText(' to ');
       await expect(route).not.toContainText('Hook:');
-      await expect(route.getByRole('link', { name: 'Inspect facts' })).toBeVisible();
+      await expect(route.getByRole('link', { name: 'Inspect facts' })).toHaveCount(0);
     }
     const prose = await routes.locator('[data-gazetteer-text]').allTextContents();
     const markdown = page.waitForEvent('download');
@@ -298,17 +293,12 @@ test.describe('a region', () => {
     await expectNoHorizontalOverflow(page);
   });
 
-  test('keeps declared activities and description evidence through editing and reopening', async ({
-    page,
-  }) => {
+  test('keeps declared activities through editing and reopening', async ({ page }) => {
     await openGenerator(page);
     await page.getByLabel('Seed', { exact: true }).fill('5wyedz5q272fz');
     await page.getByLabel('Lock Seed').check();
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
-    const evidence = page.locator('details.inspection');
-    await evidence.locator(':scope > summary').click();
-    await expect(evidence).toContainText('description evidence');
-    await expect(evidence).toContainText('activityKey');
+    await expect(page.locator('details.inspection, pre')).toHaveCount(0);
     await saveAs(page, 'Declared Work');
     const panel = await openInWorkshop(page, 'Declared Work');
     const description = panel.getByLabel('Activity 1 description', { exact: true });
@@ -332,9 +322,7 @@ test.describe('a region', () => {
     await expectNoHorizontalOverflow(page);
   });
 
-  test('keeps qualified raw source evidence through editing, saving and reopening', async ({
-    page,
-  }) => {
+  test('keeps raw source descriptions through editing, saving and reopening', async ({ page }) => {
     await openGenerator(page);
     await page.getByLabel('Seed', { exact: true }).fill('bravo');
     await page.getByLabel('Lock Seed').check();
@@ -343,10 +331,7 @@ test.describe('a region', () => {
     const panel = await openInWorkshop(page, 'Qualified Sources');
     const source = panel.getByRole('group', { name: 'Raw source 1', exact: true });
     await expect(source).toBeVisible();
-    const evidence = panel.locator('details.inspection');
-    await evidence.locator(':scope > summary').click();
-    await expect(evidence).toContainText('Acquisition requires');
-    await expect(evidence).toContainText('definitionId');
+    await expect(panel.locator('details.inspection, pre')).toHaveCount(0);
     await source
       .getByRole('textbox', { name: 'Raw source 1 name', exact: true })
       .fill('The referee’s named source');
@@ -700,9 +685,7 @@ test.describe('a region', () => {
     expect(contents).toContain('data-capital-pennant="true"');
   });
 
-  test('links named landscapes to one primary entry and keeps their facts inspectable', async ({
-    page,
-  }) => {
+  test('links named landscapes to readable entries without fact inspection', async ({ page }) => {
     await openGenerator(page);
     await page.getByLabel('Seed', { exact: true }).fill('5wyedz5q272fz');
     await page.getByLabel('Lock Seed').check();
@@ -723,13 +706,8 @@ test.describe('a region', () => {
     }
     expect(new Set(targetIds).size).toBe(targetIds.length);
     await links.first().click();
-    const first = page.locator(`[id="${targetIds[0]}"]`);
-    await first.getByRole('link', { name: 'Inspect facts' }).click();
-    const evidence = page.locator('details.inspection');
-    await expect(evidence).toHaveAttribute('open');
-    await expect(evidence).toContainText('Landscape reading identities and aliases');
-    await expect(evidence).toContainText('Notable reading identities and suggested adventures');
-    await expect(evidence).toContainText('mapNodeIds');
+    await expect(page.getByRole('link', { name: 'Inspect facts' })).toHaveCount(0);
+    await expect(page.locator('details.inspection, pre')).toHaveCount(0);
     const headings = await gazetteer.locator('article h4').allTextContents();
     expect(headings.join(' ')).not.toMatch(/\((?:Second |Third )?Entry\)/);
     const download = page.waitForEvent('download');
@@ -790,7 +768,7 @@ test.describe('a region', () => {
       exact: true,
     });
     expect(await settlementCharacter.locator('h4').count()).toBeGreaterThan(0);
-    // Editorial prose is bounded and selected; source inventories remain in inspection.
+    // Editorial prose is bounded and selected.
     const generatedParagraphs = await gazetteer
       .locator('[data-gazetteer-text]')
       .evaluateAll((paragraphs) =>
@@ -837,16 +815,8 @@ test.describe('a region', () => {
     expect(contents).not.toContain('## Supporting facts and explanations');
     expect(contents).not.toContain('Supporting explanation:');
     await expect(page.locator('.gazetteer details')).toHaveCount(0);
-    const evidence = page.locator('details.inspection');
-    await expect(evidence).not.toHaveAttribute('open');
-    await evidence.locator(':scope > summary').focus();
-    await page.keyboard.press('Enter');
-    await expect(evidence).toHaveAttribute('open');
-    await expect(evidence).toContainText('resource-exploitation: unknown');
-    await expect(evidence).toContainText('ruleId');
+    await expect(page.locator('details.inspection, pre')).toHaveCount(0);
     await expectNoHorizontalOverflow(page);
-    await evidence.locator(':scope > summary').click();
-    await expect(evidence).not.toHaveAttribute('open');
     await expect(
       page.getByRole('link', { name: 'Supporting explanation', exact: true }),
     ).toHaveCount(0);
@@ -885,7 +855,7 @@ test.describe('a region', () => {
 
 test.describe('regional history', () => {
   test.slow();
-  test('reads, inspects, edits and exports the saved account in standalone and workshop', async ({
+  test('reads, edits and exports the saved account without evidence blocks', async ({
     page,
   }, testInfo) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -907,18 +877,9 @@ test.describe('regional history', () => {
     expect(words.length).toBeLessThanOrEqual(6);
     const sections = await page.locator('.gazetteer > section > h3').allTextContents();
     expect(sections.indexOf('History')).toBeLessThan(sections.indexOf('Landscape'));
-    const explains = history.getByRole('link', { name: /^Explains:/ }).first();
-    const href = await explains.getAttribute('href');
-    await explains.focus();
-    await page.keyboard.press('Enter');
-    const source = page.locator(`[id="${href!.slice(1)}"]`);
-    await expect(source.locator(':scope > summary')).toBeFocused();
-    await expect(source).toHaveAttribute('open', '');
-    await history.getByRole('link', { name: 'Inspect history', exact: true }).first().click();
-    await expect(page.locator('details.inspection')).toContainText(
-      'Present facts constrain what they may say',
-    );
-    await expect(page.locator('details.inspection details[open]').first()).toContainText('Rule:');
+    await expect(history.getByText(/^Explains:/).first()).toBeVisible();
+    await expect(history.getByRole('link', { name: /Inspect/ })).toHaveCount(0);
+    await expect(page.locator('details.inspection, pre')).toHaveCount(0);
     const download = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download Markdown' }).click();
     const markdown = await new Response(await (await download).createReadStream()).text();
@@ -1054,7 +1015,7 @@ test.describe('history release acceptance', () => {
     let selectedIndex = -1;
     for (let index = 0; index < (await organizationInputs.count()); index++) {
       const name = await organizationInputs.nth(index).inputValue();
-      if (await reading.getByRole('link', { name: `Explains: ${name}`, exact: true }).count()) {
+      if (await reading.getByText(`Explains: ${name}`, { exact: true }).count()) {
         selectedIndex = index;
         break;
       }
@@ -1063,7 +1024,7 @@ test.describe('history release acceptance', () => {
     const name = await organizationInputs.nth(selectedIndex).inputValue();
     const removedWords = await reading
       .locator('article')
-      .filter({ has: page.getByRole('link', { name: `Explains: ${name}`, exact: true }) })
+      .filter({ has: page.getByText(`Explains: ${name}`, { exact: true }) })
       .locator('[data-gazetteer-text]')
       .allTextContents();
     const remove = panel.getByRole('button', {
@@ -1082,9 +1043,7 @@ test.describe('history release acceptance', () => {
     ).toEqual(generatedWords);
     await remove.click();
     await confirmation.getByRole('button', { name: 'Remove from region', exact: true }).click();
-    await expect(reading.getByRole('link', { name: `Explains: ${name}`, exact: true })).toHaveCount(
-      0,
-    );
+    await expect(reading.getByText(`Explains: ${name}`, { exact: true })).toHaveCount(0);
     const retainedWords = await reading
       .locator('[data-history-event] > [data-gazetteer-text]')
       .allTextContents();
