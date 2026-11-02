@@ -3,6 +3,16 @@
 These samples use the first embedded settlement from actual region generation, with default
 configuration and the indicated root seed. No curated architectural palette is supplied.
 The before snapshots were generated at `fd16a5b3`, before construction completion was added.
+The after images include the requested side-on building elevations.
+
+## Building projection
+
+The same completed `alpha` settlement is shown before and after the art-direction clarification.
+The buildings now have a single wall face and roof silhouette, without receding side walls or roof
+planes. The architecture, building placements and landscape are identical. The isometric reference
+was rendered at `40ee39d0`; run the review script at that commit and the current commit to compare.
+
+![Seed alpha: isometric projection changed to side-on elevations](projection-comparison.png)
 
 ## Seed `alpha`
 

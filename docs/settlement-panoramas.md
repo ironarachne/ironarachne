@@ -18,6 +18,10 @@ the image so its readability does not depend on generated scenery. Retain illust
 art on parchment, matching the region map. Generate vector geometry at runtime; no stock landscape,
 prepainted building sprites, AI image service, or remote assets supply the scene.
 
+**Art direction clarification (November 2, 2026):** Buildings use side-on elevations, not isometric
+projection. Draw one wall face and a roof silhouette, with no extruded side walls or receding roof
+planes. Keep saved architectural forms, proportions, materials and openings in the elevation.
+
 This proposal does not change persisted settlement or architecture schemas. Exports, vault editors,
 and the region map itself are outside this issue. Landscape and weather are illustrative compositions,
 not new geographical or current-weather facts written back into the settlement.
