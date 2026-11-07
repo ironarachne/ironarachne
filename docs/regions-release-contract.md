@@ -426,8 +426,9 @@ road, and settlement as an illustration; the gazetteer explains their relationsh
 
 The release does not add another genre, navigable GIS, map editing, real-world distance or travel
 simulation, deep culture generation, a full economy, a scientific climate model, settlement imagery
-(#250), or weather design (#18). These may consume the core later, but no schema field or acceptance
-criterion here presumes they ship with Regions.
+(#250), or weather design (#18). Road descriptions are also deferred from the gazetteer and its
+Markdown and PDF exports. Roads still appear on the map, and saved road facts remain available for
+future rework.
 
 After approval, #327 measures the existing workflow; #328 implements the versioned facts and
 migration; #329 and #330 build deterministic dependent passes and spatial habitats; #331–#333 add

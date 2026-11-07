@@ -30,14 +30,11 @@ describe('region prose grammar', () => {
     expect(regionHook('Hook: part of the body')).toEqual({ body: 'Hook: part of the body' });
   });
 
-  it('preserves authored hook case and punctuation in all three hook sections', () => {
+  it('preserves authored hook case and punctuation for landmarks and hazards', () => {
     const saved = rollRegionSnapshot('5wyedz5q272fz');
-    const facts = [
-      saved.facts.routes[0],
-      ...['landmark', 'hazard'].map(
-        (kind) => saved.facts.notables.find((fact) => fact.kind === kind)!,
-      ),
-    ];
+    const facts = ['landmark', 'hazard'].map(
+      (kind) => saved.facts.notables.find((fact) => fact.kind === kind)!,
+    );
     for (const fact of facts) {
       fact.origin = 'authored';
       fact.name = 'the iPhone Road';

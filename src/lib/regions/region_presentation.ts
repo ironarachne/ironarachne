@@ -8,6 +8,7 @@ import type { RegionNotableReferenceContext } from './region_notable_reading_typ
 import type { RegionLandscapeReference } from './region_landscape_reading_types';
 import { landscapePlaceAnchor, landscapeOwnerHeading } from './region_landscape_reading';
 import { regionEditorialDocument } from './region_editorial_presentation';
+import { roadDescriptionsEnabled } from './region_road_presentation';
 import { regionHook, REGION_HOOK_SECTIONS } from './region_prose';
 import { regionSourceQualifications } from './region_source_presentation';
 /** Shared sourcebook presentation for the page, Markdown and PDF. Saved prose is never rerolled. */
@@ -374,6 +375,7 @@ export function regionToDocument(
       ...factSections(
         'Travel',
         snapshot.facts.routes
+          .filter((fact) => roadDescriptionsEnabled || fact.kind !== 'road')
           .filter((fact) => isPrintable(fact.name) || isPrintable(fact.description))
           .map((fact) => ({
             ...fact,

@@ -199,56 +199,35 @@ test.describe('a region', () => {
     expect(pageErrors).toEqual([]);
   });
 
-  test('keeps the compact road directory through saving, reopening and exports', async ({
+  test('keeps roads on the map and holds back panoramas and road descriptions', async ({
     page,
   }) => {
     await openGenerator(page);
     await page.getByLabel('Seed', { exact: true }).fill('5wyedz5q272fz');
     await page.getByLabel('Lock Seed').check();
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
-    const routes = page.locator('.gazetteer article[data-fact-id^="route:road:"]');
-    expect(await routes.count()).toBeGreaterThan(0);
-    const identities = await routes.evaluateAll((entries) =>
-      entries.map((entry) => ({
-        id: entry.getAttribute('data-fact-id'),
-        anchor: entry.id.split('-route-').at(-1),
-        heading: entry.querySelector('h4')!.textContent,
-      })),
-    );
-    for (const route of await routes.all()) {
-      await expect(route.locator('h4')).toContainText(' to ');
-      await expect(route).not.toContainText('Hook:');
-      await expect(route.getByRole('link', { name: 'Inspect facts' })).toHaveCount(0);
-    }
-    const prose = await routes.locator('[data-gazetteer-text]').allTextContents();
+    const gazetteer = page.locator('.gazetteer');
+    await expect(gazetteer.getByRole('region', { name: 'Settlements', exact: true })).toBeVisible();
+    await expect(gazetteer.getByRole('region', { name: 'Travel', exact: true })).toHaveCount(0);
+    await expect(page.locator('img.settlement-panorama')).toHaveCount(0);
+    await expect(page.locator('img.region-map')).toHaveAttribute('src', /data-map-roads%3D/);
     const markdown = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download Markdown' }).click();
     const contents = await new Response(await (await markdown).createReadStream()).text();
-    for (const identity of identities) expect(contents).toContain(identity.heading);
-    for (const sentence of prose) expect(contents).toContain(sentence);
+    expect(contents).not.toContain('## Travel');
     const pdf = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download PDF' }).click();
     const pdfContents = new TextDecoder('latin1').decode(
       await new Response(await (await pdf).createReadStream()).arrayBuffer(),
     );
     expect(pdfContents.startsWith('%PDF')).toBe(true);
-    for (const identity of identities) {
-      // PDF literal strings escape parentheses and backslashes; short endpoint names do not wrap.
-      const endpoint = identity.heading!.split(' to ')[0].replace(/[()\\]/g, '\\$&');
-      expect(pdfContents).toContain(endpoint);
-    }
+    expect(pdfContents).not.toContain('(TRAVEL)');
     await saveAs(page, 'Road Country');
     await page.reload({ waitUntil: 'load' });
     const reopened = await openInWorkshop(page, 'Road Country');
-    for (const identity of identities) {
-      const route = reopened
-        .locator('.gazetteer article')
-        .filter({ has: page.getByRole('heading', { name: identity.heading!, exact: true }) });
-      await expect(route).toHaveAttribute('data-fact-id', identity.id!);
-      expect((await route.getAttribute('id'))!.split('-route-').at(-1)).toBe(identity.anchor);
-    }
-    for (const sentence of prose)
-      await expect(reopened.locator('.gazetteer')).toContainText(sentence);
+    await expect(reopened.locator('.gazetteer')).toBeVisible();
+    await expect(reopened.getByRole('region', { name: 'Travel', exact: true })).toHaveCount(0);
+    await expect(reopened.locator('img.region-map')).toHaveAttribute('src', /data-map-roads%3D/);
     await expectNoHorizontalOverflow(page);
   });
 

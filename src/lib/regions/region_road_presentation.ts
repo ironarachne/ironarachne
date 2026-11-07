@@ -6,6 +6,9 @@ import type { RegionSnapshot } from './region_snapshot';
 import type { RegionDocument } from './region_presentation';
 import type { RegionNotableReferenceContext } from './region_notable_reading_types';
 
+// Keep saved road readings available while their presentation is on hold for Regions.
+export const roadDescriptionsEnabled: boolean = false;
+
 export const roadEntryAnchor = (id: string) => `route-${encodeURIComponent(id)}`;
 
 /** Directory headings resolve identities; all descriptive sentences are already saved. */

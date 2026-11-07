@@ -2,7 +2,7 @@ import { appendHistoryReading } from './region_history_presentation';
 import { appendOrganizationReading } from './region_organization_presentation';
 import { sameSettlement } from './region_livelihood_evidence';
 import { appendSettlementReading } from './region_settlement_presentation';
-import { appendRoadReading } from './region_road_presentation';
+import { appendRoadReading, roadDescriptionsEnabled } from './region_road_presentation';
 import { regionHook } from './region_prose';
 import { notableEntryAnchor } from './region_notable_identity';
 import { appendNotableReading } from './region_notable_presentation';
@@ -52,6 +52,7 @@ export function regionEditorialDocument(
   for (const block of snapshot.gazetteer?.blocks ?? []) {
     if (
       block.destination.section === 'organization' ||
+      (!roadDescriptionsEnabled && block.destination.section === 'travel') ||
       block.destination.landscapePlaceId ||
       block.destination.notableId ||
       ((snapshot.gazetteer?.version === 5 || snapshot.gazetteer?.version === 6) &&
@@ -61,7 +62,13 @@ export function regionEditorialDocument(
       continue;
     if (authoredEcology && block.destination.section === 'ecology') continue;
     if (block.destination.section === 'opening' && snapshot.overviewReason === undefined) continue;
-    const sentences = block.sentences.filter(readable).map((sentence) => sentence.text);
+    const sentences = block.sentences
+      .filter(
+        (sentence) =>
+          (roadDescriptionsEnabled || !sentence.candidateId.startsWith('editorial:hub:')) &&
+          readable(sentence),
+      )
+      .map((sentence) => sentence.text);
     if (!sentences.length) continue;
     if (block.destination.section === 'opening') {
       // Two sentences per opening paragraph, as saved; no new wording on read.
@@ -117,12 +124,13 @@ export function regionEditorialDocument(
       )
         continue;
       if (
-        (snapshot.gazetteer?.version === 4 ||
-          snapshot.gazetteer?.version === 5 ||
-          snapshot.gazetteer?.version === 6) &&
         key === 'routes' &&
         'kind' in fact &&
-        fact.kind === 'road'
+        fact.kind === 'road' &&
+        (!roadDescriptionsEnabled ||
+          snapshot.gazetteer?.version === 4 ||
+          snapshot.gazetteer?.version === 5 ||
+          snapshot.gazetteer?.version === 6)
       )
         continue;
       const sectionName =
@@ -198,7 +206,7 @@ export function regionEditorialDocument(
   appendSettlementReading(snapshot, document, references);
   appendLandscapeReading(snapshot, document);
   appendNotableReading(snapshot, document, references);
-  appendRoadReading(snapshot, document, references);
+  if (roadDescriptionsEnabled) appendRoadReading(snapshot, document, references);
   // Authored suggestions stay distinct from generated ones, including promoted forest aliases.
   for (const section of document.sections) {
     for (const [index, id] of (section.factIds ?? []).entries()) {
