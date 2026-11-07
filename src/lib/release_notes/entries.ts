@@ -9,6 +9,24 @@ import type ReleaseNote from './release_note';
  */
 const entries: ReleaseNote[] = [
   {
+    date: '2026-11-07',
+    version: '3.2.0',
+    summary: 'Regions turns a fantasy map into a gazetteer you can use at the table',
+    features: [
+      'Generate a fantasy region from a seed, with named landscapes, local flora and fauna, resources, landmarks, and hazards shaped by its geography',
+      'Read how settlements make a living, who holds influence, and what work might be available to an adventuring party',
+      'Follow an editable regional history that connects past events to the people and places they affected',
+      'Save a region to a project, reopen it in the Workshop to revise your account, and download the gazetteer as Markdown or PDF and the map as an SVG',
+    ],
+    improvements: [
+      'Find settlements on the illustrated map with numbered references and an index, alongside distinct mountain ranges, forests, waterways, and terrain symbols',
+      'Use the same gazetteer prose in the generator, saved regions, and exports so your table notes carry through',
+    ],
+    fixes: [
+      'Corrected how the map reads latitude and tightened where timber, shellfish, and other resources can appear',
+    ],
+  },
+  {
     date: '2026-09-23',
     version: '3.1.0',
     summary: 'Projects can now be downloaded as print-friendly books made from saved work',
