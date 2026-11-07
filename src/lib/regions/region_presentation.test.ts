@@ -508,9 +508,21 @@ describe('sourcebook gazetteer', () => {
     ).toBe('More generated work.');
   });
 
-  it('resolves settlement and route names by identity after renaming and reordering', () => {
+  it('keeps river routes readable and holds back road descriptions in legacy regions', () => {
+    const [road] = snapshot.facts.routes;
+    const river = {
+      ...road,
+      id: 'route:river:fixture',
+      name: 'River route',
+      description: 'Travel downstream.',
+      kind: 'river' as const,
+    };
     const renamed = {
       ...snapshot,
+      facts: {
+        ...snapshot.facts,
+        routes: [{ ...road, name: 'Old Road', description: 'An old road description.' }, river],
+      },
       settlements: snapshot.settlements
         .map((entry, index) => ({
           ...entry,
@@ -521,34 +533,27 @@ describe('sourcebook gazetteer', () => {
     const travel = regionToDocument(renamed).sections.find(
       (section) => section.heading === 'Travel',
     );
-    for (const route of renamed.facts.routes) {
-      for (const endpoint of route.endpoints) {
-        if (endpoint.kind !== 'settlement' || endpoint.settlement.kind !== 'embedded') continue;
-        const id = endpoint.settlement.settlementId;
-        const name = renamed.settlements.find((entry) => entry.id === id)!.snapshot.name;
-        expect(travel?.lines.some((line) => line.includes(name))).toBe(true);
-      }
+    expect(travel?.factIds).toEqual([river.id]);
+    for (const endpoint of river.endpoints) {
+      if (endpoint.kind !== 'settlement' || endpoint.settlement.kind !== 'embedded') continue;
+      const id = endpoint.settlement.settlementId;
+      const name = renamed.settlements.find((entry) => entry.id === id)!.snapshot.name;
+      expect(travel?.lines[0]).toContain(name);
     }
+    expect(regionToMarkdown(renamed)).not.toContain('An old road description.');
   });
 
-  it('retains the compact road directory on reopening, display and export', () => {
-    const saved = toRegionSnapshot(rollRegion('448-directory-reopening').region);
+  it('preserves saved road facts and omits the directory from display and export', () => {
+    const saved = toRegionSnapshot(rollRegion('5wyedz5q272fz').region);
+    const road = saved.facts.routes.find((route) => route.kind === 'road')!;
+    road.origin = 'authored';
+    road.description = 'My notes on this road.';
     const before = structuredClone(saved);
-    expect(saved.facts.routes.length).toBeGreaterThan(0);
-    const ui = regionToUiDocument(saved).sections.find((section) => section.heading === 'Travel')!;
-    const exported = regionToExportDocument(saved).sections.find(
-      (section) => section.heading === 'Travel',
-    )!;
-    for (const route of saved.facts.routes) {
-      expect(route.description).toBe('');
-      const entry = ui.entries.find((entry) => entry.factId === route.id)!;
-      expect(entry.heading).toContain(' to ');
-      expect(entry.hook).toBeUndefined();
-      expect(exported.factIds).toContain(route.id);
-      for (const text of [regionToMarkdown(saved), regionToText(saved)]) {
-        expect(text).toContain(entry.heading);
-        if (entry.body) expect(text).toContain(entry.body);
-      }
+    for (const document of [regionToUiDocument(saved), regionToExportDocument(saved)])
+      expect(document.sections.some((section) => section.heading === 'Travel')).toBe(false);
+    for (const text of [regionToMarkdown(saved), regionToText(saved)]) {
+      expect(text).not.toMatch(/^(?:## Travel|TRAVEL)$/m);
+      expect(text).not.toContain(road.description);
     }
     expect(saved).toEqual(before);
   });

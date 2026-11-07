@@ -23,6 +23,12 @@ import {
 import { setRegionPlaceText } from './region_editing';
 import type { RouteFact, FactBase } from './region_fact_types';
 
+// Continue exercising road presentation while the release keeps it hidden.
+vi.mock(import('./region_road_presentation'), async (importOriginal) => ({
+  ...(await importOriginal()),
+  roadDescriptionsEnabled: true,
+}));
+
 const migrated = migrateRegionSnapshot(
   JSON.parse(
     gunzipSync(
