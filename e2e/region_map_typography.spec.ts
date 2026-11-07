@@ -8,7 +8,8 @@ let directory: string;
 test.beforeAll(() => {
   directory = mkdtempSync(join(tmpdir(), 'region-typography-e2e-'));
   execFileSync(process.execPath, [
-    resolve('node_modules/vite-node/dist/cli.mjs'),
+    '--import',
+    'tsx',
     resolve('scripts/render_region_typography_review.ts'),
     directory,
     'after',

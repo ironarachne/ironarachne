@@ -14,7 +14,8 @@ let sources: Record<string, string>;
 test.beforeAll(() => {
   directory = mkdtempSync(join(tmpdir(), 'settlement-references-451-'));
   execFileSync(process.execPath, [
-    resolve('node_modules/vite-node/dist/cli.mjs'),
+    '--import',
+    'tsx',
     resolve('scripts/render_region_typography_review.ts'),
     directory,
     'after',
