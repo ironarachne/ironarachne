@@ -107,14 +107,29 @@ function portableBaseline(actual: unknown, expected: unknown): unknown {
   return align(JSON.parse(JSON.stringify(actual)), expected);
 }
 
-// Construction completion is an approved post-baseline change, independently covered by
-// region_architecture.test.ts. Keep every other pre-history field under the original baseline.
-function withoutConstruction(snapshot: Omit<RegionSnapshot, 'realmIds' | 'history'>) {
+// Construction examples and gazetteer selections have changed since the history baseline.
+// Ecology shares the gazetteer's sentence budget, so the selected text, prompts and settlement
+// portrait mirrors are tested by the editorial suite. Keep the source facts and reading structure.
+function upstreamBaseline(snapshot: Omit<RegionSnapshot, 'realmIds' | 'history'>) {
+  const { gazetteer, ...region } = snapshot;
+  if (gazetteer?.version !== 6) throw new Error('Expected a version 6 gazetteer');
+  const { blocks: _blocks, notableReadings, settlementReadings, ...readingStructure } = gazetteer;
   return {
-    ...snapshot,
-    settlements: snapshot.settlements.map((entry) => {
-      const { architecture: _architecture, ...settlement } = entry.snapshot;
-      return { ...entry, snapshot: settlement };
+    ...region,
+    gazetteer: {
+      ...readingStructure,
+      notableReadings: notableReadings.map(({ prompt: _prompt, ...reading }) => reading),
+      settlementReadings: settlementReadings.map(({ settlement }) => settlement),
+    },
+    settlements: region.settlements.map(({ snapshot: saved, descriptionReason, ...entry }) => {
+      const { architecture: _architecture, description, ...settlement } = saved;
+      const generatedPortrait =
+        descriptionReason?.ruleId === 'fantasy:region:settlement-portrait:v1';
+      return {
+        ...entry,
+        snapshot: generatedPortrait ? settlement : { ...settlement, description },
+        ...(generatedPortrait || !descriptionReason ? {} : { descriptionReason }),
+      };
     }),
   };
 }
@@ -165,11 +180,11 @@ describe('history foundation persistence and upstream compatibility', () => {
     expect(base.gazetteer?.version).toBe(6);
   });
   for (const fixture of fixtures)
-    it(`preserves old seeded fields apart from approved construction completion: ${fixture.seed}`, () => {
+    it(`preserves seeded source data across editorial and construction changes: ${fixture.seed}`, () => {
       const generated = rollRegionSnapshot(fixture.seed, fixture.config);
       const { realmIds, history: stored, ...prior } = generated;
-      const expected = withoutConstruction(fixture.snapshot);
-      expect(portableBaseline(withoutConstruction(prior), expected)).toEqual(expected);
+      const expected = upstreamBaseline(fixture.snapshot);
+      expect(portableBaseline(upstreamBaseline(prior), expected)).toEqual(expected);
       expect(
         generated.settlements.every((entry) => entry.snapshot.architecture.examples.length > 0),
       ).toBe(true);

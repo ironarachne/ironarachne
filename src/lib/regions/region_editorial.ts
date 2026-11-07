@@ -44,6 +44,7 @@ import { createRegionEvidenceChecker } from './region_context_evidence';
 import { overviewLandscape, overviewSettlement } from './region_geography_narrative';
 import { identityCandidates } from './region_identity';
 import { ecologyCandidates } from './region_ecology_narrative';
+import { notableSubjectName } from './region_notable_identity';
 import {
   lexical,
   ordered,
@@ -59,6 +60,9 @@ const destination = (
 export const editorialDestinationKey = (value: RegionEditorialDestination) =>
   `${value.section}:${JSON.stringify(value.settlement ?? null)}${value.landscapePlaceId ? `:${value.landscapePlaceId}` : ''}${value.notableId ? `:${value.notableId}` : ''}${value.routeId ? `:${value.routeId}` : ''}${value.organizationId ? `:${value.organizationId}` : ''}`;
 const weight = { defining: 0, distinctive: 1, supporting: 2 };
+const fantasticalEcologyTopic = 'ecology:fantastical';
+const ecologyTopicOrder = ['ecology:flora', 'ecology:fauna', fantasticalEcologyTopic];
+const ecologyPresence = (id: string) => `ecology:presence:${id}`;
 const meaningKey = (entry: RegionEditorialCandidate) => entry.narrative.templates[0].id;
 const targetKey = (target: SettlementTarget) =>
   target.kind === 'embedded' ? target.settlementId : JSON.stringify(target);
@@ -320,61 +324,71 @@ export function regionEditorialCandidates(region: Region): RegionEditorialCandid
       },
     );
   }
-  const allFacts = [
-    ...facts.ecologyRelationships,
-    ...facts.ecologyInhabitants,
-    ...facts.habitats,
-    ...facts.notables,
-  ];
-  for (const entry of ecologyCandidates(snapshot, false)) {
-    const support = entry.sourceIds.flatMap((id) => allFacts.filter((fact) => fact.id === id));
-    const hazard = facts.notables.some((fact) => fact.id === entry.id && fact.kind === 'hazard');
-    if (hazard) continue; // Notable descriptions and their suggestions share one local owner.
+  const allFacts = [...facts.ecologyRelationships, ...facts.ecologyInhabitants, ...facts.habitats];
+  for (const entry of ecologyCandidates(snapshot, { concise: false, localOpinions: true })) {
     const relation = facts.ecologyRelationships.find((fact) => fact.id === entry.id);
-    const significantUse =
-      relation?.relation.kind === 'used-by' &&
-      support.some((fact) => 'category' in fact && fact.category === 'fantastical');
-    // Routine uses and feeding do not become defining just because the old local adapter said so.
+    if (!relation) continue; // Notable hazards have their own local reading.
+    const subject = facts.ecologyInhabitants.find((fact) => fact.id === relation.subjectId)!;
+    const support = entry.sourceIds.flatMap((id) => allFacts.filter((fact) => fact.id === id));
+    const settlement =
+      relation.relation.kind === 'used-by'
+        ? ({ kind: 'settlement', target: relation.relation.settlement } as const)
+        : undefined;
+    const observedName = settlement && notableSubjectName(snapshot, settlement);
     add(
       `editorial:ecology:${entry.id}`,
-      hazard ? 'hazard' : 'ecology',
-      hazard ? 'defining' : significantUse ? 'distinctive' : 'supporting',
-      relation?.subjectId ?? entry.id,
+      entry.topic === 'fantastical' ? fantasticalEcologyTopic : `ecology:${subject.category}`,
+      'distinctive',
+      subject.id,
       entry.templates[0].parts[0].options,
       support,
-      [destination(hazard ? 'hazards' : 'ecology'), destination('opening')],
+      [destination('ecology')],
       {
-        consequence: hazard || significantUse,
+        consequence: settlement !== undefined,
         connects: true,
         located: true,
-        assertions: [`ecology:${entry.id}`],
-        meaning: `editorial:ecology:${relation?.relation.kind ?? 'hazard'}`,
+        assertions: [
+          `ecology:${entry.id}`,
+          ...facts.ecologyInhabitants
+            .filter((fact) => entry.sourceIds.includes(fact.id))
+            .map((fact) => ecologyPresence(fact.id)),
+        ],
+        meaning: `editorial:ecology:${relation.relation.kind}`,
+        observations:
+          settlement && observedName
+            ? [{ kind: 'notable-name', subject: settlement, observedName }]
+            : [],
       },
     );
   }
-  for (const population of facts.ecologyInhabitants.filter(
-    (fact) => fact.category === 'fantastical',
-  )) {
+  for (const population of facts.ecologyInhabitants) {
+    const name = population.name.trim();
+    if (!name) continue;
     const habitats = facts.habitats.filter(
       (fact) => population.habitatIds.includes(fact.id) && fact.name.trim(),
     );
     if (!habitats.length || habitats.length !== population.habitatIds.length) continue;
-    const where = habitats
-      .map((fact) => fact.name)
-      .sort(lexical)
-      .join(' and ');
+    const names = habitats.map((fact) => fact.name.trim()).sort(lexical);
+    const where =
+      names.length > 2
+        ? `${names.slice(0, -1).join(', ')}, and ${names.at(-1)}`
+        : names.join(' and ');
     add(
       `editorial:presence:${population.id}`,
-      'ecology',
+      `ecology:${population.category}`,
       'distinctive',
       population.id,
       [
-        `The local ${population.name} population occurs in ${where}.`,
-        `The ${population.name} population inhabits ${where}.`,
+        `In ${where}, look for the ${name}.`,
+        `The ${name} population ${population.category === 'flora' ? 'grows' : 'lives'} in ${where}.`,
       ],
       [population, ...habitats],
-      [destination('ecology'), destination('opening')],
-      { located: true, connects: true, meaning: `editorial:presence:${population.name}` },
+      [destination('ecology')],
+      {
+        located: true,
+        assertions: [ecologyPresence(population.id)],
+        meaning: `editorial:presence:${name}`,
+      },
     );
   }
   const peers = new Map<string, Set<string>>();
@@ -497,6 +511,8 @@ export function composeRegionGazetteer(
   const token = rng.int(0, 2147483647);
   const selectionRng = new RNG(JSON.stringify(['gazetteer-selection-v1', token]));
   const wordingRng = new RNG(JSON.stringify(['gazetteer-wording-v1', token]));
+  const ecologyRng = new RNG(JSON.stringify(['gazetteer-ecology-v1', token]));
+  const includeFantasticalEcology = ecologyRng.int(1, 10) === 1;
   const nextContext = structuredClone(context);
   const blocks = new Map<string, RegionGazetteerBlock>();
   const assertionKeys = new Set<string>();
@@ -512,7 +528,9 @@ export function composeRegionGazetteer(
   );
   const usedFamilies = new Set<string>();
   const remaining = [
-    ...candidates,
+    ...candidates.filter(
+      (entry) => includeFantasticalEcology || entry.narrative.topic !== fantasticalEcologyTopic,
+    ),
     ...promptCandidates.map((candidate) => candidate.editorial),
   ].sort((a, b) => lexical(a.narrative.id, b.narrative.id));
   let sentences = 0;
@@ -684,6 +702,10 @@ export function composeRegionGazetteer(
     (a, b) =>
       sectionOrder.indexOf(a.destination.section) - sectionOrder.indexOf(b.destination.section) ||
       lexical(editorialDestinationKey(a.destination), editorialDestinationKey(b.destination)) ||
+      (a.destination.section === 'ecology'
+        ? ecologyTopicOrder.indexOf(a.entry.narrative.topic) -
+          ecologyTopicOrder.indexOf(b.entry.narrative.topic)
+        : 0) ||
       Number(b.entry.narrative.topic === 'landscape') -
         Number(a.entry.narrative.topic === 'landscape') ||
       lexical(a.entry.narrative.id, b.entry.narrative.id),

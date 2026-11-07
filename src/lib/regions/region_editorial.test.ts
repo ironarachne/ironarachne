@@ -247,16 +247,36 @@ describe('coordinated regional editorial policy', () => {
     const assertions = allSentences(region).flatMap((sentence) => sentence.assertionKeys);
     expect(assertions.filter((key) => key === 'woodland-site:town:1')).toHaveLength(1);
   });
-  it('compares supported fantastical use with mundane alternatives without an eligibility draw', () => {
-    const region = fixture(1);
+  it('highlights local plants and animals, occasionally adding fantasy and local opinions', () => {
+    const region = fixture(2);
+    region.map.nodes[1].biomeId = 'flooded grassland';
     region.facts!.habitats = [
       {
         ...fact('habitat:forest', 'temperate deciduous forest'),
         areaIds: ['area:land'],
         anchor: { nodeIds: [1], edgeIds: [] },
       },
+      {
+        ...fact('habitat:wetland', 'flooded grassland'),
+        areaIds: ['area:land'],
+        anchor: { nodeIds: [2], edgeIds: [] },
+      },
     ];
     region.facts!.ecologyInhabitants = [
+      {
+        ...fact('inhabitant:oak', 'oak tree'),
+        category: 'flora',
+        roles: ['producer'],
+        source: { kind: 'described', label: 'oak tree' },
+        habitatIds: ['habitat:forest'],
+      },
+      {
+        ...fact('inhabitant:deer', 'deer'),
+        category: 'fauna',
+        roles: ['grazer'],
+        source: { kind: 'described', label: 'deer' },
+        habitatIds: ['habitat:forest'],
+      },
       {
         ...fact('inhabitant:owlbear', 'owlbear'),
         category: 'fantastical',
@@ -264,11 +284,18 @@ describe('coordinated regional editorial policy', () => {
         source: { kind: 'described', label: 'owlbear' },
         habitatIds: ['habitat:forest'],
       },
+      {
+        ...fact('inhabitant:wisp', "will o' the wisp"),
+        category: 'fantastical',
+        roles: ['other'],
+        source: { kind: 'described', label: "will o' the wisp" },
+        habitatIds: ['habitat:wetland'],
+      },
     ];
     region.facts!.ecologyRelationships = [
       {
-        ...fact('ecology:use', 'Owlbear material use'),
-        subjectId: 'inhabitant:owlbear',
+        ...fact('ecology:use', 'Oak material use'),
+        subjectId: 'inhabitant:oak',
         habitatIds: ['habitat:forest'],
         relation: {
           kind: 'used-by',
@@ -278,18 +305,55 @@ describe('coordinated regional editorial policy', () => {
       },
     ];
     const pool = regionEditorialCandidates(region);
-    expect(
-      pool.find((entry) => entry.narrative.id === 'editorial:ecology:ecology:use')?.narrative
-        .importance,
-    ).toBe('distinctive');
-    for (let index = 0; index < 12; index++) {
+    let fantasyCount = 0;
+    let opinionCount = 0;
+    const fantasyNames = new Set<string>();
+    for (let index = 0; index < 100; index++) {
       const result = composeRegionGazetteer(pool, new RNG(String(index)));
-      expect(
-        result.gazetteer.blocks
-          .flatMap((block) => block.sentences)
-          .some((sentence) => sentence.text.includes('owlbear')),
-      ).toBe(true);
+      const sentences = result.gazetteer.blocks.find(
+        (block) => block.destination.section === 'ecology',
+      )!.sentences;
+      expect(sentences[0].text).toContain('oak tree');
+      expect(sentences[1].text).toContain('deer');
+      expect(sentences.length).toBeLessThanOrEqual(3);
+      if (sentences[2]) {
+        fantasyCount++;
+        fantasyNames.add(sentences[2].candidateId);
+      }
+      if (sentences[0].text.includes('People in Town 1 value')) opinionCount++;
     }
+    expect(fantasyCount).toBeLessThan(20);
+    expect(fantasyNames).toEqual(
+      new Set(['editorial:presence:inhabitant:owlbear', 'editorial:presence:inhabitant:wisp']),
+    );
+    expect(opinionCount).toBeGreaterThan(0);
+    expect(opinionCount).toBeLessThan(50);
+
+    generateRegionGazetteer(region, new RNG('ecology'));
+    const snapshot = toRegionSnapshot(region);
+    const section = regionToUiDocument(snapshot).sections.find(
+      (entry) => entry.heading === 'Flora and fauna',
+    )!;
+    expect(section.entries[0].body).toMatch(/deer.*oak tree|oak tree.*deer/);
+    expect(regionToMarkdown(snapshot)).toContain(section.entries[0].body);
+    const use = allSentences(region).find(
+      (sentence) => sentence.candidateId === 'editorial:ecology:ecology:use',
+    )!;
+    expect(editorialSentenceChecker(snapshot)(use)).toBe(true);
+    const renamed = setRegionPlaceText(snapshot, 'settlements', 0, 'name', 'New Town');
+    expect(editorialSentenceChecker(renamed)(use)).toBe(false);
+
+    const [relationship] = region.facts!.ecologyRelationships;
+    relationship.subjectId = 'inhabitant:deer';
+    relationship.relation = { kind: 'feeds-on', targetId: 'inhabitant:oak' };
+    const feeding = composeRegionGazetteer(regionEditorialCandidates(region), new RNG('browse'));
+    const sentences = feeding.gazetteer.blocks.find(
+      (block) => block.destination.section === 'ecology',
+    )!.sentences;
+    expect(sentences.filter((sentence) => sentence.text.includes('oak tree'))).toHaveLength(1);
+    expect(sentences.some((sentence) => /oak tree.*deer|deer.*oak tree/.test(sentence.text))).toBe(
+      true,
+    );
   });
   it('resolves a hub from valid distinct neighbours and keeps complete comparative evidence', () => {
     const region = fixture();
@@ -437,7 +501,7 @@ describe('coordinated regional editorial policy', () => {
     expect(regionGazetteerError({ version: 2, blocks: [] }, snapshot)).not.toBeNull();
   });
 
-  it('foregrounds the verified historical Belvorn hub, woodland, minerals and fantastical presence', () => {
+  it('foregrounds the verified historical Belvorn hub, woodland, minerals and local ecology', () => {
     const captured = JSON.parse(
       gunzipSync(
         readFileSync(new URL('../../../test_fixtures/region_445_belvorn.json.gz', import.meta.url)),
@@ -456,7 +520,14 @@ describe('coordinated regional editorial policy', () => {
     const prose = sentences.map((sentence) => sentence.text).join(' ');
     expect(prose).toMatch(/diamond/);
     expect(prose).toMatch(/copper/);
-    expect(prose).toContain('owlbear');
+    expect(
+      regionEditorialCandidates(region).some(
+        (entry) => entry.narrative.id === 'editorial:presence:inhabitant:fantastical:owlbear',
+      ),
+    ).toBe(true);
+    expect(region.gazetteer!.blocks.some((block) => block.destination.section === 'ecology')).toBe(
+      true,
+    );
     expect(prose.match(/bear meat/g)?.length ?? 0).toBeLessThan(7);
     expect(region.facts).toEqual(before);
     expect(sentences.every(editorialSentenceChecker(toRegionSnapshot(region)))).toBe(true);
