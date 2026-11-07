@@ -35,10 +35,12 @@
   /** What the user is asked before edits are thrown away, wherever they are thrown away from. */
   const DISCARD_PROMPT = 'This artifact has changes you have not saved. Leave them behind?';
 
-  let target = $state<ArtifactEditingTarget | undefined>(undefined);
+  // Editors replace whole snapshots. Deep proxies make validating and redrawing a region's
+  // large map expensive even when the editor changes a single field.
+  let target = $state.raw<ArtifactEditingTarget | undefined>(undefined);
   let name = $state('');
   /** The editor's replacement snapshot, or undefined while the payload is as it was read. */
-  let draft = $state<unknown>(undefined);
+  let draft = $state.raw<unknown>(undefined);
   /**
    * Bumped when the payload is replaced from outside the editor — a load, a discard, a re-roll —
    * so the editing component is remounted around the new snapshot rather than being asked to
@@ -204,9 +206,8 @@
     error = null;
     try {
       const payloadChanged = draft !== undefined;
-      // `$state.snapshot` because what an editor handed back is held in reactive state, and
-      // reactive state is a proxy: IndexedDB structure-clones what it stores, and a proxy is not
-      // something the structured clone algorithm will take.
+      // An editor can include its own reactive values. Strip their proxies before IndexedDB
+      // tries to clone the replacement snapshot.
       const result = await saveArtifactEdits(projectId, artifactId, {
         name,
         payload: draft === undefined ? undefined : $state.snapshot(draft),
