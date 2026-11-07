@@ -38,6 +38,7 @@ function evidenceIsCurrent(snapshot: RegionSnapshot, ids: string[]): boolean {
 function relationCandidate(
   snapshot: RegionSnapshot,
   relation: EcologyRelationshipFact,
+  localOpinions: boolean,
 ): NarrativeCandidate | null {
   const population = snapshot.facts.ecologyInhabitants.find(
     (fact) => fact.id === relation.subjectId,
@@ -74,6 +75,10 @@ function relationCandidate(
       `${settlement} draws on the local ${name} population in ${where} as a source of ${use}.`,
       `The ${name} population in ${where} is locally important as a source of ${use} for ${settlement}.`,
     ];
+    if (localOpinions)
+      options.push(
+        `People in ${settlement} value the ${name} found in ${where} as a source of ${use}.`,
+      );
     importance = 'defining';
   } else {
     const target = snapshot.facts.ecologyInhabitants.find(
@@ -177,12 +182,15 @@ function hazardCandidates(snapshot: RegionSnapshot): NarrativeCandidate[] {
     });
 }
 
-export function ecologyCandidates(snapshot: RegionSnapshot, concise = true): NarrativeCandidate[] {
+export function ecologyCandidates(
+  snapshot: RegionSnapshot,
+  { concise = true, localOpinions = false } = {},
+): NarrativeCandidate[] {
   const relationships = new Set<string>();
   const candidates = [
     ...hazardCandidates(snapshot),
     ...snapshot.facts.ecologyRelationships.flatMap((relation) => {
-      const entry = relationCandidate(snapshot, relation);
+      const entry = relationCandidate(snapshot, relation, localOpinions);
       if (!entry) return [];
       const key =
         relation.relation.kind === 'competes-with'

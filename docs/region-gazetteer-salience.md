@@ -72,12 +72,11 @@ list proves neither geological rarity nor absence from the world. Diamond is not
 more significant than copper. Its located opportunity can outrank repeated generic basalt because
 it distinguishes that settlement in the saved evidence.
 
-Fantastical candidates enter the same comparison without a probability gate. An explicit
-owlbear/gatherer hazard can be defining; a supported owlbear occurrence is distinctive; a routine
-feeding interaction remains supporting even if one organism is fantastical, unless the saved
-relationship establishes a more consequential meaning. Presence alone never implies attacks,
-danger or adventure hooks. If no relationship is available, a current inhabitant/habitat pair can
-support a qualified presence sentence without inventing one.
+Flora and fauna can highlight one plant and one ordinary animal. Within each category, a
+supported local use or ecological relationship takes precedence over presence alone. A use
+sentence can occasionally express what residents value about the organism using that recorded use.
+The section can add one fantastical detail when a seeded one-in-ten draw admits it. Explicit
+gathering hazards are covered in their own section. Presence alone never implies attacks or danger.
 
 ### Relationships and the hub rule
 
@@ -116,8 +115,9 @@ including deliberate repetition, across the complete gazetteer.
 | Same subject/topic across the entry                 | Two sentences, only when the second adds a different assertion or supplies the orientation exception below |
 
 Topics are a bounded regional vocabulary: landscape, settlement-role, access, ecology,
-material, practice, provision and hazard. Specific resource/population IDs are subjects, not new
-topics that evade the budget. A combined sentence consumes all its topics; it cannot smuggle in
+material, practice, provision and hazard. Flora and fauna divides ecology into plant, animal and
+fantastical topics. Specific resource/population IDs are subjects, not new topics that evade the
+budget. A combined sentence consumes all its topics; it cannot smuggle in
 extra routine details. It is one candidate expressing a coherent relationship, not arbitrary
 concatenation of several selected sentences. The 24-sentence cap includes generated ruler/culture
 orientation when eligible, rather than allowing presentation to prepend unlimited prose.
@@ -338,7 +338,7 @@ provenance and omissions, in addition to final text.
 | Forest             | Named forest; settlement inside it; road through it; several routine wood-use relationships                              | Connected woodland/place identity leads; use one coherent wood relationship only when it adds meaning. Do not print multiple generic wood sentences.                                                                                            |
 | Mineral            | Located diamond/copper opportunities and repeated basalt; one established practice with current support                  | The practice remains distinct from opportunities; settlement-specific minerals beat tied repeated construction texture. No automatic diamond-first ranking, mine or export claim.                                                               |
 | Sparse             | One current landscape meaning; ordinary climate; missing/stale site and resource support                                 | One short opening, no forced section paragraphs, no invented isolation or scarcity.                                                                                                                                                             |
-| Fantastical        | Supported owlbear presence and habitat; two ordinary wood-material uses; optional explicit gatherer hazard               | Presence competes as distinctive without a gate; explicit danger can rank defining only in the hazard variant. No unsupported attacks.                                                                                                          |
+| Fantastical        | Supported owlbear presence and habitat; two ordinary wood-material uses; optional explicit gatherer hazard               | An owlbear can appear on an eligible roll alongside ordinary ecology. Explicit danger can rank defining in the hazard variant. No unsupported attacks.                                                                                          |
 | Belvorn regression | Captured `5wyedz5q272fz` snapshot with verified road graph, settlement populations, woodland and extraction/source facts | If confirmed by the snapshot, Revilun's hub/size and connected woodland/material meanings lead. Diamond and copper opportunities remain eligible rather than being lost to first-item selection. No seven repeated bear-meat/basalt paragraphs. |
 
 Also verify:
