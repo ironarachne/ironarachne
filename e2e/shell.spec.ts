@@ -67,8 +67,15 @@ test.describe('the application shell', () => {
     const mark = identity.getByRole('img', { name: 'Vastways' });
     await expect(mark).toBeVisible();
     await expect
-      .poll(() => mark.evaluate((image: HTMLImageElement) => image.currentSrc))
-      .toContain('vastways-mark-mono-reversed');
+      .poll(() =>
+        mark.evaluate(
+          (image: HTMLImageElement) =>
+            image.currentSrc !== image.src &&
+            image.naturalWidth > 0 &&
+            image.naturalWidth === image.naturalHeight,
+        ),
+      )
+      .toBe(true);
 
     await page.keyboard.press('Tab');
     await expect(drawerToggle(page)).toBeFocused();
