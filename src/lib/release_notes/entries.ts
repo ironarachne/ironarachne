@@ -10,6 +10,7 @@ import type ReleaseNote from './release_note';
 const entries: ReleaseNote[] = [
   {
     date: '2026-11-08',
+    version: '4.0.0',
     summary: 'Iron Arachne is now Vastways, the worldbuilding workshop by Iron Arachne',
     improvements: [
       'Vastways has a new logo, a plum and copper palette, and updated branding on PDFs and backup downloads',
