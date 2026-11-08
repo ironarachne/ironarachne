@@ -54,14 +54,14 @@ export type BuildExportOptions = {
 /**
  * The file name a download lands under.
  *
- * `ironarachne-<what>-YYYY-MM-DD.json`, so ten of these in one folder sort by date and read as what
+ * `vastways-<what>-YYYY-MM-DD.json`, so ten of these in one folder sort by date and read as what
  * they are. The date is the export's own, in UTC — a file named for the day it was made is more
  * use than one named for the reader's timezone.
  */
 export function exportFileName(scope: ExportScope, label: string, exportedAt: string): string {
   const day = exportedAt.slice(0, 10);
   const fallback = scope === 'vault' ? 'vault' : scope;
-  return `ironarachne-${slugify(label) || fallback}-${day}.json`;
+  return `vastways-${slugify(label) || fallback}-${day}.json`;
 }
 
 /** A name reduced to something a file system, a URL, and a person can all cope with. */

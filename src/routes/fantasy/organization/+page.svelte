@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Organization Generator | Iron Arachne</title>
+  <title>Organization Generator | Vastways</title>
 </svelte:head>
 
 <OrganizationGenerator />

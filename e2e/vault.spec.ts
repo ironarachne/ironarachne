@@ -20,7 +20,7 @@ const panels = (page: Page) => page.locator('section.workshop-panel');
 const projectsPage = (page: Page) => page.locator('section.projects');
 
 async function openEmpty(page: Page): Promise<void> {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await page.evaluate(() => localStorage.clear());
   await page.evaluate(
     () =>
@@ -76,7 +76,7 @@ test.describe('the result vault', () => {
     await createProject(page, 'Dolmenwood');
     await saveACulture(page, 'The Drune');
 
-    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
 
     // The whole point of the vault being global: Dolmenwood is the project that is open, and
     // Ashfall's culture is listed anyway.
@@ -93,7 +93,7 @@ test.describe('the result vault', () => {
     await createProject(page, 'Dolmenwood');
     await saveACulture(page, 'The Drune');
 
-    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
 
     await vault(page).getByLabel('Project').selectOption({ label: 'Ashfall' });
     await expect(row(page, 'The Emberfolk')).toBeVisible();
@@ -117,7 +117,7 @@ test.describe('the result vault', () => {
     await createProject(page, 'Dolmenwood');
     await saveACulture(page, 'The Drune');
 
-    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
     await vault(page).getByLabel('Project').selectOption({ label: 'Ashfall' });
 
     const roll = vault(page).getByRole('button', { name: 'Roll from these' });
@@ -136,7 +136,7 @@ test.describe('the result vault', () => {
   test('inspects a selection without offering a way to edit its contents', async ({ page }) => {
     await createProject(page, 'Ashfall');
     await saveACulture(page, 'The Emberfolk');
-    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
 
     await row(page, 'The Emberfolk').click();
 
@@ -153,7 +153,7 @@ test.describe('the result vault', () => {
   test('renames from the Inspector, and the listing follows', async ({ page }) => {
     await createProject(page, 'Ashfall');
     await saveACulture(page, 'The Emberfolk');
-    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
 
     await row(page, 'The Emberfolk').click();
     await inspector(page).getByLabel('Name').fill('The Ashborn');
@@ -171,7 +171,7 @@ test.describe('the result vault', () => {
     await saveACulture(page, 'The Emberfolk');
     await createProject(page, 'Dolmenwood');
 
-    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
     await row(page, 'The Emberfolk').click();
     await inspector(page).getByRole('button', { name: 'Open in workshop' }).click();
 
@@ -186,7 +186,7 @@ test.describe('the result vault', () => {
   test('deletes an artifact after asking', async ({ page }) => {
     await createProject(page, 'Ashfall');
     await saveACulture(page, 'The Emberfolk');
-    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
 
     await row(page, 'The Emberfolk').click();
     await inspector(page).getByRole('button', { name: 'Delete' }).click();
@@ -206,7 +206,7 @@ test.describe('the result vault', () => {
     await saveACulture(page, 'The Emberfolk');
 
     await page.setViewportSize({ width: 375, height: 700 });
-    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
 
     await expect(vault(page).getByLabel('Search')).toBeVisible();
     await expect(inspector(page)).toBeHidden();

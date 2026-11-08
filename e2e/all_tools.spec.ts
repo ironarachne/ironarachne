@@ -10,7 +10,7 @@ const toolLinks = (page: Page) => index(page).locator('a.all-tools__tool');
 test.describe('the tool index', () => {
   test('links every tool in the catalog', async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await visitRoute(page, '/tools', { title: 'All Tools | Iron Arachne' });
+    await visitRoute(page, '/tools', { title: 'All Tools | Vastways' });
 
     // Counted against the top bar's own figure rather than against a number written here, and
     // rather than against `TOOL_CATALOG` imported from `src`: the suites mirror the app instead of
@@ -32,7 +32,7 @@ test.describe('the tool index', () => {
 
   test('goes to the tool on its own route rather than opening a panel', async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await visitRoute(page, '/tools', { title: 'All Tools | Iron Arachne' });
+    await visitRoute(page, '/tools', { title: 'All Tools | Vastways' });
 
     // The reason the page exists: these are anchors, so following one navigates. A button that
     // mounted a panel would leave the URL on /tools, which is the dead end the workshop's browser
@@ -50,7 +50,7 @@ test.describe('the tool index', () => {
 
   test('narrows to a name and says how much is left', async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await visitRoute(page, '/tools', { title: 'All Tools | Iron Arachne' });
+    await visitRoute(page, '/tools', { title: 'All Tools | Vastways' });
 
     const all = await toolLinks(page).count();
 
@@ -67,7 +67,7 @@ test.describe('the tool index', () => {
 
   test('marks itself in the sidebar, as a destination and not a tool route', async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await visitRoute(page, '/tools', { title: 'All Tools | Iron Arachne' });
+    await visitRoute(page, '/tools', { title: 'All Tools | Vastways' });
 
     const sidebar = page.getByRole('navigation', { name: 'Main' });
     await expect(sidebar.getByRole('link', { name: 'All Tools', exact: true })).toHaveAttribute(

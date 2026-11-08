@@ -36,29 +36,11 @@
 }
 
 [data-genre='horror'] {
-  /* The morgue, not the blood. Red is the obvious horror colour and the wrong one for a plate:
-     everything a panel holds sits on this, and a red field under a page of generated text is a page
-     nobody reads. Institutional green-grey — a room designed to be hosed down — and the blood goes
-     on top of it.
+  /* Cool the inset surface with emerald and leave room for the dark stain. */
+  --panel-surface: color-mix(in srgb, var(--emerald) 20%, var(--surface-inset));
 
-     `rgb(30 41 42)` at luminance 0.0201, which puts every ink role ahead of a base panel: 13.6:1,
-     7.1:1 and 5.15:1 against 12.2, 6.3 and 4.6. It is also the first surface drawn after #158, and
-     it shows — 0.0102 of headroom under the readability ceiling where fantasy and sci-fi have
-     0.0026, because those two were drawn as close to the old ceiling as the rule then allowed and
-     had nothing left for the layers they went on to paint. */
-  --panel-surface: color-mix(in srgb, var(--emerald) 14%, var(--charcoal));
-
-  /* Old blood, and deliberately not `--danger`.
-
-     Neat crimson is luminance 0.0882, comfortably inside the register — so the rules as they stood
-     would have allowed it, and it must not be used: crimson *is* `--danger`. A toned panel sets
-     `--panel-edge: var(--danger)` to say a write failed, so a genre painting that same edge would
-     make a horror project look like a page of failures and hide the one panel that had really
-     failed among them. A skin may not paint a tone's colour as its keyline.
-
-     50% into granite is 0.0661: inside the register, a step off the tone, and old blood rather than
-     fresh — which is the more horror answer in any case. */
-  --panel-edge: color-mix(in srgb, var(--crimson) 50%, var(--granite));
+  /* Muted crimson keeps the decorative edge distinct from the error tone. */
+  --panel-edge: color-mix(in srgb, var(--crimson) 50%, var(--border));
 
   /* The shape nothing agrees with. Every other genre's shape states a rule — the base cuts a
      diagonal pair, sci-fi chamfers all four, fantasy takes its foot, cyberpunk refuses to cut at
@@ -73,13 +55,7 @@
   --panel-corner-br: 5px;
   --panel-corner-bl: 8px;
 
-  /* Blood on bone. Crimson is 2.2:1 on charcoal and is never a text colour — "Colour roles" has
-     said so since it was written — so a genre whose colour is blood has to lighten it to say
-     anything in words. 45% into `--ink` is `rgb(197 160 160)` at 6.35:1 on the surface above: a
-     blanched, drained red, legible at label size and old rather than fresh.
-
-     The halo follows the hue, as sci-fi settled that it may. No `--accent-quiet` override, for the
-     fourth time and the same reason: gold is the message tone, and a tone outranks a genre. */
+  /* Blend crimson into ivory for readable horror accent text. */
   --accent: color-mix(in srgb, var(--crimson) 45%, var(--ink));
 }
 

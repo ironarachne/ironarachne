@@ -403,7 +403,7 @@ async function drawCover(doc: PdfDoc, publication: ProjectPublication): Promise<
   doc.setLineWidth(0.2);
   doc.rect(23, 25, PAGE_W - 46, PAGE_H - 50);
   setText(doc, 9, 'helvetica', 'bold', RULE);
-  doc.text('IRON ARACHNE  /  PROJECT BOOK', PAGE_W / 2, 43, { align: 'center' });
+  doc.text('VASTWAYS  /  PROJECT BOOK', PAGE_W / 2, 43, { align: 'center' });
   setStroke(doc, GOLD);
   doc.line(70, 49, PAGE_W - 70, 49);
   setText(doc, 31, 'times', 'bold');
@@ -513,8 +513,8 @@ export async function renderProjectBook(
   await loadPrintFonts(doc);
   doc.setProperties({
     title: publication.title,
-    subject: 'Iron Arachne project book',
-    creator: 'Iron Arachne',
+    subject: 'Vastways project book',
+    creator: 'Vastways',
   });
   const descriptionContinues = await drawCover(doc, publication);
   const tocGroups = planContents(doc, publication.entries);

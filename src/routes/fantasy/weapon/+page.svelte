@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Magic Weapon Generator | Iron Arachne</title>
+  <title>Magic Weapon Generator | Vastways</title>
 </svelte:head>
 
 <WeaponGenerator />

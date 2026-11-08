@@ -344,6 +344,10 @@ function renderCharacterSheet(doc: PdfDoc, character: DCCCharacter): void {
 export async function buildDccCharacterPdf(character: DCCCharacter): Promise<Blob> {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+  doc.setProperties({
+    title: `${character.firstName} ${character.lastName}`.trim() || 'DCC character sheet',
+    creator: 'Vastways',
+  });
   renderCharacterSheet(doc, character);
   return doc.output('blob');
 }

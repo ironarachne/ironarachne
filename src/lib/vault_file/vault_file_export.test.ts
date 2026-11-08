@@ -92,22 +92,22 @@ async function seedArtifact(
 describe('exportFileName', () => {
   it('names a file for what it holds and the day it was made', () => {
     expect(exportFileName('project', 'Aldia', '2026-08-17T09:30:00.000Z')).toBe(
-      'ironarachne-aldia-2026-08-17.json',
+      'vastways-aldia-2026-08-17.json',
     );
   });
 
   it('reduces a name with punctuation to something a file system can hold', () => {
     expect(exportFileName('artifact', 'Ka’ren — the Deep!', '2026-08-17T00:00:00.000Z')).toBe(
-      'ironarachne-ka-ren-the-deep-2026-08-17.json',
+      'vastways-ka-ren-the-deep-2026-08-17.json',
     );
   });
 
   it('falls back to the scope when a name reduces to nothing', () => {
     expect(exportFileName('project', '???', '2026-08-17T00:00:00.000Z')).toBe(
-      'ironarachne-project-2026-08-17.json',
+      'vastways-project-2026-08-17.json',
     );
     expect(exportFileName('vault', '', '2026-08-17T00:00:00.000Z')).toBe(
-      'ironarachne-vault-2026-08-17.json',
+      'vastways-vault-2026-08-17.json',
     );
   });
 });
@@ -129,7 +129,7 @@ describe('buildProjectExportFile', () => {
     if (!built.ok) {
       return;
     }
-    expect(built.value.fileName).toBe('ironarachne-aldia-2026-08-17.json');
+    expect(built.value.fileName).toBe('vastways-aldia-2026-08-17.json');
     expect(built.value.issues).toEqual([]);
     expect(built.value.envelope.scope).toBe('project');
     expect(built.value.envelope.exportedAt).toBe('2026-08-17T09:30:00.000Z');
@@ -305,7 +305,7 @@ describe('buildArtifactExportFile', () => {
       expect.unreachable('an artifact export should carry an artifact body');
       return;
     }
-    expect(built.value.fileName).toBe('ironarachne-source-2026-08-17.json');
+    expect(built.value.fileName).toBe('vastways-source-2026-08-17.json');
     expect(built.value.envelope.body.artifact.references).toEqual([
       { targetId, targetKind: anythingKind.kind, role: 'uses' },
     ]);

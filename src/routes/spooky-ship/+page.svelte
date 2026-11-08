@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Spooky Ship Generator | Iron Arachne</title>
+  <title>Spooky Ship Generator | Vastways</title>
 </svelte:head>
 
 <SpookyShipGenerator />

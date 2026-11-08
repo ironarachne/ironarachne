@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Stars Without Number Character Generator | Iron Arachne</title>
+  <title>Stars Without Number Character Generator | Vastways</title>
 </svelte:head>
 
 <SwnCharacterGenerator />

@@ -1,79 +1,40 @@
-/* Custom properties for the site — the whole vocabulary a component builds from.
- *
- * This file is the middle layer of the three in docs/visual-design.md: the vendored palette in
- * `brand/colors.css` below it, components above it. The direction is one-way. A role here
- * resolves to a palette entry or to a `color-mix()` of two and never holds a hex; a component
- * references a role or a ramp step and never reaches past this file to `--ia-*`; a genre skin
- * overrides a permitted subset of the roles and never touches a ramp.
- *
- * Every colour value lives in `brand/colors.css`, which is vendored from the brand repo and is
- * the declared source of truth for the palette (see docs/brand-assets.md). The names below are
- * this app's local vocabulary for those values — `--gold` reads better in a component than
- * `--ia-gold` — but they hold no hexes of their own, so the two files cannot drift apart. This
- * file used to restate all thirteen hexes; they still matched when they were replaced, and the
- * point of doing it then was that nothing would have noticed when they stopped.
- *
- * Add a colour by adding it to the brand repo and syncing; alias it here only if the site uses
- * it. `src/lib/styles/tokens.test.ts` fails if an alias points at a brand token that no longer
- * exists, because an undefined custom property fails silently in CSS.
+/* App roles and ramps. Components use these names; the brand swatches live
+ * in the pinned brand/colors.css. Genre skins may override selected roles.
  */
 
 :root {
-  /* ---- The palette, under the site's names ---------------------------------------------
-     Aliases only. A component names a *role* below rather than one of these; these exist so a
-     role — and a genre skin, which is the one other thing allowed to name a hue — has something
-     short to resolve to. */
-  --acid-green: var(--ia-green-acid);
-  --amethyst: var(--ia-amethyst);
-  --charcoal: var(--ia-charcoal);
-  --crimson: var(--ia-crimson);
-  --cyan: var(--ia-cyan);
-  --emerald: var(--ia-emerald);
-  --gold: var(--ia-gold);
-  --granite: var(--ia-granite);
-  --iron-arachne-green: var(--ia-green);
-  --magenta: var(--ia-magenta);
-  --plasma-blue: var(--ia-plasma-blue);
-  --slate: var(--ia-slate);
-  --tan: var(--ia-tan);
+  /* Artwork and genre accents */
+  --acid-green: var(--vw-neon-green);
+  --amethyst: var(--vw-amethyst);
+  --copper: var(--vw-copper);
+  --crimson: var(--vw-crimson);
+  --cyan: var(--vw-cyan);
+  --emerald: var(--vw-emerald);
+  --gold: var(--vw-gold);
+  --magenta: var(--vw-magenta);
+  --plasma-blue: var(--vw-plasma-blue);
 
-  /* ---- Colour roles --------------------------------------------------------------------
-     What a component actually names. Ratios are measured against `--surface-page`; every text
-     role clears 4.5:1, which is the target docs/visual-design.md holds them to.
+  /* Shared surfaces, text, and controls */
+  --surface-page: var(--vw-page);
+  --surface-raised: var(--vw-plum);
+  --surface-inset: var(--vw-inset);
+  --surface-sunken: color-mix(in srgb, var(--surface-inset) 75%, black);
 
-     `--ink-faint` is a 48% mix rather than the flat grey the mockup drew: that value measures
-     4.16:1 and would have shipped a failure at the one size it is used at. */
-  --surface-page: var(--charcoal);
-  --surface-raised: var(--slate);
-  --surface-inset: color-mix(in srgb, var(--charcoal) 80%, black);
-  --surface-sunken: color-mix(in srgb, var(--charcoal) 60%, black);
+  --border: var(--vw-divider);
+  --border-strong: var(--vw-control-border);
 
-  --border: var(--granite);
-  --border-strong: var(--tan);
+  --ink: var(--vw-ivory);
+  --ink-muted: var(--vw-secondary);
+  --ink-faint: var(--vw-quiet);
 
-  --ink: color-mix(in srgb, white 95%, var(--charcoal)); /* 15.2:1 */
-  /* Ratios below are against `--surface-raised`, not `--surface-page`. A panel is the lightest
-     surface any text in this app sits on, and #119's skin rule holds it there — a skin may shift
-     its surface's hue but never raise its luminance above this one — so it is the worst case for
-     every ink role, in every present and future genre. Measuring against the page is what hid a
-     failure here until #149: these two read 7.9:1 and 5.8:1 on the page, and a label is never on
-     the page. */
-  --ink-muted: color-mix(in srgb, white 66%, var(--charcoal)); /* 6.3:1 on a panel */
-  /* 4.6:1 on a panel — labels and kickers only, never a sentence. Was 48%, which is 3.9:1 there
-     and below the 4.5:1 floor this role is held to. Raising it alone would have left it 1.17:1
-     from `--ink-muted`, so the pair moved together and the ramp kept its three distinguishable
-     steps. */
-  --ink-faint: color-mix(in srgb, white 54%, var(--charcoal));
-
-  --accent: var(--iron-arachne-green); /* 10.6:1 */
-  --accent-quiet: var(--gold); /* 7.1:1 */
-  /* Crimson on charcoal is 2.2:1 and emerald is 2.65:1. Neither is readable, so both are an edge
-     and a fill under `--ink`-coloured text and neither is ever a text colour. That one fact is
-     what the message family is built on: two of the three tones a message can take cannot be said
-     in words at all, so a tone is always the surface and never the sentence. */
-  --danger: var(--crimson);
-  --success: var(--emerald);
-  --focus: var(--acid-green); /* 13.4:1 — the focus ring, and nothing else */
+  --accent: var(--vw-link);
+  --accent-hover: var(--vw-hover);
+  --accent-quiet: var(--gold);
+  --danger: var(--vw-error);
+  --success: var(--vw-success);
+  --warning: var(--vw-warning);
+  --info: var(--vw-info);
+  --focus: var(--vw-focus);
 
   /* The scrim, and the only token the modal system owns. It is not a brand colour, and the
      shell's drawer scrim reads it as well — the page is dimmed by one amount from one place.
@@ -82,7 +43,7 @@
      gone. They mapped a role onto a palette entry in one place, which is the right shape, but
      they were named after the one component that happened to need them first — and a banner, an
      inline notice and anything later that has to say how something went want the same three
-     meanings. All three are already roles: `--accent-quiet`, `--success` and `--danger`. */
+     meanings. All three are already roles: `--warning`, `--success` and `--danger`. */
   --modal-backdrop: rgb(0 0 0 / 50%);
 
   /* ---- Type ramp -----------------------------------------------------------------------
@@ -154,13 +115,13 @@
      system. A skin may change a border colour safely; a shadow that changed per genre would sit
      panels at different heights beside each other. */
 
-  /* The control gradient — a 4%-white mix of slate down to a 6%-black mix. This is the one
+  /* The control gradient — a copper highlight fading into shaded plum. This is the one
      place it is written; `main.css`, `fantasy.css` and `modal.css` each held their own copy of
      `rgb(92, 86, 73)`. */
   --plate: radial-gradient(
     circle at 75% 5%,
-    color-mix(in srgb, var(--slate) 95%, var(--iron-arachne-green)) 0%,
-    color-mix(in srgb, var(--slate) 74%, black) 100%
+    color-mix(in srgb, var(--surface-raised) 95%, var(--copper)) 0%,
+    color-mix(in srgb, var(--surface-raised) 74%, black) 100%
   );
   /* The two variant plates, mixed from the same slate the base plate is. A variant sets a fill,
      a keyline and a label colour and inherits the geometry, so this is the whole of what makes a
@@ -168,13 +129,13 @@
      a colour value, and `main.css` names roles. */
   --plate-primary: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--slate) 88%, var(--gold)) 0%,
-    color-mix(in srgb, var(--slate) 94%, black) 100%
+    color-mix(in srgb, var(--surface-raised) 88%, var(--gold)) 0%,
+    color-mix(in srgb, var(--surface-raised) 94%, black) 100%
   );
   --plate-danger: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--slate) 72%, var(--crimson)) 0%,
-    color-mix(in srgb, var(--slate) 92%, black) 100%
+    color-mix(in srgb, var(--surface-raised) 72%, var(--crimson)) 0%,
+    color-mix(in srgb, var(--surface-raised) 92%, black) 100%
   );
 
   --edge: inset 0 1px 0 rgb(255 255 255 / 7%);

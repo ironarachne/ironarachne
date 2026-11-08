@@ -54,6 +54,31 @@ test('static hosting: an unknown route falls back to the error document with a 4
   expect(body).toBe(errorDocument);
 });
 
+test('static hosting: publishes the Vastways share metadata and icons before JavaScript', async () => {
+  const route = await fetch(`${host.origin}/culture/`);
+  const html = await route.text();
+  expect(html).toContain('<meta property="og:site_name" content="Vastways"');
+  expect(html).toContain('https://app.ironarachne.com/vastways-social.png');
+  expect(html).toContain('rel="manifest"');
+
+  const manifestResponse = await fetch(`${host.origin}/manifest.json`);
+  expect(manifestResponse.ok).toBe(true);
+  const manifest = await manifestResponse.json();
+  expect(manifest.name).toBe('Vastways');
+  expect(manifest.icons).toHaveLength(2);
+
+  for (const path of [
+    'favicon.ico',
+    'favicon.svg',
+    'apple-touch-icon.png',
+    'vastways-social.png',
+    ...manifest.icons.map((icon: { src: string }) => icon.src),
+  ]) {
+    const response = await fetch(`${host.origin}/${path}`);
+    expect(response.ok, path).toBe(true);
+  }
+});
+
 test('static hosting: distributes the Open Game License used by rules data', async () => {
   const response = await fetch(`${host.origin}/legal/open-game-license-1.0a.txt`);
   const body = await response.text();
@@ -81,7 +106,7 @@ test('static hosting: the error document renders the site error page in a browse
 test('static hosting: a deep link renders its page in a browser', async ({ page }) => {
   await page.goto(`${host.origin}/heraldry/`, { waitUntil: 'load' });
 
-  await expect(page).toHaveTitle('Heraldry Generator | Iron Arachne');
+  await expect(page).toHaveTitle('Heraldry Generator | Vastways');
   await expect(page.getByRole('heading', { level: 1, name: 'Heraldry Generator' })).toBeVisible();
 });
 

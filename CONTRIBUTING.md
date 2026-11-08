@@ -1,4 +1,4 @@
-# Contributing to Iron Arachne
+# Contributing to Vastways
 
 Use the [README](README.md#run-locally) to install and run the app. This guide covers what to do
 after setup. [AGENTS.md](AGENTS.md) records the full repository contracts and their rationale;

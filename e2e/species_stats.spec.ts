@@ -15,7 +15,7 @@ import { visitRoute } from './helpers';
  * ladder's own flip by `e2e/tables.spec.ts`.
  */
 
-const TITLE = 'Species Height and Weight Calculator | Iron Arachne';
+const TITLE = 'Species Height and Weight Calculator | Vastways';
 
 const summary = (page: Page) => page.locator('.summary');
 const ladders = (page: Page) => page.locator('.ladder');
@@ -139,7 +139,7 @@ test.describe('the species height and weight calculator', () => {
 
   test('works the same mounted in a workshop panel', async ({ page }) => {
     // Requirement 2.1.
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await visitRoute(page, '/workshop', { title: 'Workshop | Vastways' });
     await page
       .locator('section.tool-browser')
       .getByRole('button', { name: /^Species Height and Weight Calculator/ })

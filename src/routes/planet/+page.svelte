@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Planet Generator | Iron Arachne</title>
+  <title>Planet Generator | Vastways</title>
 </svelte:head>
 
 <PlanetGenerator />

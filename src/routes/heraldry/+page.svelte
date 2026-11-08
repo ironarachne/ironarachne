@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Heraldry Generator | Iron Arachne</title>
+  <title>Heraldry Generator | Vastways</title>
 </svelte:head>
 
 <HeraldryGenerator />

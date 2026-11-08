@@ -17,7 +17,7 @@ const panels = (page: Page) => page.locator('section.workshop-panel');
 const panelTitles = (page: Page) => page.locator('.workshop-panel .panel__title');
 
 async function openWorkshop(page: Page): Promise<void> {
-  await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+  await visitRoute(page, '/workshop', { title: 'Workshop | Vastways' });
 }
 
 /** A workshop with nothing in it: each test starts from an origin no other run has touched. */
@@ -682,7 +682,7 @@ test.describe('saving what a tool made', () => {
   });
 
   test('prompts for a project when a tool is used on its own route', async ({ page }) => {
-    await visitRoute(page, '/culture', { title: 'Culture Generator | Iron Arachne' });
+    await visitRoute(page, '/culture', { title: 'Culture Generator | Vastways' });
 
     await page.getByRole('button', { name: 'Save to project' }).click();
     // With nothing to save into, the prompt offers to make somewhere rather than refusing.
@@ -1650,8 +1650,8 @@ test.describe('project export and import', () => {
         page.waitForEvent('download'),
         transfer(page).getByRole('button', { name: 'Export project' }).click(),
       ]);
-      expect(download.suggestedFilename()).toMatch(/^ironarachne-ashfall-\d{4}-\d{2}-\d{2}\.zip$/);
-      await expect(transfer(page).getByText(/^Saved ironarachne-ashfall-/)).toBeVisible();
+      expect(download.suggestedFilename()).toMatch(/^vastways-ashfall-\d{4}-\d{2}-\d{2}\.zip$/);
+      await expect(transfer(page).getByText(/^Saved vastways-ashfall-/)).toBeVisible();
       return download.path();
     });
 
@@ -1710,7 +1710,7 @@ test.describe('project export and import', () => {
         });
 
       await expect(transfer(page).getByRole('alert')).toContainText(
-        'not an Iron Arachne export file',
+        'not a Vastways or Iron Arachne export file',
       );
     });
     await expectProjectCount(page, 1);
@@ -1743,8 +1743,8 @@ test.describe('vault export and import', () => {
         page.waitForEvent('download'),
         storagePanel(page).getByRole('button', { name: 'Export everything' }).click(),
       ]);
-      expect(download.suggestedFilename()).toMatch(/^ironarachne-vault-\d{4}-\d{2}-\d{2}\.json$/);
-      await expect(storagePanel(page).getByText(/^Saved ironarachne-vault-/)).toBeVisible();
+      expect(download.suggestedFilename()).toMatch(/^vastways-vault-\d{4}-\d{2}-\d{2}\.json$/);
+      await expect(storagePanel(page).getByText(/^Saved vastways-vault-/)).toBeVisible();
       return download.path();
     });
   }
@@ -1805,7 +1805,7 @@ test.describe('vault export and import', () => {
         })(),
       ]);
       // The pre-restore export is the undo, and it is produced before anything is written.
-      expect(backup.suggestedFilename()).toMatch(/^ironarachne-vault-/);
+      expect(backup.suggestedFilename()).toMatch(/^vastways-vault-/);
 
       await expect(
         vaultTransfer(page).getByText(/Restored 1 project holding 1 artifact/),
@@ -1847,7 +1847,7 @@ test.describe('vault export and import', () => {
    * the vault now, which is what that page actually was: everything saved, in one list.
    */
   test('the retired saved-data page sends you to the vault', async ({ page }) => {
-    await visitRoute(page, '/saved-data', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/saved-data', { title: 'Result Vault | Vastways' });
 
     await expect(page).toHaveURL(/\/vault\/?$/);
     await expect(page.getByRole('heading', { name: 'Result Vault', level: 1 })).toBeVisible();
@@ -1925,7 +1925,7 @@ test.describe('when the browser has no room to save', () => {
         .getByRole('button', { name: /^Download this/ })
         .click(),
     ]);
-    expect(download.suggestedFilename()).toMatch(/^ironarachne-the-emberfolk-.*\.json$/);
+    expect(download.suggestedFilename()).toMatch(/^vastways-the-emberfolk-.*\.json$/);
     await expect(storageDialog(page)).toContainText('Saved to your downloads');
 
     await storageDialog(page).getByRole('button', { name: 'Not now' }).click();
@@ -2043,7 +2043,7 @@ test.describe('legacy save adoption', () => {
    * starts from nothing — which is the state a returning user is actually in.
    */
   async function seedALegacyCulture(page: Page): Promise<string> {
-    await visitRoute(page, '/culture', { title: 'Culture Generator | Iron Arachne' });
+    await visitRoute(page, '/culture', { title: 'Culture Generator | Vastways' });
     await page.evaluate(() => localStorage.clear());
     await page.reload({ waitUntil: 'load' });
 

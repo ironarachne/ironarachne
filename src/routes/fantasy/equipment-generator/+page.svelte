@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Equipment Generator | Iron Arachne</title>
+  <title>Equipment Generator | Vastways</title>
 </svelte:head>
 
 <EquipmentGenerator />

@@ -28,6 +28,7 @@ function writeBodyLines(doc: PdfDoc, lines: string[], startY: number): void {
 export async function buildTextPdf(title: string, body: string): Promise<Blob> {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+  doc.setProperties({ title, creator: 'Vastways' });
 
   doc.setFontSize(TITLE_FONT_SIZE);
   doc.setFont('helvetica', 'bold');

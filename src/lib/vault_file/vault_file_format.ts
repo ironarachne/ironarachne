@@ -207,7 +207,7 @@ export async function parseExportFile(
   if (record === null || record.format !== EXPORT_FORMAT_MARKER) {
     return rejected(
       'not-ours',
-      'This is not an Iron Arachne export file. It may be valid JSON, but nothing in it says it came from here.',
+      'This is not a Vastways or Iron Arachne export file. Choose a backup exported from the app.',
     );
   }
   if (typeof record.formatVersion !== 'number' || !Number.isInteger(record.formatVersion)) {
@@ -216,7 +216,7 @@ export async function parseExportFile(
   if (record.formatVersion > EXPORT_FORMAT_VERSION) {
     return rejected(
       'newer-format',
-      `This file was written by a newer version of Iron Arachne (format ${record.formatVersion}; this build reads ${EXPORT_FORMAT_VERSION}). Reload the site and try again.`,
+      `This file was written by a newer version of Vastways (format ${record.formatVersion}; this build reads ${EXPORT_FORMAT_VERSION}). Reload the site and try again.`,
     );
   }
 

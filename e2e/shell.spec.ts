@@ -29,7 +29,7 @@ test.describe('the application shell', () => {
   test('marks the destination you are on, and marks none on a tool route', async ({ page }) => {
     await page.setViewportSize(DESKTOP);
 
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await visitRoute(page, '/workshop', { title: 'Workshop | Vastways' });
     await expect(sidebar(page).getByRole('link', { name: 'Workshop' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -57,6 +57,33 @@ test.describe('the application shell', () => {
     expect(Number(await tools.innerText())).toBeGreaterThan(0);
   });
 
+  test('keeps the home mark visible and keyboard reachable at the narrowest width', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await visitRoute(page, '/');
+
+    const identity = page.getByRole('link', { name: 'Vastways', exact: true });
+    const mark = identity.getByRole('img', { name: 'Vastways' });
+    await expect(mark).toBeVisible();
+    await expect
+      .poll(() =>
+        mark.evaluate(
+          (image: HTMLImageElement) =>
+            image.currentSrc !== image.src &&
+            image.naturalWidth > 0 &&
+            image.naturalWidth === image.naturalHeight,
+        ),
+      )
+      .toBe(true);
+
+    await page.keyboard.press('Tab');
+    await expect(drawerToggle(page)).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(identity).toBeFocused();
+    await expect(identity).toHaveCSS('outline-width', '2px');
+  });
+
   test('links the browser-only storage explanation to backup and restore', async ({ page }) => {
     await page.setViewportSize(DESKTOP);
     await visitRoute(page, '/');
@@ -79,7 +106,7 @@ test.describe('the application shell', () => {
     // database, and hydration publishes no event. A bar that only read at mount said "0 artifacts,
     // no project" for an entire visit and came right only if the user happened to save something.
     await page.setViewportSize(DESKTOP);
-    await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+    await visitRoute(page, '/projects', { title: 'Projects | Vastways' });
     await page.evaluate(() => localStorage.clear());
     await page.evaluate(
       () =>
@@ -102,7 +129,7 @@ test.describe('the application shell', () => {
 
     // A fresh load of a different page: nothing here writes anything, so the bar has to have gone
     // and looked.
-    await visitRoute(page, '/release-notes', { title: 'Release Notes | Iron Arachne' });
+    await visitRoute(page, '/release-notes', { title: 'Release Notes | Vastways' });
     await expect(bar.locator('.top-bar__stat--project dd')).toHaveText('Ashfall');
     await expect(bar.locator('.top-bar__stat--artifacts dd')).toHaveText('0');
   });
@@ -143,7 +170,7 @@ test.describe('the application shell', () => {
     await drawerToggle(page).click();
     await sidebar(page).getByRole('link', { name: 'Release Notes' }).click();
 
-    await expect(page).toHaveTitle('Release Notes | Iron Arachne');
+    await expect(page).toHaveTitle('Release Notes | Vastways');
     await expect(drawerToggle(page)).toHaveAttribute('aria-expanded', 'false');
   });
 
@@ -154,11 +181,11 @@ test.describe('the application shell', () => {
 
     // The point of the redesign: the bench gets the page region, and a page of running text does
     // not, because a 1200px line is unreadable.
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await visitRoute(page, '/workshop', { title: 'Workshop | Vastways' });
     const bench = await page.locator('section.workshop').boundingBox();
     expect(bench?.width ?? 0).toBeGreaterThan(900);
 
-    await visitRoute(page, '/release-notes', { title: 'Release Notes | Iron Arachne' });
+    await visitRoute(page, '/release-notes', { title: 'Release Notes | Vastways' });
     const prose = await page.locator('section.main').boundingBox();
     expect(prose?.width ?? 0).toBeLessThan(900);
   });

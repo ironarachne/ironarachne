@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Arms Manufacturer Generator | Iron Arachne</title>
+  <title>Arms Manufacturer Generator | Vastways</title>
 </svelte:head>
 
 <ArmsManufacturerGenerator />

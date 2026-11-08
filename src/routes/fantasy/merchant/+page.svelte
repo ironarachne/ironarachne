@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Fantasy Merchant Generator | Iron Arachne</title>
+  <title>Fantasy Merchant Generator | Vastways</title>
 </svelte:head>
 
 <MerchantGenerator />

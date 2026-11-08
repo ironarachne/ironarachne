@@ -3,6 +3,10 @@
   import { resolve } from '$app/paths';
 </script>
 
+<svelte:head>
+  <title>{$page.status === 404 ? 'Page not found' : 'Something went wrong'} | Vastways</title>
+</svelte:head>
+
 <div class="error-container">
   <h1>{$page.status}: {$page.error?.message ?? 'Unknown Error'}</h1>
 

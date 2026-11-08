@@ -259,7 +259,7 @@ describe('buildVaultExportFile', () => {
       expect.unreachable('a vault export should carry a vault body');
       return;
     }
-    expect(built.value.fileName).toBe('ironarachne-vault-2026-08-17.json');
+    expect(built.value.fileName).toBe('vastways-vault-2026-08-17.json');
     expect(built.value.envelope.body.projects).toHaveLength(2);
     expect(built.value.envelope.body.artifacts).toHaveLength(3);
     expect(built.value.envelope.body.workspaces).toHaveLength(1);

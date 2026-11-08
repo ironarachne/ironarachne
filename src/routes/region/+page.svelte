@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Region Generator | Iron Arachne</title>
+  <title>Region Generator | Vastways</title>
 </svelte:head>
 
 <RegionGenerator />

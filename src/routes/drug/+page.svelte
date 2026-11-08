@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Cyberpunk Drug Generator | Iron Arachne</title>
+  <title>Cyberpunk Drug Generator | Vastways</title>
 </svelte:head>
 
 <DrugGenerator />

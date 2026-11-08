@@ -9,6 +9,14 @@ import type ReleaseNote from './release_note';
  */
 const entries: ReleaseNote[] = [
   {
+    date: '2026-11-08',
+    summary: 'Iron Arachne is now Vastways, the worldbuilding workshop by Iron Arachne',
+    improvements: [
+      'Vastways has a new logo, a plum and copper palette, and updated branding on PDFs and backup downloads',
+      'Your projects and saved results are still here in this browser. Existing backups and bookmarked tool links still work',
+    ],
+  },
+  {
     date: '2026-11-07',
     version: '3.2.0',
     summary: 'Regions turns a fantasy map into a gazetteer you can use at the table',

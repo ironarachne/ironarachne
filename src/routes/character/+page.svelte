@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Character | Iron Arachne</title>
+  <title>Character | Vastways</title>
 </svelte:head>
 
 <CharacterGenerator />

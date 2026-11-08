@@ -1,7 +1,7 @@
 # Release notes
 
 This library holds the site's **user-facing release notes** — the dated entries shown to visitors
-about what changed on Iron Arachne — as data rather than markup, so the home page and the release
+about what changed in Vastways — as data rather than markup, so the home page and the release
 notes page render the same source.
 
 It is not the git history and not a `CHANGELOG.md`: entries are written for players and GMs, in

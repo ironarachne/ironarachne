@@ -81,7 +81,7 @@ describe('buildUnsavedArtifactExportFile', () => {
       expect.unreachable('an unsaved artifact should export at artifact scope');
       return;
     }
-    expect(built.value.fileName).toBe('ironarachne-the-deep-2026-08-17.json');
+    expect(built.value.fileName).toBe('vastways-the-deep-2026-08-17.json');
     expect(built.value.envelope.body.artifact).toMatchObject({
       kind: 'test.note',
       name: 'The Deep',

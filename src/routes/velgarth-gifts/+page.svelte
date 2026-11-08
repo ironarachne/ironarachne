@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Velgarth Gifts Generator | Iron Arachne</title>
+  <title>Velgarth Gifts Generator | Vastways</title>
 </svelte:head>
 
 <VelgarthGiftsGenerator />

@@ -10,7 +10,8 @@
     docs/app-shell.md refuses an About page as a sixth destination. The footer is where it lands.
   -->
   <p>
-    Iron Arachne is written by Ben, who also writes about it at
+    By <a href="https://www.ironarachne.com">Iron Arachne</a>. Vastways is written by Ben, who also
+    writes about it at
     <a href="https://benovermyer.com">benovermyer.com</a>.
   </p>
   <p>
@@ -45,7 +46,7 @@
   footer::before {
     content: '';
     display: inline-block;
-    background: var(--crimson);
+    background: var(--copper);
     width: 100%;
     height: 2px;
   }

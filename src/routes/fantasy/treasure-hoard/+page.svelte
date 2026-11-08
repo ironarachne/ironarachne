@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Treasure Hoard Generator | Iron Arachne</title>
+  <title>Treasure Hoard Generator | Vastways</title>
 </svelte:head>
 
 <TreasureHoardGenerator />

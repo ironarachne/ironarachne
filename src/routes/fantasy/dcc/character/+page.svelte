@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Dungeon Crawl Classics Character Generator | Iron Arachne</title>
+  <title>Dungeon Crawl Classics Character Generator | Vastways</title>
 </svelte:head>
 
 <DccCharacterGenerator />

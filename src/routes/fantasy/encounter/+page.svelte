@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Encounter | Iron Arachne</title>
+  <title>Encounter | Vastways</title>
 </svelte:head>
 
 <EncounterGenerator />

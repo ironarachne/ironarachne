@@ -62,7 +62,7 @@ const tokens = declarations(tokensSource);
 /**
  * Everywhere on this side of the seam that CSS can be written: the global stylesheets, and the
  * `<style>` blocks in components. Components are meant to use the site's names rather than
- * `--ia-*` directly, but one that reaches past the alias layer is exactly what a rename in the
+ * `--vw-*` directly, but one that reaches past the alias layer is exactly what a rename in the
  * brand repo would break, so it is checked the same way.
  */
 function siteStylesheets(): { name: string; css: string }[] {
@@ -116,9 +116,9 @@ describe('brand colour tokens', () => {
   it('declares the palette the site aliases', () => {
     // Not a list of everything the brand file has — it may carry tokens the site has no use
     // for. These are the ones something here reads, so losing one is a visible regression.
-    expect(brandTokens).toContain('--ia-green');
-    expect(brandTokens).toContain('--ia-charcoal');
-    expect(brandTokens).toContain('--ia-status-error');
+    expect(brandTokens).toContain('--vw-plum');
+    expect(brandTokens).toContain('--vw-copper');
+    expect(brandTokens).toContain('--vw-error');
   });
 
   it('is the only place a colour value is written down', () => {
@@ -129,10 +129,10 @@ describe('brand colour tokens', () => {
     expect(hexes).toEqual([]);
   });
 
-  it('backs every --ia-* reference on the site', () => {
+  it('backs every --vw-* reference on the site', () => {
     for (const { name, css } of siteStylesheets()) {
       const dangling = referencedProperties(css)
-        .filter((property) => property.startsWith('--ia-'))
+        .filter((property) => property.startsWith('--vw-'))
         .filter((property) => !brandTokens.has(property));
 
       expect(dangling, `${name} reads brand tokens that brand/colors.css does not declare`).toEqual(
@@ -143,7 +143,7 @@ describe('brand colour tokens', () => {
 });
 
 describe('site colour tokens', () => {
-  const aliases = [...tokensSource.matchAll(/^\s*(--[\w-]+)\s*:\s*var\(\s*(--ia-[\w-]+)\s*\)/gm)];
+  const aliases = [...tokensSource.matchAll(/^\s*(--[\w-]+)\s*:\s*var\(\s*(--vw-[\w-]+)\s*\)/gm)];
 
   it('resolves every alias to a declared brand token', () => {
     const brandTokens = new Set(declaredProperties(brandSource));
@@ -284,11 +284,11 @@ describe('elevation and corners', () => {
   });
 
   it('mixes the plate from a role rather than a literal', () => {
-    // The gradient replaced three copies of `rgb(92, 86, 73)`. Written as a mix of `--slate` it
+    // The gradient replaced three copies of `rgb(92, 86, 73)`. Written as a mix of `--surface-raised` it
     // follows the palette; written as two more literals it would be a fourth copy in the one
     // file that is supposed to end them.
     expect(tokens.get('--plate')).toContain('color-mix');
-    expect(tokens.get('--plate')).toContain('var(--slate)');
+    expect(tokens.get('--plate')).toContain('var(--surface-raised)');
     expect(tokens.get('--plate')).not.toMatch(/rgb\(\s*\d/);
   });
 
@@ -548,7 +548,7 @@ describe('the message family', () => {
     // `background: var(--background, #1a1a1a)`, and `--background` is declared nowhere in the app
     // — so that fallback was not a fallback, and the dialog rendered a grey that is in no palette
     // for as long as it existed. A fallback is a hex the other sweeps cannot see, and a token that
-    // might not be declared is a token whose name is wrong. Every role and every `--ia-*` is in a
+    // might not be declared is a token whose name is wrong. Every role and every `--vw-*` is in a
     // stylesheet the app always loads, so there is nothing for a fallback to protect against.
     // A *colour* fallback specifically. `var(--project-view-max-height, 20rem)` is a deliberate
     // component API — a length a parent may set, with a stated default — and it is not what this

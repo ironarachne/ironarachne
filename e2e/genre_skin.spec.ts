@@ -95,7 +95,7 @@ async function cornerMarks(
 
 /** A project with a panel on screen, and a genre that can be changed without a reload. */
 async function openProject(page: Page): Promise<void> {
-  await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+  await visitRoute(page, '/projects', { title: 'Projects | Vastways' });
   await projectsPage(page).getByLabel('New project').fill('Ashfall');
   await projectsPage(page).getByRole('button', { name: 'Create project' }).click();
   await expect(projectCard(page, 'Ashfall')).toBeVisible();
@@ -432,7 +432,7 @@ test.describe('the All Tools flow', () => {
   test('skins a single-genre tool from its catalog entry, with no project open', async ({
     page,
   }) => {
-    await visitRoute(page, '/tools', { title: 'All Tools | Iron Arachne' });
+    await visitRoute(page, '/tools', { title: 'All Tools | Vastways' });
 
     // No project is open, so the page starts unskinned.
     await expect(page.locator('main.shell__page')).not.toHaveAttribute('data-genre');

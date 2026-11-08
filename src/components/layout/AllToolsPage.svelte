@@ -25,7 +25,7 @@
 </script>
 
 <svelte:head>
-  <title>All Tools | Iron Arachne</title>
+  <title>All Tools | Vastways</title>
 </svelte:head>
 
 <section class="all-tools">
@@ -178,7 +178,7 @@
 
   .all-tools__tool:hover,
   .all-tools__tool:focus-visible {
-    border-color: var(--tan);
+    border-color: var(--border-strong);
   }
 
   /* The mark and the name are one thing, so the row's `space-between` pushes the maturity badge

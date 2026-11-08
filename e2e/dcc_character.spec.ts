@@ -21,10 +21,10 @@ const vault = (page: Page) => page.locator('section.vault');
 const inspector = (page: Page) => page.getByRole('region', { name: 'Inspector' });
 const saveArtifact = (page: Page) => page.locator('.save-artifact');
 
-const DCC_TITLE = 'Dungeon Crawl Classics Character Generator | Iron Arachne';
+const DCC_TITLE = 'Dungeon Crawl Classics Character Generator | Vastways';
 
 async function openEmpty(page: Page): Promise<void> {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await page.evaluate(() => localStorage.clear());
   await page.evaluate(
     () =>
@@ -64,7 +64,7 @@ const vaultRow = (page: Page, name: string) =>
 
 /** Open a saved artifact in the workshop panel that edits it. */
 async function openInWorkshop(page: Page, name: string) {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await expect(vaultRow(page, name)).toBeVisible();
   await vaultRow(page, name).click();
   await inspector(page).getByRole('button', { name: 'Open in workshop' }).click();
@@ -198,7 +198,7 @@ test.describe('a DCC zero-level character', () => {
     // own names and saves perfectly well without one.
     await expect(page.getByLabel('Name from a saved culture in this project')).toHaveCount(0);
 
-    await visitRoute(page, '/culture', { title: 'Culture Generator | Iron Arachne' });
+    await visitRoute(page, '/culture', { title: 'Culture Generator | Vastways' });
     await saveAs(page, 'The Emberfolk');
 
     await visitRoute(page, '/fantasy/dcc/character', { title: DCC_TITLE });
@@ -234,7 +234,7 @@ test.describe('a DCC zero-level character', () => {
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
     await saveAs(page, 'Bess Tanner');
 
-    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
     await expect(vaultRow(page, 'Yorik Bramble')).toBeVisible();
     await expect(vaultRow(page, 'Bess Tanner')).toBeVisible();
   });

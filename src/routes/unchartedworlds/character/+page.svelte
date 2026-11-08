@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Uncharted Worlds Character Generator | Iron Arachne</title>
+  <title>Uncharted Worlds Character Generator | Vastways</title>
 </svelte:head>
 
 <UnchartedWorldsCharacterGenerator />

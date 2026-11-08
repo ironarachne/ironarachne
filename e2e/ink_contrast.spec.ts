@@ -26,6 +26,10 @@ const INK_ROLES = [
   { token: '--ink', floor: 4.5 },
   { token: '--ink-muted', floor: 4.5 },
   { token: '--ink-faint', floor: 4.5 },
+  { token: '--accent', floor: 4.5 },
+  { token: '--accent-hover', floor: 4.5 },
+  { token: '--focus', floor: 3 },
+  { token: '--border-strong', floor: 3 },
 ] as const;
 
 /**
@@ -71,8 +75,10 @@ async function contrast(page: Page, foreground: string, background: string): Pro
 }
 
 test.describe('the ink roles are readable', () => {
-  test('every ink role clears 4.5:1 on a panel', async ({ page }) => {
-    await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+  test('text, focus and control boundaries clear their contrast floors on a panel', async ({
+    page,
+  }) => {
+    await visitRoute(page, '/projects', { title: 'Projects | Vastways' });
 
     for (const { token, floor } of INK_ROLES) {
       const ratio = await contrast(page, `var(${token})`, 'var(--surface-raised)');
@@ -82,7 +88,7 @@ test.describe('the ink roles are readable', () => {
   });
 
   test('the ink ramp keeps three distinguishable steps', async ({ page }) => {
-    await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+    await visitRoute(page, '/projects', { title: 'Projects | Vastways' });
 
     // Raising `--ink-faint` alone would have cleared the floor and left the pair 1.17:1 apart,
     // which is a three-step ramp reading as two. Both roles moved together so this stays true.
@@ -94,7 +100,7 @@ test.describe('the ink roles are readable', () => {
   });
 
   test('the page is the forgiving surface, not the one that matters', async ({ page }) => {
-    await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+    await visitRoute(page, '/projects', { title: 'Projects | Vastways' });
 
     // The premise behind measuring against `--surface-raised`: the page flatters every role, so a
     // ratio taken there says nothing about a label on a panel. If this ever inverts, the reference

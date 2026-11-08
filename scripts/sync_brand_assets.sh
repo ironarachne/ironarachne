@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
-# Copies brand assets out of ironarachne_branding and into this repo.
+# Copies Vastways or studio assets out of ironarachne_branding.
 #
-#   scripts/sync_brand_assets.sh              # restore the pinned assets
-#   scripts/sync_brand_assets.sh --check      # report drift, exit 1 if any
-#   scripts/sync_brand_assets.sh --ref <ref>  # take a newer version, move the pin
+#   scripts/sync_brand_assets.sh                         # restore the Vastways assets
+#   scripts/sync_brand_assets.sh --brand studio --check  # report drift in the studio assets
+#   scripts/sync_brand_assets.sh --ref <ref>             # sync and move the selected pin
 #
-# `brand-assets.json` records which brand-repo commit the vendored copies came
-# from, and which directories map onto which. Assets flow one way — from the
+# Each manifest records the brand repository, commit, and directory mappings.
+# Assets flow one way — from the
 # brand repo into this one — and the pin is what makes "are these current?" a
 # question you can answer without comparing bytes by hand. They have silently
 # drifted twice; both times the missing piece was a recorded source.
@@ -23,12 +23,25 @@ set -euo pipefail
 
 mode="sync"
 ref=""
+brand="app"
+
+usage() {
+  echo "usage: $0 [--brand app|studio] [--check | --ref <ref>]" >&2
+}
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --check)
       mode="check"
       shift
+      ;;
+    --brand)
+      brand="${2:-}"
+      if [[ "$brand" != "app" && "$brand" != "studio" ]]; then
+        usage
+        exit 2
+      fi
+      shift 2
       ;;
     --ref)
       ref="${2:-}"
@@ -39,7 +52,7 @@ while [ $# -gt 0 ]; do
       shift 2
       ;;
     *)
-      echo "usage: $0 [--check] [--ref <ref>]" >&2
+      usage
       exit 2
       ;;
   esac
@@ -51,7 +64,10 @@ if [ "$mode" = "check" ] && [ -n "$ref" ]; then
 fi
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-pinfile="$root/brand-assets.json"
+case "$brand" in
+  app) pinfile="$root/brand-assets.json" ;;
+  studio) pinfile="$root/brand-assets-studio.json" ;;
+esac
 
 for tool in jq tar; do
   command -v "$tool" >/dev/null 2>&1 || {
@@ -131,7 +147,7 @@ done < <(jq -r '.assets[] | .from, .to' "$pinfile")
 if [ "$mode" = "check" ]; then
   if [ "$differing" -gt 0 ] || [ "$missing" -gt 0 ]; then
     echo "==> Drift: $differing file(s) differ, $missing missing"
-    echo "    Run scripts/sync_brand_assets.sh to restore the pinned assets."
+      echo "    Run scripts/sync_brand_assets.sh --brand $brand to restore the pinned assets."
     exit 1
   fi
   echo "==> In sync with $resolved"
@@ -140,7 +156,7 @@ if [ "$mode" = "check" ]; then
     latest="$(curl -sSfL "$api/commits/HEAD" | jq -r .sha || true)"
     if [ -n "$latest" ] && [ "$latest" != "null" ] && [ "$latest" != "$resolved" ]; then
       echo "    Note: the brand repo has moved on to ${latest:0:12}."
-      echo "    Run scripts/sync_brand_assets.sh --ref main to take it."
+      echo "    Run scripts/sync_brand_assets.sh --brand $brand --ref main to take it."
     fi
   fi
   exit 0
@@ -152,7 +168,7 @@ if [ "$resolved" != "$pinned" ]; then
   jq --arg commit "$resolved" --arg synced "$(date -u +%Y-%m-%d)" \
     '.commit = $commit | .synced = $synced' "$pinfile" >"$work/pin.json"
   mv "$work/pin.json" "$pinfile"
-  echo "==> Pinned brand-assets.json to $resolved"
+  echo "==> Pinned $(basename "$pinfile") to $resolved"
 fi
 
 echo "    Review the diff before committing: git status"

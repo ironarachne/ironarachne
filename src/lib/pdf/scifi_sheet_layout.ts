@@ -146,7 +146,7 @@ export function drawSciFiHeader(
   setText(doc, theme.accent);
   doc.setFont('courier', 'normal');
   doc.setFontSize(6);
-  doc.text('IRON ARACHNE // RECORD', x + page.contentWidth - 4, y + 7, { align: 'right' });
+  doc.text('VASTWAYS // RECORD', x + page.contentWidth - 4, y + 7, { align: 'right' });
 
   return y + headerHeight + 3;
 }
@@ -339,10 +339,12 @@ export function remainingColumnHeight(column: SciFiSheetColumn): number {
 }
 
 export async function buildLandscapeSciFiPdf(
+  title: string,
   renderSheet: (doc: PdfDoc, page: SciFiSheetPage, theme: SciFiSheetTheme) => void,
 ): Promise<Blob> {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter' });
+  doc.setProperties({ title, creator: 'Vastways' });
   const page = createSciFiSheetPage();
   const theme = DEFAULT_SCIFI_THEME;
 

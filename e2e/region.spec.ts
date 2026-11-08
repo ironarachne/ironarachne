@@ -24,10 +24,10 @@ const vault = (page: Page) => page.locator('section.vault');
 const inspector = (page: Page) => page.getByRole('region', { name: 'Inspector' });
 const saveArtifact = (page: Page) => page.locator('.save-artifact');
 
-const REGION_TITLE = 'Region Generator | Iron Arachne';
+const REGION_TITLE = 'Region Generator | Vastways';
 
 async function openEmpty(page: Page): Promise<void> {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await page.evaluate(() => localStorage.clear());
   await page.evaluate(
     () =>
@@ -69,7 +69,7 @@ const vaultRow = (page: Page, name: string) =>
 
 /** Open a saved artifact in the workshop panel that edits it. */
 async function openInWorkshop(page: Page, name: string) {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await expect(vaultRow(page, name)).toBeVisible();
   await vaultRow(page, name).click();
   await inspector(page).getByRole('button', { name: 'Open in workshop' }).click();
@@ -578,7 +578,7 @@ test.describe('a region', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 320, height: 740 });
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await visitRoute(page, '/workshop', { title: 'Workshop | Vastways' });
     await page
       .locator('section.tool-browser')
       .getByRole('button', { name: /^Region/ })
@@ -964,7 +964,7 @@ test.describe('history release acceptance', () => {
     page.on('pageerror', (error) => errors.push(error.message));
     await openEmpty(page);
     await createProject(page, 'History acceptance');
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await visitRoute(page, '/workshop', { title: 'Workshop | Vastways' });
     await page
       .locator('section.tool-browser')
       .getByRole('button', { name: /^Region(?: |$)/ })

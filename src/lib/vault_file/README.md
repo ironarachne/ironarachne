@@ -147,7 +147,7 @@ that refers to itself — travels as `null` and is named in `issues` rather than
 | `describeImportSummary`          | What an import did, as sentences a user can read                                                            |
 | `canonicalJson`                  | Key-sorted JSON — the stable order the format is built on                                                   |
 | `checksumOf`                     | SHA-256 of a canonical body                                                                                 |
-| `exportFileName`                 | `ironarachne-<what>-YYYY-MM-DD.json`                                                                        |
+| `exportFileName`                 | `vastways-<what>-YYYY-MM-DD.json`                                                                           |
 
 Recording that an export happened is `recordProjectExport` / `recordVaultExport` in
 [`$lib/storage_status`](../storage_status/README.md), called by whatever performed the download.

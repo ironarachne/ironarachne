@@ -12,7 +12,7 @@ import { visitRoute } from './helpers';
  */
 test.describe('icons', () => {
   test('gives a tool row one mark and no more', async ({ page }) => {
-    await visitRoute(page, '/tools', { title: 'All Tools | Iron Arachne' });
+    await visitRoute(page, '/tools', { title: 'All Tools | Vastways' });
 
     const rows = page.locator('.all-tools__tool');
     const count = await rows.count();
@@ -25,7 +25,7 @@ test.describe('icons', () => {
   });
 
   test('hides every mark from the accessibility tree', async ({ page }) => {
-    await visitRoute(page, '/tools', { title: 'All Tools | Iron Arachne' });
+    await visitRoute(page, '/tools', { title: 'All Tools | Vastways' });
 
     // Thirty-four rows, each classified by a domain the heading above it already states. A mark
     // that announced itself would be thirty-four unskippable "image"s between a reader and the
@@ -40,7 +40,7 @@ test.describe('icons', () => {
   });
 
   test('recedes rather than competing with the label it classifies', async ({ page }) => {
-    await visitRoute(page, '/tools', { title: 'All Tools | Iron Arachne' });
+    await visitRoute(page, '/tools', { title: 'All Tools | Vastways' });
 
     // A mark is never the brightest thing on its surface. It shipped inheriting the link's accent
     // green the first time, which is a mark competing with the label beside it; `Icon` decides this

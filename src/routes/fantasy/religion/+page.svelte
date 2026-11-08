@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Religion Generator | Iron Arachne</title>
+  <title>Religion Generator | Vastways</title>
 </svelte:head>
 
 <ReligionGenerator />

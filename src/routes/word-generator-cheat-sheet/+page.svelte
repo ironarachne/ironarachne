@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Word Generator Cheat Sheet | Iron Arachne</title>
+  <title>Word Generator Cheat Sheet | Vastways</title>
 </svelte:head>
 
 <WordGeneratorCheatSheet />
