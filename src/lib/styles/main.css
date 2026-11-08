@@ -26,9 +26,9 @@ html {
      this is the reason the instance existed, and it closes the rest of the class — the next
      element with a system-colour default gets a readable one without anyone noticing it needed
      one. */
-  background: var(--charcoal);
+  background: var(--surface-page);
   color-scheme: dark;
-  color: color-mix(in srgb, var(--charcoal) 5%, white 95%);
+  color: var(--ink);
   font-family: 'Inclusive Sans', system-ui, Helvetica, sans-serif;
   font-size: clamp(1em, 0.909em + 0.45vmin, 1.25em);
   padding: 0;
@@ -42,20 +42,23 @@ body :not(:is(h1, h2, h3, h4, h5, h6)) {
   line-height: 1.75;
 }
 
-a {
-  color: var(--iron-arachne-green);
-}
-
-a:active {
-  color: white;
+a,
+a:visited {
+  color: var(--accent);
+  text-decoration: underline;
 }
 
 a:hover {
-  color: var(--gold);
+  color: var(--accent-hover);
 }
 
-a:visited {
-  color: color-mix(in srgb, var(--iron-arachne-green) 10%, var(--gold) 90%);
+a:active {
+  color: var(--ink);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 /* Generated previews are rendered at a fixed pixel size; keep them inside the
@@ -119,7 +122,7 @@ h3 {
 
 h3::after {
   content: '';
-  background: var(--granite);
+  background: var(--border);
   height: 1px;
   width: 100%;
   display: inline-block;
@@ -132,7 +135,7 @@ h4 {
 
 h5 {
   font-size: 1.25rem;
-  border-bottom: 1px solid var(--granite);
+  border-bottom: 1px solid var(--border);
 }
 
 p {
@@ -317,7 +320,7 @@ button:disabled {
 }
 
 .btn-quiet {
-  --btn-edge: var(--border);
+  --btn-edge: var(--border-strong);
   --btn-fill: none;
 
   box-shadow: var(--btn-ring);
@@ -330,8 +333,7 @@ button:disabled {
   color: var(--ink);
 }
 
-/* Crimson is 2.2:1 on charcoal and is never the label. Destructive intent is the edge and the
-   fill, under `--ink`-coloured text. */
+/* Destructive intent is carried by the edge and fill, under `--ink`-coloured text. */
 .btn-destructive {
   --btn-edge: var(--danger);
   --btn-fill: var(--plate-danger);
@@ -384,7 +386,7 @@ input:not([type='checkbox'], [type='radio']),
 select,
 textarea {
   background: var(--surface-inset);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   /* A select is as wide as its longest option, which on a narrow phone can be wider than the
      screen. Border-box keeps the padding inside that limit. */
   box-sizing: border-box;
@@ -402,7 +404,7 @@ textarea {
 input:not([type='checkbox'], [type='radio']):hover:not(:disabled),
 select:hover:not(:disabled),
 textarea:hover:not(:disabled) {
-  border-color: var(--border-strong);
+  border-color: var(--accent-hover);
 }
 
 input:not([type='checkbox'], [type='radio']):focus-visible,
@@ -720,27 +722,26 @@ label {
    One mix ratio for all three, for the reason there is one `--plate`: a per-tone number is three
    things to keep in step and nobody can say what the right difference between them would be.
 
-   The tone is the edge and the wash, and the words are always `--ink`. Crimson is 2.2:1 on
-   charcoal and emerald is 2.65:1 — two of the three cannot be read as text at all, so a rule that
-   holds for two is not a rule. No message ever colours its own sentence.
+   The tone colours the edge and a light wash. Message text uses `--ink`, and the wash leaves
+   enough contrast for controls and their focus rings.
 
    A tone is only ever carried by a *raised* surface. There is deliberately no `.inset--danger`: a
    red box inside a red box is two edges saying one thing, and an error message sitting on a panel
    is an untoned inset. See docs/visual-design.md, "The message family". */
 
 .panel--notice {
-  --panel-edge: var(--accent-quiet);
-  --panel-surface: color-mix(in srgb, var(--accent-quiet) 12%, var(--surface-raised));
+  --panel-edge: var(--warning);
+  --panel-surface: color-mix(in srgb, var(--warning) 7%, var(--surface-raised));
 }
 
 .panel--success {
   --panel-edge: var(--success);
-  --panel-surface: color-mix(in srgb, var(--success) 12%, var(--surface-raised));
+  --panel-surface: color-mix(in srgb, var(--success) 7%, var(--surface-raised));
 }
 
 .panel--danger {
   --panel-edge: var(--danger);
-  --panel-surface: color-mix(in srgb, var(--danger) 12%, var(--surface-raised));
+  --panel-surface: color-mix(in srgb, var(--danger) 7%, var(--surface-raised));
 }
 
 /* The foot of a dialog. A dialog is a question, and a question's answers belong where the eye
@@ -810,11 +811,10 @@ label {
 }
 
 .badge--info {
-  --badge-tone: var(--cyan);
+  --badge-tone: var(--info);
 }
 
-/* Crimson is 2.2:1 on charcoal, so it is the edge and never the text — the same rule the
-   destructive button follows. */
+/* Error badges use the same ivory label and error-coloured edge as destructive buttons. */
 .badge--danger {
   --badge-tone: var(--danger);
 

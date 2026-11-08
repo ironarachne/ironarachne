@@ -15,7 +15,7 @@ import { visitRoute } from './helpers';
  * names, which is what these tests do throughout.
  */
 
-const WEAPON_TITLE = 'Magic Weapon Generator | Iron Arachne';
+const WEAPON_TITLE = 'Magic Weapon Generator | Vastways';
 
 const projectsPage = (page: Page) => page.locator('section.projects');
 const vault = (page: Page) => page.locator('section.vault');
@@ -24,7 +24,7 @@ const saveArtifact = (page: Page) => page.locator('.save-artifact');
 const result = (page: Page) => page.locator('.weapon-result');
 
 async function openEmpty(page: Page): Promise<void> {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await page.evaluate(() => localStorage.clear());
   await page.evaluate(
     () =>
@@ -57,7 +57,7 @@ const vaultRow = (page: Page, name: string) =>
 
 /** Open a saved artifact in the workshop panel that edits it. */
 async function openInWorkshop(page: Page, name: string) {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await expect(vaultRow(page, name)).toBeVisible();
   await vaultRow(page, name).click();
   await inspector(page).getByRole('button', { name: 'Open in workshop' }).click();
@@ -180,7 +180,7 @@ test.describe('a magic weapon', () => {
   test('narrows the themes to a referenced religion', async ({ page }) => {
     // Requirement 5.1: a weapon consecrated to a domain no god in that religion holds is not a
     // weapon of that religion, so the list narrows rather than merely being annotated.
-    await visitRoute(page, '/fantasy/religion', { title: 'Religion Generator | Iron Arachne' });
+    await visitRoute(page, '/fantasy/religion', { title: 'Religion Generator | Vastways' });
     await saveAs(page, 'The Ashen Covenant');
 
     await visitRoute(page, '/fantasy/weapon', { title: WEAPON_TITLE });
@@ -195,7 +195,7 @@ test.describe('a magic weapon', () => {
     await saveAs(page, 'The Covenant Blade');
 
     // The reference travels with the artifact, which is what a reference is for.
-    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
     await vaultRow(page, 'The Covenant Blade').click();
     // The inspector humanises a reference's role, so the raw `consecrated-to` is not what shows.
     await expect(inspector(page)).toContainText('Consecrated to');

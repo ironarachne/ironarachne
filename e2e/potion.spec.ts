@@ -19,7 +19,7 @@ import { visitRoute } from './helpers';
  * names, which is what these tests do throughout.
  */
 
-const POTION_TITLE = 'Potion Generator | Iron Arachne';
+const POTION_TITLE = 'Potion Generator | Vastways';
 
 const projectsPage = (page: Page) => page.locator('section.projects');
 const vault = (page: Page) => page.locator('section.vault');
@@ -28,7 +28,7 @@ const saveArtifact = (page: Page) => page.locator('.save-artifact');
 const result = (page: Page) => page.locator('.potion-result');
 
 async function openEmpty(page: Page): Promise<void> {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await page.evaluate(() => localStorage.clear());
   await page.evaluate(
     () =>
@@ -68,7 +68,7 @@ const vaultRow = (page: Page, name: string) =>
 
 /** Open a saved artifact in the workshop panel that edits it. */
 async function openInWorkshop(page: Page, name: string) {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await expect(vaultRow(page, name)).toBeVisible();
   await vaultRow(page, name).click();
   await inspector(page).getByRole('button', { name: 'Open in workshop' }).click();

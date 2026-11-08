@@ -43,73 +43,73 @@ const TOOL_PAGES: { path: string; title: string; level: string }[] = [];
 
 /** The release-ready tools, which must say nothing at all. */
 const SILENT_TOOL_PAGES = [
-  { path: '/character', title: 'Character | Iron Arachne' },
+  { path: '/character', title: 'Character | Vastways' },
   {
     path: '/fantasy/dcc/character',
-    title: 'Dungeon Crawl Classics Character Generator | Iron Arachne',
+    title: 'Dungeon Crawl Classics Character Generator | Vastways',
   },
-  { path: '/culture', title: 'Culture Generator | Iron Arachne' },
+  { path: '/culture', title: 'Culture Generator | Vastways' },
   {
     path: '/swn/character',
-    title: 'Stars Without Number Character Generator | Iron Arachne',
+    title: 'Stars Without Number Character Generator | Vastways',
   },
   {
     path: '/unchartedworlds/character',
-    title: 'Uncharted Worlds Character Generator | Iron Arachne',
+    title: 'Uncharted Worlds Character Generator | Vastways',
   },
-  { path: '/heraldry', title: 'Heraldry Generator | Iron Arachne' },
-  { path: '/velgarth-gifts', title: 'Velgarth Gifts Generator | Iron Arachne' },
-  { path: '/arms-manufacturer', title: 'Arms Manufacturer Generator | Iron Arachne' },
-  { path: '/star-nation', title: 'Star Nation Generator | Iron Arachne' },
-  { path: '/chop-shop', title: 'Chop Shop Generator | Iron Arachne' },
-  { path: '/fantasy/dungeon', title: 'Dungeon Generator | Iron Arachne' },
-  { path: '/environment', title: 'Environment Generator | Iron Arachne' },
-  { path: '/planet', title: 'Planet Generator | Iron Arachne', webgl: true },
-  { path: '/star-system', title: 'Star System Generator | Iron Arachne', webgl: true },
-  { path: '/region', title: 'Region Generator | Iron Arachne' },
-  { path: '/drug', title: 'Cyberpunk Drug Generator | Iron Arachne' },
-  { path: '/fantasy/equipment-generator', title: 'Equipment Generator | Iron Arachne' },
-  { path: '/fantasy/merchant', title: 'Fantasy Merchant Generator | Iron Arachne' },
-  { path: '/fantasy/potion-generator', title: 'Potion Generator | Iron Arachne' },
-  { path: '/fantasy/weapon', title: 'Magic Weapon Generator | Iron Arachne' },
-  { path: '/fantasy/treasure-hoard', title: 'Treasure Hoard Generator | Iron Arachne' },
-  { path: '/spooky-ship', title: 'Spooky Ship Generator | Iron Arachne' },
-  { path: '/language', title: 'Language Generator | Iron Arachne' },
+  { path: '/heraldry', title: 'Heraldry Generator | Vastways' },
+  { path: '/velgarth-gifts', title: 'Velgarth Gifts Generator | Vastways' },
+  { path: '/arms-manufacturer', title: 'Arms Manufacturer Generator | Vastways' },
+  { path: '/star-nation', title: 'Star Nation Generator | Vastways' },
+  { path: '/chop-shop', title: 'Chop Shop Generator | Vastways' },
+  { path: '/fantasy/dungeon', title: 'Dungeon Generator | Vastways' },
+  { path: '/environment', title: 'Environment Generator | Vastways' },
+  { path: '/planet', title: 'Planet Generator | Vastways', webgl: true },
+  { path: '/star-system', title: 'Star System Generator | Vastways', webgl: true },
+  { path: '/region', title: 'Region Generator | Vastways' },
+  { path: '/drug', title: 'Cyberpunk Drug Generator | Vastways' },
+  { path: '/fantasy/equipment-generator', title: 'Equipment Generator | Vastways' },
+  { path: '/fantasy/merchant', title: 'Fantasy Merchant Generator | Vastways' },
+  { path: '/fantasy/potion-generator', title: 'Potion Generator | Vastways' },
+  { path: '/fantasy/weapon', title: 'Magic Weapon Generator | Vastways' },
+  { path: '/fantasy/treasure-hoard', title: 'Treasure Hoard Generator | Vastways' },
+  { path: '/spooky-ship', title: 'Spooky Ship Generator | Vastways' },
+  { path: '/language', title: 'Language Generator | Vastways' },
   {
     path: '/swn/starship',
-    title: 'Stars Without Number Starship Generator | Iron Arachne',
+    title: 'Stars Without Number Starship Generator | Vastways',
   },
   {
     // The first reference tool in this list, and the reason it is worth naming: most of the spec
     // does not apply to a tool that produces no artifacts, so its silence was earned by sections
     // 1, 2.1, 2.5, 6, 7.1 and 8 alone (#65).
     path: '/fantasy/equipment',
-    title: 'Fantasy Equipment Price Lists | Iron Arachne',
+    title: 'Fantasy Equipment Price Lists | Vastways',
   },
   {
     // The second, and the only genre-neutral tool here: #75 dropped a `fantasy` tag that scaling a
     // human baseline never earned.
     path: '/species-stats',
-    title: 'Species Height and Weight Calculator | Iron Arachne',
+    title: 'Species Height and Weight Calculator | Vastways',
   },
   {
     // The third and last reference tool of the pass (#76), and the one that forced the question
     // decision 8 answers: a tool with no library gets one rather than an exemption.
     path: '/word-generator-cheat-sheet',
-    title: 'Word Generator Cheat Sheet | Iron Arachne',
+    title: 'Word Generator Cheat Sheet | Vastways',
   },
-  { path: '/fantasy/encounter', title: 'Encounter | Iron Arachne' },
-  { path: '/fantasy/family', title: 'Fantasy Family Generator | Iron Arachne' },
-  { path: '/fantasy/organization', title: 'Organization Generator | Iron Arachne' },
-  { path: '/fantasy/settlement', title: 'Settlement Generator | Iron Arachne' },
-  { path: '/fantasy/religion', title: 'Religion Generator | Iron Arachne' },
-  { path: '/fantasy/adnd/character', title: 'AD&D 2e Character Generator | Iron Arachne' },
+  { path: '/fantasy/encounter', title: 'Encounter | Vastways' },
+  { path: '/fantasy/family', title: 'Fantasy Family Generator | Vastways' },
+  { path: '/fantasy/organization', title: 'Organization Generator | Vastways' },
+  { path: '/fantasy/settlement', title: 'Settlement Generator | Vastways' },
+  { path: '/fantasy/religion', title: 'Religion Generator | Vastways' },
+  { path: '/fantasy/adnd/character', title: 'AD&D 2e Character Generator | Vastways' },
   {
     // Its own header rather than `GeneratorPage`, so it decides for itself whether to show a
     // badge. Worth keeping in the list for exactly that reason: the rule is the same but the code
     // making the call is not.
     path: '/fantasy/adnd/character/build',
-    title: 'AD&D 2e Character Builder | Iron Arachne',
+    title: 'AD&D 2e Character Builder | Vastways',
   },
 ] as const;
 
@@ -140,7 +140,7 @@ test('maturity: no tool page says anything, every tool being release-ready', asy
   //
   // The sentence a badge shows — "Experimental" means nothing to a visitor who has not read the
   // design document — is covered by `maturityDescription` in `src/lib/tools/tools.test.ts`.
-  await visitRoute(page, '/language', { title: 'Language Generator | Iron Arachne' });
+  await visitRoute(page, '/language', { title: 'Language Generator | Vastways' });
 
   await expect(page.locator('.maturity__detail')).toHaveCount(0);
   await expect(maturityBadge(page)).toHaveCount(0);
@@ -163,7 +163,7 @@ test('maturity: the home page does not advertise release-ready either', async ({
 test('maturity: the tool browser marks every tool that has something to warn about', async ({
   page,
 }) => {
-  await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+  await visitRoute(page, '/workshop', { title: 'Workshop | Vastways' });
 
   const browser = page.locator('section.tool-browser');
   const tools = browser.locator('.tool-browser__tool');

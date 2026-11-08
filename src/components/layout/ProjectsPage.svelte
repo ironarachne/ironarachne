@@ -345,7 +345,7 @@
 </script>
 
 <svelte:head>
-  <title>Projects | Iron Arachne</title>
+  <title>Projects | Vastways</title>
 </svelte:head>
 
 <section class="projects">

@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Chop Shop Generator | Iron Arachne</title>
+  <title>Chop Shop Generator | Vastways</title>
 </svelte:head>
 
 <ChopShopGenerator />

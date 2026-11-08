@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Fantasy Family Generator | Iron Arachne</title>
+  <title>Fantasy Family Generator | Vastways</title>
 </svelte:head>
 
 <FamilyGenerator />

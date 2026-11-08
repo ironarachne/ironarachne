@@ -14,7 +14,7 @@ import { visitRoute } from './helpers';
  * 6.1 is covered by `e2e/pages.mobile.spec.ts` at every width in `MOBILE_VIEWPORTS`.
  */
 
-const TITLE = 'Word Generator Cheat Sheet | Iron Arachne';
+const TITLE = 'Word Generator Cheat Sheet | Vastways';
 
 const elementTable = (page: Page) => page.locator('.elements .data-table');
 const syntaxTable = (page: Page) => page.locator('.syntax .data-table');
@@ -151,7 +151,7 @@ test.describe('the word generator cheat sheet', () => {
 
   test('works the same mounted in a workshop panel', async ({ page }) => {
     // Requirement 2.1.
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await visitRoute(page, '/workshop', { title: 'Workshop | Vastways' });
     await page
       .locator('section.tool-browser')
       .getByRole('button', { name: /^Word Generator Cheat Sheet/ })

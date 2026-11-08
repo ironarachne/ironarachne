@@ -14,7 +14,7 @@ import { visitRoute } from './helpers';
  * `e2e/pages.mobile.spec.ts` for every width in `MOBILE_VIEWPORTS`.
  */
 
-const TITLE = 'Fantasy Equipment Price Lists | Iron Arachne';
+const TITLE = 'Fantasy Equipment Price Lists | Vastways';
 
 const costCells = (page: Page) => page.locator('.data-table td.numeric');
 
@@ -149,7 +149,7 @@ test.describe('the fantasy equipment price lists', () => {
   test('works the same mounted in a workshop panel', async ({ page }) => {
     // Requirement 2.1. The panel registry points at the same component the route mounts, and this
     // is what says the page does not quietly depend on being a page.
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await visitRoute(page, '/workshop', { title: 'Workshop | Vastways' });
     await page
       .locator('section.tool-browser')
       .getByRole('button', { name: /^Fantasy Equipment Price Lists/ })

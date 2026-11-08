@@ -125,7 +125,7 @@
     return showConfirmModal({
       title: 'This site is open in another tab',
       message:
-        'Another tab has Iron Arachne open, and two tabs writing at once can undo each other. Close the other tab first, or carry on if you are sure.',
+        'Another tab has Vastways open, and two tabs writing at once can undo each other. Close the other tab first, or carry on if you are sure.',
       okLabel: 'Import anyway',
       dangerous: true,
     });

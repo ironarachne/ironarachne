@@ -5,7 +5,7 @@ import { expectNoHorizontalOverflow, pinGeneratorSeed } from './mobile_layout';
 test('settlement panorama banners render and fit at desktop and 320px', async ({ page }) => {
   test.slow();
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await visitRoute(page, '/fantasy/settlement', { title: 'Settlement Generator | Iron Arachne' });
+  await visitRoute(page, '/fantasy/settlement', { title: 'Settlement Generator | Vastways' });
   await pinGeneratorSeed(page, 'panorama-review');
   await clickGenerateButton(page);
   const images = page.locator('img.settlement-panorama');

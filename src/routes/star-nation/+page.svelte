@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Star Nation Generator | Iron Arachne</title>
+  <title>Star Nation Generator | Vastways</title>
 </svelte:head>
 
 <StarNationGenerator />

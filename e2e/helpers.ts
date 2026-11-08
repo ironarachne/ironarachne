@@ -35,7 +35,7 @@ export async function visitRoute(
  * there would be asserting the drawer is broken.
  */
 export async function expectGlobalChrome(page: Page): Promise<void> {
-  await expect(page.getByRole('link', { name: 'Iron Arachne' }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Vastways' }).first()).toBeVisible();
 
   const width = page.viewportSize()?.width ?? 1280;
   if (width >= 768) {

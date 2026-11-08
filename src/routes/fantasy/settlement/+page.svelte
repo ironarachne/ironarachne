@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Settlement Generator | Iron Arachne</title>
+  <title>Settlement Generator | Vastways</title>
 </svelte:head>
 
 <SettlementGenerator />

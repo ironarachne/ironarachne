@@ -21,10 +21,10 @@ const vault = (page: Page) => page.locator('section.vault');
 const inspector = (page: Page) => page.getByRole('region', { name: 'Inspector' });
 const saveArtifact = (page: Page) => page.locator('.save-artifact');
 
-const SHIP_TITLE = 'Spooky Ship Generator | Iron Arachne';
+const SHIP_TITLE = 'Spooky Ship Generator | Vastways';
 
 async function openEmpty(page: Page): Promise<void> {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await page.evaluate(() => localStorage.clear());
   await page.evaluate(
     () =>
@@ -64,7 +64,7 @@ const vaultRow = (page: Page, name: string) =>
 
 /** Open a saved artifact in the workshop panel that edits it. */
 async function openInWorkshop(page: Page, name: string) {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await expect(vaultRow(page, name)).toBeVisible();
   await vaultRow(page, name).click();
   await inspector(page).getByRole('button', { name: 'Open in workshop' }).click();

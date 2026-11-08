@@ -90,7 +90,7 @@ test.describe('star nation preview generation', () => {
   });
 
   test('shows the nation before its image in the workshop panel', async ({ page }) => {
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await visitRoute(page, '/workshop', { title: 'Workshop | Vastways' });
     await page
       .locator('section.tool-browser')
       .getByRole('button', { name: /^Star Nation/ })

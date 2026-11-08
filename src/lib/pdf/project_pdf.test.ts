@@ -111,9 +111,9 @@ describe('publication presenters', () => {
 describe('project PDF export', () => {
   it('embeds a saved primary image and carries a long description onto a project page', async () => {
     const png = new Uint8Array(
-      await readFile(new URL('../../../static/favicon-32x32.png', import.meta.url)),
+      await readFile(new URL('../../../static/vastways-icon-192.png', import.meta.url)),
     );
-    const image = savedImage(new Blob([png], { type: 'image/png' }), 32, 32);
+    const image = savedImage(new Blob([png], { type: 'image/png' }), 192, 192);
     const result = await renderProjectBook({
       title: 'Illustrated places',
       description: 'A campaign of long journeys and forgotten cities. '.repeat(30),
@@ -133,6 +133,8 @@ describe('project PDF export', () => {
       ],
     });
     const source = new TextDecoder('latin1').decode(await result.blob.arrayBuffer());
+    expect(source).toContain('VASTWAYS  /  PROJECT BOOK');
+    expect(source).toContain('/Creator (Vastways)');
     expect(source).toContain('/Subtype /Image');
     expect(source).toContain('About this project');
     expect(source).toContain('A guarded gate.');

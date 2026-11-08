@@ -7,7 +7,7 @@ what lives here is what applies site-wide.
 ```
 main.css        # The entry point — imports everything below, then the base element styles
 reset.css       # Normalizes browser defaults
-brand/          # Vendored from the brand repo: the colour palette, as --ia-* tokens
+brand/          # Vendored from the brand repo: the colour palette, as --vw-* tokens
 tokens.css      # Custom properties — colour roles, the type and space ramps, elevation, motion
 fonts.css       # The @font-face declarations
 modal.css       # The shared modal system's styles
@@ -40,25 +40,24 @@ type ramp, the eight-step space ramp, the elevation and corner tokens, and the o
 duration. It is the middle of three layers, and the direction is one-way — `brand/colors.css`
 below it, components above it. A role resolves to a palette alias or to a `color-mix()` of two
 and never holds a hex; a component names a role or a ramp step and never reaches past this file
-to `--ia-*`; a genre skin overrides a permitted subset of the roles and never touches a ramp.
+to `--vw-*`; a genre skin overrides a permitted subset of the roles and never touches a ramp.
 `docs/visual-design.md` states the taxonomy and the reasoning; `tokens.test.ts` enforces the
 parts of it that a regex can see.
 
 ## Colours
 
-`brand/colors.css` is a copy of `tokens/colors.css` from `ironarachne/ironarachne_branding`, which
+`brand/colors.css` is a copy of `vastways/tokens/colors.css` from `ironarachne/ironarachne_branding`, which
 declares itself the source of truth for the palette. It is vendored through the pin in
 `brand-assets.json` like the icons and fonts — **never edit it here**; change it in the brand repo
-and run `scripts/sync_brand_assets.sh`. `brand/colors.json` comes along with it because the sync
-copies directories name-for-name; nothing in the app reads it.
+and run `scripts/sync_brand_assets.sh`.
 
-`tokens.css` then aliases those `--ia-*` tokens to the names the site uses:
+`tokens.css` then aliases those `--vw-*` tokens to the names the site uses:
 
 ```css
---gold: var(--ia-gold);
+--gold: var(--vw-gold);
 ```
 
 So a colour is written down once, and components keep the shorter names — `var(--gold)`, not
-`var(--ia-gold)`. Use a new brand colour by adding an alias here; `tokens.test.ts` fails if an alias
+`var(--vw-gold)`. Use a new brand colour by adding an alias here; `tokens.test.ts` fails if an alias
 points at a token the brand file no longer declares, since an undefined custom property fails
 silently in CSS. See `docs/brand-assets.md`.

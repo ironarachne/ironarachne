@@ -144,7 +144,7 @@
 </script>
 
 <svelte:head>
-  <title>Result Vault | Iron Arachne</title>
+  <title>Result Vault | Vastways</title>
 </svelte:head>
 
 <section class="vault" class:vault--inspecting={selected !== undefined}>

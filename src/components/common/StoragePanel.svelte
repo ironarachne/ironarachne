@@ -209,7 +209,7 @@
 
 <style>
   .storage {
-    border-top: 1px solid var(--granite);
+    border-top: 1px solid var(--border);
     margin-top: 2rem;
     padding-top: 1rem;
   }

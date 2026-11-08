@@ -17,6 +17,8 @@ describe('buildSwnCharacterPdf', () => {
     const pdfText = new TextDecoder('latin1').decode(await blob.arrayBuffer());
 
     expect(pdfText).toContain('STARS WITHOUT NUMBER');
+    expect(pdfText).toContain('VASTWAYS // RECORD');
+    expect(pdfText).toContain('/Creator (Vastways)');
     expect(pdfText).toContain('Spacer');
     expect(pdfText).toContain(character.background.name);
   });

@@ -19,7 +19,7 @@ import { visitRoute } from './helpers';
  * names, which is what these tests do throughout.
  */
 
-const MERCHANT_TITLE = 'Fantasy Merchant Generator | Iron Arachne';
+const MERCHANT_TITLE = 'Fantasy Merchant Generator | Vastways';
 
 const projectsPage = (page: Page) => page.locator('section.projects');
 const vault = (page: Page) => page.locator('section.vault');
@@ -28,7 +28,7 @@ const saveArtifact = (page: Page) => page.locator('.save-artifact');
 const result = (page: Page) => page.locator('.merchant-result');
 
 async function openEmpty(page: Page): Promise<void> {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await page.evaluate(() => localStorage.clear());
   await page.evaluate(
     () =>
@@ -84,7 +84,7 @@ const vaultRow = (page: Page, name: string) =>
 
 /** Open a saved artifact in the workshop panel that edits it. */
 async function openInWorkshop(page: Page, name: string) {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await expect(vaultRow(page, name)).toBeVisible();
   await vaultRow(page, name).click();
   await inspector(page).getByRole('button', { name: 'Open in workshop' }).click();
@@ -249,7 +249,7 @@ test.describe('a merchant', () => {
   test('puts the shop in a settlement the project already holds', async ({ page }) => {
     // Requirement 5.1: `settlement` is a registered kind, and where the shop stands is otherwise
     // invented. The offer appears only once there is something to offer.
-    await visitRoute(page, '/fantasy/settlement', { title: 'Settlement Generator | Iron Arachne' });
+    await visitRoute(page, '/fantasy/settlement', { title: 'Settlement Generator | Vastways' });
     const town = await saveUnderDefaultName(page);
 
     await visitRoute(page, '/fantasy/merchant', { title: MERCHANT_TITLE });

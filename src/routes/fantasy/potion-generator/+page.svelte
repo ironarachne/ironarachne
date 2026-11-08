@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Potion Generator | Iron Arachne</title>
+  <title>Potion Generator | Vastways</title>
 </svelte:head>
 
 <PotionGenerator />

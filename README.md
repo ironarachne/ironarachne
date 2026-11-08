@@ -1,6 +1,6 @@
-# Iron Arachne
+# Vastways
 
-Iron Arachne is a browser-based suite of procedural tools for tabletop role-playing games.
+Vastways is a browser-based workshop for building tabletop role-playing worlds, by Iron Arachne.
 Game Masters and players can generate characters, cultures, religions, settlements, regions,
 heraldry, dungeons, star systems, and starships. The workshop brings tools together in a workspace,
 with projects and a result vault for keeping generated content in local browser storage.

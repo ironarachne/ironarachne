@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Stars Without Number Starship Generator | Iron Arachne</title>
+  <title>Stars Without Number Starship Generator | Vastways</title>
 </svelte:head>
 
 <SwnStarshipGenerator />

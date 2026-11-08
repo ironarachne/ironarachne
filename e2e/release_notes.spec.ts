@@ -5,7 +5,7 @@ import { releaseNoteEntries } from '../src/lib/release_notes';
 
 test.describe('release notes', () => {
   test('splits an entry into headed categories', async ({ page }) => {
-    await visitRoute(page, '/release-notes', { title: 'Release Notes | Iron Arachne' });
+    await visitRoute(page, '/release-notes', { title: 'Release Notes | Vastways' });
 
     // Choose a recorded entry containing all four categories; newer releases may omit some.
     const index = releaseNoteEntries.findIndex((entry) =>
@@ -31,7 +31,7 @@ test.describe('release notes', () => {
   test('shows a version on the entries that had a release, and nothing where there was none', async ({
     page,
   }) => {
-    await visitRoute(page, '/release-notes', { title: 'Release Notes | Iron Arachne' });
+    await visitRoute(page, '/release-notes', { title: 'Release Notes | Vastways' });
 
     const versions = releaseNoteEntries.flatMap((entry) =>
       entry.version ? [`v${entry.version}`] : [],
@@ -40,7 +40,7 @@ test.describe('release notes', () => {
   });
 
   test('gives every entry a summary', async ({ page }) => {
-    await visitRoute(page, '/release-notes', { title: 'Release Notes | Iron Arachne' });
+    await visitRoute(page, '/release-notes', { title: 'Release Notes | Vastways' });
 
     const entries = page.locator('section.release-notes > div');
     const count = await entries.count();
@@ -58,14 +58,14 @@ test.describe('release notes', () => {
    * outlives the rename.
    */
   test('the old changelog path sends you to the release notes', async ({ page }) => {
-    await visitRoute(page, '/changelog', { title: 'Release Notes | Iron Arachne' });
+    await visitRoute(page, '/changelog', { title: 'Release Notes | Vastways' });
 
     await expect(page).toHaveURL(/\/release-notes\/?$/);
     await expect(page.getByRole('heading', { name: 'Release Notes', level: 1 })).toBeVisible();
   });
 
   test('the footer says which version you are looking at', async ({ page }) => {
-    await visitRoute(page, '/release-notes', { title: 'Release Notes | Iron Arachne' });
+    await visitRoute(page, '/release-notes', { title: 'Release Notes | Vastways' });
 
     await expect(page.locator('footer').getByText(/^Version \d+\.\d+\.\d+/)).toBeVisible();
     await expect(page.locator('footer').getByRole('link', { name: "what's new" })).toBeVisible();

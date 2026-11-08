@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Language Generator | Iron Arachne</title>
+  <title>Language Generator | Vastways</title>
 </svelte:head>
 
 <LanguageGenerator />

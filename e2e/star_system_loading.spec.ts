@@ -63,7 +63,7 @@ test.describe('initial star system generation', () => {
   test('announces pending work and replaces it with a system in the workshop panel', async ({
     page,
   }) => {
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await visitRoute(page, '/workshop', { title: 'Workshop | Vastways' });
     await page
       .locator('section.tool-browser')
       .getByRole('button', { name: /^Star System/ })

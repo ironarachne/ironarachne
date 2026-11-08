@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Culture Generator | Iron Arachne</title>
+  <title>Culture Generator | Vastways</title>
 </svelte:head>
 
 <CultureGenerator />

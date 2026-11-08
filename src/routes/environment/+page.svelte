@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Environment Generator | Iron Arachne</title>
+  <title>Environment Generator | Vastways</title>
 </svelte:head>
 
 <EnvironmentGenerator />

@@ -4,6 +4,8 @@ This design document settles what Iron Arachne _looks like_: the tokens every co
 from, the rules those tokens are held to, and the decisions that would otherwise be made one
 component at a time.
 
+See the [Vastways rebrand](vastways-rebrand.md) for the current app identity and palette.
+
 It is the third of the three documents that describe the application. [The workshop](workshop.md)
 settled what a user's work **is** — projects, artifacts, tools. [The application
 shell](app-shell.md) settled where a user **stands** while they do it — a top bar, six

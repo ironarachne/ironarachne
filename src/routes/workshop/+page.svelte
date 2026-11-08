@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Workshop | Iron Arachne</title>
+  <title>Workshop | Vastways</title>
 </svelte:head>
 
 <WorkshopPage />

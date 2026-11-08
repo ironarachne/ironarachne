@@ -6,7 +6,8 @@
   import { getShortDate } from '$lib/dates';
   import { readShellStatus, type ShellStatus } from '$lib/navigation';
   import { hydrateProjects, onProjectsChanged } from '$lib/projects';
-  import lockup from '$lib/assets/images/logo/lockup-horizontal-green.svg';
+  import lockup from '$lib/assets/images/logo/vastways-horizontal-reversed.svg';
+  import mark from '$lib/assets/images/logo/vastways-mark-mono-reversed.svg';
   import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
@@ -78,7 +79,10 @@
   {/if}
 
   <a class="top-bar__identity" href={resolve('/')}>
-    <img src={lockup} alt="Iron Arachne" />
+    <picture>
+      <source media="(max-width: 359px)" srcset={mark} />
+      <img src={lockup} alt="Vastways" />
+    </picture>
   </a>
 
   <dl class="top-bar__status">
@@ -129,12 +133,18 @@
   .top-bar__identity {
     display: flex;
     flex: 0 0 auto;
+    align-items: center;
+    min-height: 44px;
 
     & img {
       display: block;
       height: 28px;
       width: auto;
     }
+  }
+
+  .top-bar__identity:focus-visible {
+    outline-offset: -3px;
   }
 
   /* The drawer toggle is `BaseButton`'s icon variant, so the plate, the keyline, the hover and the
@@ -256,6 +266,13 @@
 
     .top-bar__identity img {
       height: 24px;
+    }
+  }
+
+  @media (max-width: 359px) {
+    .top-bar__identity {
+      min-width: 44px;
+      justify-content: center;
     }
   }
 

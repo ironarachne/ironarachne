@@ -46,7 +46,7 @@ async function colorOf(page: Page, selector: string): Promise<string> {
 
 test.describe('a dialog is readable', () => {
   test('sets its words in --ink rather than inheriting the user agent black', async ({ page }) => {
-    await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+    await visitRoute(page, '/projects', { title: 'Projects | Vastways' });
 
     await projectsPage(page).getByLabel('New project').fill('Ashfall');
     await projectsPage(page).getByRole('button', { name: 'Create project' }).click();

@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>AD&amp;D 2e Character Generator | Iron Arachne</title>
+  <title>AD&amp;D 2e Character Generator | Vastways</title>
 </svelte:head>
 
 <AdndCharacterGenerator />

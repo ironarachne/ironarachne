@@ -206,7 +206,7 @@ function renderUwCharacterSheet(
 }
 
 export async function buildUwCharacterPdf(character: UWCharacter): Promise<Blob> {
-  return buildLandscapeSciFiPdf((doc, page, theme) => {
+  return buildLandscapeSciFiPdf(formatUwHeaderTitle(character), (doc, page, theme) => {
     renderUwCharacterSheet(doc, page, theme, character);
   });
 }

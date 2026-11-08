@@ -66,12 +66,12 @@ async function emptyTheVault(page: Page): Promise<void> {
 }
 
 async function openEmptyProjects(page: Page): Promise<void> {
-  await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+  await visitRoute(page, '/projects', { title: 'Projects | Vastways' });
   await emptyTheVault(page);
 }
 
 async function openEmptyWorkshop(page: Page): Promise<void> {
-  await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+  await visitRoute(page, '/workshop', { title: 'Workshop | Vastways' });
   await emptyTheVault(page);
 }
 
@@ -179,7 +179,7 @@ test.describe('the storage panel', () => {
       page.waitForEvent('download'),
       storagePanel(page).getByRole('button', { name: 'Export everything' }).click(),
     ]);
-    expect(download.suggestedFilename()).toMatch(/^ironarachne-vault-\d{4}-\d{2}-\d{2}\.json$/);
+    expect(download.suggestedFilename()).toMatch(/^vastways-vault-\d{4}-\d{2}-\d{2}\.json$/);
 
     // The stamp is written only because the browser took the file, and the panel leads with it.
     await expect(storagePanel(page).locator('.storage__headline')).toHaveText(

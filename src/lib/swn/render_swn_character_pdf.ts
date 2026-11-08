@@ -247,7 +247,7 @@ function renderSwnCharacterSheet(
 }
 
 export async function buildSwnCharacterPdf(character: SWNCharacter): Promise<Blob> {
-  return buildLandscapeSciFiPdf((doc, page, theme) => {
+  return buildLandscapeSciFiPdf(formatSwnHeaderTitle(character), (doc, page, theme) => {
     renderSwnCharacterSheet(doc, page, theme, character);
   });
 }

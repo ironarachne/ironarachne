@@ -1,6 +1,6 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
-  import lockup from '$lib/assets/images/logo/lockup-stacked-green.svg';
+  import lockup from '$lib/assets/images/logo/vastways-stacked-reversed.svg';
   import ReleaseNotes from '$components/layout/ReleaseNotes.svelte';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
   import { featuredTools } from '$lib/tools';
@@ -12,7 +12,7 @@
 </script>
 
 <svelte:head>
-  <title>Iron Arachne</title>
+  <title>Vastways</title>
 </svelte:head>
 
 <div class="home">
@@ -20,14 +20,13 @@
     <!-- The mark is the page's h1. Its accessible name is the alt text, so the heading a screen
          reader announces and the one a sighted visitor sees are the same words. -->
     <h1 class="home__heading">
-      <img class="home__mark" src={lockup} alt="Iron Arachne" />
+      <img class="home__mark" src={lockup} alt="Vastways" />
     </h1>
-    <p class="home__tagline">Weave Your Universe</p>
+    <p class="home__tagline">Build worlds for the table.</p>
     <p class="home__lede">
-      Iron Arachne is a workshop for building the worlds tabletop role-playing games happen in. Roll
-      a culture, a religion, a settlement, or a star system, keep what you like in a project, edit
-      it until it is yours, and build the next piece out of the last. Everything you make stays in
-      your browser — there is no account to create and nothing is sent anywhere.
+      Vastways is a browser-based workshop for building tabletop role-playing worlds. Generate a
+      culture, a religion, a settlement, or a star system. Save what you like in a project, edit it,
+      and use it to build the next piece of your world. Your work stays in your browser.
       <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
       <a href={storagePanelHref}>Back up or restore your work</a>.
     </p>
@@ -141,7 +140,7 @@
        guessed in advance. */
     gap: 1.5rem 2.5rem;
     grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr));
-    border-top: 1px solid var(--granite);
+    border-top: 1px solid var(--border);
     padding-top: 1.5rem;
   }
 

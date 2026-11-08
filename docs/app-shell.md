@@ -11,6 +11,9 @@ _is_ — projects, artifacts, tools. This settles where a user _stands_ while th
 steps in [The plan](#the-plan) are built. One item is deliberately not built — copying an artifact
 between projects; see [Open questions](#open-questions).
 
+The current shell uses the Vastways name, logo, and home tagline. See the
+[Vastways rebrand](vastways-rebrand.md).
+
 Supersedes [#13](https://github.com/ironarachne/ironarachne/issues/13), which asked for better use
 of desktop screen space. That framing was too small: the reason the site wastes horizontal space is
 not that its rules are conservative, it is that the site is still shaped like a directory of pages

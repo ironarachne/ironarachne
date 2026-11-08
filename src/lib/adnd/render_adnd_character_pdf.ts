@@ -327,6 +327,10 @@ function renderCharacterSheet(doc: PdfDoc, character: ADNDCharacter): void {
 export async function buildAdndCharacterPdf(character: ADNDCharacter): Promise<Blob> {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+  doc.setProperties({
+    title: `${character.firstName} ${character.lastName}`.trim() || 'AD&D 2e character sheet',
+    creator: 'Vastways',
+  });
   renderCharacterSheet(doc, character);
   return doc.output('blob');
 }

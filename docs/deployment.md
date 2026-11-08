@@ -3,6 +3,10 @@
 How a build reaches a bucket. The infrastructure it targets is described in `docs/infrastructure.md`;
 the version scheme in `docs/versioning.md`.
 
+Vastways is the app served at `app.ironarachne.com`. Existing tool links and browser-local
+projects use that address. The Iron Arachne studio site is served at `www.ironarachne.com`.
+See the [Vastways rollout design](vastways-rebrand.md#rollout-and-verification).
+
 **Status:** implemented. A merge to `main` tags the version, builds a versioned artifact, publishes it
 as a release asset with a checksum, and deploys it to dev — all confirmed on real runs. Promotion by
 committed version file replaces an earlier `workflow_dispatch` design that could not work here; the

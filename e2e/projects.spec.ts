@@ -13,7 +13,7 @@ import { editingCard, projectCard, projectsPage } from './projects';
 
 /** A projects page with nothing in it: each test starts from an origin no other run has touched. */
 async function openEmptyProjects(page: Page): Promise<void> {
-  await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+  await visitRoute(page, '/projects', { title: 'Projects | Vastways' });
   await page.evaluate(() => localStorage.clear());
   await page.evaluate(
     () =>
@@ -128,7 +128,7 @@ test.describe('the projects page', () => {
 
   test('downloads a project book from saved content', async ({ page }, testInfo) => {
     await create(page, 'Ashfall');
-    await visitRoute(page, '/chop-shop', { title: 'Chop Shop Generator | Iron Arachne' });
+    await visitRoute(page, '/chop-shop', { title: 'Chop Shop Generator | Vastways' });
     await page.locator('.save-artifact').getByRole('button', { name: 'Save to project' }).click();
     await page
       .locator('.save-artifact')
@@ -137,7 +137,7 @@ test.describe('the projects page', () => {
     await page.locator('.save-artifact').getByRole('button', { name: 'Save', exact: true }).click();
     await expect(page.locator('.save-artifact').getByRole('status')).toContainText('Saved');
 
-    await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+    await visitRoute(page, '/projects', { title: 'Projects | Vastways' });
     const download = page.waitForEvent('download');
     await projectCard(page, 'Ashfall')
       .getByRole('button', { name: 'Download project PDF' })
@@ -153,14 +153,14 @@ test.describe('the projects page', () => {
 
   test('puts a saved coat of arms image into the project book', async ({ page }, testInfo) => {
     await create(page, 'The Marches');
-    await visitRoute(page, '/heraldry', { title: 'Heraldry Generator | Iron Arachne' });
+    await visitRoute(page, '/heraldry', { title: 'Heraldry Generator | Vastways' });
     await expect(page.locator('p.blazon')).not.toBeEmpty();
     await page.locator('.save-artifact').getByRole('button', { name: 'Save to project' }).click();
     await page.locator('.save-artifact').getByLabel('Name', { exact: true }).fill('Emberhold arms');
     await page.locator('.save-artifact').getByRole('button', { name: 'Save', exact: true }).click();
     await expect(page.locator('.save-artifact').getByRole('status')).toContainText('Saved');
 
-    await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+    await visitRoute(page, '/projects', { title: 'Projects | Vastways' });
     const download = page.waitForEvent('download');
     await projectCard(page, 'The Marches')
       .getByRole('button', { name: 'Download project PDF' })

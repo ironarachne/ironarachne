@@ -29,39 +29,13 @@
 }
 
 [data-genre='fantasy'] {
-  /* Charcoal warmed toward gold, and deliberately not slate warmed toward gold.
+  /* Warm the page towards gold while keeping the surface darker than raised plum. */
+  --panel-surface: color-mix(in srgb, var(--gold) 8%, var(--surface-page));
 
-     Warming slate lightens it, and every ink role pays: `--ink-faint` measures 3.4:1 on slate
-     warmed 8% toward gold, against a 4.5:1 floor. Warming charcoal by more lands at the same
-     luminance as slate while reading warm, so nothing pays. That is the skin rule stated in one
-     declaration — a skin may shift its surface's hue but never raise its luminance above
-     `--surface-raised`, which is what makes that surface the worst case for the whole app and
-     lets colour roles measure against it. */
-  --panel-surface: color-mix(in srgb, var(--gold) 12%, var(--charcoal));
-
-  /* The tan keyline, gilded at the foot.
-
-     `--border-strong` is already the base's stronger edge, so the continuous part of this is the
-     skin choosing between two roles the system has rather than introducing a colour: luminance
-     0.0823, inside the register a keyline that runs the whole perimeter is held to.
-
-     The two gold layers are the device, and they use the mechanism #121 proved rather than a new
-     one. `--panel-edge` is painted as the background of the 1px ring the liner sits inside, so a
-     24px block at a corner is visible only where that ring is — and these are at the two corners
-     the shape *cuts*, where the clip runs a diagonal and the liner covers all but a pixel of it.
-     What is left of each block is the mitre itself with a short run of gilt flanking it on both
-     edges: a bound book's metal corners, and the one place this skin's shape and its keyline say
-     the same thing. Cyberpunk marks the four corners its shape leaves square; fantasy gilds the two
-     its shape takes.
-
-     Gold is luminance 0.40, which the register forbids on a continuous keyline and #121's area
-     exemption permits on a corner mark: two 24px corners are 4% of a wide panel's perimeter and
-     7.5% of a small one's, against a fifth. `e2e/genre_skin.spec.ts` measures that against the
-     rendered box, because a panel's perimeter is a thing only the browser knows. */
+  /* Gold is reserved for the two corner accents. The divider carries the remaining edge. */
   --panel-edge:
     linear-gradient(var(--gold), var(--gold)) left bottom / 24px 24px no-repeat,
-    linear-gradient(var(--gold), var(--gold)) right bottom / 24px 24px no-repeat,
-    var(--border-strong);
+    linear-gradient(var(--gold), var(--gold)) right bottom / 24px 24px no-repeat, var(--border);
 
   /* No `--accent` or `--accent-quiet` override: gold is already the base's quiet accent, so the
      fantasy chip, kicker and figure colour is the one the app has. A skin that changes nothing

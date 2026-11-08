@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Dungeon Generator | Iron Arachne</title>
+  <title>Dungeon Generator | Vastways</title>
 </svelte:head>
 
 <DungeonGenerator />

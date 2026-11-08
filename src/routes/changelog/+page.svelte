@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Release Notes | Iron Arachne</title>
+  <title>Release Notes | Vastways</title>
 </svelte:head>
 
 <!--

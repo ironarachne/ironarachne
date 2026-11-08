@@ -22,7 +22,7 @@ const inspector = (page: Page) => page.getByRole('region', { name: 'Inspector' }
 const saveArtifact = (page: Page) => page.locator('.save-artifact');
 
 async function openEmpty(page: Page): Promise<void> {
-  await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+  await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
   await page.evaluate(() => localStorage.clear());
   await page.evaluate(
     () =>
@@ -94,7 +94,7 @@ async function chooseFighter(page: Page): Promise<void> {
 
 /** A culture in the open project, so the naming picker has something to offer. */
 async function saveACulture(page: Page, name: string): Promise<void> {
-  await visitRoute(page, '/culture', { title: 'Culture Generator | Iron Arachne' });
+  await visitRoute(page, '/culture', { title: 'Culture Generator | Vastways' });
   await saveAs(page, name);
 }
 
@@ -106,7 +106,7 @@ test.describe('an AD&D 2E character', () => {
 
   test('is generated, saved, reopened, and edited', async ({ page }) => {
     await visitRoute(page, '/fantasy/adnd/character', {
-      title: 'AD&D 2e Character Generator | Iron Arachne',
+      title: 'AD&D 2e Character Generator | Vastways',
     });
 
     // The generator rolls on mount, so there is a character to keep straight away.
@@ -115,7 +115,7 @@ test.describe('an AD&D 2E character', () => {
 
     // Reopened somewhere else entirely, after a reload, which is what makes this a durability
     // test rather than a state test.
-    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
     await expect(vaultRow(page, 'Aldric Vane')).toBeVisible();
     await vaultRow(page, 'Aldric Vane').click();
 
@@ -146,7 +146,7 @@ test.describe('an AD&D 2E character', () => {
 
   test('is built by hand, saved, and reopened', async ({ page }) => {
     await visitRoute(page, '/fantasy/adnd/character/build', {
-      title: 'AD&D 2e Character Builder | Iron Arachne',
+      title: 'AD&D 2e Character Builder | Vastways',
     });
 
     // Every control is reached by its accessible *role and name*, which is requirement 6.2 tested
@@ -163,7 +163,7 @@ test.describe('an AD&D 2E character', () => {
 
     await saveAs(page, 'Perrin Thistlewood');
 
-    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await visitRoute(page, '/vault', { title: 'Result Vault | Vastways' });
     await expect(vaultRow(page, 'Perrin Thistlewood')).toBeVisible();
   });
 
@@ -171,7 +171,7 @@ test.describe('an AD&D 2E character', () => {
     // Requirement 4.1: every field displayed is a field a user may change. The derived block used
     // to be computed and unreachable.
     await visitRoute(page, '/fantasy/adnd/character/build', {
-      title: 'AD&D 2e Character Builder | Iron Arachne',
+      title: 'AD&D 2e Character Builder | Vastways',
     });
 
     await chooseFighter(page);
@@ -187,7 +187,7 @@ test.describe('an AD&D 2E character', () => {
 
   test('offers a project culture to name from, and only once there is one', async ({ page }) => {
     await visitRoute(page, '/fantasy/adnd/character', {
-      title: 'AD&D 2e Character Generator | Iron Arachne',
+      title: 'AD&D 2e Character Generator | Vastways',
     });
 
     // No cultures in the project, so no offer. An offer with nothing behind it is noise, and
@@ -199,7 +199,7 @@ test.describe('an AD&D 2E character', () => {
     await saveACulture(page, 'The Emberfolk');
 
     await visitRoute(page, '/fantasy/adnd/character', {
-      title: 'AD&D 2e Character Generator | Iron Arachne',
+      title: 'AD&D 2e Character Generator | Vastways',
     });
 
     // Composition is opt-in (rule 1): the offer is there and starts unticked.
@@ -211,7 +211,7 @@ test.describe('an AD&D 2E character', () => {
   test('downloads a character sheet a user can take to the table', async ({ page }) => {
     // Requirement 6.3. The PDF is the presentation export, distinct from artifact export.
     await visitRoute(page, '/fantasy/adnd/character', {
-      title: 'AD&D 2e Character Generator | Iron Arachne',
+      title: 'AD&D 2e Character Generator | Vastways',
     });
 
     const download = page.waitForEvent('download');

@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Saved Data | Iron Arachne</title>
+  <title>Saved Data | Vastways</title>
 </svelte:head>
 
 <!--

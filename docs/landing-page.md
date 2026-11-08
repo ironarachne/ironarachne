@@ -10,6 +10,9 @@ that moves the apex off the old Fly deployment.
 per decision 4: the app is deleted and `fly.toml`, `Dockerfile` and `.dockerignore` are gone from the
 repository.
 
+The studio landing assets now have their own pin in `brand-assets-studio.json`. See the
+[current asset workflow](brand-assets.md).
+
 Decision 3 changed at the cutover — the apex is a pull-zone hostname with an edge rule, not the
 `Redirect` record originally chosen, because that record redirects to a doubled slash and 404s. The
 original reasoning is kept under that decision, since the schema work behind it was correct and only
