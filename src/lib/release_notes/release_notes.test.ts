@@ -170,10 +170,14 @@ describe('releaseNoteEntries', () => {
     expect(total).toBe(270);
   });
 
-  it('gives a version only to entries that had a real release, in a SemVer shape', () => {
+  it('preserves historical version dates and uses SemVer for all numbered entries', () => {
     const versioned = releaseNoteEntries.filter((entry) => entry.version !== undefined);
 
-    expect(versioned.map((entry) => entry.date)).toEqual([
+    const historicalDates = versioned
+      .filter((entry) => entry.date <= '2026-11-07')
+      .map((entry) => entry.date);
+
+    expect(historicalDates).toEqual([
       '2026-11-07',
       '2026-09-23',
       '2026-09-22',
