@@ -17,8 +17,8 @@ You need **Git**, **Node.js 24** (the version used in CI), **npm** (included wit
 modern browser. Check your installation with `git --version`, `node --version`, and `npm --version`.
 
 ```bash
-git clone https://github.com/ironarachne/ironarachne.git
-cd ironarachne
+git clone https://github.com/ironarachne/vastways.git
+cd vastways
 npm ci
 npm run dev
 ```
@@ -53,9 +53,9 @@ checks required for UI changes are in [CONTRIBUTING.md](CONTRIBUTING.md#testing)
 | `docs/`           | Design decisions, domain models, and focused contributor guides.                 |
 | `static/`         | Static site assets.                                                              |
 
-For the architecture, start with [the contributor guide](CONTRIBUTING.md#architecture-and-conventions),
-[the workshop model](docs/workshop.md), and [the application shell](docs/app-shell.md).
-[CODE_STYLE.md](CODE_STYLE.md) covers implementation conventions; individual library READMEs
-explain their public APIs. Contributors working on regional rules should read
+Follow the [guided contributor tour](docs/contributor-guide.md) to trace a real generator and make
+a small change. The [architecture guide](docs/architecture.md) maps the application, and
+[code conventions](docs/code-conventions.md) explain the boundaries contributors work within.
+Individual library READMEs explain their public APIs. Contributors working on regional rules should read
 [the regional authoring guide](docs/region-authoring.md) and
 [the Regions release contract](docs/regions-release-contract.md).

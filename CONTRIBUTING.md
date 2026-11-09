@@ -1,99 +1,110 @@
 # Contributing to Vastways
 
-Use the [README](README.md#run-locally) to install and run the app. This guide covers what to do
-after setup. [AGENTS.md](AGENTS.md) records the full repository contracts and their rationale;
-[CODE_STYLE.md](CODE_STYLE.md) is the implementation style guide.
+Vastways is Iron Arachne's browser-based workshop for tabletop worldbuilding. Start with the
+[README quick start](README.md#run-locally) for Git, Node.js 24, `npm ci`, and the local dev server.
+The app builds to a static site and uses the browser's storage. Local development needs no service
+credentials.
 
-## Making a change
+## Set up a working copy
 
-1. Find or open a [GitHub issue](https://github.com/ironarachne/ironarachne/issues) describing the
-   problem and expected behavior.
-2. Create a working branch from an up-to-date `main`.
-3. Make a focused change, adding or updating tests for changed library behavior.
-4. Run the required checks below and open a pull request explaining the problem, the resulting
-   behavior, and how you verified it. Link the issue with `Closes #<number>` when it is resolved.
-
-Larger features need a design document in `docs/` before implementation: anything introducing a
-library or concept, spanning multiple libraries, or changing persisted or shared data shapes.
-Include a status line and a domain model expressed as Mermaid class diagrams, then obtain explicit
-human approval of the model before implementing it. See [the design process](AGENTS.md#design-process)
-and [the workshop design](docs/workshop.md) for an example. Small fixes and changes confined to one
-component can go straight to implementation.
-
-`main` is protected: changes go through a pull request with a green `verify` check. If you use stacked
-PRs, merge the bottom first and only add commits to branches that other work is based on; see
-[the Git workflow](AGENTS.md#git-workflow).
-
-## Testing
-
-Run this for every change, including documentation:
+If you have repository write access, clone the upstream repository. Otherwise, fork it on GitHub,
+clone your fork, and add the project as the `upstream` remote.
 
 ```bash
-npm run verify
+git remote add upstream https://github.com/ironarachne/vastways.git
 ```
 
-It runs Svelte/TypeScript checks, Prettier and ESLint, unit tests, and the per-library coverage
-gate. Libraries must meet 80% line and function coverage, or preserve their recorded existing
-baseline. Never add or lower a coverage baseline to make a change pass.
-
-For changes touching routes, components, or rendering, install Playwright's Chromium browser and
-run the full gate **before merging**:
+Run `npm ci` again after pulling a lockfile change. Install Playwright's Chromium browser for
+browser testing, and repeat the install after a Playwright upgrade.
 
 ```bash
 npx playwright install chromium
-npm run verify:all
 ```
 
-Install Chromium once per machine and again after Playwright upgrades. On Linux, if browser system
-dependencies are missing, use `npx playwright install --with-deps chromium` (it may require elevated
-permissions). Playwright builds the app, serves a production preview on port 4173, and runs desktop
-and mobile tests. Browser tests run in CI after merges to `main`, so local verification is required
-for these changes.
+On Linux, use `npx playwright install --with-deps chromium` if system libraries are missing.
+Use a separate browser profile for experiments involving saves or migrations. Playwright serves a
+production build on port 4173 and manages its own browser context.
 
-Useful commands while working:
+## Pick an issue and make a change
 
-| Command                             | Purpose                                           |
-| ----------------------------------- | ------------------------------------------------- |
-| `npm run check`                     | Check TypeScript and Svelte.                      |
-| `npm run test -- src/lib/culture`   | Run a focused set of unit tests.                  |
-| `npm run lint`                      | Check formatting and lint rules.                  |
-| `npm run format`                    | Format the repository; review the resulting diff. |
-| `npm run test:e2e:desktop`          | Run desktop browser tests.                        |
-| `npm run test:e2e:mobile`           | Check every route at the configured phone widths. |
-| `npm run test:e2e:ui`               | Debug browser tests interactively.                |
-| `npm run build` / `npm run preview` | Build the static site / serve it locally.         |
+1. Browse the [issue tracker](https://github.com/ironarachne/vastways/issues). Look for an unclaimed
+   `ready-for-agent` issue with concrete acceptance criteria and read the discussion and linked
+   designs. Ask in the issue if scope or ownership is unclear. File a focused issue for an untracked
+   change, including a seed and settings if they reproduce the problem.
+2. Fetch the upstream repository and branch from its current `main`. Use `origin/main` for a direct
+   clone or `upstream/main` for a fork. Give the branch a short name that describes the change.
+3. For work that introduces a library or concept, spans multiple libraries, or changes a persisted
+   or shared data shape, write a design in `docs/` with a status and Mermaid domain model. Get
+   explicit human approval of the model before implementing it. See the
+   [design process](AGENTS.md#design-process). A bug fix, an addition to an existing data table, or a
+   change confined to one component can go straight to implementation.
+4. Keep the change focused. Add or update tests for changed library behavior, including the
+   regression case for a bug and round trips or migrations for changes to stored data. For a change
+   in how tools work together, test the public entry point with the real collaborators.
+5. Check the diff and make focused commits with short, imperative subjects such as
+   `Preserve potion provenance when saving`. Keep unrelated formatting out of the diff.
 
-Unit tests live beside library source in `src/lib/**/*.test.ts`; browser tests live in `e2e/`.
-The mobile suite uses pinned seeds to check for horizontal overflow and off-screen controls.
-Mutation testing is a targeted human-run tool: use `npx stryker run -m src/lib/my_dir/my_file.ts`
-for an individual file, never the entire project or Svelte components.
+`main` is protected. Open a PR against `main` in the usual case. For a stacked PR, target its
+immediate parent branch, merge from the bottom up, and add commits to any branch that someone
+else has stacked on. See the [Git workflow](AGENTS.md#git-workflow).
 
-## Architecture and conventions
+## Testing
 
-The dependency direction is **libraries → components → routes**. Libraries hold application logic
-and know nothing about Svelte; components render the UI; routes compose components.
+Run `npm run verify` before opening a PR, including for docs-only changes. It runs Svelte and
+TypeScript checks, Prettier and ESLint, unit tests, and the per-library coverage gate. For changes
+touching routes, components, or rendering, run `npm run verify:all` before merging and include the
+result with your review evidence. The required [CI workflow](.github/workflows/ci.yaml) runs
+`verify` on PRs. The [browser workflow](.github/workflows/e2e.yaml) runs after merges to `main`.
 
-- **Libraries:** one concept per directory in `src/lib/`, with an `index.ts` public API, a README,
-  and co-located tests. Import other libraries through `$lib/<library>`; use relative imports for
-  siblings within a library. Use TypeScript types and functional code.
-- **Components:** PascalCase `.svelte` files, grouped one level deep by domain, imported through
-  `$components`. Shared UI belongs in `common/`.
-- **Tools:** each generator, editor, or reference route needs a [catalog entry](src/lib/tools/README.md)
-  and a matching [workshop panel](src/lib/workshop/README.md). The catalog controls discovery and
-  tool maturity; see [tool readiness](docs/tool-readiness.md).
-- **Randomness:** use `@ironarachne/rng`, with one seeded RNG threaded through a generation run.
-  Never use `Math.random`; output must be reproducible from its seed.
-- **Persistence:** generated work belongs to projects as artifacts in IndexedDB. Start with
-  [the workshop model](docs/workshop.md) and the library READMEs for
-  [projects](src/lib/projects/README.md) and [artifacts](src/lib/artifacts/README.md).
-- **Assets:** vendored brand assets must be changed upstream and synced rather than edited in
-  place. Follow [the brand-assets guide](docs/brand-assets.md).
+During development, use `npm run check` for types, `npm run lint` for formatting and lint rules,
+and `npm run test -- src/lib/potions` for a focused test run. Format individual files with
+`npx prettier --write <paths>`. Use [package.json](package.json) for the script definitions and
+the [testing guide](docs/testing.md) for coverage, browser subsets, and golden baselines.
 
-Use these guides when working in the corresponding area:
+Review representative generated results when an assertion cannot judge coherence, wording,
+legibility, or usability. Use the same seeds and options for before and after comparisons. For
+changes to generators that produce visual artifacts, put representative images directly in the
+PR description. Include before and after images for changes to existing visual output and record
+how to reproduce them. The [testing guide](docs/testing.md#review-generated-output) describes how to
+choose cases and record intentional output changes.
 
-- [Application shell and navigation](docs/app-shell.md)
-- [Regional data flow and authoring](docs/region-authoring.md) and
-  [Regions release contract](docs/regions-release-contract.md)
-- [Rendering pipelines](docs/renderers.md) and [visual design](docs/visual-design.md)
-- [Generated narrative prose](docs/narrative-prose.md)
-- [Versioning](docs/versioning.md) and [deployment](docs/deployment.md)
+## Maintain the documentation
+
+Update the relevant guide in the same PR whenever a change affects what a contributor needs to
+know. Use the narrowest source that owns the information.
+
+- Update the [architecture guide](docs/architecture.md) or a subsystem design when a responsibility,
+  boundary, or data flow changes.
+- Update [code conventions](docs/code-conventions.md) or the
+  [generator guide](docs/generator-development.md) when introducing a convention, generator type,
+  or development pattern. Refresh worked examples affected by the change.
+- Update the owning library README and examples when changing a public interface used by other
+  generators. Document compatibility and migration where they apply.
+- Update the README, this guide, or the [testing guide](docs/testing.md) when setup, build, testing,
+  or contribution steps change. Link to scripts and config for details those files own.
+- Record a replacement [decision](docs/decisions/README.md) when superseding an ADR. Mark the
+  earlier record as superseded and link the two records in both directions.
+
+Routine internal refactors, data fixes, and implementation changes that leave contributor-facing
+contracts and workflows intact need no documentation edit. Explain the documentation impact in the
+PR so reviewers know which guides you checked.
+
+## Open a review-ready PR
+
+Use the [PR template](.github/pull_request_template.md). Explain what changed and why, give the
+validation commands and results, and call out any intentional changes to seeded output or
+saved-data compatibility. Attach screenshots or examples for visible changes. Link the issue with
+`Closes #<number>` when the PR resolves it. Use an ordinary issue reference for partial work.
+
+A PR is ready for review when it addresses the issue's acceptance criteria, its changes and tests
+are focused, required checks are green, and reviewers can reproduce the important behavior from
+the evidence in the description. Use a draft while material work or validation is pending.
+
+## Contributor references
+
+- [Guided tour and exercises](docs/contributor-guide.md)
+- [Architecture](docs/architecture.md) and [architecture decisions](docs/decisions/README.md)
+- [Generator development](docs/generator-development.md) and
+  [generator design principles](docs/design-principles.md)
+- [Code conventions](docs/code-conventions.md) and [code style](CODE_STYLE.md)
+- [Testing strategy](docs/testing.md)
