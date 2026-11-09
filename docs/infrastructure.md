@@ -6,7 +6,8 @@ configuration itself lives in `infra/`; `infra/README.md` covers how to run it.
 **Status:** implemented and applied. Resolves issue #56. All three environments are live and serving
 over HTTPS on their own subdomains. A fourth stack, `environments/landing`, reuses `modules/static_site`
 for `www.ironarachne.com` and the apex. The
-[Studio Website repository](https://github.com/ironarachne/studio-website) publishes to that stack.
+[Studio Website repository](https://github.com/ironarachne/studio-website) publishes to its
+`iron-arachne-web` Bunny storage origin.
 
 Per the design process in AGENTS.md this feature introduces no TypeScript types, so the class
 diagram that process asks for does not apply. The equivalent artefact — the resource graph and the

@@ -6,9 +6,9 @@ that moves the apex off the old Fly deployment.
 
 **Status:** historical. This records the original landing page and its cutover from Fly.
 The [Studio Website repository](https://github.com/ironarachne/studio-website) owns the site source
-and publishing workflow. Vastways still manages the Scaleway bucket, Bunny pull zone and apex
-redirect in `infra/environments/landing`. The workflow and source paths below describe the retired
-publisher.
+and publishing workflow. The current origin is Bunny Storage. Vastways manages the pull zone, apex
+redirect and former Scaleway bucket in `infra/environments/landing`. The workflow and source paths
+below describe the retired publisher.
 
 Decision 3 changed at the cutover — the apex is a pull-zone hostname with an edge rule, not the
 `Redirect` record originally chosen, because that record redirects to a doubled slash and 404s. The

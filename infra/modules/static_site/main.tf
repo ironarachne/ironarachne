@@ -1,7 +1,6 @@
 /**
- * One environment's static site: a public Object Storage bucket serving the
- * built SvelteKit output, fronted by a Bunny pull zone that terminates TLS for
- * the environment's own subdomain.
+ * One environment's static site: a Bunny pull zone that terminates TLS for the
+ * subdomain and serves either Scaleway Object Storage or Bunny Storage.
  *
  * Deployments are deliberately not modelled here — nothing in this module
  * uploads objects. See docs/infrastructure.md.
@@ -79,14 +78,15 @@ resource "bunnynet_pullzone" "site" {
   cache_expiration_time = var.cache_expiration_time
 
   origin {
-    type = "OriginUrl"
-    url  = "https://${local.bucket_website_host}"
+    type        = var.bunny_storage_zone_id == null ? "OriginUrl" : "StorageZone"
+    url         = var.bunny_storage_zone_id == null ? "https://${local.bucket_website_host}" : null
+    storagezone = var.bunny_storage_zone_id
 
     # Must stay false. Forwarding the visitor's Host would send
     # "dev.ironarachne.com" to Object Storage, whose bucket-website router has
     # no bucket under that name and cannot serve the request.
     forward_host_header = false
-    verify_ssl          = true
+    verify_ssl          = var.bunny_storage_zone_id == null
   }
 
   routing {

@@ -4,12 +4,12 @@ output "url" {
 }
 
 output "bucket_name" {
-  description = "Bucket CD uploads the landing page to."
+  description = "Former Scaleway origin bucket, retained for rollback."
   value       = module.site.bucket_name
 }
 
 output "bucket_website_endpoint" {
-  description = "Origin the pull zone fetches from. Useful for checking the bucket in isolation from the CDN."
+  description = "Website endpoint of the former Scaleway origin."
   value       = module.site.bucket_website_endpoint
 }
 
@@ -19,6 +19,6 @@ output "cdn_hostname" {
 }
 
 output "pull_zone_id" {
-  description = "Pull zone ID. scripts/publish_site.sh needs this for its cache purge; it is not known until the first apply."
+  description = "Pull zone ID used by the Studio Website deployment workflow."
   value       = module.site.pull_zone_id
 }

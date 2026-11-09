@@ -1,8 +1,8 @@
 /**
  * The studio website at www.ironarachne.com, plus the apex redirect that feeds it.
  *
- * The studio-website repository publishes the files. This stack reuses
- * `modules/static_site` for the public bucket behind a Bunny pull zone.
+ * The studio-website repository publishes to the existing Bunny storage zone
+ * iron-arachne-web. The old Scaleway bucket is retained for rollback.
  *
  * Applying this is two phases, and the split is not optional. See the comment on
  * the apex record below, and "The DNS cutover" in docs/landing-page.md.
@@ -26,6 +26,8 @@ module "site" {
 
   bucket_name    = "ironarachne-web-landing"
   pull_zone_name = "ironarachne-landing"
+
+  bunny_storage_zone_id = 2047456
 
   region = var.region
 }

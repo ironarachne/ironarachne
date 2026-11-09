@@ -41,6 +41,12 @@ variable "pull_zone_name" {
   type        = string
 }
 
+variable "bunny_storage_zone_id" {
+  description = "Existing Bunny Storage origin ID. With no ID, the pull zone uses the Scaleway website endpoint."
+  type        = number
+  default     = null
+}
+
 variable "region" {
   description = "Scaleway region hosting the bucket."
   type        = string

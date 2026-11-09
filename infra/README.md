@@ -1,25 +1,26 @@
 # infra
 
-OpenTofu configuration for Iron Arachne's hosting: four static sites on Scaleway Object Storage,
-each fronted by a Bunny pull zone that terminates TLS for its own subdomain.
+OpenTofu configuration for Iron Arachne's hosting. Vastways uses Scaleway Object Storage and the
+studio site uses Bunny Storage. Each site has a Bunny pull zone for TLS and CDN delivery.
 
 Use **OpenTofu** (`tofu`), not Terraform. `>= 1.10` is required — the state backend relies on
 `use_lockfile`, and Scaleway has no DynamoDB to lock against.
 
-| Stack                  | Serves                    | Bucket                    | Pull zone             |
-| ---------------------- | ------------------------- | ------------------------- | --------------------- |
-| `environments/dev`     | `dev.ironarachne.com`     | `ironarachne-web-dev`     | `ironarachne-dev`     |
-| `environments/staging` | `staging.ironarachne.com` | `ironarachne-web-staging` | `ironarachne-staging` |
-| `environments/prod`    | `app.ironarachne.com`     | `ironarachne-web-prod`    | `ironarachne-prod`    |
-| `environments/landing` | `www.ironarachne.com`     | `ironarachne-web-landing` | `ironarachne-landing` |
-| `shared`               | the CD identity           | —                         | —                     |
+| Stack                  | Serves                    | Bucket                     | Pull zone             |
+| ---------------------- | ------------------------- | -------------------------- | --------------------- |
+| `environments/dev`     | `dev.ironarachne.com`     | `ironarachne-web-dev`      | `ironarachne-dev`     |
+| `environments/staging` | `staging.ironarachne.com` | `ironarachne-web-staging`  | `ironarachne-staging` |
+| `environments/prod`    | `app.ironarachne.com`     | `ironarachne-web-prod`     | `ironarachne-prod`    |
+| `environments/landing` | `www.ironarachne.com`     | `iron-arachne-web` (Bunny) | `ironarachne-landing` |
+| `shared`               | the CD identity           | —                          | —                     |
 
 `modules/static_site` holds the per-environment resources; each environment stack is a thin call to
 it with its own backend key. The design and the reasoning behind it are in `docs/infrastructure.md`.
 
-The `landing` stack owns the origin bucket, Bunny pull zone and apex redirect for the studio site.
-The [Studio Website repository](https://github.com/ironarachne/studio-website) publishes the files.
-See `docs/landing-page.md` for the original infrastructure design and cutover.
+The `landing` stack connects the existing `iron-arachne-web` storage zone to the Bunny pull zone
+and owns the apex redirect. The [Studio Website repository](https://github.com/ironarachne/studio-website)
+publishes the files. The stack also retains the former `ironarachne-web-landing` Scaleway bucket
+for rollback. See `docs/landing-page.md` for the original infrastructure design and cutover.
 
 ## Credentials
 

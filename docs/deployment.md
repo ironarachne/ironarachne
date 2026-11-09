@@ -54,8 +54,8 @@ Promotion fetches a published artifact rather than rebuilding, so the bytes reac
 bytes that were built and tested — not a rebuild that happens to start from the same commit.
 
 The [Studio Website repository](https://github.com/ironarachne/studio-website) builds and publishes
-`www.ironarachne.com`. The origin bucket, Bunny pull zone and apex redirect are managed in this
-repository by `infra/environments/landing`.
+`www.ironarachne.com` to the `iron-arachne-web` Bunny storage zone. The pull zone's connection to
+Bunny Storage and the apex redirect are managed by `infra/environments/landing`.
 
 Build and deploy are **not** separate jobs. That began as a platform constraint — the previous host
 implemented no workflow artifacts, so nothing could be handed between jobs — and it is kept because
