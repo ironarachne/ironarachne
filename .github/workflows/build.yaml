@@ -4,30 +4,29 @@ name: Build
 # produces a versioned artifact, publishes it as a release asset, and deploys it
 # to dev. See docs/deployment.md and docs/versioning.md.
 #
-# One job rather than two. GitHub does implement workflow artifacts, so a
-# build/deploy split across jobs is now possible — but the hand-off already
-# lives in the scripts and in the promote-*.yaml workflows, and the deploy step
-# below publishes the *unpacked release artifact* rather than the build output
-# directly, so dev serves exactly the bytes the release contains. Splitting the
-# job would add a boundary without adding a guarantee.
+# Serialize dev publishes separately from builds so a superseded deployment
+# cannot cancel release creation. Dev still serves the unpacked build archive.
 #
 # Deliberately no `workflow_dispatch` here. Running on push is this workflow's
 # entire purpose, and a manual run would either re-tag or rebuild a commit that
-# already has an artifact. Manual deploys are commits to deploy/<env>.version,
-# which promote-staging.yaml and promote-prod.yaml pick up.
+# already has an artifact. Staging and production promotion still uses commits
+# to deploy/<env>.version.
 
 on:
   push:
     branches: [main]
 
 permissions:
-  # Pushing the version tag and creating the release. This replaces the
-  # dedicated access token the previous forge needed for the same two things.
-  contents: write
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      archive: ${{ steps.package.outputs.artifact }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -113,28 +112,48 @@ jobs:
               --notes "Automated release. Build artifact and its SHA-256 checksum are attached below."
           fi
 
-      - name: Unpack the artifact
-        env:
-          ARTIFACT: ${{ steps.package.outputs.artifact }}
-        run: |
-          # Deploying from the unpacked tarball rather than from build/ means
-          # dev serves precisely what the artifact contains, so a packaging bug
-          # shows up here instead of first appearing in a promotion to prod.
-          rm -rf dist && mkdir -p dist
-          tar -xzf "$ARTIFACT" -C dist
-          echo "Unpacked $(find dist -type f | wc -l) files"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-build
+          path: ironarachne-*.tar.gz*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
 
-      - name: Install rclone
+  deploy-dev:
+    needs: build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: publish-dev
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check whether this build is current
+        id: current
         run: |
-          curl -fsSL https://rclone.org/install.sh | sudo bash
-          rclone version | head -1
+          main_ref="$(git ls-remote --exit-code origin refs/heads/main)"
+          main_sha="${main_ref%%$'\t'*}"
+          if [ "$main_sha" = "$GITHUB_SHA" ]; then
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'Skipping dev publish because main has advanced.'
+          fi
+
+      - uses: actions/download-artifact@v4
+        if: steps.current.outputs.publish == 'true'
+        with:
+          name: dev-build
 
       - name: Publish to dev
+        if: steps.current.outputs.publish == 'true'
         env:
-          SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
-          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
           BUNNYNET_API_KEY: ${{ secrets.BUNNYNET_API_KEY }}
-        run: ./scripts/publish_site.sh dev dist
-
-      - name: Summarise
-        run: echo "Deployed ${{ steps.version.outputs.version }} to https://dev.ironarachne.com"
+          ARCHIVE: ${{ needs.build.outputs.archive }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          sha256sum --check "$ARCHIVE.sha256"
+          mkdir dist
+          tar -xzf "$ARCHIVE" -C dist
+          python3 scripts/publish_bunny_site.py dev dist
+          echo "Deployed $VERSION to https://dev.vastways.app" >> "$GITHUB_STEP_SUMMARY"

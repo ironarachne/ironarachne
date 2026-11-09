@@ -15,14 +15,17 @@ decisions behind it — is below.
 
 ## The shape
 
-Three environments, each a public Object Storage bucket serving the prerendered SvelteKit build,
-fronted by a Bunny pull zone that terminates TLS for the environment's own subdomain.
+Each environment serves the prerendered SvelteKit build through a Bunny pull zone. Dev uses
+Bunny Storage and retains its former Scaleway origin for rollback. Staging and production use
+Scaleway Object Storage.
 
 | Environment | Hostname                  | Bucket                    | Pull zone             |
 | ----------- | ------------------------- | ------------------------- | --------------------- |
-| dev         | `dev.ironarachne.com`     | `ironarachne-web-dev`     | `ironarachne-dev`     |
+| dev         | `dev.vastways.app`        | `vastways-dev` (Bunny)    | `vastways-dev`        |
 | staging     | `staging.ironarachne.com` | `ironarachne-web-staging` | `ironarachne-staging` |
 | prod        | `app.ironarachne.com`     | `ironarachne-web-prod`    | `ironarachne-prod`    |
+
+The diagram shows the former dev Scaleway setup, which staging and production still use.
 
 ```mermaid
 graph LR

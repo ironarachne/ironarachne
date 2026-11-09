@@ -24,14 +24,14 @@ workflow on the assumption that it is arbitrary.
 graph TD
     merge([merge to main]) --> build
 
-    subgraph buildwf["build.yaml — automatic, one job"]
+    subgraph buildwf["build.yaml — build and serialized dev deploy"]
         build["tag if new · npm run build<br/>ironarachne-&lt;version&gt;.tar.gz"]
         unpack["unpack the artifact"]
         build --> unpack
     end
 
     build -->|"release asset + .sha256<br/>(released versions only)"| release[("release v&lt;version&gt;")]
-    unpack --> dev[["dev.ironarachne.com"]]
+    unpack --> dev[["dev.vastways.app"]]
 
     subgraph promotewf["promote-*.yaml — on a version file changing"]
         stagingfile["deploy/staging.version"]
@@ -57,48 +57,41 @@ The [Studio Website repository](https://github.com/ironarachne/studio-website) b
 `www.ironarachne.com` to the `iron-arachne-web` Bunny storage zone. The pull zone's connection to
 Bunny Storage and the apex redirect are managed by `infra/environments/landing`.
 
-Build and deploy are **not** separate jobs. That began as a platform constraint — the previous host
-implemented no workflow artifacts, so nothing could be handed between jobs — and it is kept because
-the separation lives in the scripts and in the promotion workflows instead, where splitting the job
-would add a boundary without adding a guarantee. See [Actions notes](#actions-notes). To keep it honest, the dev
-deploy publishes the **unpacked artifact** rather than `build/` directly, so dev serves exactly what
-the release contains and a packaging bug surfaces there rather than first appearing in prod.
+The build job hands the archive and checksum to a separate dev deployment job. This serializes
+publishes without interrupting release creation. A superseded job checks `main` before publishing.
+The dev job verifies the checksum and publishes the unpacked archive, so packaging bugs surface
+before the same bytes are promoted to staging or production.
 
 ## Publishing
 
-`scripts/publish_site.sh <dev|staging|prod> [build-dir]` does the actual work, and CI is a thin
-wrapper around it. It can be run by hand with `SCW_ACCESS_KEY`, `SCW_SECRET_KEY` and
-`BUNNYNET_API_KEY` set:
+Dev publishes to `vastways-dev` Bunny Storage through pull zone `6974932`.
+`scripts/publish_bunny_site.py` validates the zone ID and name, obtains the zone upload credential
+with `BUNNYNET_API_KEY`, and checks the public CDN after publishing. To restore a checked archive
+by hand, stop other dev publishes, unpack it, and run:
 
 ```bash
-npm run build
-scripts/publish_site.sh dev
+python3 scripts/publish_bunny_site.py dev dist
 ```
 
-### Why the upload is two passes
+Staging and production still use `scripts/publish_site.sh` with `SCW_ACCESS_KEY`, `SCW_SECRET_KEY`
+and `BUNNYNET_API_KEY`. The old dev target in that script is available for Scaleway rollback.
 
-Cache lifetimes differ by an order of ten million between the two kinds of file, and Object Storage
-sends no `Cache-Control` of its own — whatever is set at upload time is what the CDN and browsers
-obey.
+### Upload order and cache policy
+
+Browser cache policy comes from edge rules on Bunny dev and from upload headers on Scaleway.
 
 | Files               | Header                                | Reason                                                                                    |
 | ------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `_app/immutable/**` | `public, max-age=31536000, immutable` | Vite content-hashes these, so a given URL's bytes never change                            |
 | everything else     | `public, max-age=0, must-revalidate`  | HTML shells at stable URLs; serving these stale would pin visitors to the previous deploy |
 
-The passes are also ordered, and the order matters:
-
-1. **`rclone copy` the hashed assets.** `copy`, not `sync`, so nothing is deleted yet. New HTML must
-   never reach a visitor before the assets it references exist.
-2. **`rclone sync` everything else**, excluding the hashed assets. `sync` prunes files deleted from
-   the build, so removed routes stop being served. The exclusion means this pass cannot delete an
-   asset that a page still held at the edge might ask for.
+Both publishers upload hashed assets before pages can reference them and retain previous hashes.
+They then publish mutable files and remove stale mutable files only after the upload succeeds.
+Bunny compares SHA-256 checksums. The Scaleway publisher uses `rclone copy` for hashed files and
+`rclone sync --checksum` for the rest.
 
 Old hashed assets therefore accumulate. That is deliberate — they are small, and deleting them is how
 you break the pages still referencing them. Prune with a bucket lifecycle rule if it ever matters.
-
-`--checksum` is not incidental: CI checks out fresh every run, so every file looks newly modified.
-Comparing MD5 instead of timestamps means only genuinely changed files upload.
 
 ### The cache purge
 
