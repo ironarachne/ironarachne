@@ -3,9 +3,9 @@
 How a build reaches a bucket. The infrastructure it targets is described in `docs/infrastructure.md`;
 the version scheme in `docs/versioning.md`.
 
-Vastways is the app served at `app.ironarachne.com`. Existing tool links and browser-local
-projects use that address. The Iron Arachne studio site is served at `www.ironarachne.com`.
-See the [Vastways rollout design](vastways-rebrand.md#rollout-and-verification).
+Vastways publishes to `vastways.app`. Existing browser-local projects on the old hostname can be
+exported from `app.ironarachne.com/recover/` during the cutover. The Iron Arachne studio site is
+served at `www.ironarachne.com`. See the [domain rollout](vastways-domain-rollout.md).
 
 **Status:** implemented. A merge to `main` tags the version, builds a versioned artifact, publishes it
 as a release asset with a checksum, and deploys it to dev — all confirmed on real runs. Promotion by
@@ -40,8 +40,8 @@ graph TD
 
     release --> stagingfile
     release --> prodfile
-    stagingfile --> staging[["staging.ironarachne.com"]]
-    prodfile --> prod[["app.ironarachne.com"]]
+    stagingfile --> staging[["staging.vastways.app"]]
+    prodfile --> prod[["vastways.app"]]
 ```
 
 |         | Trigger                          | Deploys                                  |
@@ -64,7 +64,7 @@ before the same bytes are promoted to staging or production.
 
 ## Publishing
 
-Dev publishes to `vastways-dev` Bunny Storage through pull zone `6974932`.
+Dev, staging, and production publish to separate Bunny Storage zones.
 `scripts/publish_bunny_site.py` validates the zone ID and name, obtains the zone upload credential
 with `BUNNYNET_API_KEY`, and checks the public CDN after publishing. To restore a checked archive
 by hand, stop other dev publishes, unpack it, and run:
@@ -73,12 +73,13 @@ by hand, stop other dev publishes, unpack it, and run:
 python3 scripts/publish_bunny_site.py dev dist
 ```
 
-Staging and production still use `scripts/publish_site.sh` with `SCW_ACCESS_KEY`, `SCW_SECRET_KEY`
-and `BUNNYNET_API_KEY`. The old dev target in that script is available for Scaleway rollback.
+The staging and production workflows can also be run manually on `main` to republish the
+committed version pin. `scripts/publish_site.sh` remains available for the former Scaleway origins
+during recovery and rollback.
 
 ### Upload order and cache policy
 
-Browser cache policy comes from edge rules on Bunny dev and from upload headers on Scaleway.
+Browser cache policy comes from Bunny edge rules and from upload headers on the former Scaleway origins.
 
 | Files               | Header                                | Reason                                                                                    |
 | ------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------- |

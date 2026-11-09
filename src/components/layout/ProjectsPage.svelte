@@ -2,6 +2,7 @@
   import { onMount, tick } from 'svelte';
 
   import { resolve } from '$app/paths';
+  import { page } from '$app/state';
   import { hydrateArtifacts, listArtifacts, onArtifactsChanged } from '$lib/artifacts';
   import { getShortDate } from '$lib/dates';
   import {
@@ -49,6 +50,13 @@
 
   const uid = $props.id();
   const newNameId = `${uid}-new-name`;
+  const previousHostname = $derived(
+    page.url.hostname === 'vastways.app'
+      ? 'app.ironarachne.com'
+      : page.url.hostname === 'staging.vastways.app'
+        ? 'staging.ironarachne.com'
+        : null,
+  );
 
   /**
    * What a project is set in, offered as the catalog's own vocabularies. The empty value is the
@@ -354,6 +362,19 @@
     A project is one campaign, one setting, one world. Everything you keep belongs to exactly one of
     them, and the workshop always has one open.
   </p>
+  {#if previousHostname}
+    <p class="projects__lede">
+      Looking for work saved at the old address? <a href="https://{previousHostname}/recover/"
+        >Export your old saves</a
+      >
+      in the same browser profile, then import the backup below.
+    </p>
+  {:else if page.url.hostname === 'app.ironarachne.com' || page.url.hostname === 'staging.ironarachne.com'}
+    <p class="projects__lede">
+      Vastways is moving. <a href={resolve('/recover')}>Export a backup for the move</a> from this browser
+      profile.
+    </p>
+  {/if}
 
   {#if storageError !== null}
     <p class="projects__error inset" role="alert">{storageError}</p>

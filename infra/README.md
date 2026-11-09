@@ -1,19 +1,18 @@
 # infra
 
-OpenTofu configuration for Iron Arachne's hosting. Vastways staging and production use Scaleway
-Object Storage. Dev and the studio site use Bunny Storage. Each site has a Bunny pull zone for TLS
-and CDN delivery.
+OpenTofu configuration for Iron Arachne's hosting. Vastways and the studio site use Bunny Storage.
+Each site has a Bunny pull zone for TLS and CDN delivery.
 
 Use **OpenTofu** (`tofu`), not Terraform. `>= 1.10` is required — the state backend relies on
 `use_lockfile`, and Scaleway has no DynamoDB to lock against.
 
-| Stack                  | Serves                    | Bucket                     | Pull zone             |
-| ---------------------- | ------------------------- | -------------------------- | --------------------- |
-| `environments/dev`     | `dev.vastways.app`        | `vastways-dev` (Bunny)     | `vastways-dev`        |
-| `environments/staging` | `staging.ironarachne.com` | `ironarachne-web-staging`  | `ironarachne-staging` |
-| `environments/prod`    | `app.ironarachne.com`     | `ironarachne-web-prod`     | `ironarachne-prod`    |
-| `environments/landing` | `www.ironarachne.com`     | `iron-arachne-web` (Bunny) | `ironarachne-landing` |
-| `shared`               | the CD identity           | —                          | —                     |
+| Stack                  | Serves                 | Bucket                     | Pull zone             |
+| ---------------------- | ---------------------- | -------------------------- | --------------------- |
+| `environments/dev`     | `dev.vastways.app`     | `vastways-dev` (Bunny)     | `vastways-dev`        |
+| `environments/staging` | `staging.vastways.app` | `vastways-staging` (Bunny) | `vastways-staging`    |
+| `environments/prod`    | `vastways.app`         | `vastways-app` (Bunny)     | `vastways-app`        |
+| `environments/landing` | `www.ironarachne.com`  | `iron-arachne-web` (Bunny) | `ironarachne-landing` |
+| `shared`               | the CD identity        | —                          | —                     |
 
 `modules/static_site` holds the Scaleway-backed resources. Each environment stack has its own
 backend key. The design and the reasoning behind it are in `docs/infrastructure.md`.
@@ -23,7 +22,9 @@ existing `vastways-dev` storage zone by ID. The dev publisher installs missing c
 rules and verifies them on the public hostname. The old Scaleway origin and its Bunny pull zone
 stay under the original module addresses for rollback. The imported legacy dev edge rule redirects
 requests to `dev.vastways.app`, preserving the path and query. It leaves old immutable assets
-available for tabs still using the former build.
+available for tabs still using the former build. The staging and production stacks adopt their
+existing Bunny resources in the same way. Their former Scaleway origins remain available for
+rollback and old-host save recovery.
 
 The `landing` stack connects the existing `iron-arachne-web` storage zone to the Bunny pull zone
 and owns the apex redirect. The [Studio Website repository](https://github.com/ironarachne/studio-website)

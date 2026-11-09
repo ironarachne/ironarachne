@@ -124,7 +124,7 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-<div class="shell">
+<div class="shell" data-sveltekit-reload={page.route.id === '/recover' ? '' : undefined}>
   <TopBar {drawerOpen} onToggleDrawer={() => (drawerOpen = !drawerOpen)} />
   <Sidebar open={drawerOpen} onNavigate={closeDrawer} />
 

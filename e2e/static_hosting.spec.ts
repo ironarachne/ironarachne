@@ -58,8 +58,15 @@ test('static hosting: publishes the Vastways share metadata and icons before Jav
   const route = await fetch(`${host.origin}/culture/`);
   const html = await route.text();
   expect(html).toContain('<meta property="og:site_name" content="Vastways"');
-  expect(html).toContain('https://app.ironarachne.com/vastways-social.png');
+  expect(html).toContain('https://vastways.app/vastways-social.png');
+  expect(html).toContain('<link rel="canonical" href="https://vastways.app/culture/"');
   expect(html).toContain('rel="manifest"');
+
+  const sitemap = await fetch(`${host.origin}/sitemap.xml`);
+  expect(sitemap.ok).toBe(true);
+  const urls = await sitemap.text();
+  expect(urls).toContain('<loc>https://vastways.app/culture/</loc>');
+  expect(urls).not.toContain('/recover/');
 
   const manifestResponse = await fetch(`${host.origin}/manifest.json`);
   expect(manifestResponse.ok).toBe(true);

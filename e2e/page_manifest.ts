@@ -36,6 +36,12 @@ export const PAGE_MANIFEST: PageEntry[] = [
     kind: 'static',
   },
   {
+    path: '/recover',
+    title: 'Recover saved work | Vastways',
+    heading: 'Recover saved work',
+    kind: 'static',
+  },
+  {
     // The catalog index (#105). 'static' rather than 'hub': the kind that died with the domain
     // index pages meant "a page of links and nothing else", and the checks it carried are gone.
     // What matters here is what every static page is checked for — it renders, it is titled, and
