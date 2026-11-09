@@ -21,7 +21,9 @@ backend key. The design and the reasoning behind it are in `docs/infrastructure.
 The dev stack imports the existing Bunny pull zone, DNS record, and hostname. It references the
 existing `vastways-dev` storage zone by ID. The dev publisher installs missing cache and indexing
 rules and verifies them on the public hostname. The old Scaleway origin and its Bunny pull zone
-stay under the original module addresses for rollback.
+stay under the original module addresses for rollback. The imported legacy dev edge rule redirects
+requests to `dev.vastways.app`, preserving the path and query. It leaves old immutable assets
+available for tabs still using the former build.
 
 The `landing` stack connects the existing `iron-arachne-web` storage zone to the Bunny pull zone
 and owns the apex redirect. The [Studio Website repository](https://github.com/ironarachne/studio-website)
