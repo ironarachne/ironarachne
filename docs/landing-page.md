@@ -4,14 +4,11 @@ A one-page static site at `ironarachne.com`, separate from the app, linking thro
 `app.ironarachne.com`. This document records its shape, the decisions behind it, and the DNS cutover
 that moves the apex off the old Fly deployment.
 
-**Status:** implemented and complete. Resolves the design of issue #72. The page is built and lives in
-`landing/`, the infrastructure it publishes to landed in #157, the DNS cutover has been performed —
-`www.ironarachne.com` serves the page and the apex redirects to it — and Fly has been decommissioned
-per decision 4: the app is deleted and `fly.toml`, `Dockerfile` and `.dockerignore` are gone from the
-repository.
-
-The studio landing assets now have their own pin in `brand-assets-studio.json`. See the
-[current asset workflow](brand-assets.md).
+**Status:** historical. This records the original landing page and its cutover from Fly.
+The [Studio Website repository](https://github.com/ironarachne/studio-website) owns the site source
+and publishing workflow. The current origin is Bunny Storage. Vastways manages the pull zone, apex
+redirect and former Scaleway bucket in `infra/environments/landing`. The workflow and source paths
+below describe the retired publisher.
 
 Decision 3 changed at the cutover — the apex is a pull-zone hostname with an edge rule, not the
 `Redirect` record originally chosen, because that record redirects to a doubled slash and 404s. The

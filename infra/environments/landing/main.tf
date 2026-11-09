@@ -1,9 +1,8 @@
 /**
- * The landing page at www.ironarachne.com, plus the apex redirect that feeds it.
+ * The studio website at www.ironarachne.com, plus the apex redirect that feeds it.
  *
- * This is not an environment of the app — it is a separate one-page static site,
- * built from `landing/` in this repository. It reuses `modules/static_site`
- * because the shape is identical: a public bucket behind a Bunny pull zone.
+ * The studio-website repository publishes to the existing Bunny storage zone
+ * iron-arachne-web. The old Scaleway bucket is retained for rollback.
  *
  * Applying this is two phases, and the split is not optional. See the comment on
  * the apex record below, and "The DNS cutover" in docs/landing-page.md.
@@ -27,6 +26,8 @@ module "site" {
 
   bucket_name    = "ironarachne-web-landing"
   pull_zone_name = "ironarachne-landing"
+
+  bunny_storage_zone_id = 2047456
 
   region = var.region
 }
@@ -101,14 +102,8 @@ resource "bunnynet_pullzone_hostname" "apex" {
  * The redirect itself.
  *
  * The pull zone now answers for both names, so this has to fire on the apex
- * only — hence the trigger on the request URL rather than an unconditional
- * rule, which would redirect www to itself forever.
- *
- * The target is the www **root**, and the request path is deliberately not
- * preserved. The landing site is a single page: there is no second path for a
- * visitor to arrive on and nothing to deep-link to. Preserving the path would
- * mean carrying the old Fly site's URLs onto a bucket that has never held them,
- * turning every stale link into a 404 instead of the page we want people on.
+ * only. The rule sends apex requests to the www homepage. The studio site uses
+ * www in its canonical URLs and links so visitors can reach its deep links.
  */
 resource "bunnynet_pullzone_edgerule" "apex_redirect" {
   enabled     = true

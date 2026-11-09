@@ -3,13 +3,10 @@
 # Publishes a built site to an environment's Object Storage bucket and purges the
 # CDN cache in front of it.
 #
-#   scripts/publish_site.sh <dev|staging|prod|landing> [source-dir]
+#   scripts/publish_site.sh <dev|staging|prod> [source-dir]
 #
 # Reads SCW_ACCESS_KEY, SCW_SECRET_KEY and BUNNYNET_API_KEY from the environment.
 # Builds nothing: point it at a directory that already holds what should be served.
-#
-# `landing` is the one-page site at www.ironarachne.com, which is checked in rather
-# than built -- see docs/landing-page.md. The other three are the app.
 #
 # See docs/deployment.md for why the upload is two passes and why the cache
 # headers matter.
@@ -17,12 +14,12 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: $0 <dev|staging|prod|landing> [source-dir]" >&2
+  echo "usage: $0 <dev|staging|prod> [source-dir]" >&2
   exit 2
 }
 
 environment="${1:-}"
-build_dir="${2:-}"
+build_dir="${2:-build}"
 
 [ -n "$environment" ] || usage
 
@@ -30,39 +27,24 @@ build_dir="${2:-}"
 # state -- `tofu output` in infra/environments/<env>. They are duplicated here
 # rather than read from state because publishing should not need credentials for
 # the state bucket; the deploy identity is scoped to object storage alone.
-#
-# Each also names where its content comes from when the caller does not say. That
-# default is not a convenience: the app builds to `build/` and the landing page is
-# the checked-in `landing/`, so a single shared default would mean
-# `publish_site.sh landing` quietly uploading the app to the landing bucket.
 case "$environment" in
   dev)
     bucket="ironarachne-web-dev"
     pull_zone="6245647"
-    default_source="build"
     ;;
   staging)
     bucket="ironarachne-web-staging"
     pull_zone="6245673"
-    default_source="build"
     ;;
   prod)
     bucket="ironarachne-web-prod"
     pull_zone="6245674"
-    default_source="build"
-    ;;
-  landing)
-    bucket="ironarachne-web-landing"
-    pull_zone="6330365"
-    default_source="landing"
     ;;
   *)
     echo "error: unknown environment '$environment'" >&2
     usage
     ;;
 esac
-
-build_dir="${build_dir:-$default_source}"
 
 [ -d "$build_dir" ] || {
   echo "error: source directory '$build_dir' does not exist" >&2
@@ -132,11 +114,7 @@ echo "==> Publishing $build_dir to $environment ($remote)"
 # Pass 1: the hashed assets, copied rather than synced so nothing is removed
 # yet. New HTML must never reach a visitor before the assets it references.
 #
-# The guard is for the landing page, which is hand-written static HTML and has no
-# content-hashed assets at all. rclone exits 3 on a source directory that does not
-# exist -- "directory not found" -- and with `set -e` that would abort the publish
-# before pass 2 ever uploaded anything. Skipping is correct rather than merely
-# tolerable: there is nothing to cache for a year.
+# Skip the immutable pass if the source has no content-hashed assets.
 if [ -d "$build_dir/$immutable_prefix" ]; then
   echo "--> assets ($immutable_prefix, cached for a year)"
   rclone copy "$build_dir/$immutable_prefix" "$remote/$immutable_prefix" \
