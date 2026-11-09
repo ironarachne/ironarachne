@@ -17,9 +17,9 @@ Use **OpenTofu** (`tofu`), not Terraform. `>= 1.10` is required — the state ba
 `modules/static_site` holds the per-environment resources; each environment stack is a thin call to
 it with its own backend key. The design and the reasoning behind it are in `docs/infrastructure.md`.
 
-`landing` is the odd one out: it is not an environment of the app but the one-page site built from
-`landing/` in this repository, and it also owns the apex redirect. Its design is in
-`docs/landing-page.md`, and **its first apply is deliberately partial** — see below.
+The `landing` stack owns the origin bucket, Bunny pull zone and apex redirect for the studio site.
+The [Studio Website repository](https://github.com/ironarachne/studio-website) publishes the files.
+See `docs/landing-page.md` for the original infrastructure design and cutover.
 
 ## Credentials
 

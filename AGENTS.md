@@ -55,7 +55,7 @@ Notes:
   signal to investigate, not a blocked merge; `e2e.yaml` carries the full reasoning.
   `.github/workflows/goldens.yaml` is the third workflow and gates nothing: it is dispatch-only,
   renders the golden-image baselines, and pushes them to a branch for review. `build.yaml`,
-  `promote-staging.yaml`, `promote-prod.yaml` and `publish-landing.yaml` deploy; see
+  `promote-staging.yaml` and `promote-prod.yaml` deploy; see
   `docs/deployment.md`.
 - **Coverage is enforced per library, not project-wide.** `scripts/check_library_coverage.ts`
   requires every directory under `src/lib` to reach 80% line and function coverage. The

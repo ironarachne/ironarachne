@@ -173,9 +173,8 @@ Identity, status, date — reading left to right.
 
 - **Identity** — the horizontal lockup (glyph and wordmark), at top-bar height, linking to Home.
   It replaces the CSS-rendered wordmark in `Header.svelte`, which reimplements the brand mark in
-  gradients and pseudo-element strokes and has to be re-tuned at every breakpoint. The lockups are
-  vendored brand assets and already sync to `landing/assets/logo`; the app needs its own entry in
-  `brand-assets.json` (`logo/primary` → `src/lib/assets/images/logo`) rather than a copy, per
+  gradients and pseudo-element strokes and has to be re-tuned at every breakpoint. The app's lockups
+  are vendored under `src/lib/assets/images/logo` through `brand-assets.json`. See
   `docs/brand-assets.md`.
 
 - **Status** — three items, horizontally aligned:

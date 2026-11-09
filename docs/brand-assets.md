@@ -5,13 +5,14 @@ repository. Each distribution is pinned to an immutable commit.
 
 ## Ownership and pins
 
-| Identity            | Source in the brand repository                          | Pin in this repo           | Destinations                                                                                            |
-| ------------------- | ------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Vastways app        | `vastways/`                                             | `brand-assets.json`        | Browser assets in `static/`, lockups and fonts in `src/lib/assets/`, palette in `src/lib/styles/brand/` |
-| Iron Arachne studio | `logo/primary`, `logo/web-icons`, `fonts`, and `tokens` | `brand-assets-studio.json` | `landing/assets/`                                                                                       |
+| Identity     | Source in the brand repository | Pin in this repo    | Destinations                                                                                            |
+| ------------ | ------------------------------ | ------------------- | ------------------------------------------------------------------------------------------------------- |
+| Vastways app | `vastways/`                    | `brand-assets.json` | Browser assets in `static/`, lockups and fonts in `src/lib/assets/`, palette in `src/lib/styles/brand/` |
 
-Each manifest records the repository, exact commit, sync date, and source-to-destination
-directory mappings. Make artwork, palette, and metadata changes in the source repository.
+The manifest records the repository, exact commit, sync date, and source-to-destination
+directory mappings. The studio site tracks its assets in the
+[Studio Website repository](https://github.com/ironarachne/studio-website).
+Make artwork, palette, and metadata changes in the source repository.
 Sync copies the named directories as-is. Keep their filenames and bytes intact here.
 See the [branding repository](https://github.com/ironarachne/ironarachne_branding).
 
@@ -26,8 +27,6 @@ uses the simplified mark in its narrowest header. The visual rules and rollout l
 scripts/sync_brand_assets.sh                          # restore the pinned app distribution
 scripts/sync_brand_assets.sh --check                  # compare app files to the app pin
 scripts/sync_brand_assets.sh --ref <commit-or-ref>    # update the app pin and copies
-scripts/sync_brand_assets.sh --brand studio --check   # compare landing files to the studio pin
-scripts/sync_brand_assets.sh --brand studio --ref <commit-or-ref>
 ```
 
 The app is the default selection. `--brand app` makes the selection explicit. Set
@@ -37,8 +36,7 @@ different files. A newer upstream commit is reported for information. Review the
 before committing a changed pin.
 
 Sync writes files found in the source directory. When retiring an asset, remove its obsolete
-vendored copy explicitly and check for app references. The studio pin follows the current
-landing site and can travel with that site when it is extracted.
+vendored copy explicitly and check for app references.
 
 ## CSS and formatting
 
@@ -46,5 +44,5 @@ The app's `tokens.css` maps the pinned `--vw-*` swatches to roles that component
 `tokens.test.ts` checks that those references resolve and that `tokens.css` does not restate
 colour values. The browser contrast tests check the rendered roles on app surfaces.
 
-Keep parseable vendored files in `.prettierignore`, including the app and studio manifests
-served to browsers. Formatting would change the pinned bytes.
+Keep parseable vendored files in `.prettierignore`, including the web manifest.
+Formatting would change the pinned bytes.
