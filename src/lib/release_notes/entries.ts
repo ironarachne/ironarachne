@@ -9,6 +9,15 @@ import type ReleaseNote from './release_note';
  */
 const entries: ReleaseNote[] = [
   {
+    date: '2026-11-09',
+    version: '4.1.0',
+    summary: 'Vastways is moving to vastways.app',
+    improvements: [
+      'Projects includes a link to recover browser-local saves from the old app address. Export there in the browser profile you used before, then import the backup at the new address.',
+      'Tool bookmarks keep their original paths and seeds when they redirect to the new address.',
+    ],
+  },
+  {
     date: '2026-11-08',
     version: '4.0.0',
     summary: 'Iron Arachne is now Vastways, the worldbuilding workshop by Iron Arachne',

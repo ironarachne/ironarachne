@@ -15,17 +15,16 @@ decisions behind it — is below.
 
 ## The shape
 
-Each environment serves the prerendered SvelteKit build through a Bunny pull zone. Dev uses
-Bunny Storage and retains its former Scaleway origin for rollback. Staging and production use
-Scaleway Object Storage.
+Each Vastways environment serves the prerendered SvelteKit build from Bunny Storage through a
+Bunny pull zone. The former Scaleway origins are retained for recovery and rollback.
 
-| Environment | Hostname                  | Bucket                    | Pull zone             |
-| ----------- | ------------------------- | ------------------------- | --------------------- |
-| dev         | `dev.vastways.app`        | `vastways-dev` (Bunny)    | `vastways-dev`        |
-| staging     | `staging.ironarachne.com` | `ironarachne-web-staging` | `ironarachne-staging` |
-| prod        | `app.ironarachne.com`     | `ironarachne-web-prod`    | `ironarachne-prod`    |
+| Environment | Hostname               | Bucket                     | Pull zone          |
+| ----------- | ---------------------- | -------------------------- | ------------------ |
+| dev         | `dev.vastways.app`     | `vastways-dev` (Bunny)     | `vastways-dev`     |
+| staging     | `staging.vastways.app` | `vastways-staging` (Bunny) | `vastways-staging` |
+| prod        | `vastways.app`         | `vastways-app` (Bunny)     | `vastways-app`     |
 
-The diagram shows the former dev Scaleway setup, which staging and production still use.
+The diagram records the former Scaleway setup, whose legacy hosts remain available during the move.
 
 ```mermaid
 graph LR

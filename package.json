@@ -1,6 +1,6 @@
 {
   "name": "ironarachne",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,7 +11,7 @@
     "settlement:cli": "npx vite-node scripts/generate_settlement_cli.ts",
     "arch:style": "vite-node scripts/generate_architectural_style_cli.ts",
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "vite build && node scripts/write_public_site_metadata.mjs",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",

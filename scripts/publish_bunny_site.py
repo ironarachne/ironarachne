@@ -17,7 +17,11 @@ from urllib.request import Request, urlopen
 
 API = "https://api.bunny.net"
 IMMUTABLE = "_app/immutable/"
-TARGETS = {"dev": ("https://dev.vastways.app", 6974932, 2047627, "vastways-dev")}
+TARGETS = {
+    "dev": ("https://dev.vastways.app", 6974932, 2047627, "vastways-dev"),
+    "staging": ("https://staging.vastways.app", 6974950, 2047630, "vastways-staging"),
+    "prod": ("https://vastways.app", 6974897, 2047619, "vastways-app"),
+}
 NESTED_ROUTE = "fantasy/dcc/character/"
 IMMUTABLE_CACHE = "public, max-age=31536000, immutable"
 MUTABLE_CACHE = "public, max-age=0, must-revalidate"
@@ -57,14 +61,16 @@ def stored_files(storage_url, password, directory=""):
             yield path, entry.get("Checksum")
 
 
-def configure_cdn(pull_url, pull_zone, api_key):
+def configure_cdn(pull_url, pull_zone, hostname, api_key, noindex):
     # Bunny action IDs: 25 overrides browser Cache-Control, 5 sets a response header.
     # Trigger match 2 is MatchNone, so the mutable rule excludes hashed assets.
-    rules = (
+    rules = [
         ("Vastways immutable browser cache", 25, IMMUTABLE_CACHE, "", 0, f"*/{IMMUTABLE}*"),
         ("Vastways mutable browser cache", 25, MUTABLE_CACHE, "", 2, f"*/{IMMUTABLE}*"),
-        ("Vastways dev noindex", 5, "X-Robots-Tag", "noindex", 0, "*"),
-    )
+    ]
+    if noindex:
+        label = "dev" if hostname["Value"].startswith("dev.") else "staging"
+        rules.append((f"Vastways {label} noindex", 5, "X-Robots-Tag", "noindex", 0, "*"))
     existing = {rule["Description"]: rule for rule in pull_zone.get("EdgeRules", [])}
     for description, action, first, second, match, pattern in rules:
         if description in existing:
@@ -82,12 +88,16 @@ def configure_cdn(pull_url, pull_zone, api_key):
         }).encode()
         request(f"{pull_url}/edgerules/addOrUpdate", api_key, "POST", body,
                 {"Content-Type": "application/json"}, status=201)
+    if not hostname["ForceSSL"]:
+        body = json.dumps({"Hostname": hostname["Value"], "ForceSSL": True}).encode()
+        request(f"{pull_url}/setForceSSL", api_key, "POST", body,
+                {"Content-Type": "application/json"}, status=204)
 
 
-def verify_cdn(site, build, asset):
+def verify_cdn(site, build, asset, noindex):
     checks = (
         ("", "index.html", 200, {"max-age=0", "must-revalidate"}),
-        (NESTED_ROUTE + "?seed=bunny%20dev%2B1", NESTED_ROUTE + "index.html", 200,
+        (NESTED_ROUTE + "?seed=bunny%20rollout%2B1", NESTED_ROUTE + "index.html", 200,
          {"max-age=0", "must-revalidate"}),
         (asset, asset, 200, {"max-age=31536000", "immutable"}),
         ("vastways-deployment-check-missing/", "404.html", 404, set()),
@@ -105,7 +115,7 @@ def verify_cdn(site, build, asset):
                 directives = {value.strip() for value in headers.get("Cache-Control", "").split(",")}
                 if not cache <= directives:
                     raise RuntimeError(f"{site}/{route} has unexpected cache headers: {directives}")
-                if route == "" and headers.get("X-Robots-Tag") != "noindex":
+                if noindex and route == "" and headers.get("X-Robots-Tag") != "noindex":
                     raise RuntimeError(f"{site}/ is missing its noindex header")
                 print(f"Verified HTTP {status} at {site}/{route}", flush=True)
                 break
@@ -133,6 +143,10 @@ def publish(environment, build):
     pull_zone = json.loads(request(pull_url, api_key)[0])
     if pull_zone["StorageZoneId"] != zone_id:
         raise RuntimeError(f"Pull zone {pull_id} must use Bunny storage zone {zone_id}")
+    hostname = next((entry for entry in pull_zone["Hostnames"]
+                     if entry["Value"] == site.removeprefix("https://")), None)
+    if not hostname or not hostname["HasCertificate"]:
+        raise RuntimeError(f"Pull zone {pull_id} has no HTTPS certificate for {site}")
     zone_url = f"{API}/storagezone/{zone_id}"
     zone = json.loads(request(zone_url, api_key)[0])
     if zone["Name"] != storage_name:
@@ -169,9 +183,10 @@ def publish(environment, build):
     if zone.get("Custom404FilePath") != "/404.html" or zone.get("Rewrite404To200"):
         body = json.dumps({"Custom404FilePath": "/404.html", "Rewrite404To200": False}).encode()
         request(zone_url, api_key, "POST", body, {"Content-Type": "application/json"}, status=None)
-    configure_cdn(pull_url, pull_zone, api_key)
+    noindex = environment != "prod"
+    configure_cdn(pull_url, pull_zone, hostname, api_key, noindex)
     request(f"{pull_url}/purgeCache", api_key, "POST", b"", status=None)
-    verify_cdn(site, build, assets[0])
+    verify_cdn(site, build, assets[0], noindex)
 
 
 if __name__ == "__main__":

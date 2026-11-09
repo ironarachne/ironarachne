@@ -85,6 +85,10 @@ if [ -n "$checksum_url" ]; then
     exit 1
   fi
 else
+  if [ "${REQUIRE_RELEASE_CHECKSUM:-}" = 1 ]; then
+    echo "error: release $tag has no SHA-256 checksum for $artifact" >&2
+    exit 1
+  fi
   echo "--> No checksum published for this release; skipping verification"
 fi
 
