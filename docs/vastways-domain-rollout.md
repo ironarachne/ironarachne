@@ -55,13 +55,13 @@ responses do not establish which storage zones are attached or what has been upl
 
 ### Redirects
 
-On the legacy pull zones, redirect each old hostname to its matching new hostname. Start with
-temporary redirects and a no-store policy during the rollback window. Switch to permanent 301s
-after sign-off. Use Bunny's documented `https://<new-host>{{path}}` form to carry the path and
-query into the target, and match only the corresponding legacy hostname. Let the new host handle
-slash normalization. Keep legacy `/_app/immutable/` requests on the old host during the rollback
-window so already-open tabs can finish loading. Keep the pinned recovery assets available for the
-entire recovery period. [Bunny redirect variables](https://bunny.net/docs/cdn/edge-rules/dynamic-variables)
+On the legacy pull zones, redirect each old hostname to its matching new hostname. Use temporary
+redirects with a no-store policy while checking the cutover, then switch to permanent 301s when
+the live checks pass. Use Bunny's documented `https://<new-host>{{path}}` form to carry the path
+and query into the target, and match only the corresponding legacy hostname. Let the new host
+handle slash normalization. Keep legacy `/_app/immutable/` requests on the old host while the
+fallback is available so already-open tabs can finish loading. Keep the pinned recovery assets
+available until the recovery page closes. [Bunny redirect variables](https://bunny.net/docs/cdn/edge-rules/dynamic-variables)
 
 Verify the raw `Location` header as well as the final browser URL and tool output. On the current
 Scaleway-backed host, `/culture?seed=bright%20moon%2B7&view=a%26b` returned `Location: /culture/`,
@@ -86,10 +86,9 @@ the old-host recovery link on the new app and in the release announcement. Befor
 notice on the old app with the move date and backup instructions. Keep the recovery page out of
 search results.
 
-The proposed recovery period is at least **90 days** after production cutover. Keep recovery
-available beyond that period until an explicit retirement decision. Keep public redirects for at
-least a year and preferably for as long as Iron Arachne controls the legacy hostnames.
-[Google Search site move guidance](https://developers.google.com/search/docs/crawling-indexing/site-move-with-url-changes)
+Keep the exporter available for **one week** after production cutover and include the closing date
+in the move notice. Check for outstanding recovery requests before removing the page. Keep the
+legacy hostname redirects active after the exporter closes so bookmarks and shared links still work.
 
 The user-facing instructions should use the app's existing control labels:
 
@@ -123,14 +122,14 @@ classDiagram
 
 ## Rollout order and gates
 
-| Step                 | Work                                                                                                                                                                                                | Gate before advancing                                                                                                                                                            |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Prepare              | Record old and new config, origin attachments, version pins, archive checksums, and rollback access. Keep new hostnames out of search until ready.                                                  | OpenTofu plans preserve legacy resources. A release archive and its checksum can be fetched.                                                                                     |
-| Dev                  | Bootstrap the dev storage zone and enable publishing from `main`. Once the new endpoint passes smoke checks, enable the old dev redirect.                                                           | Two consecutive publishes reach the right zone. Verify cache headers, old hashed assets, a cold nested route, HTTP 404, and a tested rollback.                                   |
-| Staging              | Publish a pinned release through the staging promotion path. Rehearse the redirect and recovery rules on the two staging hostnames using synthetic saves.                                           | Verify artifact checksum, same seed result, exact redirect destinations, and a two-origin backup and import rehearsal. Repeat on a narrow mobile viewport.                       |
-| Production rehearsal | Publish the tested release to `vastways-app` while the old production site still serves traffic. Publish and check the old-origin recovery page and leave its dependencies available.               | Confirm the intended build, TLS, cold route and cache behavior, and recovery from a browser profile with synthetic work created on the real old origin.                          |
-| Production cutover   | Enable temporary legacy redirects and the recovery exceptions. Change the studio links and publish the move notice. Enable production indexing once the new canonical URLs and sitemap are correct. | Check the same old bookmarks and backup flow from desktop and mobile. Confirm the studio link, monitor HTTP 404/5xx rates and support reports, and exercise a normal deployment. |
-| Stabilize            | After the proposed 48-hour observation period and a successful normal production deployment, make the redirects permanent if the checks remain green.                                               | Record sign-off, live checks, redirect settings, rollback references, and the recovery review date in #510.                                                                      |
+| Step                 | Work                                                                                                                                                                                                | Gate before advancing                                                                                                                                      |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Prepare              | Record old and new config, origin attachments, version pins, archive checksums, and rollback access. Keep new hostnames out of search until ready.                                                  | OpenTofu plans preserve legacy resources. A release archive and its checksum can be fetched.                                                               |
+| Dev                  | Bootstrap the dev storage zone and enable publishing from `main`. Once the new endpoint passes smoke checks, enable the old dev redirect.                                                           | Verify a publish reaches the right zone, along with cache headers, old hashed assets, a cold nested route, HTTP 404, and a rollback rehearsal.             |
+| Staging              | Publish a pinned release through the staging promotion path. Rehearse the redirect and recovery rules on the two staging hostnames using synthetic saves.                                           | Verify artifact checksum, same seed result, exact redirect destinations, and a two-origin backup and import rehearsal. Repeat on a narrow mobile viewport. |
+| Production rehearsal | Publish the tested release to `vastways-app` while the old production site still serves traffic. Publish and check the old-origin recovery page and leave its dependencies available.               | Confirm the intended build, TLS, cold route and cache behavior, and recovery from a browser profile with synthetic work created on the real old origin.    |
+| Production cutover   | Enable temporary legacy redirects and the recovery exceptions. Change the studio links and publish the move notice. Enable production indexing once the new canonical URLs and sitemap are correct. | Check the old bookmarks, backup flow, studio link, and intended release from the live hostnames. Make the redirects permanent when those checks pass.      |
+| Wrap up              | Record the cutover result, fallback version, and recovery closing date in #510. Remove the recovery page after the announced window and leave the legacy redirects active.                          | Confirm the old links still resolve after cleanup.                                                                                                         |
 
 Verify backup import with whole-vault JSON and a ZIP with saved images. Include multiple projects,
 workshop panels, artifact references, and an adopted legacy save. Check a clean destination and a
@@ -154,14 +153,13 @@ Update Studio Website's `extra.vastways_url` after the new production endpoint p
   affected. Leave old-origin recovery reachable.
 - Once users can save on the new hostname, prioritize restoring a known-good build at that same
   hostname. Republish the prior checked archive to its Bunny zone, or repoint that pull zone to
-  the retained Scaleway origin if the storage service is the failure. Purge and test again.
+  the Scaleway origin if it is still available and the storage service is the failure. Purge and
+  test again.
   Keep the new host reachable for users who have already saved there. A browser may retain a
   permanent redirect, so reversing it can create a loop and does not move saved data back.
-- Keep each Scaleway website origin for at least **14 days** after its cutover, subject to review.
-  Keep the old production origin longer while it serves recovery. Before retiring that origin,
-  either relocate the pinned recovery build and verify it under the same old hostname or approve
-  ending the recovery service.
+- Keep each Scaleway website origin until the corresponding cutover checks pass. Keep the old
+  production origin available through the recovery week if it serves the exporter. Once recovery
+  closes, keep the previous release archive and checksum as the fallback.
 
-Review the proposed recovery, observation, and rollback periods, the recovery-page approach, and
-the new environment indexing policy before implementation. Record the exact cutover and fallback
-versions and the Bunny resource IDs during the dev rehearsal.
+Review the recovery-page approach and the new environment indexing policy before implementation.
+Record the exact cutover and fallback versions and the Bunny resource IDs during the dev rehearsal.
