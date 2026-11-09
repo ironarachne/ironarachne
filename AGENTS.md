@@ -231,7 +231,7 @@ Break a design into work items only after the model is approved.
   directly in the PR description.** Include before/after samples when changing existing visual
   output, and identify the seeds or settings needed to reproduce the samples. Links to review files
   alone do not replace visible image samples in the description.
-- Remote is GitHub (`ironarachne/ironarachne`) — use the `gh` CLI for PRs, issues and runs.
+- Remote is GitHub (`ironarachne/vastways`) — use the `gh` CLI for PRs, issues and runs.
   The repository moved here from Worktree.ca; issues carry a footer linking their original.
 - `main` is protected on the remote: direct pushes are rejected, and a PR cannot merge until
   `verify` reports green. That is the only required context — the browser suite deliberately
