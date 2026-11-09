@@ -1,7 +1,7 @@
 # Vastways domain and hosting rollout
 
-**Status:** dev cutover complete. Staging and production are pending. Tracks
-[#510](https://github.com/ironarachne/vastways/issues/510).
+**Status:** all three hostnames are live on Bunny Storage. Production save recovery is available
+through November 16, 2026. Tracks [#510](https://github.com/ironarachne/vastways/issues/510).
 
 Move the three Vastways environments to their new domains and Bunny Storage. The cutover must keep
 old tool links usable and give returning users a way to bring their work across from the old
@@ -32,6 +32,25 @@ encoded query preservation, the legacy asset exception, and recovery of the old 
 redirect was disabled. Bunny sent `Cache-Control: no-cache` on the temporary redirect. The final
 [301 check](https://github.com/ironarachne/vastways/actions/runs/42675218023) verified the encoded
 query and the legacy asset again.
+
+### Staging and production cutover
+
+Both environments serve the same checksum-verified 4.1.0 release. The normal
+[staging promotion](https://github.com/ironarachne/vastways/actions/runs/42690315844) and
+[production promotion](https://github.com/ironarachne/vastways/actions/runs/42690315378) passed.
+Before redirecting traffic, real browser profiles exported and imported JSON and ZIP backups
+between each old and new hostname. The ZIP included a saved image and an adopted legacy save.
+Imported projects retained their artifacts and workshop layout alongside existing destination work.
+
+The [production cutover](https://github.com/ironarachne/vastways/actions/runs/42690446851) verified
+the legacy redirect, disabled it to rehearse rollback, and re-enabled it as a 301. Both legacy
+hosts preserve paths and queries and continue to serve the recovery page and its dependencies.
+The production homepage is indexable, with canonical URLs and a sitemap on `vastways.app`.
+The [studio site](https://github.com/ironarachne/studio-website/actions/runs/42690680638) now links there.
+
+Keep `app.ironarachne.com/recover/` and its pinned build available through November 16. The
+OpenTofu import declarations record the existing resources and redirect rules for the next
+authenticated plan and apply.
 
 ## Publishing and infrastructure
 
