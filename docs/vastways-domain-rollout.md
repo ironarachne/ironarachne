@@ -1,6 +1,7 @@
 # Vastways domain and hosting rollout
 
-**Status:** proposal for review. Tracks [#510](https://github.com/ironarachne/vastways/issues/510).
+**Status:** dev cutover complete. Staging and production are pending. Tracks
+[#510](https://github.com/ironarachne/vastways/issues/510).
 
 Move the three Vastways environments to their new domains and Bunny Storage. The cutover must keep
 old tool links usable and give returning users a way to bring their work across from the old
@@ -19,6 +20,18 @@ and all three new homepages returned 404. The pull zone IDs above came from the 
 `cdn-pullzone` response header. Before uploading, check the storage IDs, primary regions, origin
 attachments, and certificate settings against the authenticated Bunny configuration. Public HTTP
 responses do not establish which storage zones are attached or what has been uploaded.
+
+### Dev cutover
+
+The authenticated preflight confirmed storage zone `2047627` (`vastways-dev`, New York) on pull
+zone `6974932`. The first [Bunny build and deploy](https://github.com/ironarachne/vastways/actions/runs/42674355956)
+verified the homepage, a seeded nested route, cache headers, and the custom 404. Chromium opened
+the nested route with and without a trailing slash, retaining the seed in both cases. The
+[redirect rehearsal](https://github.com/ironarachne/vastways/actions/runs/42674964079) verified
+encoded query preservation, the legacy asset exception, and recovery of the old site when the
+redirect was disabled. Bunny sent `Cache-Control: no-cache` on the temporary redirect. The final
+[301 check](https://github.com/ironarachne/vastways/actions/runs/42675218023) verified the encoded
+query and the legacy asset again.
 
 ## Publishing and infrastructure
 
