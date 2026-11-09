@@ -9,7 +9,7 @@ data "bunnynet_dns_zone" "vastways" {
 
 resource "bunnynet_pullzone" "vastways" {
   name                  = "vastways-dev"
-  cache_enabled         = true
+  cache_enabled         = false
   cache_expiration_time = 2592000
 
   origin {
@@ -19,7 +19,7 @@ resource "bunnynet_pullzone" "vastways" {
 
   routing {
     tier  = "Standard"
-    zones = ["EU", "US", "ASIA", "SA", "AF"]
+    zones = ["US"]
   }
 }
 
