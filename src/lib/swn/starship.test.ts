@@ -137,7 +137,10 @@ describe('generate', () => {
         );
         // Armed owners have required weapons in a separate table rather than STARSHIP_FITTINGS.
         if (owner.requiredFittingType !== 'weapons') {
-          expect(eligible, `${owner.name} on ${hullName} cannot fit ${owner.requiredFittingType}`).toBe(true);
+          expect(
+            eligible,
+            `${owner.name} on ${hullName} cannot fit ${owner.requiredFittingType}`,
+          ).toBe(true);
         }
       }
     }
