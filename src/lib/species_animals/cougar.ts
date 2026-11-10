@@ -3,6 +3,9 @@ import type { Species } from '$lib/species';
 import { traditional } from '$lib/gender';
 import { AgeCategories } from '$lib/age';
 
+const ageCategories = AgeCategories.beastLifespanFourStage();
+const genders = traditional();
+
 export default <Species>{
   name: 'cougar',
   pluralName: 'cougars',
@@ -30,12 +33,16 @@ export default <Species>{
       tags: ['eyes'],
     },
   ],
-  ageCategories: AgeCategories.beastLifespanFourStage(),
+  ageCategories,
 
   baseThreatLevel: 2,
   abilities: [],
   commonality: 5,
-  genders: traditional(),
-  sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
+  genders,
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(ageCategories, genders, {
+    height: [60, 90],
+    length: [150, 240],
+    mass: [30, 90],
+  }),
   tags: ['cougar', 'cat', 'mountain lion'],
 };

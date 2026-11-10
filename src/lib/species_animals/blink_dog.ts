@@ -3,6 +3,9 @@ import type { Species } from '$lib/species';
 import { traditional } from '$lib/gender';
 import { AgeCategories } from '$lib/age';
 
+const ageCategories = AgeCategories.beastLifespanFourStage();
+const genders = traditional();
+
 export default <Species>{
   name: 'blink dog',
   pluralName: 'blink dogs',
@@ -30,7 +33,7 @@ export default <Species>{
       tags: ['eyes'],
     },
   ],
-  ageCategories: AgeCategories.beastLifespanFourStage(),
+  ageCategories,
 
   baseThreatLevel: 1,
   abilities: [
@@ -42,7 +45,11 @@ export default <Species>{
     },
   ],
   commonality: 5,
-  genders: traditional(),
-  sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
+  genders,
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(ageCategories, genders, {
+    height: [55, 80],
+    length: [105, 155],
+    mass: [25, 55],
+  }),
   tags: ['blink dog'],
 };

@@ -3,6 +3,9 @@ import type { Species } from '$lib/species';
 import { traditional } from '$lib/gender';
 import { AgeCategories } from '$lib/age';
 
+const ageCategories = AgeCategories.beastLifespanFourStage({ elderlyCommonality: 1 });
+const genders = traditional();
+
 export default <Species>{
   name: 'fire elemental',
   pluralName: 'fire elementals',
@@ -24,7 +27,7 @@ export default <Species>{
       tags: ['eyes'],
     },
   ],
-  ageCategories: AgeCategories.beastLifespanFourStage({ elderlyCommonality: 1 }),
+  ageCategories,
 
   baseThreatLevel: 3,
   abilities: [
@@ -48,7 +51,11 @@ export default <Species>{
     },
   ],
   commonality: 3,
-  genders: traditional(),
-  sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
+  genders,
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(ageCategories, genders, {
+    height: [220, 375],
+    length: [130, 240],
+    mass: [1, 12],
+  }),
   tags: ['elemental', 'fire elemental'],
 };
