@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { OWNER_TYPES } from './starship_owner_type_data';
+import { STARSHIP_FITTINGS } from './starship_fitting_data';
 import * as RNG from '@ironarachne/rng';
 import {
   createFitting,
@@ -105,6 +107,53 @@ describe('generate', () => {
 
     expect(ships.length).toBeGreaterThan(0);
     expect(withoutAnyFitting.length / ships.length).toBeLessThan(0.05);
+  });
+
+  // Regression for #22: mining ships can use shuttle hulls, so the fitting table must offer
+  // a mining fitting that fits class 0 as well as the existing extractor on larger hulls.
+  it('has a required fitting available for every permitted owner/hull combination', () => {
+    const hullClasses: Record<string, number> = {
+      'strike fighter': 0,
+      shuttle: 0,
+      'free merchant': 1,
+      'patrol boat': 1,
+      corvette: 1,
+      'heavy frigate': 1,
+      'bulk freighter': 2,
+      'fleet cruiser': 2,
+      battleship: 3,
+      carrier: 3,
+    };
+
+    for (const owner of OWNER_TYPES) {
+      for (const hullName of owner.possibleHullTypes) {
+        const hullClass = hullClasses[hullName];
+        expect(hullClass, `Unknown hull: ${hullName}`).toBeDefined();
+        const eligible = STARSHIP_FITTINGS.some(
+          (fitting) =>
+            fitting.fittingType === owner.requiredFittingType &&
+            fitting.minimumClass <= hullClass &&
+            fitting.maximumClass >= hullClass,
+        );
+        // Armed owners have required weapons in a separate table rather than STARSHIP_FITTINGS.
+        if (owner.requiredFittingType !== 'weapons') {
+          expect(eligible, `${owner.name} on ${hullName} cannot fit ${owner.requiredFittingType}`).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('equips mining shuttles with mining equipment', () => {
+    const shuttles = shipsFrom(2000).filter(
+      (ship) => ship.ownerType.name === 'mining ship' && ship.hullType.name === 'shuttle',
+    );
+    expect(shuttles.length).toBeGreaterThan(0);
+
+    for (const ship of shuttles) {
+      expect(ship.fittings.some((fitting) => fitting.fittingType === 'mining')).toBe(true);
+      expect(ship.usedMass).toBeLessThanOrEqual(ship.hullType.mass);
+      expect(ship.usedPower).toBeLessThanOrEqual(ship.hullType.power);
+    }
   });
 
   it('never spends a negative amount', () => {
