@@ -1,6 +1,8 @@
 import { expect, describe, it } from 'vitest';
 import { getSizeConfig } from '$lib/size';
 import { nonSentient } from '$lib/species';
+import { crow, horse, rat, wolf } from '$lib/species_animals';
+import { balor, banshee } from '$lib/species_monsters';
 import { generate, getDefaultCreatureGenerationConfig } from './creatures';
 import type { CreatureGenerationConfig } from './creature_types';
 
@@ -103,6 +105,39 @@ describe('generate', () => {
     expect(creature.weight).toBeGreaterThanOrEqual(sizeConfig.minWeight);
     expect(creature.weight).toBeLessThanOrEqual(sizeConfig.maxWeight);
   });
+
+  it.each([
+    { species: rat, stage: 'adult', height: [0, 0], length: [32, 48], weight: [0.14, 0.5] },
+    {
+      species: crow,
+      stage: 'hatchling',
+      height: [0, 0],
+      length: [14, 31.8],
+      weight: [0.0253, 0.155],
+    },
+    { species: horse, stage: 'adult', height: [145, 175], length: [210, 280], weight: [410, 590] },
+    { species: wolf, stage: 'puppy', height: [21, 54], length: [45.5, 120], weight: [2, 16.3] },
+    { species: balor, stage: 'adult', height: [330, 430], length: [0, 0], weight: [850, 1600] },
+    { species: banshee, stage: 'adult', height: [145, 190], length: [0, 0], weight: [0, 0] },
+  ])(
+    'generates a $stage $species.name in its body size range',
+    ({ species, stage, height, length, weight }) => {
+      const config = {
+        speciesOptions: [species],
+        ageCategoryNames: [stage],
+        genderNames: ['female'],
+      };
+      for (let seed = 0; seed < 16; seed++) {
+        const creature = generate(`body-size-${seed}`, config);
+        expect(creature.height).toBeGreaterThanOrEqual(height[0]);
+        expect(creature.height).toBeLessThanOrEqual(height[1]);
+        expect(creature.length).toBeGreaterThanOrEqual(length[0]);
+        expect(creature.length).toBeLessThanOrEqual(length[1]);
+        expect(creature.weight).toBeGreaterThanOrEqual(weight[0]);
+        expect(creature.weight).toBeLessThanOrEqual(weight[1]);
+      }
+    },
+  );
 
   it('summarises the creature with one of its behaviors', () => {
     const creature = generate('behaving', configForFirstSpecies());

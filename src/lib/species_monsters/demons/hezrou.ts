@@ -3,6 +3,9 @@ import type { Species } from '$lib/species';
 import { traditional } from '$lib/gender';
 import { AgeCategories } from '$lib/age';
 
+const ageCategories = AgeCategories.beastLifespanFourStage();
+const genders = traditional();
+
 export default <Species>{
   name: 'hezrou',
   pluralName: 'hezrous',
@@ -24,7 +27,7 @@ export default <Species>{
       tags: ['eyes'],
     },
   ],
-  ageCategories: AgeCategories.beastLifespanFourStage(),
+  ageCategories,
 
   baseThreatLevel: 3,
   abilities: [
@@ -48,7 +51,11 @@ export default <Species>{
     },
   ],
   commonality: 1,
-  genders: traditional(),
-  sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
+  genders,
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(ageCategories, genders, {
+    height: [235, 315],
+    length: [0, 0],
+    mass: [340, 670],
+  }),
   tags: ['demon', 'fiend', 'hezrou'],
 };

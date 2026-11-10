@@ -3,6 +3,9 @@ import type { Species } from '$lib/species';
 import { traditional } from '$lib/gender';
 import { AgeCategories } from '$lib/age';
 
+const ageCategories = AgeCategories.beastLifespanFourStage({ elderlyCommonality: 1 });
+const genders = traditional();
+
 export default <Species>{
   name: 'blue slime',
   pluralName: 'blue slimes',
@@ -18,7 +21,7 @@ export default <Species>{
       tags: ['body'],
     },
   ],
-  ageCategories: AgeCategories.beastLifespanFourStage({ elderlyCommonality: 1 }),
+  ageCategories,
 
   baseThreatLevel: 1,
   abilities: [
@@ -36,7 +39,11 @@ export default <Species>{
     },
   ],
   commonality: 5,
-  genders: traditional(),
-  sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
+  genders,
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(ageCategories, genders, {
+    height: [20, 55],
+    length: [70, 135],
+    mass: [35, 130],
+  }),
   tags: ['blue slime', 'ooze'],
 };

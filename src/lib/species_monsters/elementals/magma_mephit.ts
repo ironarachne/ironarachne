@@ -3,6 +3,9 @@ import type { Species } from '$lib/species';
 import { traditional } from '$lib/gender';
 import { AgeCategories } from '$lib/age';
 
+const ageCategories = AgeCategories.beastLifespanFourStage({ elderlyCommonality: 1 });
+const genders = traditional();
+
 export default <Species>{
   name: 'magma mephit',
   pluralName: 'magma mephits',
@@ -24,7 +27,7 @@ export default <Species>{
       tags: ['eyes'],
     },
   ],
-  ageCategories: AgeCategories.beastLifespanFourStage({ elderlyCommonality: 1 }),
+  ageCategories,
 
   baseThreatLevel: 1,
   abilities: [
@@ -54,7 +57,11 @@ export default <Species>{
     },
   ],
   commonality: 5,
-  genders: traditional(),
-  sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
+  genders,
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(ageCategories, genders, {
+    height: [65, 95],
+    length: [0, 0],
+    mass: [23, 55],
+  }),
   tags: ['elemental', 'magma mephit'],
 };

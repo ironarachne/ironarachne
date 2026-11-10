@@ -2,6 +2,19 @@ import { Sizes } from '$lib/size';
 import type { Species } from '$lib/species';
 import { AgeCategories } from '$lib/age';
 
+const ageCategories = AgeCategories.beastLifespanFourStage({ elderlyCommonality: 1 });
+const genders = [
+  {
+    name: 'female',
+    pronouns: {
+      subjective: 'she',
+      objective: 'her',
+      possessive: 'her',
+      reflexive: 'herself',
+    },
+  },
+];
+
 export default <Species>{
   name: 'banshee',
   pluralName: 'banshees',
@@ -29,7 +42,7 @@ export default <Species>{
       tags: ['eyes'],
     },
   ],
-  ageCategories: AgeCategories.beastLifespanFourStage({ elderlyCommonality: 1 }),
+  ageCategories,
 
   baseThreatLevel: 3,
   abilities: [
@@ -53,17 +66,11 @@ export default <Species>{
     },
   ],
   commonality: 3,
-  genders: [
-    {
-      name: 'female',
-      pronouns: {
-        subjective: 'she',
-        objective: 'her',
-        possessive: 'her',
-        reflexive: 'herself',
-      },
-    },
-  ],
-  sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
+  genders,
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(ageCategories, genders, {
+    height: [145, 190],
+    length: [0, 0],
+    mass: [0, 0],
+  }),
   tags: ['banshee', 'undead'],
 };

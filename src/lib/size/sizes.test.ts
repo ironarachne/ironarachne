@@ -65,6 +65,18 @@ describe('humanStandard', () => {
 });
 
 describe('generate', () => {
+  it('rolls fractional ranges without collapsing to an endpoint or crossing the bounds', () => {
+    const config = makeConfig({ minLength: 1.1, maxLength: 1.2, minMass: 0.14, maxMass: 0.5 });
+    const sizes = Array.from({ length: 16 }, (_, index) => generate(`fractional-${index}`, config));
+    for (const size of sizes) {
+      expect(size.length).toBeGreaterThanOrEqual(1.1);
+      expect(size.length).toBeLessThanOrEqual(1.2);
+      expect(size.mass).toBeGreaterThanOrEqual(0.14);
+      expect(size.mass).toBeLessThanOrEqual(0.5);
+    }
+    expect(new Set(sizes.map(({ mass }) => mass)).size).toBeGreaterThan(1);
+  });
+
   it('stays inside the configured ranges', () => {
     const config = makeConfig();
 

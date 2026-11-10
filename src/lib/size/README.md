@@ -53,6 +53,18 @@ const rows = convertMatrixToSummary(
 Age categories come from [`$lib/age`](../age/README.md), and the two must agree: a matrix entry is
 keyed by age category **name**, so a species' matrix and its age ladder need matching names.
 
+## Animal and monster measurements
+
+Use `bodySizeMatrix(ageCategories, genders, adult)` to author the adult bounds for a creature.
+Height is standing height or shoulder height in centimeters. Length is body length in centimeters
+along the main axis, or the greatest shell dimension where appropriate. Set a dimension to
+`[0, 0]` when it does not apply. Mass is in kilograms and supplies both the mass and weight
+bounds, including fractions of a kilogram. Use zero mass for an incorporeal creature.
+
+The matrix follows the declared life stages and gender names. It scales the first two
+pre-adult stages and uses the adult bounds from adulthood onward. See the
+[species size design](../../../docs/species-sizes.md) for the growth factors and reference points.
+
 ## The species stats sheet
 
 `species_stats.ts` is the whole of what `/species-stats` renders: the calculator an author uses to

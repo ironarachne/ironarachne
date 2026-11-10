@@ -3,6 +3,9 @@ import type { Species } from '$lib/species';
 import { traditional } from '$lib/gender';
 import { AgeCategories } from '$lib/age';
 
+const ageCategories = AgeCategories.beastLifespanFourStage({ elderlyCommonality: 1 });
+const genders = traditional();
+
 export default <Species>{
   name: 'rust monster',
   pluralName: 'rust monsters',
@@ -24,7 +27,7 @@ export default <Species>{
       tags: ['feelers'],
     },
   ],
-  ageCategories: AgeCategories.beastLifespanFourStage({ elderlyCommonality: 1 }),
+  ageCategories,
 
   baseThreatLevel: 0,
   abilities: [
@@ -36,7 +39,11 @@ export default <Species>{
     },
   ],
   commonality: 5,
-  genders: traditional(),
-  sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
+  genders,
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(ageCategories, genders, {
+    height: [55, 90],
+    length: [115, 190],
+    mass: [45, 125],
+  }),
   tags: ['rust monster', 'monstrosity'],
 };

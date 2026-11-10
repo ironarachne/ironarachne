@@ -3,7 +3,7 @@ import { AgeCategories } from '$lib/age';
 import * as IronArachneRules from '$lib/rulesets/ironarachne';
 import { CommonSpecies } from '$lib/species';
 import { withLegacyActorMechanics } from '$lib/rulesets';
-import { getSizeConfig } from '$lib/size';
+import { getSizeConfig, rollSizeDimension } from '$lib/size';
 import type { Creature } from './creature_types';
 import type { CreatureGenerationConfig } from './creature_types';
 
@@ -31,9 +31,21 @@ export function generate(seed: string, config: CreatureGenerationConfig): Creatu
     creatureAgeCategory.name,
     creatureSpecies.sizeGeneratorConfigMatrix,
   );
-  const height = rng.int(sizeGeneratorConfig.minHeight, sizeGeneratorConfig.maxHeight);
-  const weight = rng.int(sizeGeneratorConfig.minWeight, sizeGeneratorConfig.maxWeight);
-  const length = rng.int(sizeGeneratorConfig.minLength, sizeGeneratorConfig.maxLength);
+  const height = rollSizeDimension(
+    rng,
+    sizeGeneratorConfig.minHeight,
+    sizeGeneratorConfig.maxHeight,
+  );
+  const weight = rollSizeDimension(
+    rng,
+    sizeGeneratorConfig.minWeight,
+    sizeGeneratorConfig.maxWeight,
+  );
+  const length = rollSizeDimension(
+    rng,
+    sizeGeneratorConfig.minLength,
+    sizeGeneratorConfig.maxLength,
+  );
   const physicalTraits = CommonSpecies.randomTraits(seed + '-physical', creatureSpecies);
   const behaviors = ['cautious', 'hunting', 'lethargic', 'resting', 'sleeping', 'stalking'];
   const summary = rng.item(behaviors);

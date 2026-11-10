@@ -2,6 +2,19 @@ import { Sizes } from '$lib/size';
 import type { Species } from '$lib/species';
 import { AgeCategories } from '$lib/age';
 
+const ageCategories = AgeCategories.beastLifespanFourStage();
+const genders = [
+  {
+    name: 'male',
+    pronouns: {
+      subjective: 'he',
+      objective: 'him',
+      possessive: 'his',
+      reflexive: 'himself',
+    },
+  },
+];
+
 export default <Species>{
   name: 'incubus',
   pluralName: 'incubi',
@@ -42,7 +55,7 @@ export default <Species>{
       tags: ['eyes'],
     },
   ],
-  ageCategories: AgeCategories.beastLifespanFourStage(),
+  ageCategories,
 
   baseThreatLevel: 2,
   abilities: [
@@ -66,17 +79,11 @@ export default <Species>{
     },
   ],
   commonality: 2,
-  genders: [
-    {
-      name: 'male',
-      pronouns: {
-        subjective: 'he',
-        objective: 'him',
-        possessive: 'his',
-        reflexive: 'himself',
-      },
-    },
-  ],
-  sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
+  genders,
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(ageCategories, genders, {
+    height: [158, 196],
+    length: [0, 0],
+    mass: [52, 99],
+  }),
   tags: ['demon', 'fiend', 'incubus'],
 };

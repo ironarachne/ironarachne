@@ -6,12 +6,17 @@ import type SizeGeneratorConfig from './size_generator_config';
 import type { SizeMatrix, SizeMatrixRow } from './size_matrix';
 import { HUMAN_STANDARD_SIZE_MATRIX } from './human_size_data';
 
+export function rollSizeDimension(rng: RNG, min: number, max: number): number {
+  if (Number.isInteger(min) && Number.isInteger(max)) return rng.int(min, max);
+  return rng.float(min, max);
+}
+
 export function generate(seed: string, config: SizeGeneratorConfig): Size {
   const rng = new RNG(seed);
-  const height = rng.int(config.minHeight, config.maxHeight);
-  const weight = rng.int(config.minWeight, config.maxWeight);
-  const length = rng.int(config.minLength, config.maxLength);
-  const mass = rng.int(config.minMass, config.maxMass);
+  const height = rollSizeDimension(rng, config.minHeight, config.maxHeight);
+  const weight = rollSizeDimension(rng, config.minWeight, config.maxWeight);
+  const length = rollSizeDimension(rng, config.minLength, config.maxLength);
+  const mass = rollSizeDimension(rng, config.minMass, config.maxMass);
 
   return {
     height,
@@ -99,3 +104,4 @@ export function humanStandard(): SizeMatrix {
 }
 
 export { dragonTrueWyrmSizeMatrix } from './dragon_sizes';
+export { bodySizeMatrix } from './body_sizes';

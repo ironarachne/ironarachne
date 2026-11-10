@@ -3,6 +3,9 @@ import type { Species } from '$lib/species';
 import { traditional } from '$lib/gender';
 import { AgeCategories } from '$lib/age';
 
+const ageCategories = AgeCategories.beastLifespanHatchlingAdultFromTwo();
+const genders = traditional();
+
 export default <Species>{
   name: 'roc',
   pluralName: 'rocs',
@@ -30,7 +33,7 @@ export default <Species>{
       tags: ['eyes'],
     },
   ],
-  ageCategories: AgeCategories.beastLifespanHatchlingAdultFromTwo(),
+  ageCategories,
 
   baseThreatLevel: 4,
   abilities: [
@@ -54,7 +57,11 @@ export default <Species>{
     },
   ],
   commonality: 2,
-  genders: traditional(),
-  sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
+  genders,
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(ageCategories, genders, {
+    height: [400, 650],
+    length: [850, 1350],
+    mass: [1600, 4900],
+  }),
   tags: ['monstrosity', 'roc'],
 };

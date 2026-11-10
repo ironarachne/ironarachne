@@ -3,6 +3,9 @@ import type { Species } from '$lib/species';
 import { traditional } from '$lib/gender';
 import { AgeCategories } from '$lib/age';
 
+const ageCategories = AgeCategories.beastLifespanHatchlingAdultFromTwo();
+const genders = traditional();
+
 export default <Species>{
   name: 'flamingo',
   pluralName: 'flamingos',
@@ -30,12 +33,16 @@ export default <Species>{
       tags: ['eyes'],
     },
   ],
-  ageCategories: AgeCategories.beastLifespanHatchlingAdultFromTwo(),
+  ageCategories,
 
   baseThreatLevel: 0,
   abilities: [],
   commonality: 4,
-  genders: traditional(),
-  sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
+  genders,
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(ageCategories, genders, {
+    height: [95, 145],
+    length: [85, 145],
+    mass: [1.8, 4.1],
+  }),
   tags: ['flamingo'],
 };
