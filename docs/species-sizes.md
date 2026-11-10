@@ -23,8 +23,9 @@ selections fail at generation time.
   uses 35–60% of adult linear dimensions and 8–25% of adult mass. The second pre-adult stage,
   where present, uses 65–90% and 30–75%. Adult and elderly stages share bounds. These are generic
   growth estimates, independent of the existing lifespan years.
-- The existing SizeMatrix and stored creature shape carry these values. The species picker in
-  #19 remains separate.
+- The existing SizeMatrix and stored creature shape carry these values. Previously saved creatures
+  retain their recorded dimensions, and newly generated creatures use the new bounds. The species
+  picker in #19 remains separate.
 
 ## Domain model
 
