@@ -44,19 +44,13 @@ Notes:
   `0 ERRORS` is a bug to fix, not noise to step around, because a gate nobody trusts is not a
   gate.
 - **`npm run verify:all` before merging anything that touches routes, components, or
-  rendering.** This is not optional politeness: no Playwright runs against a PR, so you are the
-  only thing standing between a browser-visible regression and `main`.
-- CI is two workflows. `.github/workflows/ci.yaml` runs `verify` on every PR and every merge,
-  and is the only required check. It carries no base-branch filter, so a PR based on another
-  branch is checked like any other — see [Stacked pull requests](#stacked-pull-requests).
-  `.github/workflows/e2e.yaml` runs the browser suite on
-  merges to `main` only — never on a PR, because the suite takes about seventeen minutes and
-  `npm run verify:all` locally is the faster loop for a rendering change. A red run there is a
-  signal to investigate, not a blocked merge; `e2e.yaml` carries the full reasoning.
-  `.github/workflows/goldens.yaml` is the third workflow and gates nothing: it is dispatch-only,
-  renders the golden-image baselines, and pushes them to a branch for review. `build.yaml`,
-  `promote-staging.yaml` and `promote-prod.yaml` deploy; see
-  `docs/deployment.md`.
+  rendering.** Run the full Playwright suite locally before merging these changes.
+- `.github/workflows/ci.yaml` runs `verify` on every PR and every merge. It is the only
+  required check and carries no base-branch filter, so a PR based on another branch is checked
+  like any other. See [Stacked pull requests](#stacked-pull-requests).
+  `.github/workflows/goldens.yaml` renders golden-image baselines on manual dispatch and pushes
+  them to a branch for review. `build.yaml`, `promote-staging.yaml` and `promote-prod.yaml`
+  deploy. See `docs/deployment.md`.
 - **Coverage is enforced per library, not project-wide.** `scripts/check_library_coverage.ts`
   requires every directory under `src/lib` to reach 80% line and function coverage. The
   exception is the debt recorded in `scripts/library_coverage_baseline.json`: those libraries
@@ -234,9 +228,7 @@ Break a design into work items only after the model is approved.
 - Remote is GitHub (`ironarachne/vastways`) — use the `gh` CLI for PRs, issues and runs.
   The repository moved here from Worktree.ca; issues carry a footer linking their original.
 - `main` is protected on the remote: direct pushes are rejected, and a PR cannot merge until
-  `verify` reports green. That is the only required context — the browser suite deliberately
-  does not gate a PR (see `.github/workflows/e2e.yaml`). Work on a branch and open a PR; there
-  is no path that bypasses this.
+  `verify` reports green. Work on a branch and open a PR.
 
 ### Stacked pull requests
 
@@ -260,8 +252,7 @@ have, so every stack would need a rebase after each merge and would show phantom
 merge-commit strategy is what keeps retargeting clean, and it is worth keeping for that reason.
 
 Stacking earns its keep for independent work reviewed in parallel. Steps of one feature that
-genuinely depend on each other are usually better merged one at a time, because e2e only runs
-after a merge to `main`.
+genuinely depend on each other are usually better merged one at a time.
 
 ## Agent configuration
 

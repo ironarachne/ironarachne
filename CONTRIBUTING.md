@@ -54,7 +54,7 @@ Run `npm run verify` before opening a PR, including for docs-only changes. It ru
 TypeScript checks, Prettier and ESLint, unit tests, and the per-library coverage gate. For changes
 touching routes, components, or rendering, run `npm run verify:all` before merging and include the
 result with your review evidence. The required [CI workflow](.github/workflows/ci.yaml) runs
-`verify` on PRs. The [browser workflow](.github/workflows/e2e.yaml) runs after merges to `main`.
+`verify` on PRs and pushes to `main`. Run the Playwright suite locally.
 
 During development, use `npm run check` for types, `npm run lint` for formatting and lint rules,
 and `npm run test -- src/lib/potions` for a focused test run. Format individual files with

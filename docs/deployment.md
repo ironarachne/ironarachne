@@ -201,7 +201,7 @@ of which apply here:
 - **`timeout-minutes:` on a job made the runner reject that job outright**, and a job that stopped
   producing output was reaped after about fifteen minutes with nothing inside it able to pre-empt
   that. Four such stalls in twenty-four hours are why the browser suite stopped gating pull
-  requests. `e2e.yaml` now carries `timeout-minutes: 45`, which behaves normally here.
+  requests. Developers now run the browser suite locally.
 - **Most of the `GITHUB_*` context was empty**, `GITHUB_REF` excepted. Workflows here read
   `github.event_name`, `GITHUB_BASE_REF` and the rest as documented.
 

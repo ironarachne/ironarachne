@@ -4,10 +4,8 @@ name: CI
 # tests, coverage. It is required by `main`'s branch protection as the context
 # "verify".
 #
-# The browser suite is not here. It lives in `e2e.yaml` and runs only on merges
-# to `main` — see that file for why. Anything touching routes, components, or
-# rendering wants `npm run verify:all` locally before it is merged, because
-# nothing will run Playwright against the pull request.
+# Run `npm run verify:all` locally before merging changes to routes, components,
+# or rendering. It includes the Playwright suite.
 #
 # Note that `verify` runs on documentation-only changes too. `npm run lint`
 # calls `prettier --check .`, which covers Markdown, so this is the check that
