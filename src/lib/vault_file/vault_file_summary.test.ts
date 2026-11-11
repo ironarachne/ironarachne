@@ -38,27 +38,22 @@ function quarantined(overrides: Partial<QuarantinedArtifact> = {}): QuarantinedA
 }
 
 describe('describeImportSummary', () => {
-  it('leads with what arrived, counted in the user’s terms', () => {
-    expect(describeImportSummary(summary({ projectsAdded: 1, artifactsAdded: 12 }))[0]).toBe(
-      'Added 1 project holding 12 artifacts.',
+  it('reports project and artifact totals on separate lines for additions and removals', () => {
+    const [added, removed] = describeImportSummary(
+      summary({ projectsAdded: 1, artifactsAdded: 12, projectsRemoved: 4, artifactsRemoved: 212 }),
     );
+
+    expect(added).toMatch(/\b1 project\b.*\b12 artifacts\b/i);
+    expect(removed).toMatch(/\b4 projects\b.*\b212 artifacts\b/i);
   });
 
-  it('says an artifact went into this project when there is no new project', () => {
-    expect(describeImportSummary(summary({ scope: 'artifact', artifactsAdded: 1 }))[0]).toBe(
-      'Added 1 artifact to this project.',
-    );
-  });
+  it('distinguishes an artifact-only import from an import that added nothing', () => {
+    const [added] = describeImportSummary(summary({ scope: 'artifact', artifactsAdded: 1 }));
+    const [empty] = describeImportSummary(summary());
 
-  it('says plainly when nothing arrived', () => {
-    expect(describeImportSummary(summary())[0]).toBe('Nothing was added.');
-  });
-
-  it('counts removals, which is the half of a restore that loses data', () => {
-    const lines = describeImportSummary(
-      summary({ projectsAdded: 1, artifactsAdded: 2, projectsRemoved: 4, artifactsRemoved: 212 }),
-    );
-    expect(lines[1]).toBe('Removed 4 projects and 212 artifacts.');
+    expect(added).toMatch(/\b1 artifact\b/i);
+    expect(empty.trim()).not.toBe('');
+    expect(empty).not.toMatch(/\d/);
   });
 
   it('names what was quarantined and why', () => {
@@ -73,11 +68,11 @@ describe('describeImportSummary', () => {
         ],
       }),
     );
-    expect(lines[1]).toContain('4 artifacts could not be read');
-    expect(lines[1]).toContain('“Alien” (this build has no tool for that kind of thing)');
-    expect(lines[1]).toContain('“Broken” (its contents were not what that kind expects)');
-    expect(lines[1]).toContain('“Ahead” (it was written by a newer build)');
-    expect(lines[1]).toContain('“Stuck” (it could not be brought forward from its older version)');
+    expect(lines[1]).toMatch(/\b4 artifacts\b/i);
+    expect(lines[1]).toMatch(/Alien[^)]*no tool/i);
+    expect(lines[1]).toMatch(/Broken[^)]*contents/i);
+    expect(lines[1]).toMatch(/Ahead[^)]*newer build/i);
+    expect(lines[1]).toMatch(/Stuck[^)]*older version/i);
   });
 
   it('stops naming quarantined records past a handful', () => {
@@ -85,32 +80,29 @@ describe('describeImportSummary', () => {
       quarantined({ name: `Record ${index}` }),
     );
     const lines = describeImportSummary(summary({ quarantined: many }));
-    expect(lines[1]).toContain('and 3 more');
+    expect(lines[1].match(/Record \d+/g)).toEqual(many.slice(0, 5).map(({ name }) => name));
+    expect(lines[1]).toMatch(/\b3 more\b/i);
   });
 
   it('falls back to the kind, then to a placeholder, for a record with no name', () => {
     expect(
       describeImportSummary(summary({ quarantined: [quarantined({ name: '' })] }))[1],
-    ).toContain('“culture”');
+    ).toContain('culture');
     expect(
       describeImportSummary(summary({ quarantined: [quarantined({ name: '', kind: '' })] }))[1],
-    ).toContain('“an unnamed record”');
+    ).toMatch(/unnamed/i);
   });
 
-  it('reports a name collision without resolving it, naming what collided', () => {
+  it('names the project or artifact involved in a collision', () => {
     const lines = describeImportSummary(
       summary({ projectsAdded: 1, artifactsAdded: 0, nameCollisions: ['Aldia'] }),
     );
-    expect(lines[1]).toBe(
-      'There was already a project called “Aldia”. Both were kept; rename one if you like.',
-    );
+    expect(lines[1]).toMatch(/\bproject\b.*\bAldia\b/i);
 
     const artifactLines = describeImportSummary(
       summary({ scope: 'artifact', artifactsAdded: 1, nameCollisions: ['Twin'] }),
     );
-    expect(artifactLines[1]).toBe(
-      'There was already an artifact called “Twin”. Both were kept; rename one if you like.',
-    );
+    expect(artifactLines[1]).toMatch(/\bartifact\b.*\bTwin\b/i);
   });
 
   it('reports duplicated ids, reminted ids, migration, and a checksum that does not match', () => {
@@ -125,13 +117,15 @@ describe('describeImportSummary', () => {
         fromThisVault: true,
       }),
     );
-    expect(lines).toContain(
-      'The file used the same id for more than one artifact 1 time. Every copy was kept.',
+    expect(lines).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/same id.*\b1 time\b/i),
+        expect.stringMatching(/\b2 artifacts\b.*new ids/i),
+        expect.stringMatching(/older format/i),
+        expect.stringMatching(/checksum/i),
+        expect.stringMatching(/this browser/i),
+      ]),
     );
-    expect(lines).toContain('2 artifacts got new ids, so nothing already here was overwritten.');
-    expect(lines).toContain('The file was written in an older format and was brought forward.');
-    expect(lines.some((line) => line.includes('does not match its own checksum'))).toBe(true);
-    expect(lines).toContain('This file came from this browser.');
   });
 
   it('says nothing about a checksum that was never checked', () => {

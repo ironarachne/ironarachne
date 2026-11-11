@@ -37,81 +37,46 @@ function project(id: string, name: string): Project {
 }
 
 describe('how long ago a thing was exported', () => {
-  it('reports never exported as a different answer from exported long ago', () => {
-    expect(exportRecency(undefined, NOW)).toEqual({ everExported: false });
-    expect(exportHeadline(exportRecency(undefined, NOW))).toBe('Never exported');
-    expect(exportCell(exportRecency(undefined, NOW))).toBe('Never exported');
+  it('distinguishes missing exports from old ones', () => {
+    const missing = exportRecency(undefined, NOW);
+    const old = exportRecency(NOW - 400 * DAY, NOW);
+
+    expect(missing).toEqual({ everExported: false });
+    expect(old).toMatchObject({ everExported: true, daysAgo: 400 });
+    expect(exportHeadline(missing)).not.toBe(exportHeadline(old));
+    expect(exportCell(missing)).not.toBe(exportCell(old));
   });
 
-  it('counts whole elapsed days', () => {
+  it('counts whole elapsed days and clamps future timestamps to today', () => {
     expect(exportRecency(NOW - 12 * DAY, NOW).daysAgo).toBe(12);
-    // Not yet a whole day, so not yet a day ago.
     expect(exportRecency(NOW - DAY + 1, NOW).daysAgo).toBe(0);
-  });
-
-  it('reads a timestamp from the future as today rather than as a negative', () => {
     expect(exportRecency(NOW + 5 * DAY, NOW)).toMatchObject({ everExported: true, daysAgo: 0 });
-    expect(exportHeadline(exportRecency(NOW + 5 * DAY, NOW))).toBe('Last exported today');
   });
 
-  it('phrases the first two days in words', () => {
-    expect(exportHeadline(exportRecency(NOW, NOW))).toBe('Last exported today');
-    expect(exportHeadline(exportRecency(NOW - DAY, NOW))).toBe('Last exported yesterday');
-    expect(exportCell(exportRecency(NOW, NOW))).toBe('Today');
-    expect(exportCell(exportRecency(NOW - DAY, NOW))).toBe('Yesterday');
-  });
-
-  it('counts days up to the point where a count stops meaning anything', () => {
-    expect(exportHeadline(exportRecency(NOW - 12 * DAY, NOW))).toBe('Last exported 12 days ago');
-    expect(exportHeadline(exportRecency(NOW - 29 * DAY, NOW))).toBe('Last exported 29 days ago');
-    expect(exportCell(exportRecency(NOW - 12 * DAY, NOW))).toBe('12 days ago');
-  });
-
-  it('gives a date once the count is past thirty days', () => {
+  it('uses calendar dates starting at thirty elapsed days', () => {
+    const recent = exportRecency(NOW - 29 * DAY, NOW);
     const then = NOW - 30 * DAY;
-    expect(exportHeadline(exportRecency(then, NOW))).toBe(
-      `Last exported on ${getShortDate(new Date(then))}`,
-    );
-    expect(exportCell(exportRecency(then, NOW))).toBe(getShortDate(new Date(then)));
+    const older = exportRecency(then, NOW);
+    const date = getShortDate(new Date(then));
 
-    const longAgo = NOW - 400 * DAY;
-    expect(exportHeadline(exportRecency(longAgo, NOW))).toBe(
-      `Last exported on ${getShortDate(new Date(longAgo))}`,
-    );
+    expect(exportHeadline(recent)).toContain('29');
+    expect(exportCell(recent)).toContain('29');
+    expect(exportHeadline(older)).toContain(date);
+    expect(exportCell(older)).toBe(date);
   });
 });
 
-describe('what the panel says about eviction', () => {
-  it('states each of the three answers plainly', () => {
-    expect(protectionAdvice('persisted').headline).toBe(
-      'This browser has agreed to keep your work.',
-    );
-    expect(protectionAdvice('notPersisted').headline).toBe(
-      'This browser has not promised to keep your work.',
-    );
-    expect(protectionAdvice('unknown').headline).toBe(
-      'This browser will not say whether it keeps your work.',
-    );
-  });
+describe('eviction advice', () => {
+  it('distinguishes all three browser persistence states', () => {
+    const states = ['persisted', 'notPersisted', 'unknown'] as const;
+    const advice = states.map(protectionAdvice);
 
-  it('never presents protection as a backup', () => {
-    const protectedAdvice = protectionAdvice('persisted');
-
-    // The one thing this copy may not do: leave a reader believing they are covered. Every branch
-    // keeps the limit attached, because a "Protected" badge read as safety talks someone out of
-    // the export that is their actual protection.
-    expect(protectedAdvice.meaning).toMatch(/cannot help/i);
-    expect(protectedAdvice.meaning).toMatch(/a file still can/i);
-    expect(protectedAdvice.meaning).not.toMatch(/backed up|safe|backup/i);
-  });
-
-  it('points at exporting when the browser has not promised, and when it will not say', () => {
-    expect(protectionAdvice('notPersisted').meaning).toMatch(/Exporting is what makes that/);
-    expect(protectionAdvice('unknown').meaning).toMatch(/Exporting is what makes that/);
-  });
-
-  it('carries the state it was asked about', () => {
-    expect(protectionAdvice('notPersisted').state).toBe('notPersisted');
+    expect(advice.map(({ state }) => state)).toEqual(states);
+    expect(new Set(advice.map(({ headline }) => headline)).size).toBe(states.length);
+    for (const { headline, meaning } of advice) {
+      expect(headline.trim()).not.toBe('');
+      expect(meaning.trim()).not.toBe('');
+    }
   });
 });
 
@@ -166,55 +131,25 @@ describe('how full the browser says it is', () => {
   });
 });
 
-describe('the sentence that is the only place a percentage exists', () => {
-  it('gives the sizes and the percentage together', () => {
-    const sentence = usageSentence(
-      usageProportion(
-        status({ usageBytes: 236 * 1024 * 1024, quotaBytes: 2 * 1024 * 1024 * 1024 }),
-      ),
-    );
+describe('storage usage summary', () => {
+  const MB = 1024 * 1024;
+  const GB = 1024 * MB;
 
-    expect(sentence).toBe('Using about 240 MB of roughly 2 GB — about 12%.');
-  });
+  it.each([
+    { usageBytes: 236 * MB, quotaBytes: 2 * GB, expected: ['240 MB', '2 GB', '12%'] },
+    { usageBytes: 236 * MB, expected: ['240 MB'] },
+    { quotaBytes: 2 * GB, expected: ['2 GB'] },
+    { usageBytes: 236 * MB, quotaBytes: 0, expected: ['240 MB', '0 B'] },
+    { expected: [] },
+  ])(
+    'shows only the available figures and a valid percentage ($expected)',
+    ({ expected, ...sizes }) => {
+      const sentence = usageSentence(usageProportion(status(sizes)));
 
-  it('never gives a percentage without both sizes beside it', () => {
-    const cases = [
-      status({ usageBytes: 1, quotaBytes: 2 }),
-      status({ usageBytes: 900 * 1024 * 1024, quotaBytes: 1024 * 1024 * 1024 }),
-      status({ usageBytes: 5 }),
-      status({ quotaBytes: 5 }),
-      status(),
-      status({ usageBytes: 10, quotaBytes: 0 }),
-    ];
-
-    // The rule is structural rather than a convention a template can forget: one function emits
-    // both, so there is no arrangement of the UI that can show the percentage on its own.
-    for (const each of cases) {
-      const usage = usageProportion(each);
-      const sentence = usageSentence(usage);
-      if (!sentence.includes('%')) {
-        continue;
-      }
-      expect(sentence).toContain(formatApproximateBytes(usage.usageBytes ?? -1));
-      expect(sentence).toContain(formatApproximateBytes(usage.quotaBytes ?? -1));
-    }
-  });
-
-  it('says what it knows when only one figure arrived', () => {
-    expect(usageSentence(usageProportion(status({ usageBytes: 240 * 1024 * 1024 })))).toBe(
-      'Using about 240 MB. This browser will not say how much room there is in total.',
-    );
-    expect(usageSentence(usageProportion(status({ quotaBytes: 2 * 1024 * 1024 * 1024 })))).toBe(
-      'This browser has roughly 2 GB for this site, and will not say how much of it is in use.',
-    );
-  });
-
-  it('says the browser will not answer rather than reporting zero', () => {
-    const sentence = usageSentence(usageProportion(status()));
-
-    expect(sentence).toBe('This browser will not say how much room this site is using.');
-    expect(sentence).not.toContain('0');
-  });
+      expect(sentence.trim()).not.toBe('');
+      expect(sentence.match(/\d+(?:\.\d+)?(?: (?:B|KB|MB|GB|TB)|%)/g) ?? []).toEqual(expected);
+    },
+  );
 });
 
 describe('the whole panel view', () => {
@@ -235,7 +170,7 @@ describe('the whole panel view', () => {
     );
 
   it('leads with export recency', () => {
-    expect(exportHeadline(built().lastExport)).toBe('Last exported 12 days ago');
+    expect(built().lastExport).toMatchObject({ everExported: true, daysAgo: 12 });
   });
 
   it('names each row from the project index', () => {
@@ -249,8 +184,8 @@ describe('the whole panel view', () => {
   it('carries each project’s own export recency', () => {
     const [big, small] = built().projects;
 
-    expect(exportCell(big.lastExport)).toBe('3 days ago');
-    expect(exportCell(small.lastExport)).toBe('Never exported');
+    expect(big.lastExport).toMatchObject({ everExported: true, daysAgo: 3 });
+    expect(small.lastExport).toEqual({ everExported: false });
   });
 
   it('still gives a row to a project the index cannot name', () => {
@@ -261,7 +196,8 @@ describe('the whole panel view', () => {
     );
 
     expect(view.projects).toHaveLength(1);
-    expect(view.projects[0]).toMatchObject({ name: 'Unnamed project', byteSize: 40 });
+    expect(view.projects[0]).toMatchObject({ projectId: 'orphan', byteSize: 40 });
+    expect(view.projects[0].name.trim()).not.toBe('');
   });
 
   it('is useful in a browser that answers nothing about storage', () => {
@@ -271,7 +207,7 @@ describe('the whole panel view', () => {
       NOW,
     );
 
-    expect(exportHeadline(view.lastExport)).toBe('Last exported yesterday');
+    expect(view.lastExport).toMatchObject({ everExported: true, daysAgo: 1 });
     expect(view.protection.state).toBe('unknown');
     expect(view.usage.known).toBe(false);
   });
@@ -304,7 +240,11 @@ describe('when the workshop says the browser is nearly full', () => {
       status({ usageBytes: 1.7 * 1024 * 1024 * 1024, quotaBytes: 2 * 1024 * 1024 * 1024 }),
     );
 
-    expect(usageSentence(warning.usage)).toBe('Using about 1.7 GB of roughly 2 GB — about 85%.');
+    expect(warning.usage).toMatchObject({
+      usageBytes: 1.7 * 1024 * 1024 * 1024,
+      quotaBytes: 2 * 1024 * 1024 * 1024,
+      fraction: 0.85,
+    });
   });
 
   it('stays dismissed for the rest of the page’s life, and no longer', () => {

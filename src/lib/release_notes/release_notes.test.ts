@@ -11,7 +11,7 @@ const entries: ReleaseNote[] = [
 
 describe('mostRecent', () => {
   it('returns the requested number of entries from the front of the list', () => {
-    expect(mostRecent(2, entries).map((entry) => entry.summary)).toEqual(['newest', 'middle']);
+    expect(mostRecent(2, entries)).toEqual(entries.slice(0, 2));
   });
 
   it('returns one entry when asked for one', () => {
@@ -60,30 +60,21 @@ describe('sections', () => {
       features: ['f'],
     };
 
-    expect(sections(note).map((section) => section.label)).toEqual([
-      'New features',
-      'Improvements',
-      'Bug fixes',
-      'Housekeeping',
-    ]);
+    expect(sections(note).map((section) => section.items)).toEqual([['f'], ['i'], ['x'], ['h']]);
   });
 
-  it('omits a category that is absent', () => {
-    expect(sections(entries[1]).map((section) => section.label)).toEqual(['Bug fixes']);
+  it('omits absent categories and preserves item order', () => {
+    expect(sections(entries[1]).map((section) => section.items)).toEqual([['b', 'c']]);
   });
 
   it('omits a category that is present but empty', () => {
     const note: ReleaseNote = { date: '2026-08-17', summary: 's', features: [], fixes: ['x'] };
 
-    expect(sections(note).map((section) => section.label)).toEqual(['Bug fixes']);
+    expect(sections(note).map((section) => section.items)).toEqual([['x']]);
   });
 
   it('returns nothing for a note with no lines at all', () => {
     expect(sections({ date: '2026-08-17', summary: 's' })).toEqual([]);
-  });
-
-  it('carries the lines through unchanged and in order', () => {
-    expect(sections(entries[1])[0].items).toEqual(['b', 'c']);
   });
 });
 

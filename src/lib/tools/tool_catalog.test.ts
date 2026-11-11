@@ -180,7 +180,9 @@ describe('allTools', () => {
 
 describe('findToolByPath', () => {
   it('finds a tool by its route', () => {
-    expect(findToolByPath('/culture')?.label).toBe('Culture');
+    const tool = TOOL_CATALOG.find(({ path }) => path === '/culture');
+    expect(tool).toBeDefined();
+    expect(findToolByPath('/culture')).toBe(tool);
   });
 
   it('returns undefined for an unknown route', () => {
