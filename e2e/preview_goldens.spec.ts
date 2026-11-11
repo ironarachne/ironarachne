@@ -14,9 +14,8 @@ import { PREVIEW_CASES, openPinnedPreview } from './preview_fixtures';
  * quietly disabled, so **do not**. `.github/workflows/goldens.yaml` generates them in CI; the
  * loop is written up in `src/lib/renderers/README.md`.
  *
- * A case with no baseline **skips** rather than writing one and failing, because this suite runs on
- * merges to `main` where a first run has nowhere to put a new file and nothing to compare it to.
- * A skip here says "no baseline yet", never "this passed".
+ * A case with no baseline **skips** during a regular run. Generate new baselines through the
+ * workflow so the images can be reviewed and committed.
  *
  * ## Moving the image on the page invalidates its baseline
  *
@@ -57,10 +56,8 @@ for (const testCase of PREVIEW_CASES) {
 
     const snapshot = `${testCase.name}.png`;
 
-    // `updateSnapshots` defaults to `missing`, which would write a baseline on the spot and fail
-    // the run — on `main`, where the file it wrote goes nowhere and nobody sees why the run is red.
-    // So a missing baseline skips, except when someone has explicitly asked to write one, which is
-    // what the generation workflow does.
+    // Skip missing baselines during regular runs. The generation workflow explicitly asks
+    // Playwright to write them with --update-snapshots=all.
     const updating =
       testInfo.config.updateSnapshots === 'all' || testInfo.config.updateSnapshots === 'changed';
     test.skip(

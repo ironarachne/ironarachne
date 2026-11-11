@@ -25,7 +25,7 @@ name: Golden baselines
 #   2. It pushes `goldens/<short sha>` and prints the name.
 #   3. Open a pull request from that branch and **look at the images**. They are the baseline:
 #      anything wrong in them is a regression this tier will then defend.
-#   4. Merge. The goldens start asserting on the next run of the E2E workflow.
+#   4. Merge. The goldens start asserting on the next local Playwright run with matching baselines.
 
 on:
   workflow_dispatch:
