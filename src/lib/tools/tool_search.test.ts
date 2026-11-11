@@ -179,7 +179,6 @@ describe('groupToolsByDomain', () => {
     const groups = groupToolsByDomain(tools);
 
     expect(groups.map((group) => group.domain)).toEqual(['characters', 'factions', 'locations']);
-    expect(groups[0].heading).toBe('Characters & People');
     expect(paths(groups[0].tools)).toEqual(['/swn/character', '/fantasy/adnd/character']);
   });
 

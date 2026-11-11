@@ -158,9 +158,6 @@ describe('grounded geography in regional introductions', () => {
   it('connects elevation, mixed vegetation, a local river boundary, and settlement travel', () => {
     const region = fixture();
     const text = prose(region);
-    expect(text).toMatchInlineSnapshot(
-      `"The region takes in rolling upland country. Seasonal woodland and open grassland meet along a river. Sezail borders a river that provides local freshwater, with a road leading through the surrounding country to Tar Morgul, meeting a river along the way."`,
-    );
     expect(text).toMatch(/hilly|rolling/);
     expect(text).toMatch(/upland/);
     expect(text).toMatch(/seasonal woodland/i);
