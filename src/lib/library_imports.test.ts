@@ -15,7 +15,7 @@
 import { describe, it, expect } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import ts from 'typescript';
+import { parseSync } from 'vite';
 
 const repoRoot = resolve(__dirname, '../..');
 const libRoot = join(repoRoot, 'src/lib');
@@ -222,14 +222,23 @@ type Import = { file: string; specifier: string; ownerLib: string | null };
  * library back into the chunk it was split out of.
  */
 function libImportsIn(text: string, file: string, ownerLib: string | null): Import[] {
-  const parsed = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const { program, errors } = parseSync(file, text, { lang: 'ts' });
+  if (errors.length > 0) {
+    throw new Error(`Could not scan imports in ${file}: ${errors[0].message}`);
+  }
+
   const found: Import[] = [];
-  for (const statement of parsed.statements) {
-    if (!ts.isImportDeclaration(statement) && !ts.isExportDeclaration(statement)) continue;
-    const specifier = statement.moduleSpecifier;
-    if (!specifier || !ts.isStringLiteral(specifier)) continue;
-    if (specifier.text.startsWith('$lib/')) {
-      found.push({ file, specifier: specifier.text, ownerLib });
+  for (const statement of program.body) {
+    if (
+      statement.type !== 'ImportDeclaration' &&
+      statement.type !== 'ExportNamedDeclaration' &&
+      statement.type !== 'ExportAllDeclaration'
+    ) {
+      continue;
+    }
+    const specifier = statement.source?.value;
+    if (specifier?.startsWith('$lib/')) {
+      found.push({ file, specifier, ownerLib });
     }
   }
   return found;
@@ -268,6 +277,19 @@ const PUBLISHED_RULESET_PACKAGES = [
 ];
 
 describe('library imports', () => {
+  it('collects static imports and re-exports while ignoring dynamic imports', () => {
+    const source = `
+      import type { Seed } from '$lib/seeds';
+      export { generate } from '$lib/generator';
+      export * from '$lib/tables';
+      export const load = () => import('$lib/preview');
+    `;
+
+    expect(
+      libImportsIn(source, 'src/lib/example/index.ts', 'example').map(({ specifier }) => specifier),
+    ).toEqual(['$lib/seeds', '$lib/generator', '$lib/tables']);
+  });
+
   it('finds the imports it is meant to be checking', () => {
     // Guards against the walk silently matching nothing and the suite passing on an empty set.
     expect(imports.length).toBeGreaterThan(500);
