@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { onDestroy, onMount, tick } from 'svelte';
 
   import ArtifactPanel from '$components/common/ArtifactPanel.svelte';
   import ProjectContextBar from '$components/common/ProjectContextBar.svelte';
@@ -33,6 +33,9 @@
     type PanelTarget,
     type ProjectWorkspace,
   } from '$lib/workspaces';
+
+  const { onToolLabelChange }: { onToolLabelChange: (label: string | undefined) => void } =
+    $props();
 
   // The browser offers what the workshop can actually mount. Every tool in the catalog has a
   // panel, so this filters nothing today; it stays because a bench should offer what it can mount
@@ -82,6 +85,13 @@
       .map((panel) => panel.toolPath)
       .filter((path): path is string => path !== undefined),
   );
+  $effect(() => {
+    const [toolPath] = openToolPaths;
+    onToolLabelChange(toolPath === undefined ? undefined : toolFor(toolPath)?.label);
+  });
+
+  onDestroy(() => onToolLabelChange(undefined));
+
   const openArtifactIds = $derived(
     bench.panels.map((panel) => panel.artifactId).filter((id): id is string => id !== undefined),
   );
