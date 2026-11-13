@@ -177,12 +177,15 @@ Identity, status, date — reading left to right.
   are vendored under `src/lib/assets/images/logo` through `brand-assets.json`. See
   `docs/brand-assets.md`.
 
-- **Status** — three items, horizontally aligned:
+- **Status** — horizontally aligned:
   - **Tools** — how many tools the catalog holds. A constant, derived from `allTools().length`.
   - **Artifacts** — how many artifacts the vault holds, across every project. Live: it changes when
     something is saved or deleted, via `onArtifactsChanged`.
   - **Project** — the name of the open project, live via `onProjectsChanged` so a rename is
     reflected. Clicking it goes to Projects.
+  - **Tool** — the catalog name of the tool mounted on the Workshop bench. It follows tool
+    changes and workspace restores, stays visible when an artifact is also open, and is omitted
+    on an empty bench and outside Workshop. Long names truncate with an ellipsis.
 
   Each is a label and a value. They are status, not controls — with the single exception of the
   project name, which is the one status a user needs to act on from anywhere.
@@ -208,15 +211,14 @@ belong to the same object.
 
 Three, and the widths are chosen against what the shell needs rather than against device names.
 
-| Range        | Sidebar                    | Top bar                                  | Two-column pages    |
-| ------------ | -------------------------- | ---------------------------------------- | ------------------- |
-| `< 768px`    | Off-canvas drawer          | Identity + project; counts and date drop | Stacked, one column |
-| `768–1199px` | Icon rail, labels on hover | Identity + counts; date drops            | Stacked, one column |
-| `>= 1200px`  | Expanded, labels visible   | Everything                               | Side by side        |
+| Range        | Sidebar                    | Top bar                                     | Two-column pages    |
+| ------------ | -------------------------- | ------------------------------------------- | ------------------- |
+| `< 768px`    | Off-canvas drawer          | Identity + project; counts, tool, date drop | Stacked, one column |
+| `768–1199px` | Icon rail, labels on hover | Identity, counts, project, active tool      | Stacked, one column |
+| `>= 1200px`  | Expanded, labels visible   | Everything                                  | Side by side        |
 
-The status items and the date drop out at narrow widths in that order because they are the least
-load-bearing things on screen: a phone user knows what day it is, and the count of tools is a
-flourish. What never drops is the identity and the project name.
+The date drops below 1200px. The counts and active tool drop below 768px. The identity and
+project remain visible at every width.
 
 Below 768px the sidebar is a drawer behind a button in the top bar, closed by default, dismissed on
 navigation and on Escape, and focus-trapped while open. The site has no drawer pattern today, so

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, setContext } from 'svelte';
 
   import { page } from '$app/state';
   import '$lib/styles/main.css';
@@ -22,6 +22,11 @@
    * off-canvas; above that the sidebar is simply part of the grid and this is ignored.
    */
   let drawerOpen = $state(false);
+  let activeToolLabel = $state<string | undefined>(undefined);
+
+  setContext('setWorkshopToolLabel', (label: string | undefined) => {
+    activeToolLabel = label;
+  });
 
   /**
    * The open project's genre, or `undefined` for none — held rather than read inline because
@@ -125,7 +130,11 @@
 <svelte:window onkeydown={onKeydown} />
 
 <div class="shell" data-sveltekit-reload={page.route.id === '/recover' ? '' : undefined}>
-  <TopBar {drawerOpen} onToggleDrawer={() => (drawerOpen = !drawerOpen)} />
+  <TopBar
+    {drawerOpen}
+    activeToolLabel={page.route.id === '/workshop' ? activeToolLabel : undefined}
+    onToggleDrawer={() => (drawerOpen = !drawerOpen)}
+  />
   <Sidebar open={drawerOpen} onNavigate={closeDrawer} />
 
   {#if drawerOpen}

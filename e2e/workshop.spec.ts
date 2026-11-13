@@ -14,6 +14,7 @@ const projectContext = (page: Page) => page.locator('section.project-context');
 const projectView = (page: Page) => page.locator('section.project-view');
 const toolBrowser = (page: Page) => page.locator('section.tool-browser');
 const panels = (page: Page) => page.locator('section.workshop-panel');
+const activeToolStatus = (page: Page) => page.locator('.top-bar__stat--active-tool dd');
 const panelTitles = (page: Page) => page.locator('.workshop-panel .panel__title');
 
 async function openWorkshop(page: Page): Promise<void> {
@@ -124,11 +125,13 @@ test.describe('the workshop bench', () => {
   test('starts empty and mounts a tool when one is picked', async ({ page }) => {
     await expect(page.getByRole('heading', { level: 1, name: 'Workshop' })).toBeVisible();
     await expect(page.getByText('Nothing on the bench.')).toBeVisible();
+    await expect(activeToolStatus(page)).toHaveCount(0);
 
     await mountTool(page, /^Culture/);
 
     await expect(panels(page)).toHaveCount(1);
     await expect(page.getByRole('heading', { level: 1, name: 'Culture Generator' })).toBeVisible();
+    await expect(activeToolStatus(page)).toHaveText('Culture');
     // The browser badges what is mounted, which is how a user tells the two lists apart.
     await expect(toolBrowser(page).getByRole('button', { name: /^Culture/ })).toContainText(
       'Loaded',
@@ -252,6 +255,7 @@ test.describe('the workshop bench', () => {
     await expect(panels(page)).toHaveCount(1);
     await expect(panelTitles(page)).toHaveText([/Heraldry/]);
 
+    await expect(activeToolStatus(page)).toHaveText(/Heraldry/);
     // The browser badges what is mounted, so the badge has to move with the tool rather than
     // accumulating on everything that was ever opened.
     await expect(toolBrowser(page).getByRole('button', { name: /^Heraldry/ })).toContainText(
@@ -260,6 +264,22 @@ test.describe('the workshop bench', () => {
     await expect(toolBrowser(page).getByRole('button', { name: /^Culture/ })).not.toContainText(
       'Loaded',
     );
+  });
+
+  test('clears the header tool label when the tool closes or the workshop is left', async ({
+    page,
+  }) => {
+    await mountTool(page, /^Culture/);
+    await expect(activeToolStatus(page)).toBeVisible();
+    await panels(page)
+      .getByRole('button', { name: /^Close/ })
+      .click();
+    await expect(activeToolStatus(page)).toHaveCount(0);
+
+    await mountTool(page, /^Culture/);
+    await page.locator('.top-bar__identity').click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(activeToolStatus(page)).toHaveCount(0);
   });
 
   test('keeps open artifacts when the tool is swapped', async ({ page }) => {
@@ -422,6 +442,7 @@ test.describe('the workshop bench', () => {
 
     await expect(panels(page)).toHaveCount(2);
     await expect(panelTitles(page)).toHaveText([/Culture/, /The Emberfolk/]);
+    await expect(activeToolStatus(page)).toHaveText('Culture');
   });
 
   test('keeps one project’s bench out of another’s', async ({ page }) => {

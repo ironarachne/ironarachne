@@ -13,11 +13,12 @@
   type Props = {
     /** Whether the sidebar drawer is open. Only meaningful below the drawer breakpoint. */
     drawerOpen?: boolean;
+    activeToolLabel?: string;
     /** Asks the shell to open or close the drawer. Absent on a shell with no drawer. */
     onToggleDrawer?: () => void;
   };
 
-  const { drawerOpen = false, onToggleDrawer }: Props = $props();
+  const { drawerOpen = false, activeToolLabel, onToggleDrawer }: Props = $props();
 
   /**
    * Null until mounted, and rendered as placeholders while it is.
@@ -102,6 +103,12 @@
         <a href={resolve('/projects')}>{status?.projectName ?? 'None'}</a>
       </dd>
     </div>
+    {#if activeToolLabel !== undefined}
+      <div class="top-bar__stat top-bar__stat--active-tool">
+        <dt>Tool</dt>
+        <dd title={activeToolLabel}>{activeToolLabel}</dd>
+      </div>
+    {/if}
   </dl>
 
   <!-- Read once, at mount, from the clock in the visitor's browser. -->
@@ -222,6 +229,12 @@
     text-overflow: ellipsis;
   }
 
+  .top-bar__stat--active-tool dd {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .top-bar__date {
     color: var(--ink-faint);
     flex: 0 0 auto;
@@ -242,7 +255,7 @@
   }
 
   /* What drops, and the order it drops in, per docs/app-shell.md: the date first, then the
-     counts. The identity and the open project never drop — they are the two things that say
+     counts and active tool. The identity and the open project never drop — they are the two things that say
      where you are. */
   @media (max-width: 1199px) {
     .top-bar__date {
@@ -260,7 +273,8 @@
     }
 
     .top-bar__stat--tools,
-    .top-bar__stat--artifacts {
+    .top-bar__stat--artifacts,
+    .top-bar__stat--active-tool {
       display: none;
     }
 
