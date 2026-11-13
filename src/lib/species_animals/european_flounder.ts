@@ -18,5 +18,9 @@ export default {
   commonality: 5,
   tags: ['fish', 'marine', 'reviewed-source-only'],
   carcassBodyPlan: 'scaled',
-  sizeGeneratorConfigMatrix: Sizes.getHumanVariant(0.004, 0.2),
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(base.ageCategories, base.genders, {
+    height: [0, 0],
+    length: [22, 50],
+    mass: [0.12, 1.5],
+  }),
 } satisfies Species;
