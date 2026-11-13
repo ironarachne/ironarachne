@@ -254,6 +254,10 @@
     again replaces all saved contents after confirmation.
   </p>
 
+  {#if presentationSnapshot}
+    <RegionExports snapshot={presentationSnapshot} />
+  {/if}
+
   <SaveArtifactButton
     kind={Regions.REGION_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -279,7 +283,6 @@
       Generate.
     </p>
     {#if presentationSnapshot}
-      <RegionExports snapshot={presentationSnapshot} />
       <RegionMapInspection snapshot={presentationSnapshot} />
       <RegionGazetteer snapshot={presentationSnapshot} />
     {/if}

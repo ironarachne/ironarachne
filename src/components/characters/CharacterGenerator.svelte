@@ -368,6 +368,13 @@
 
   <BaseButton onclick={generateCharacter}>Generate</BaseButton>
 
+  {#if namedCharacter}
+    <div class="character-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={CHARACTER_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -380,11 +387,6 @@
 
   {#if namedCharacter}
     <h2>{namedCharacter.name}</h2>
-
-    <div class="character-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
-    </div>
 
     {#if namedCharacter.titles && namedCharacter.titles.length > 0}
       <h3>Titles</h3>

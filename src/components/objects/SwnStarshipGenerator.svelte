@@ -97,6 +97,13 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
+  {#if ship}
+    <div class="ship-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={SWN_STARSHIP_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -107,11 +114,6 @@
 
   {#if ship}
     <h2>{swnStarshipDisplayName(ship)}</h2>
-
-    <div class="ship-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
-    </div>
 
     <StatBlock>
       <Stat label="Owner Type">{ship.ownerTypeName}</Stat>

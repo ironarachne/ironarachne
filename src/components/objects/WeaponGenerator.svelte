@@ -186,6 +186,11 @@
     bind:reference={religionReference}
   />
 
+  <div class="actions">
+    <BaseButton onclick={exportMarkdown} disabled={weapon === null}>Download Markdown</BaseButton>
+    <BaseButton onclick={exportPdf} disabled={weapon === null}>Download PDF</BaseButton>
+  </div>
+
   <SaveArtifactButton
     kind={ITEM_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -195,11 +200,6 @@
     defaultName={weapon === null ? '' : itemDisplayName(weapon)}
     {references}
   />
-
-  <div class="actions">
-    <BaseButton onclick={exportMarkdown} disabled={weapon === null}>Download Markdown</BaseButton>
-    <BaseButton onclick={exportPdf} disabled={weapon === null}>Download PDF</BaseButton>
-  </div>
 
   {#if weapon && document_}
     <!-- A result surface is a panel: the two layers, and the keyline, corner and padding are the

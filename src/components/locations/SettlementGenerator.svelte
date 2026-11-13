@@ -355,6 +355,13 @@
     <BaseButton onclick={() => generate()} disabled={awaitingCulture}>Generate</BaseButton>
   </p>
 
+  {#if settlement}
+    <div class="settlement-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={SETTLEMENT_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -381,11 +388,6 @@
       }}
     />
     <p class="settlement-meta">{settlementSummaryLine(settlement)}</p>
-
-    <div class="settlement-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
-    </div>
 
     <p>{settlement.description}</p>
 

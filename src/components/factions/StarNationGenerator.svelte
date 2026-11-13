@@ -234,6 +234,13 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
+  {#if nation}
+    <div class="nation-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={Nations.STAR_NATION_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -266,11 +273,6 @@
   {/if}
 
   {#if nation}
-    <div class="nation-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
-    </div>
-
     <div class="nation">
       <h2>{Nations.starNationDisplayName(nation)}</h2>
 

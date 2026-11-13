@@ -272,6 +272,11 @@
     bind:reference={settlementReference}
   />
 
+  <div class="actions">
+    <BaseButton onclick={exportMarkdown} disabled={merchant === null}>Download Markdown</BaseButton>
+    <BaseButton onclick={exportPdf} disabled={merchant === null}>Download PDF</BaseButton>
+  </div>
+
   <SaveArtifactButton
     kind={MERCHANT_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -287,11 +292,6 @@
     previewRendererId="merchant-mark"
     previewRendererVersion="1"
   />
-
-  <div class="actions">
-    <BaseButton onclick={exportMarkdown} disabled={merchant === null}>Download Markdown</BaseButton>
-    <BaseButton onclick={exportPdf} disabled={merchant === null}>Download PDF</BaseButton>
-  </div>
 
   {#if merchant && document_}
     <!-- A result surface is a panel, not a box with a border on it: the two layers,

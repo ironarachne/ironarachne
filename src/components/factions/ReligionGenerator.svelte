@@ -649,6 +649,13 @@
 
   <BaseButton onclick={() => generate()} disabled={awaitingCulture}>Generate</BaseButton>
 
+  {#if religion}
+    <div class="religion-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={RELIGION_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -661,11 +668,6 @@
 
   {#if religion}
     <h2>{religion.name}</h2>
-
-    <div class="religion-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
-    </div>
 
     {#if namingCulture !== undefined}
       <!-- Named as borrowed, because it is: the gods are named in that culture's tongue, and the

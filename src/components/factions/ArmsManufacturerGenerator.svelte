@@ -84,6 +84,13 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
+  {#if manufacturer}
+    <div class="manufacturer-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={Arms.ARMS_MANUFACTURER_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -93,11 +100,6 @@
   />
 
   {#if manufacturer}
-    <div class="manufacturer-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
-    </div>
-
     <div class="manufacturer">
       <p>{manufacturer.description}</p>
 

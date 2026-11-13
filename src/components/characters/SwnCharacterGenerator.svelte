@@ -211,6 +211,13 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
+  {#if namedCharacter}
+    <div class="swn-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={SWN.SWN_CHARACTER_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -225,11 +232,6 @@
     <h2>{SWN.swnCharacterDisplayName(namedCharacter)}</h2>
 
     <p>A {namedCharacter.background.name} {namedCharacter.characterClass.name}</p>
-
-    <div class="swn-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
-    </div>
 
     <StatBlock>
       <Stat label="Background">{namedCharacter.background.name}</Stat>

@@ -372,6 +372,14 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
+  {#if family}
+    <div class="family-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+      <BaseButton onclick={exportTree}>Download Tree (SVG)</BaseButton>
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={Families.FAMILY_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -383,12 +391,6 @@
   />
 
   {#if family}
-    <div class="family-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
-      <BaseButton onclick={exportTree}>Download Tree (SVG)</BaseButton>
-    </div>
-
     <div class="family">
       <h2>{Families.familyDisplayName(family)}</h2>
 

@@ -207,6 +207,11 @@
     <BaseButton onclick={generate}>Generate Treasure Hoard</BaseButton>
   </ControlsPanel>
 
+  <div class="actions">
+    <BaseButton onclick={exportMarkdown} disabled={hoard === null}>Download Markdown</BaseButton>
+    <BaseButton onclick={exportPdf} disabled={hoard === null}>Download PDF</BaseButton>
+  </div>
+
   <SaveArtifactButton
     kind={TREASURE_HOARD_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -214,11 +219,6 @@
     seed={rolledSeed}
     config={{ ...rolledConfig }}
   />
-
-  <div class="actions">
-    <BaseButton onclick={exportMarkdown} disabled={hoard === null}>Download Markdown</BaseButton>
-    <BaseButton onclick={exportPdf} disabled={hoard === null}>Download PDF</BaseButton>
-  </div>
 
   <h2>Generated Treasure Hoard</h2>
 
