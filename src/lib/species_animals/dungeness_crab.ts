@@ -14,5 +14,9 @@ export default {
   commonality: 5,
   tags: ['crustacean', 'marine', 'reviewed-source-only'],
   carcassBodyPlan: 'chitinous',
-  sizeGeneratorConfigMatrix: Sizes.getHumanVariant(0.01, 0.1),
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(base.ageCategories, base.genders, {
+    height: [0, 0],
+    length: [13, 22],
+    mass: [0.35, 1.4],
+  }),
 } satisfies Species;

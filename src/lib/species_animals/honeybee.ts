@@ -14,5 +14,9 @@ export default {
   commonality: 5,
   tags: ['insect', 'pollinator', 'flying', 'reviewed-source-only'],
   carcassBodyPlan: 'chitinous',
-  sizeGeneratorConfigMatrix: Sizes.getHumanVariant(1e-5, 0.01),
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(base.ageCategories, base.genders, {
+    height: [0, 0],
+    length: [1, 2],
+    mass: [0.00008, 0.00025],
+  }),
 } satisfies Species;

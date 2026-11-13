@@ -17,5 +17,9 @@ export default {
   commonality: 5,
   tags: ['bivalve', 'marine', 'reviewed-source-only'],
   carcassBodyPlan: 'chitinous',
-  sizeGeneratorConfigMatrix: Sizes.getHumanVariant(0.0005, 0.05),
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(base.ageCategories, base.genders, {
+    height: [0, 0],
+    length: [7.5, 13],
+    mass: [0.05, 0.25],
+  }),
 } satisfies Species;

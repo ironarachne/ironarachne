@@ -14,5 +14,9 @@ export default {
   commonality: 5,
   tags: ['wool-bearing', 'sheep', 'reviewed-source-only'],
   carcassBodyPlan: 'furred',
-  sizeGeneratorConfigMatrix: Sizes.getHumanVariant(0.5, 0.7),
+  sizeGeneratorConfigMatrix: Sizes.bodySizeMatrix(base.ageCategories, base.genders, {
+    height: [65, 85],
+    length: [100, 145],
+    mass: [55, 110],
+  }),
 } satisfies Species;
