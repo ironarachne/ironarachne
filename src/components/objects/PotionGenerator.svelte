@@ -112,6 +112,11 @@
     <BaseButton onclick={generate}>Generate</BaseButton>
   </ControlsPanel>
 
+  <div class="actions">
+    <BaseButton onclick={exportMarkdown} disabled={potion === null}>Download Markdown</BaseButton>
+    <BaseButton onclick={exportPdf} disabled={potion === null}>Download PDF</BaseButton>
+  </div>
+
   <SaveArtifactButton
     kind={POTION_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -120,11 +125,6 @@
     config={{ ...rolledConfig }}
     defaultName={document_?.title ?? ''}
   />
-
-  <div class="actions">
-    <BaseButton onclick={exportMarkdown} disabled={potion === null}>Download Markdown</BaseButton>
-    <BaseButton onclick={exportPdf} disabled={potion === null}>Download PDF</BaseButton>
-  </div>
 
   {#if potion && document_}
     <!-- A result surface is a panel, not a box with a border on it: the two layers,

@@ -257,6 +257,13 @@
     </p>
   {/if}
 
+  {#if namedCharacter}
+    <div class="dcc-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={DCC.DCC_CHARACTER_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -271,11 +278,6 @@
     <h2>{namedCharacter.firstName} {namedCharacter.lastName}</h2>
 
     <p>A level {namedCharacter.level} {namedCharacter.occupation.name}</p>
-
-    <div class="dcc-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
-    </div>
 
     <StatBlock>
       <Stat label="XP">{namedCharacter.xp}</Stat>

@@ -62,6 +62,13 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
+  {#if shop}
+    <div class="shop-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={ChopShop.CHOP_SHOP_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -71,11 +78,6 @@
   />
 
   {#if shop}
-    <div class="shop-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
-    </div>
-
     <p class="shop">{shop.text}</p>
   {/if}
 </GeneratorPage>

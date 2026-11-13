@@ -69,6 +69,12 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
+  {#if gifts.length > 0}
+    <div class="gift-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={Velgarth.VELGARTH_GIFTS_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -76,12 +82,6 @@
     {seed}
     defaultName={defaultArtifactName}
   />
-
-  {#if gifts.length > 0}
-    <div class="gift-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-    </div>
-  {/if}
 
   {#each gifts as gift}
     <div class="gift">

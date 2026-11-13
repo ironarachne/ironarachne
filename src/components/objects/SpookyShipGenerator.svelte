@@ -65,6 +65,13 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
+  {#if ship}
+    <div class="ship-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={SpookyShip.SPOOKY_SHIP_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -74,11 +81,6 @@
   />
 
   {#if ship}
-    <div class="ship-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
-    </div>
-
     <p class="ship">{ship.text}</p>
   {/if}
 </GeneratorPage>

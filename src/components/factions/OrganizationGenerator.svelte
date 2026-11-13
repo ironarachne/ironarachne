@@ -341,6 +341,16 @@
 
   <BaseButton onclick={runGenerate}>Generate</BaseButton>
 
+  {#if shown && snapshot}
+    <div class="organization-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+      {#if shown.visualIdentity.emblem.kind !== 'none'}
+        <BaseButton onclick={exportEmblem}>Download Emblem (SVG)</BaseButton>
+      {/if}
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={Organizations.ORGANIZATION_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -358,14 +368,6 @@
   />
 
   {#if shown && snapshot}
-    <div class="organization-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
-      {#if shown.visualIdentity.emblem.kind !== 'none'}
-        <BaseButton onclick={exportEmblem}>Download Emblem (SVG)</BaseButton>
-      {/if}
-    </div>
-
     <div class="organization">
       <h2>{shown.name}</h2>
 

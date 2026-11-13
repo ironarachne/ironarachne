@@ -1923,3 +1923,15 @@ document is entitled to reopen.
   [decision 7](#7-a-projects-genre-and-system-are-fields-and-both-can-change), and
   [decision 8](#8-the-tools-panel-filters-by-the-projects-setting-and-one-control-suspends-it);
   tracked in #44 and #78.
+
+## Generator save controls
+
+Put **Save to project** after Generate and download actions and before the generated result.
+When each item is saved independently, as in Equipment Generator, keep the save control on each
+item card.
+
+The inline form replaces the trigger and keeps the result visible. It focuses the artifact name
+and shows the destination project with a **Change** action. The project chooser includes
+**New project…**. When there are no projects, the form asks for the first project's name directly.
+Fields stack above the actions on narrow screens. Enter submits the form, and Escape or Cancel
+closes it and returns focus to the trigger.

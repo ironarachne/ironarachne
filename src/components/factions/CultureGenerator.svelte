@@ -332,6 +332,13 @@
 
   <BaseButton onclick={() => generate()} disabled={awaitingReligion}>Generate</BaseButton>
 
+  {#if culture}
+    <div class="culture-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={CULTURE_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -347,11 +354,6 @@
 
   {#if culture}
     <h2>The {culture.name} Culture</h2>
-
-    <div class="culture-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
-    </div>
 
     <h3>Common Names</h3>
 

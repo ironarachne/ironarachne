@@ -129,6 +129,13 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
+  {#if language}
+    <div class="language-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={LANGUAGE_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -139,11 +146,6 @@
 
   {#if language}
     <h2>{languageDisplayName(language)}</h2>
-
-    <div class="language-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
-    </div>
 
     <StatBlock>
       <Stat label="Word order">{language.wordOrder}</Stat>

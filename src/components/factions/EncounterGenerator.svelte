@@ -117,6 +117,13 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
+  {#if encounter}
+    <div class="encounter-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={Encounters.ENCOUNTER_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -127,11 +134,6 @@
   />
 
   {#if encounter}
-    <div class="encounter-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
-    </div>
-
     <!-- A result surface is a panel, not a box with a border on it: the two layers,
          and the keyline, corner and padding are the system's. It wrote its own
          border, radius and padding until #124. -->

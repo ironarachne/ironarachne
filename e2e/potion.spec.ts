@@ -126,7 +126,11 @@ test.describe('a potion', () => {
     const prompt = saveArtifact(page);
     await prompt.getByRole('button', { name: 'Save to project' }).click();
 
-    await expect(prompt.getByLabel('Name', { exact: true })).toBeVisible();
+    await expect(prompt.getByLabel('Name', { exact: true })).toBeFocused();
+    await expect(prompt.getByRole('button', { name: 'Save to project' })).toHaveCount(0);
+    await expect(prompt.getByLabel('Project', { exact: true })).toHaveCount(0);
+    await prompt.getByRole('button', { name: 'Change project' }).click();
+    await expect(prompt.getByLabel('Project', { exact: true })).toBeFocused();
     await prompt.getByLabel('Project', { exact: true }).selectOption({ label: 'New project…' });
     await expect(prompt.getByLabel('New project name')).toBeVisible();
 
@@ -139,6 +143,8 @@ test.describe('a potion', () => {
     for (const height of heights) {
       expect(height).toBeLessThan(50);
     }
+    await prompt.getByLabel('New project name').press('Escape');
+    await expect(prompt.getByRole('button', { name: 'Save to project' })).toBeFocused();
   });
 
   test('reaches the fields an item editor has no place for', async ({ page }) => {

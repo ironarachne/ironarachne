@@ -212,6 +212,13 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
+  {#if namedCharacter}
+    <div class="uw-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
+    </div>
+  {/if}
+
   <SaveArtifactButton
     kind={UW.UW_CHARACTER_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
@@ -224,11 +231,6 @@
 
   {#if namedCharacter}
     <h2>{UW.uwCharacterDisplayName(namedCharacter)}</h2>
-
-    <div class="uw-exports">
-      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
-      <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
-    </div>
 
     <h3>Statistics</h3>
 
