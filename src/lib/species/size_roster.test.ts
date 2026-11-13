@@ -1,4 +1,4 @@
-import { assert, expect, it } from 'vitest';
+import { assert, describe, expect, it } from 'vitest';
 import { getSizeConfig, Sizes } from '$lib/size';
 import { sentientSpeciesList } from '$lib/species_sentients';
 import allSpecies from './all';
