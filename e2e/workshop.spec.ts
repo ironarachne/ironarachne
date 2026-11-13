@@ -131,7 +131,7 @@ test.describe('the workshop bench', () => {
 
     await expect(panels(page)).toHaveCount(1);
     await expect(page.getByRole('heading', { level: 1, name: 'Culture Generator' })).toBeVisible();
-    await expect(activeToolStatus(page)).toHaveText('Culture Generator');
+    await expect(activeToolStatus(page)).toHaveText('Culture');
     // The browser badges what is mounted, which is how a user tells the two lists apart.
     await expect(toolBrowser(page).getByRole('button', { name: /^Culture/ })).toContainText(
       'Loaded',
@@ -442,7 +442,7 @@ test.describe('the workshop bench', () => {
 
     await expect(panels(page)).toHaveCount(2);
     await expect(panelTitles(page)).toHaveText([/Culture/, /The Emberfolk/]);
-    await expect(activeToolStatus(page)).toHaveText('Culture Generator');
+    await expect(activeToolStatus(page)).toHaveText('Culture');
   });
 
   test('keeps one project’s bench out of another’s', async ({ page }) => {
